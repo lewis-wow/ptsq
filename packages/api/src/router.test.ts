@@ -1,152 +1,33 @@
-import { assertType, expect, expectTypeOf, test } from 'vitest';
-import { router } from './router';
+import { expectTypeOf, test } from 'vitest';
+import { Route, router } from './router';
+import { query } from './query';
+import { mutation } from './mutation';
 import { z } from 'zod';
+import { Expect, Equal } from 'typetest';
 
-test('Should generate mutation route', () => {
-  const route = router.mutation('/post/delete/{id}', {
-    input: z.object({ id: z.string() }),
-    output: {
-      BAD_REQUEST: z.object({
-        message: z.string(),
+test('Should create mutation route in router', () => {
+  const baseRouter = router({
+    test: query(),
+    user: router({
+      get: query({
+        input: z.object({ id: z.string() }),
       }),
-    },
+      create: mutation({
+        input: z.object({ email: z.string().email(), password: z.string() }),
+      }),
+    }),
   });
 
-  expect(route.type).toBe<typeof route.type>('mutation');
-  expectTypeOf(route.path).toMatchTypeOf('/post/delete/{id}');
+  expectTypeOf(baseRouter.test).toMatchTypeOf<Route<'query'>>();
+  expectTypeOf(baseRouter.user.get).toMatchTypeOf<Route<'query'>>();
+  expectTypeOf(baseRouter.user.create).toMatchTypeOf<Route<'mutation'>>();
 
-  expect(route).toMatchInlineSnapshot(`
-    {
-      "input": ZodObject {
-        "_cached": null,
-        "_def": {
-          "catchall": ZodNever {
-            "_def": {
-              "typeName": "ZodNever",
-            },
-            "and": [Function],
-            "array": [Function],
-            "brand": [Function],
-            "catch": [Function],
-            "default": [Function],
-            "describe": [Function],
-            "isNullable": [Function],
-            "isOptional": [Function],
-            "nullable": [Function],
-            "nullish": [Function],
-            "optional": [Function],
-            "or": [Function],
-            "parse": [Function],
-            "parseAsync": [Function],
-            "pipe": [Function],
-            "promise": [Function],
-            "readonly": [Function],
-            "refine": [Function],
-            "refinement": [Function],
-            "safeParse": [Function],
-            "safeParseAsync": [Function],
-            "spa": [Function],
-            "superRefine": [Function],
-            "transform": [Function],
-          },
-          "shape": [Function],
-          "typeName": "ZodObject",
-          "unknownKeys": "strip",
-        },
-        "and": [Function],
-        "array": [Function],
-        "augment": [Function],
-        "brand": [Function],
-        "catch": [Function],
-        "default": [Function],
-        "describe": [Function],
-        "isNullable": [Function],
-        "isOptional": [Function],
-        "nonstrict": [Function],
-        "nullable": [Function],
-        "nullish": [Function],
-        "optional": [Function],
-        "or": [Function],
-        "parse": [Function],
-        "parseAsync": [Function],
-        "pipe": [Function],
-        "promise": [Function],
-        "readonly": [Function],
-        "refine": [Function],
-        "refinement": [Function],
-        "safeParse": [Function],
-        "safeParseAsync": [Function],
-        "spa": [Function],
-        "superRefine": [Function],
-        "transform": [Function],
-      },
-      "output": {
-        "BAD_REQUEST": ZodObject {
-          "_cached": null,
-          "_def": {
-            "catchall": ZodNever {
-              "_def": {
-                "typeName": "ZodNever",
-              },
-              "and": [Function],
-              "array": [Function],
-              "brand": [Function],
-              "catch": [Function],
-              "default": [Function],
-              "describe": [Function],
-              "isNullable": [Function],
-              "isOptional": [Function],
-              "nullable": [Function],
-              "nullish": [Function],
-              "optional": [Function],
-              "or": [Function],
-              "parse": [Function],
-              "parseAsync": [Function],
-              "pipe": [Function],
-              "promise": [Function],
-              "readonly": [Function],
-              "refine": [Function],
-              "refinement": [Function],
-              "safeParse": [Function],
-              "safeParseAsync": [Function],
-              "spa": [Function],
-              "superRefine": [Function],
-              "transform": [Function],
-            },
-            "shape": [Function],
-            "typeName": "ZodObject",
-            "unknownKeys": "strip",
-          },
-          "and": [Function],
-          "array": [Function],
-          "augment": [Function],
-          "brand": [Function],
-          "catch": [Function],
-          "default": [Function],
-          "describe": [Function],
-          "isNullable": [Function],
-          "isOptional": [Function],
-          "nonstrict": [Function],
-          "nullable": [Function],
-          "nullish": [Function],
-          "optional": [Function],
-          "or": [Function],
-          "parse": [Function],
-          "parseAsync": [Function],
-          "pipe": [Function],
-          "promise": [Function],
-          "readonly": [Function],
-          "refine": [Function],
-          "refinement": [Function],
-          "safeParse": [Function],
-          "safeParseAsync": [Function],
-          "spa": [Function],
-          "superRefine": [Function],
-          "transform": [Function],
-        },
-      },
-      "path": "/post/delete/{id}",
-      "type": "mutation",
-    }
-  `);
+  type InferedInput = z.infer<typeof baseRouter.user.get.input>;
+  type InferedOutput = typeof baseRouter.user.get.output;
+
+  const typetestInferedInput: Expect<Equal<InferedInput, { id: string }>> = true;
+  expectTypeOf(typetestInferedInput).toMatchTypeOf<true>();
+
+  const typetestInferedOutput: Expect<Equal<InferedOutput, undefined>> = true;
+  expectTypeOf(typetestInferedOutput).toMatchTypeOf<true>();
 });

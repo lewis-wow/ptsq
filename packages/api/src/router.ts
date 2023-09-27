@@ -1,29 +1,31 @@
 import { z } from 'zod';
 import { HTTPErrorCode } from 'error';
 
-export type Route<TPath extends string> = {
-  path: TPath;
-  type: 'query' | 'mutation';
-  input: z.Schema;
-  output?: Partial<Record<keyof HTTPErrorCode | 'SUCCESS', z.Schema>>;
+export type Route<
+  TType extends 'query' | 'mutation' = 'query' | 'mutation',
+  TInput extends z.Schema | undefined = z.Schema | undefined,
+  TOutput extends Partial<Record<keyof HTTPErrorCode | 'SUCCESS', z.Schema>> | undefined =
+    | Partial<Record<keyof HTTPErrorCode | 'SUCCESS', z.Schema>>
+    | undefined,
+> = {
+  type: TType;
+  input: TInput;
+  output: TOutput;
 };
 
-export class Router {
-  mutation<TPath extends string>(path: TPath, route: Omit<Route<TPath>, 'type' | 'path'>): Route<TPath> {
-    return {
-      ...route,
-      path,
-      type: 'mutation',
-    };
-  }
+type Router<
+  TType extends 'query' | 'mutation' = 'query' | 'mutation',
+  TInput extends z.Schema | undefined = z.Schema | undefined,
+  TOutput extends Partial<Record<keyof HTTPErrorCode | 'SUCCESS', z.Schema>> | undefined =
+    | Partial<Record<keyof HTTPErrorCode | 'SUCCESS', z.Schema>>
+    | undefined,
+> = { [Key: string]: Route<TType, TInput, TOutput> | Router };
 
-  query<TPath extends string>(path: TPath, route: Omit<Route<TPath>, 'type' | 'path'>): Route<TPath> {
-    return {
-      ...route,
-      path,
-      type: 'query',
-    };
-  }
-}
-
-export const router = new Router();
+export const router = <
+  TType extends 'query' | 'mutation',
+  TInput extends z.Schema | undefined,
+  TOutput extends Partial<Record<keyof HTTPErrorCode | 'SUCCESS', z.Schema>> | undefined,
+  TRoutes extends Router<TType, TInput, TOutput>,
+>(
+  routes: TRoutes
+) => routes;

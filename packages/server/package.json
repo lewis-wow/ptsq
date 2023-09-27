@@ -1,19 +1,16 @@
 {
-  "name": "api",
+  "name": "server",
   "version": "0.0.1",
   "private": true,
-  "main": "dist/main.js",
-  "types": "dist/main.d.ts",
+  "main": "src/main.ts",
   "scripts": {
     "build": "tsc --build"
   },
   "devDependencies": {
     "@types/node": "^20.7.0",
-    "typescript": "^5.2.2",
-    "typetest": "*"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
-    "zod": "^3.22.2",
-    "error": "*"
+    "zod": "^3.22.2"
   }
 }
