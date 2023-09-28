@@ -12,4 +12,5 @@ export const mutation = <
     input: options?.input,
     output: options?.output,
     type: 'mutation',
+    nodeType: 'route',
   }) as Route<'mutation', TMutationInput, TMutationOutput>;

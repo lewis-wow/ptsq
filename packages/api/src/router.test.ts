@@ -19,12 +19,12 @@ test('Should create mutation route in router', () => {
     }),
   });
 
-  expectTypeOf(baseRouter.test).toMatchTypeOf<Route<'query'>>();
-  expectTypeOf(baseRouter.user.get).toMatchTypeOf<Route<'query'>>();
-  expectTypeOf(baseRouter.user.create).toMatchTypeOf<Route<'mutation'>>();
+  expectTypeOf(baseRouter.routes.test).toMatchTypeOf<Route<'query'>>();
+  expectTypeOf(baseRouter.routes.user.routes.get).toMatchTypeOf<Route<'query'>>();
+  expectTypeOf(baseRouter.routes.user.routes.create).toMatchTypeOf<Route<'mutation'>>();
 
-  type InferedInput = z.infer<typeof baseRouter.user.get.input>;
-  type InferedOutput = typeof baseRouter.user.get.output;
+  type InferedInput = z.infer<typeof baseRouter.routes.user.routes.get.input>;
+  type InferedOutput = typeof baseRouter.routes.user.routes.get.output;
 
   const typetestInferedInput: Expect<Equal<InferedInput, { id: string }>> = true;
   expectTypeOf(typetestInferedInput).toMatchTypeOf<true>();

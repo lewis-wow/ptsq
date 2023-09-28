@@ -1,11 +1,14 @@
 import { z } from 'zod';
-import { ResolverType, Router } from './types';
+import { ResolverType, Router, RouterNode } from './types';
 
 export const router = <
   TType extends ResolverType,
   TInput extends z.Schema | undefined,
   TOutput extends z.Schema | undefined,
-  TRouter extends Router<TType, TInput, TOutput>,
+  TRoutes extends { [key: string]: RouterNode<TType, TInput, TOutput> },
 >(
-  router: TRouter
-) => router;
+  routes: TRoutes
+): Router<TRoutes> => ({
+  routes,
+  nodeType: 'router',
+});

@@ -1,17 +1,21 @@
-import { Router, router, query, mutation, ResolverType } from 'api';
+import { Router, router, query, mutation } from 'api';
 import { z } from 'zod';
-import { Mutation } from './mutation';
+import { Client } from './types';
 
-export const createProxyClient = <TRouter extends Router>(router: TRouter) => {
-  const proxy = new Proxy(router, {
-    get: (target, route: string) => {
-      if ('type' in target[route] && (target.type as unknown as ResolverType) === 'mutation') return new Mutation();
+export const createProxyClient = <TRouter extends Router>(router: TRouter): Client<TRouter> => {
+  const proxyHandler: ProxyHandler<TRouter> = {
+    get: (target, key: string) => {
+      const node = target.routes[key];
 
-      return target[route];
+      if (node.nodeType === 'router') return new Proxy(node, proxyHandler);
+
+      return node.type;
     },
-  });
+  };
 
-  return proxy;
+  const proxy = new Proxy(router, proxyHandler);
+
+  return proxy as Client<TRouter>;
 };
 
 const baseRouter = router({
@@ -31,5 +35,3 @@ const baseRouter = router({
 });
 
 const client = createProxyClient(baseRouter);
-
-client.mut.type.;

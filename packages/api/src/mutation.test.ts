@@ -12,6 +12,7 @@ test('Should create query route', () => {
   type InferedOutput = typeof route.output;
 
   expect(route.type).toBe('mutation');
+  expect(route.nodeType).toBe('route');
 
   const typetestInferedInput: Expect<Equal<InferedInput, { id: string }>> = true;
   expectTypeOf(typetestInferedInput).toMatchTypeOf<true>();
@@ -27,6 +28,7 @@ test('Should create empty query', () => {
   type InferedOutput = typeof route.output;
 
   expect(route.type).toBe('mutation');
+  expect(route.nodeType).toBe('route');
 
   const typetestInferedInput: Expect<Equal<InferedInput, undefined>> = true;
   expectTypeOf(typetestInferedInput).toMatchTypeOf<true>();

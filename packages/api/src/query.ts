@@ -12,4 +12,5 @@ export const query = <
     input: options?.input,
     output: options?.output,
     type: 'query',
+    nodeType: 'route',
   }) as Route<'query', TQueryInput, TQueryOutput>;
