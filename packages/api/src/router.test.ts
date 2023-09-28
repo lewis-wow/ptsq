@@ -1,5 +1,6 @@
 import { expectTypeOf, test } from 'vitest';
-import { Route, router } from './router';
+import { router } from './router';
+import { Route } from './types';
 import { query } from './query';
 import { mutation } from './mutation';
 import { z } from 'zod';

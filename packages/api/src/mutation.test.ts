@@ -38,13 +38,11 @@ test('Should create empty query', () => {
 test('Should create full query', () => {
   const route = mutation({
     input: z.object({ id: z.string() }),
-    output: {
-      SUCCESS: z.object({ id: z.string() }),
-    },
+    output: z.object({ id: z.string() }),
   });
 
   type InferedInput = z.infer<typeof route.input>;
-  type InferedOutput = z.infer<(typeof route.output)['SUCCESS']>;
+  type InferedOutput = z.infer<typeof route.output>;
 
   expect(route.type).toBe('mutation');
 

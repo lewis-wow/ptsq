@@ -1,24 +1,15 @@
 import { z } from 'zod';
-import { Route } from './router';
-import { HTTPErrorCode } from 'error';
+import { Route } from './types';
 
 export const query = <
   TQueryInput extends z.Schema | undefined = undefined,
-  TQueryOutput extends Partial<Record<keyof HTTPErrorCode | 'SUCCESS', z.Schema>> | undefined = undefined,
+  TQueryOutput extends z.Schema | undefined = undefined,
 >(options?: {
   input?: TQueryInput;
   output?: TQueryOutput;
-}): Route<
-  'query',
-  TQueryInput extends undefined ? undefined : TQueryInput,
-  TQueryOutput extends undefined ? undefined : TQueryOutput
-> =>
+}): Route<'query', TQueryInput, TQueryOutput> =>
   ({
     input: options?.input,
-    output: options?.input,
+    output: options?.output,
     type: 'query',
-  }) as Route<
-    'query',
-    TQueryInput extends undefined ? undefined : TQueryInput,
-    TQueryOutput extends undefined ? undefined : TQueryOutput
-  >;
+  }) as Route<'query', TQueryInput, TQueryOutput>;

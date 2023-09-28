@@ -1,24 +1,15 @@
 import { z } from 'zod';
-import { Route } from './router';
-import { HTTPErrorCode } from 'error';
+import { Route } from './types';
 
 export const mutation = <
-  TQueryInput extends z.Schema | undefined = undefined,
-  TQueryOutput extends Partial<Record<keyof HTTPErrorCode | 'SUCCESS', z.Schema>> | undefined = undefined,
+  TMutationInput extends z.Schema | undefined = undefined,
+  TMutationOutput extends z.Schema | undefined = undefined,
 >(options?: {
-  input?: TQueryInput;
-  output?: TQueryOutput;
-}): Route<
-  'mutation',
-  TQueryInput extends undefined ? undefined : TQueryInput,
-  TQueryOutput extends undefined ? undefined : TQueryOutput
-> =>
+  input?: TMutationInput;
+  output?: TMutationOutput;
+}): Route<'mutation', TMutationInput, TMutationOutput> =>
   ({
     input: options?.input,
-    output: options?.input,
+    output: options?.output,
     type: 'mutation',
-  }) as Route<
-    'mutation',
-    TQueryInput extends undefined ? undefined : TQueryInput,
-    TQueryOutput extends undefined ? undefined : TQueryOutput
-  >;
+  }) as Route<'mutation', TMutationInput, TMutationOutput>;
