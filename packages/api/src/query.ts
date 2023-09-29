@@ -3,7 +3,7 @@ import { Route } from './types';
 
 export const query = <
   TQueryInput extends z.Schema | undefined = undefined,
-  TQueryOutput extends z.Schema | undefined = undefined,
+  TQueryOutput extends z.Schema | any | undefined = undefined,
 >(options?: {
   input?: TQueryInput;
   output?: TQueryOutput;

@@ -1,6 +1,7 @@
-import { Router, router, query, mutation } from 'api';
+import { Router, router, query, mutation, Route, type } from 'api';
 import { z } from 'zod';
 import { Client } from './types';
+import { createQueryClient } from './query';
 
 export const createProxyClient = <TRouter extends Router>(router: TRouter): Client<TRouter> => {
   const proxyHandler: ProxyHandler<TRouter> = {
@@ -9,7 +10,9 @@ export const createProxyClient = <TRouter extends Router>(router: TRouter): Clie
 
       if (node.nodeType === 'router') return new Proxy(node, proxyHandler);
 
-      return node.type;
+      if (node.type === 'query') return createQueryClient<typeof node>();
+
+      return createQueryClient<typeof node>();
     },
   };
 
@@ -21,11 +24,13 @@ export const createProxyClient = <TRouter extends Router>(router: TRouter): Clie
 const baseRouter = router({
   test: query({
     input: z.object({ id: z.string() }),
+    output: type<string>(),
   }),
   mut: mutation(),
   user: router({
     get: query({
       input: z.object({ id: z.string() }),
+      output: z.number(),
     }),
     create: mutation({
       input: z.object({ email: z.string().email(), password: z.string() }),
@@ -35,3 +40,6 @@ const baseRouter = router({
 });
 
 const client = createProxyClient(baseRouter);
+
+const res = client.test.query({ id: '' });
+const res2 = client.user.get.query({ id: '' });
