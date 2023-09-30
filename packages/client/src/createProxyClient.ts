@@ -1,10 +1,10 @@
-import { Route, Router } from 'api';
-import { Client } from './client';
+import { App, Route } from 'schema';
+import { ClientRouter } from './client';
 import { createQueryClient } from './query';
 import { createMutationClient } from './mutation';
 
-export const createProxyClient = <TRouter extends Router>(router: TRouter): Client<TRouter> => {
-  const proxyHandler: ProxyHandler<TRouter> = {
+export const createProxyClient = <TApp extends App>(app: TApp): ClientRouter<TApp['router']> => {
+  const proxyHandler: ProxyHandler<TApp['router']> = {
     get: (target, key: string) => {
       const node = target.routes[key];
 
@@ -16,7 +16,7 @@ export const createProxyClient = <TRouter extends Router>(router: TRouter): Clie
     },
   };
 
-  const proxy = new Proxy(router, proxyHandler);
+  const proxy = new Proxy(app.router, proxyHandler);
 
-  return proxy as Client<TRouter>;
+  return proxy as ClientRouter<TApp['router']>;
 };

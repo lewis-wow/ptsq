@@ -1,4 +1,4 @@
-import { Route } from 'api';
+import { Route } from 'schema';
 import { z } from 'zod';
 
 export const createMutationClient = <TMutation extends Route<'mutation'>>(): MutationClient<TMutation> => ({
@@ -7,7 +7,9 @@ export const createMutationClient = <TMutation extends Route<'mutation'>>(): Mut
   },
 });
 
-type MutationClientOutput<TOutput extends z.Schema | any = any> = TOutput extends z.Schema ? z.infer<TOutput> : TOutput;
+type MutationClientOutput<TOutput extends z.Schema | any = any> = Promise<
+  TOutput extends z.Schema ? z.infer<TOutput> : TOutput
+>;
 
 export type MutationClient<TQuery extends Route<'mutation'>> = {
   mutate: TQuery['input'] extends undefined

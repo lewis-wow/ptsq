@@ -1,7 +1,9 @@
+import { z } from 'zod';
 import { Route } from './route';
+import { ResolverType } from './types';
 
 export type Router<
-  TRoutes extends { [Key: string]: Route | Router } = {
+  TRoutes extends { [Key: string]: Route | Route<ResolverType, z.Schema> | Router } = {
     [Key: string]: Route | Router;
   },
 > = {
