@@ -1,10 +1,16 @@
+import { Route } from 'api';
 import { z } from 'zod';
 
-export class Mutation<
-  TInput extends z.Schema | undefined = undefined,
-  TOutput extends z.Schema | undefined = undefined,
-> {
-  mutate(input: TInput): TOutput {
-    return input as unknown as TOutput;
-  }
-}
+export const createMutationClient = <TMutation extends Route<'mutation'>>(): MutationClient<TMutation> => ({
+  mutate: (_input = undefined) => {
+    return null as unknown as MutationClientOutput<TMutation['output']>;
+  },
+});
+
+type MutationClientOutput<TOutput extends z.Schema | any = any> = TOutput extends z.Schema ? z.infer<TOutput> : TOutput;
+
+export type MutationClient<TQuery extends Route<'mutation'>> = {
+  mutate: TQuery['input'] extends undefined
+    ? () => MutationClientOutput<TQuery['output']>
+    : (input: z.infer<Exclude<TQuery['input'], undefined>>) => MutationClientOutput<TQuery['output']>;
+};

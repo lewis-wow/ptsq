@@ -1,16 +1,15 @@
 import { z } from 'zod';
-import { Route } from './types';
+import { Route } from './route';
 
 export const mutation = <
   TMutationInput extends z.Schema | undefined = undefined,
-  TMutationOutput extends z.Schema | undefined = undefined,
+  TMutationOutput extends z.Schema | any = any,
 >(options?: {
   input?: TMutationInput;
   output?: TMutationOutput;
-}): Route<'mutation', TMutationInput, TMutationOutput> =>
-  ({
-    input: options?.input,
-    output: options?.output,
-    type: 'mutation',
-    nodeType: 'route',
-  }) as Route<'mutation', TMutationInput, TMutationOutput>;
+}): Route<'mutation', TMutationInput, TMutationOutput> => ({
+  input: options?.input as TMutationInput,
+  output: options?.output as TMutationOutput,
+  type: 'mutation',
+  nodeType: 'route',
+});
