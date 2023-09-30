@@ -27,6 +27,62 @@ test('Should create mutation query route in router', () => {
   expectTypeOf(baseRouter.routes.test).toMatchTypeOf(mutationTest);
 });
 
+test('Should create empty query without input route in router', () => {
+  const baseRouter = router({
+    test: query({
+      output: z.object({ id: z.string() }),
+    }),
+  });
+
+  const queryTest = query({
+    output: z.object({ id: z.string() }),
+  });
+
+  expectTypeOf(baseRouter.routes.test).toMatchTypeOf(queryTest);
+});
+
+test('Should create mutation without input route in router', () => {
+  const baseRouter = router({
+    test: mutation({
+      output: z.object({ id: z.string() }),
+    }),
+  });
+
+  const mutationTest = mutation({
+    output: z.object({ id: z.string() }),
+  });
+
+  expectTypeOf(baseRouter.routes.test).toMatchTypeOf(mutationTest);
+});
+
+test('Should create empty query without input route in router', () => {
+  const baseRouter = router({
+    test: query({
+      output: type<{ id: string }>(),
+    }),
+  });
+
+  const queryTest = query({
+    output: type<{ id: string }>(),
+  });
+
+  expectTypeOf(baseRouter.routes.test).toMatchTypeOf(queryTest);
+});
+
+test('Should create mutation without input route in router', () => {
+  const baseRouter = router({
+    test: mutation({
+      output: type<{ id: string }>(),
+    }),
+  });
+
+  const mutationTest = mutation({
+    output: type<{ id: string }>(),
+  });
+
+  expectTypeOf(baseRouter.routes.test).toMatchTypeOf(mutationTest);
+});
+
 test('Should create mutation route in router with output type', () => {
   const baseRouter = router({
     user: router({

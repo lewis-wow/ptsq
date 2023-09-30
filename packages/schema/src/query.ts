@@ -2,6 +2,13 @@ import { z } from 'zod';
 import { Route } from './route';
 
 export function query(): Route<'query', undefined, any>;
+export function query<TQueryOutput extends z.Schema | any = any>({
+  input,
+  output,
+}: {
+  input?: undefined;
+  output?: TQueryOutput;
+}): Route<'query', undefined, TQueryOutput>;
 export function query<
   TQueryInput extends z.Schema | undefined = undefined,
   TQueryOutput extends z.Schema | any = any,
