@@ -12,7 +12,6 @@
     "typetest": "*"
   },
   "dependencies": {
-    "error": "*",
     "superjson": "^1.13.3",
     "zod": "^3.22.2"
   }

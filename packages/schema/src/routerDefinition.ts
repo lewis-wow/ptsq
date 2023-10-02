@@ -8,7 +8,7 @@ export type Router<
     [Key: string]:
       | Route<'query', z.Schema | undefined, z.Schema | any, TDataTransformer>
       | Route<'mutation', z.Schema | undefined, z.Schema | any, TDataTransformer>
-      | Router;
+      | Router<TDataTransformer>;
   } = {
     [Key: string]:
       | Route<'query', z.Schema | undefined, z.Schema | any, TDataTransformer>

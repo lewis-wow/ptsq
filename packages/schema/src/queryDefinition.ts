@@ -26,10 +26,10 @@ export type QueryDefintionFactoryArgs<TDataTransformer extends DataTransformer> 
 export const queryDefinition = <TDataTransformer extends DataTransformer>({
   dataTransformer,
 }: QueryDefintionFactoryArgs<TDataTransformer>): CreateQuery<TDataTransformer> => {
-  return (options: any = undefined) => ({
+  return (options?: any) => ({
     type: 'query' as 'query',
-    input: options.input,
-    output: options.output,
+    input: options?.input,
+    output: options?.output,
     nodeType: 'route' as 'route',
     dataTransformer,
   });

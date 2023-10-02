@@ -1,7 +1,7 @@
 import { createProxyClient } from 'client';
-import { app } from './schema';
+import { baseRouter } from './schema';
 
-const client = createProxyClient(app);
+const client = createProxyClient(baseRouter);
 
 const main = async () => {
   const resultCurrent = await client.user.current.query();

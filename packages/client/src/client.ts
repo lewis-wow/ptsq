@@ -1,18 +1,15 @@
-import { Route, Router, App, DataTransformer } from 'schema';
+import { Route, Router } from 'schema';
 import { QueryClient } from './createQueryClient';
 import { MutationClient } from './createMutationClient';
 
-export type ClientRouter<TRouter extends Router, TDataTransformer extends DataTransformer> = {
+export type ClientRouter<TRouter extends Router> = {
   [K in keyof TRouter['routes']]: TRouter['routes'][K] extends Route<'query'>
-    ? QueryClient<TRouter['routes'][K], TDataTransformer>
+    ? QueryClient<TRouter['routes'][K]>
     : TRouter['routes'][K] extends Route<'mutation'>
     ? MutationClient<TRouter['routes'][K]>
     : TRouter['routes'][K] extends Router
-    ? ClientRouter<TRouter['routes'][K], TDataTransformer>
+    ? ClientRouter<TRouter['routes'][K]>
     : never;
 };
 
-export type Client<TApp extends App> = {
-  router: ClientRouter<App['router'], TApp['transformer']>;
-  transformer: TApp['transformer'];
-};
+export type Client<TRouter extends Router> = ClientRouter<TRouter>;
