@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { Route } from './route';
 import { DataTransformer } from './transformer';
 
-type CreateMutation<TDataTransformer extends DataTransformer> = {
+export type CreateMutation<TDataTransformer extends DataTransformer> = {
   (): Route<'mutation', undefined, any, TDataTransformer>;
 
   <TQueryOutput extends z.Schema | any = any>({

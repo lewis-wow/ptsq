@@ -23,8 +23,8 @@ export const defaultDataTransformer: DataTransformer = {
   deserialize: (obj) => obj,
 };
 
-export type inferDeserializeDataTransformerOutput<TDataTransformer, T> = TDataTransformer extends {
-  deserialize: (data: T) => infer R;
+export type inferDeserializeDataTransformerOutput<TDataTransformer, TData> = TDataTransformer extends {
+  deserialize: (data: TData) => infer inferedResult;
 }
-  ? R
+  ? inferedResult
   : never;

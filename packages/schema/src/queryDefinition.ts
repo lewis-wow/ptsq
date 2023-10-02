@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { Route } from './route';
 import { DataTransformer } from './transformer';
 
-type CreateQuery<TDataTransformer extends DataTransformer> = {
+export type CreateQuery<TDataTransformer extends DataTransformer> = {
   (): Route<'query', undefined, any, TDataTransformer>;
 
   <TQueryOutput extends z.Schema | any = any>({

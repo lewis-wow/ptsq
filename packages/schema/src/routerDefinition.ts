@@ -21,7 +21,7 @@ export type Router<
   dataTransformer: TDataTransformer;
 };
 
-type CreateRouter<TDataTransformer extends DataTransformer> = {
+export type CreateRouter<TDataTransformer extends DataTransformer> = {
   <
     TRoutes extends {
       [key: string]:

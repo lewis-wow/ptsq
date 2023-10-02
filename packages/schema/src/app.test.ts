@@ -1,43 +1,49 @@
 import { expectTypeOf, test } from 'vitest';
 import { app } from './app';
-import { DataTransformer } from './transformer';
+import { DataTransformer, defaultDataTransformer } from './transformer';
 import superjson from 'superjson';
-import { router } from './routerDefinition';
-import { z } from 'zod';
-import { query } from './queryDefinition';
 
 test('Should create app without transformer', () => {
-  const { transformer } = app({
-    router: router({}),
-  });
+  const { transformer } = app();
 
-  expectTypeOf(transformer).toMatchTypeOf<DataTransformer>();
+  expectTypeOf(transformer).toMatchTypeOf(defaultDataTransformer);
 });
 
 test('Should create app without transformer with empty query', () => {
-  const { router: baseRouter } = app({
-    router: router({
-      test: query(),
-    }),
-  });
+  const { router, query } = app();
 
-  const routerTest = router({
+  const baseRouter = router({
     test: query(),
   });
 
-  expectTypeOf(baseRouter).toMatchTypeOf(routerTest);
+  expectTypeOf(baseRouter).toMatchTypeOf(
+    router({
+      test: query(),
+    })
+  );
 });
 
 test('Should create app with superjson transformer', () => {
   const { transformer } = app({
     transformer: superjson,
-    router: router({
-      a: query({
-        input: z.object({ id: z.string() }),
-      }),
-    }),
   });
 
   expectTypeOf(transformer).toMatchTypeOf<typeof superjson>();
   expectTypeOf(transformer).toMatchTypeOf<DataTransformer>();
+});
+
+test('Should create app with superjson transformer with empty query', () => {
+  const { router, query } = app({
+    transformer: superjson,
+  });
+
+  const baseRouter = router({
+    test: query(),
+  });
+
+  expectTypeOf(baseRouter).toMatchTypeOf(
+    router({
+      test: query(),
+    })
+  );
 });
