@@ -1,23 +1,46 @@
 import { DataTransformer, defaultDataTransformer } from './transformer';
-import { Router } from './router';
+import { queryDefinition } from './queryDefinition';
+import superjson from 'superjson';
+import { mutationDefinition } from './mutationDefinition';
+import { routerDefinition } from './routerDefinition';
+import { z } from 'zod';
 
-export type AppArgs<TRouter extends Router, TTransfromer extends DataTransformer> = {
+export type AppArgs<TTransfromer extends DataTransformer> = {
   transformer?: TTransfromer;
-  router: TRouter;
 };
 
-export type App<TRouter extends Router = Router, TTransfromer extends DataTransformer = DataTransformer> = {
-  transformer: TTransfromer;
-  router: TRouter;
-};
+export const app = <TTransfromer extends DataTransformer = DataTransformer>(args: AppArgs<TTransfromer>) => {
+  const { transformer } = args;
 
-export const app = <TRouter extends Router, TTransfromer extends DataTransformer = DataTransformer>(
-  args: AppArgs<TRouter, TTransfromer>
-): App<TRouter, TTransfromer> => {
-  const { transformer, router } = args;
+  const query = queryDefinition({
+    dataTransformer: transformer ?? (defaultDataTransformer as TTransfromer),
+  });
+
+  const mutation = mutationDefinition({
+    dataTransformer: transformer ?? (defaultDataTransformer as TTransfromer),
+  });
+
+  const router = routerDefinition({
+    dataTransformer: transformer ?? (defaultDataTransformer as TTransfromer),
+  });
 
   return {
-    router,
     transformer: transformer ?? (defaultDataTransformer as TTransfromer),
+    query,
+    mutation,
+    router,
   };
 };
+
+const { query, mutation, router } = app({
+  transformer: superjson,
+});
+
+const baseRouter = router({
+  a: router({
+    b: query(),
+  }),
+  c: mutation({
+    input: z.object({ name: z.string() }),
+  }),
+});

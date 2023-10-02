@@ -1,13 +1,14 @@
-import { app as appSchema, router, query, mutation, type } from 'schema';
+import { app, router, query, mutation, type } from 'schema';
 import { z } from 'zod';
 
 export type User = {
   email: string;
   id: string;
   password: string;
+  createdAt: Date;
 };
 
-export const app = appSchema({
+export const schema = app({
   router: router({
     user: router({
       current: query({

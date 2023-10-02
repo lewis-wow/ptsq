@@ -1,7 +1,7 @@
 import { expect, expectTypeOf, test } from 'vitest';
 import { Expect, Equal } from 'typetest';
 import { z } from 'zod';
-import { mutation } from './mutation';
+import { mutation } from './mutationDefinition';
 import { type } from './type';
 
 test('Should create query route', () => {

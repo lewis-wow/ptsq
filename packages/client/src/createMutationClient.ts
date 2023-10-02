@@ -1,9 +1,11 @@
 import { Route } from 'schema';
 import { z } from 'zod';
 
-export const createMutationClient = <TMutation extends Route<'mutation'>>(): MutationClient<TMutation> => ({
+export const createMutationClient = <TMutation extends Route<'mutation'>>(
+  mutation: TMutation
+): MutationClient<TMutation> => ({
   mutate: (_input = undefined) => {
-    return null as unknown as MutationClientOutput<TMutation['output']>;
+    return mutation as unknown as MutationClientOutput<TMutation['output']>;
   },
 });
 

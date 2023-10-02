@@ -1,6 +1,6 @@
 import { expect, expectTypeOf, test } from 'vitest';
 import { Expect, Equal } from 'typetest';
-import { query } from './query';
+import { query } from './queryDefinition';
 import { z } from 'zod';
 import { type } from './type';
 

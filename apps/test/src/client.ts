@@ -10,7 +10,7 @@ const main = async () => {
 
   const resultCreate = await client.user.create.mutate({ email: 'example@example.com', password: '12345678910' });
 
-  console.log(resultCurrent, resultGet, resultCreate);
+  console.log(resultCreate.createdAt);
 };
 
 main();

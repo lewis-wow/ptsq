@@ -2,9 +2,9 @@ import { expectTypeOf, test } from 'vitest';
 import { app } from './app';
 import { DataTransformer } from './transformer';
 import superjson from 'superjson';
-import { router } from './router';
+import { router } from './routerDefinition';
 import { z } from 'zod';
-import { query } from './query';
+import { query } from './queryDefinition';
 
 test('Should create app without transformer', () => {
   const { transformer } = app({

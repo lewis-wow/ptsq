@@ -1,7 +1,7 @@
 import { expectTypeOf, test } from 'vitest';
-import { router } from './router';
-import { query } from './query';
-import { mutation } from './mutation';
+import { router } from './routerDefinition';
+import { query } from './queryDefinition';
+import { mutation } from './mutationDefinition';
 import { z } from 'zod';
 import { type } from './type';
 
