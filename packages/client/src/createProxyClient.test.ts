@@ -1,7 +1,7 @@
 import { expectTypeOf, test } from 'vitest';
-import { app } from 'schema';
+import { app } from '@schema-rpc/schema';
 import { z } from 'zod';
-import { Expect, Equal } from 'typetest';
+import { Expect, Equal } from '@schema-rpc/typetest';
 import { createProxyClient } from './createProxyClient';
 
 const { router, query } = app();

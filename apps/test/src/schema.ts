@@ -1,4 +1,4 @@
-import { app } from 'schema';
+import { app } from '@schema-rpc/schema';
 import { z } from 'zod';
 
 export type User = {
@@ -9,6 +9,12 @@ export type User = {
 };
 
 const { router, query, mutation, type } = app();
+
+const mushroomRouter = router({
+  get: query({
+    input: z.object({ id: z.string() }),
+  }),
+});
 
 const userRouter = router({
   current: query({
@@ -22,6 +28,7 @@ const userRouter = router({
     input: z.object({ email: z.string().email(), password: z.string().min(8) }),
     output: type<User>(),
   }),
+  mushroom: mushroomRouter,
 });
 
 export const baseRouter = router({

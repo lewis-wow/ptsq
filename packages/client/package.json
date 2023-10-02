@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "@schema-rpc/client",
   "version": "0.0.1",
   "private": true,
   "main": "src/main.ts",
@@ -11,7 +11,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "schema": "*",
+    "@schema-rpc/schema": "*",
     "superjson": "^1.13.3",
     "zod": "^3.22.2"
   }

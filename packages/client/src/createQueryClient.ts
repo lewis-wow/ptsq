@@ -1,9 +1,15 @@
-import { Route } from 'schema';
+import { Route } from '@schema-rpc/schema';
 import { z } from 'zod';
 
-export const createQueryClient = <TQuery extends Route<'query'>>(query: TQuery): QueryClient<TQuery> => ({
+export const createQueryClient = <TQuery extends Route<'query'>>(
+  query: TQuery,
+  route: string
+): QueryClient<TQuery> => ({
   query: (_input = undefined) => {
-    return query as unknown as QueryClientOutput<TQuery['output']>;
+    return {
+      query,
+      route,
+    } as unknown as QueryClientOutput<TQuery['output']>;
   },
 });
 

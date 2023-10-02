@@ -1,4 +1,4 @@
-import { Route, Router } from 'schema';
+import { Route, Router } from '@schema-rpc/schema';
 import { QueryClient } from './createQueryClient';
 import { MutationClient } from './createMutationClient';
 

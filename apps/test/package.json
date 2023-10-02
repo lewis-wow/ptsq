@@ -1,18 +1,20 @@
 {
-  "name": "client",
+  "name": "@schema-rpc/client-test",
   "version": "0.0.1",
   "private": true,
   "main": "src/main.ts",
   "scripts": {
-    "build": "tsc --build"
+    "build": "tsc --build",
+    "client": "ts-node src/client.ts"
   },
   "devDependencies": {
     "@types/node": "^20.7.0",
+    "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "schema": "*",
-    "client": "*",
+    "@schema-rpc/client": "*",
+    "@schema-rpc/schema": "*",
     "superjson": "^1.13.3",
     "zod": "^3.22.2"
   }

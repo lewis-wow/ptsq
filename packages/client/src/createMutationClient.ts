@@ -1,11 +1,15 @@
-import { Route } from 'schema';
+import { Route } from '@schema-rpc/schema';
 import { z } from 'zod';
 
 export const createMutationClient = <TMutation extends Route<'mutation'>>(
-  mutation: TMutation
+  mutation: TMutation,
+  route: string
 ): MutationClient<TMutation> => ({
   mutate: (_input = undefined) => {
-    return mutation as unknown as MutationClientOutput<TMutation['output']>;
+    return {
+      mutation,
+      route,
+    } as unknown as MutationClientOutput<TMutation['output']>;
   },
 });
 

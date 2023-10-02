@@ -1,5 +1,5 @@
 {
-  "name": "schema",
+  "name": "@schema-rpc/schema",
   "version": "0.0.1",
   "private": true,
   "main": "src/main.ts",

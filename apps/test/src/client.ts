@@ -1,4 +1,4 @@
-import { createProxyClient } from 'client';
+import { createProxyClient } from '@schema-rpc/client';
 import { baseRouter } from './schema';
 
 const client = createProxyClient(baseRouter);
@@ -10,7 +10,9 @@ const main = async () => {
 
   const resultCreate = await client.user.create.mutate({ email: 'example@example.com', password: '12345678910' });
 
-  console.log(resultCurrent, resultGet, resultCreate);
+  const mushroom = await client.user.mushroom.get.query({ id: '' });
+
+  console.log(resultCurrent, resultGet, resultCreate, mushroom);
 };
 
 main();
