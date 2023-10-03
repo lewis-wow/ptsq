@@ -1,0 +1,57 @@
+# Introduction
+
+Welcome to schema-rpc!
+
+## Documentation
+
+```ts filename="schema.ts"
+import { app } from '@schema-rpc/schema';
+import { z } from 'zod';
+
+const { router, query } = app();
+
+export const baseRouter = router({
+  test: query({
+    input: z.object({ name: z.string() }),
+  }),
+});
+```
+
+```ts filename="server.ts"
+import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
+import express from 'express';
+import { baseRouter } from './schema';
+
+const app = express();
+
+const createContext = ({ req, res }: ExpressAdapterContext) => ({
+  req,
+  res,
+});
+
+const { middleware, resolver, router } = createServer({
+  router: baseRouter,
+  ctx: createContext,
+});
+
+const { serve } = router({
+  test: resolver.resolve(async ({ input, ctx }) => {
+    return `Hello, ${input.name}`;
+  }),
+});
+
+app.use('/schema-rpc', expressAdapter(serve));
+
+app.listen(4000);
+```
+
+```ts filename="client.ts"
+import { createProxyClient } from '@schema-rpc/client';
+import { baseRouter } from './schema';
+
+const client = createProxyClient(baseRouter);
+
+const result = await client.test.query({
+  name: 'John',
+});
+```
