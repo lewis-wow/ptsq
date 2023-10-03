@@ -5,7 +5,7 @@ export const createMutationClient = <TMutation extends Route<'mutation'>>(
   mutation: TMutation,
   route: string
 ): MutationClient<TMutation> => ({
-  mutate: (_input = undefined) => {
+  mutate: async (_input = undefined) => {
     return {
       mutation,
       route,

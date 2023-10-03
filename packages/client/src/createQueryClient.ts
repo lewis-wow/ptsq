@@ -5,7 +5,7 @@ export const createQueryClient = <TQuery extends Route<'query'>>(
   query: TQuery,
   route: string
 ): QueryClient<TQuery> => ({
-  query: (_input = undefined) => {
+  query: async (_input = undefined) => {
     return {
       query,
       route,
