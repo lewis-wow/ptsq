@@ -1,7 +1,8 @@
 import { Route, Router } from '@schema-rpc/schema';
-import { z } from 'zod';
 import { Context } from './context';
 import { middlewareDefinition } from './middlewareDefinition';
+import { resolverDefinition } from './resolverDefinition';
+import { Resolver } from './resolver';
 
 export type ServerRouter<TRouter extends Router> = {
   [K in keyof TRouter['routes']]: TRouter['routes'][K] extends Route
@@ -23,20 +24,11 @@ export const createServer = <TRouter extends Router, TContext extends Context>({
   ctx,
 }: CreateServerArgs<TRouter, TContext>) => {
   const middleware = middlewareDefinition({ ctx });
+  const resolver = resolverDefinition({ ctx });
 
   return {
     middleware,
+    resolver,
     router,
   };
 };
-
-type ResolverInput<TInput extends z.Schema | undefined, TContext extends Context> = {
-  input: TInput extends z.Schema ? z.infer<TInput> : undefined;
-  ctx: TContext;
-};
-
-type ResolverOutput<TOutput extends z.Schema | any> = TOutput extends z.Schema ? z.infer<TOutput> : TOutput;
-
-type Resolver<TRoute extends Route> = (
-  resolverInput: ResolverInput<TRoute['input'], Context>
-) => ResolverOutput<TRoute['output']> | Promise<ResolverOutput<TRoute['output']>>;

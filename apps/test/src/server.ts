@@ -1,17 +1,28 @@
 import { baseRouter } from './schema';
 import { createServer } from '@schema-rpc/server';
 
-const { middleware } = createServer({
+const createContext = (): { userId?: number } => {
+  return {
+    userId: 1,
+  };
+};
+
+const { middleware, resolver } = createServer({
   router: baseRouter,
-  ctx: {},
+  ctx: createContext(),
 });
 
-middleware(({ next }) => {
-  const r = next({
+const isLoggedIn = middleware(({ ctx, next }) => {
+  if (!ctx.userId) throw new Error('must be logged in');
+
+  return next({
     ctx: {
-      id: 1,
+      userId: ctx.userId,
     },
   });
-
-  return r;
 });
+
+const isLoggedInResolver = resolver.use(isLoggedIn);
+
+isLoggedInResolver;
+//^?
