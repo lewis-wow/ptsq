@@ -1,15 +1,15 @@
 import { baseRouter } from './schema';
 import { createServer } from '@schema-rpc/server';
 
-const createContext = (): { userId?: number } => {
+const createContext = () => {
   return {
     userId: 1,
   };
 };
 
-const { middleware, resolver } = createServer({
+const { middleware, resolver, router, routes } = createServer({
   router: baseRouter,
-  ctx: createContext(),
+  ctx: createContext,
 });
 
 const isLoggedIn = middleware(({ ctx, next }) => {
@@ -24,5 +24,12 @@ const isLoggedIn = middleware(({ ctx, next }) => {
 
 const isLoggedInResolver = resolver.use(isLoggedIn);
 
-isLoggedInResolver;
-//^?
+const testRouteResolver = isLoggedInResolver.resolve<typeof routes.test>(({ input, ctx }) => {
+  console.log(input, ctx);
+});
+
+const r = router({
+  test: testRouteResolver,
+});
+
+console.log(r);

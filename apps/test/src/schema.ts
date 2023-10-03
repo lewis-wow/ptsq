@@ -9,7 +9,7 @@ export type User = {
 };
 
 const { router, query, mutation, type } = app();
-
+/*
 const mushroomRouter = router({
   get: query({
     input: z.object({ id: z.string() }),
@@ -30,8 +30,8 @@ const userRouter = router({
   }),
   mushroom: mushroomRouter,
 });
+*/
 
 export const baseRouter = router({
-  user: userRouter,
   test: query(),
 });

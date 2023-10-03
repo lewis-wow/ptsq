@@ -24,13 +24,17 @@ export class Resolver<TContext extends Context> {
   }
 
   resolve<TRoute extends Route>(resolveFunction: ResolveFunction<TRoute, TContext>) {
-    return resolveFunction(this.ctx);
+    return resolveFunction;
   }
 }
 
-type ResolveFunction<TRoute extends Route, TContext extends Context> = (
-  ctx: TContext
-) => ({ input, ctx }: { input: TRoute['input']; ctx: TContext }) => TRoute['output'];
+export type ResolveFunction<TRoute extends Route, TContext extends Context = Context> = ({
+  input,
+  ctx,
+}: {
+  input: TRoute['input'];
+  ctx: TContext;
+}) => TRoute['output'];
 
 type ResolverDefinitionArgs<TContext extends Context> = {
   ctx: TContext;
