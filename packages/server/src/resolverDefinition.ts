@@ -1,15 +1,12 @@
 import { Route } from '@schema-rpc/schema';
 import { Context } from './context';
 import { Middleware } from './middlewareDefinition';
-
-type ResolverOptions<TContext extends Context> = {
-  middlewares: Middleware<TContext, TContext>[];
-};
+import { ParseResolverInput, ParseResolverOutput } from './types';
 
 export class Resolver<TContext extends Context> {
   middlewares: Middleware<TContext, TContext>[];
 
-  constructor({ middlewares }: ResolverOptions<TContext>) {
+  constructor({ middlewares }: { middlewares: Middleware<TContext, TContext>[] }) {
     this.middlewares = middlewares;
   }
 
@@ -28,8 +25,8 @@ export type ResolveFunction<TRoute extends Route, TContext extends Context = Con
   input,
   ctx,
 }: {
-  input: TRoute['input'];
+  input: ParseResolverInput<TRoute['input']>;
   ctx: TContext;
-}) => TRoute['output'];
+}) => ParseResolverOutput<TRoute['output']>;
 
 export const resolverDefinition = <TContext extends Context>() => new Resolver<TContext>({ middlewares: [] });

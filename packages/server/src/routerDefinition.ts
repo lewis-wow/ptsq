@@ -1,21 +1,26 @@
 import { Router } from '@schema-rpc/schema';
-import { Server } from './server';
-import { ContextBuilder, inferContextFromContextBuilder, inferContextParamsFromContextBuilder } from './context';
+import { Server } from './types';
+import { ContextBuilder, inferContextParamsFromContextBuilder } from './context';
+import { Serve } from './serve';
 
 type RouterDefinitionArgs<TRouter extends Router, TContextBuilder extends ContextBuilder> = {
   router: TRouter;
   contextBuilder: TContextBuilder;
 };
 
-export const routerDefinition = <TRouter extends Router, TContextBuilder extends ContextBuilder>({
-  router,
-  contextBuilder,
-}: RouterDefinitionArgs<TRouter, TContextBuilder>) => {
-  return (routes: Server<TRouter>) => ({
-    serve: async (...adapter: inferContextParamsFromContextBuilder<TContextBuilder>) => {
-      const ctx = (await contextBuilder(adapter)) as inferContextFromContextBuilder<TContextBuilder>;
+type RouterDefinition<TRouter extends Router, TContextBuilder extends ContextBuilder> = (routes: Server<TRouter>) => {
+  serve: Serve<inferContextParamsFromContextBuilder<TContextBuilder>>;
+};
 
-      console.log(ctx, router, routes);
+export const routerDefinition =
+  <TRouter extends Router, TContextBuilder extends ContextBuilder>({
+    router,
+    contextBuilder,
+  }: RouterDefinitionArgs<TRouter, TContextBuilder>): RouterDefinition<TRouter, TContextBuilder> =>
+  (routes: Server<TRouter>) => ({
+    serve: async ({ route, params }) => {
+      const ctx = await contextBuilder(...params);
+
+      console.log(ctx, route, router, routes);
     },
   });
-};

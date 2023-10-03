@@ -1,8 +1,8 @@
 import { baseRouter } from './schema';
-import { createServer } from '@schema-rpc/server';
-import express, { Request, Response } from 'express';
+import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
+import express from 'express';
 
-const createContext = (req: Request, res: Response) => {
+const createContext = ({ req, res }: ExpressAdapterContext) => {
   return {
     req,
     res,
@@ -37,7 +37,7 @@ const { serve } = router({
 
 const app = express();
 
-app.use('/handle', serve);
+app.use('/handle', expressAdapter(serve));
 
 app.listen(4000, () => {
   console.log('listening on: http://localhost:4000/handle');
