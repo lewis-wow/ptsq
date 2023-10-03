@@ -3,23 +3,19 @@ import { Context } from './context';
 import { Middleware } from './middlewareDefinition';
 
 type ResolverOptions<TContext extends Context> = {
-  ctx: TContext;
-  middlewares: Middleware<TContext>[];
+  middlewares: Middleware<TContext, TContext>[];
 };
 
 export class Resolver<TContext extends Context> {
-  ctx: TContext;
-  middlewares: Middleware<TContext>[];
+  middlewares: Middleware<TContext, TContext>[];
 
-  constructor({ ctx, middlewares }: ResolverOptions<TContext>) {
-    this.ctx = ctx;
+  constructor({ middlewares }: ResolverOptions<TContext>) {
     this.middlewares = middlewares;
   }
 
-  use<TNextContext extends Context>(middleware: Middleware<TNextContext>) {
+  use<TNextContext extends Context>(middleware: Middleware<TContext, TNextContext>) {
     return new Resolver<TNextContext>({
-      ctx: this.ctx as unknown as TNextContext,
-      middlewares: [...this.middlewares, middleware] as unknown as Middleware<TNextContext>[],
+      middlewares: [...this.middlewares, middleware] as unknown as Middleware<TNextContext, TNextContext>[],
     });
   }
 
@@ -36,9 +32,4 @@ export type ResolveFunction<TRoute extends Route, TContext extends Context = Con
   ctx: TContext;
 }) => TRoute['output'];
 
-type ResolverDefinitionArgs<TContext extends Context> = {
-  ctx: TContext;
-};
-
-export const resolverDefinition = <TContext extends Context>({ ctx }: ResolverDefinitionArgs<TContext>) =>
-  new Resolver({ ctx, middlewares: [] });
+export const resolverDefinition = <TContext extends Context>() => new Resolver<TContext>({ middlewares: [] });

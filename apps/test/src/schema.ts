@@ -1,5 +1,5 @@
 import { app } from '@schema-rpc/schema';
-import { z } from 'zod';
+import superjson from 'superjson';
 
 export type User = {
   email: string;
@@ -8,29 +8,9 @@ export type User = {
   createdAt: Date;
 };
 
-const { router, query, mutation, type } = app();
-/*
-const mushroomRouter = router({
-  get: query({
-    input: z.object({ id: z.string() }),
-  }),
+const { router, query } = app({
+  transformer: superjson,
 });
-
-const userRouter = router({
-  current: query({
-    output: type<User>(),
-  }),
-  get: query({
-    input: z.object({ id: z.string() }),
-    output: type<User>(),
-  }),
-  create: mutation({
-    input: z.object({ email: z.string().email(), password: z.string().min(8) }),
-    output: type<User>(),
-  }),
-  mushroom: mushroomRouter,
-});
-*/
 
 export const baseRouter = router({
   test: query(),

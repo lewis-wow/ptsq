@@ -1,9 +1,12 @@
 import { baseRouter } from './schema';
 import { createServer } from '@schema-rpc/server';
+import express, { Request, Response } from 'express';
 
-const createContext = () => {
+const createContext = (req: Request, res: Response) => {
   return {
-    userId: 1,
+    req,
+    res,
+    userId: 1 as number | undefined,
   };
 };
 
@@ -28,8 +31,14 @@ const testRouteResolver = isLoggedInResolver.resolve<typeof routes.test>(({ inpu
   console.log(input, ctx);
 });
 
-const r = router({
+const { serve } = router({
   test: testRouteResolver,
 });
 
-console.log(r);
+const app = express();
+
+app.use('/handle', serve);
+
+app.listen(4000, () => {
+  console.log('listening on: http://localhost:4000/handle');
+});

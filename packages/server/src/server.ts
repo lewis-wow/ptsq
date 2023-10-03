@@ -1,5 +1,5 @@
 import { Route, Router } from '@schema-rpc/schema';
-import { Context, ContextBuilder } from './context';
+import { ContextBuilder, inferContextFromContextBuilder } from './context';
 import { middlewareDefinition } from './middlewareDefinition';
 import { resolverDefinition, ResolveFunction } from './resolverDefinition';
 import { routerDefinition } from './routerDefinition';
@@ -14,11 +14,6 @@ export type ServerRouter<TRouter extends Router> = {
 
 export type Server<TRouter extends Router> = ServerRouter<TRouter>;
 
-type CreateServerArgs<TRouter extends Router, TContext extends Context> = {
-  router: TRouter;
-  ctx: ContextBuilder<TContext>;
-};
-
 export type ResolverRouter<TRouter extends Router> = {
   [K in keyof TRouter['routes']]: TRouter['routes'][K] extends Route
     ? TRouter['routes'][K]
@@ -27,12 +22,19 @@ export type ResolverRouter<TRouter extends Router> = {
     : never;
 };
 
-export const createServer = <TContext extends Context, TRouter extends Router>({
+export const createServer = <TRouter extends Router, TContextBuilder extends ContextBuilder>({
   router: routerSchema,
-}: CreateServerArgs<TRouter, TContext>) => {
-  const middleware = middlewareDefinition({ ctx });
-  const resolver = resolverDefinition({ ctx });
-  const router = routerDefinition({ router: routerSchema, ctx });
+  ctx,
+}: {
+  router: TRouter;
+  ctx: TContextBuilder;
+}) => {
+  const middleware = middlewareDefinition<inferContextFromContextBuilder<TContextBuilder>>();
+  const resolver = resolverDefinition<inferContextFromContextBuilder<TContextBuilder>>();
+  const router = routerDefinition<TRouter, TContextBuilder>({
+    router: routerSchema,
+    contextBuilder: ctx,
+  });
 
   return {
     middleware,
