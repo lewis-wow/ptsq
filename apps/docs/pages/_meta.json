@@ -3,7 +3,7 @@
   "query": "Query",
   "mutation": "Mutation",
   "router": "Router",
-  "middleware": "Middleware",
+  "middlewares": "Middlewares",
   "introspection": "Introspection query",
   "contact": {
     "title": "Contact ↗",

@@ -1,7 +1,4 @@
 import { z } from 'zod';
-import { ResolveFunction } from './resolver';
-import { Router } from './routerDefinition';
-import { Route } from './route';
 
 export type ResolverType = 'query' | 'mutation';
 

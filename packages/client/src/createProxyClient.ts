@@ -9,8 +9,9 @@ export const createProxyClient = <TRouter extends Router>(router: TRouter, route
       const node = target.routes[key];
 
       if (node.nodeType === 'router') return createProxyClient(node, [...route, key]);
-
+      //@ts-ignore
       if (node.type === 'query') return createQueryClient(node, [...route, key].join('.'));
+      //@ts-ignore
 
       return createMutationClient(node, [...route, key].join('.'));
     },

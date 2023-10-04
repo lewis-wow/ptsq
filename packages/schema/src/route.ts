@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ResolverType } from './types';
 import { DataTransformer } from './transformer';
-import { AnyResolveFunction, ResolveFunction } from './resolver';
+import { AnyResolveFunction } from './resolver';
 
 export type Route<
   TType extends ResolverType = ResolverType,
