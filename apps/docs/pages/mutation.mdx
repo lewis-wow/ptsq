@@ -19,7 +19,7 @@ const { middleware, resolver, router, serve } = createServer({
 const testMutation = resolver.mutation({
   input: z.object({ name: z.string() }),
   output: z.string(),
-  resolve: async ({ ctx, input }) => {
+  resolve: async ({ input /* { name: string } */ }) /* string */ => {
     return `Hello, ${input.name}`;
   },
 });
@@ -40,6 +40,6 @@ import { baseRouter } from './schema';
 const client = createProxyClient(baseRouter);
 
 const result = await client.test.mutate({
-  name: 'John',
+  name: /* string */ 'John',
 });
 ```

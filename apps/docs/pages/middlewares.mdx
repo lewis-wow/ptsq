@@ -34,4 +34,17 @@ const isAuthed = middleware(({ ctx, next }) => {
 });
 
 const protectedResolver = resolver.use(isAuthed);
+
+resolver.query({
+  resolve: async ({ ctx /* { user: User | null } */, input /* undefined */ }) => {
+    return `Hello, ${ctx.user.name}`;
+    // throws Error user can be null
+  },
+});
+
+protectedResolver.query({
+  resolve: async ({ ctx /* { user: User } */, input /* undefined */ }) => {
+    return `Hello, ${ctx.user.name}`;
+  },
+});
 ```

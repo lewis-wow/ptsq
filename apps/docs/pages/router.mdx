@@ -17,6 +17,7 @@ const { middleware, resolver, router, serve } = createServer({
   ctx: createContext,
 });
 
+// routers can be merged as you want
 const baseRouter = router({
   a: router({
     b: router({
@@ -39,4 +40,7 @@ import { baseRouter } from './schema';
 const client = createProxyClient(baseRouter);
 
 const result = await client.a.b.c.user.current.query();
+
+// autocompletion
+const userList = await client.a. /* b.c.user.userList.query() */
 ```

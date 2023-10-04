@@ -22,7 +22,7 @@ const { middleware, resolver, router, serve } = createServer({
 
 const testQuery = resolver.query({
   input: z.object({ name: z.string() }),
-  resolve: async ({ ctx, input }) => {
+  resolve: async ({ ctx /* { req: express.Request, res: express.Response } */, input /* { name: string } */ }) => {
     return `Hello, ${input.name}`;
   },
 });
@@ -43,6 +43,6 @@ import { baseRouter } from './schema';
 const client = createProxyClient(baseRouter);
 
 const result = await client.test.query({
-  name: 'John',
+  name: /* string */ 'John',
 });
 ```
