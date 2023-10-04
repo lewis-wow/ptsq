@@ -1,0 +1,18 @@
+# Introspection query
+
+```ts filename="server.ts"
+import { createServer } from '@schema-rpc/server';
+
+createServer({
+  introspection: true,
+});
+```
+
+```ts filename="introspection.ts"
+import { buildTSSchema } from '@schema-rpc/server';
+import { writeFileSync } from 'fs';
+
+const schema = await fetch('https://example.com/schema-trpc/introspection');
+
+writeFileSync('schema.ts', buildTSSchema(schema));
+```

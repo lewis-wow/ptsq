@@ -1,4 +1,3 @@
-import { baseRouter } from './schema';
 import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
 import express from 'express';
 
@@ -10,8 +9,7 @@ const createContext = ({ req, res }: ExpressAdapterContext) => {
   };
 };
 
-const { middleware, resolver, router } = createServer({
-  router: baseRouter,
+const { middleware, resolver } = createServer({
   ctx: createContext,
 });
 

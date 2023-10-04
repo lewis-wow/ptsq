@@ -1,0 +1,36 @@
+# Middleware
+
+```ts filename="server.ts"
+import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
+import express from 'express';
+import { z } from 'zod';
+import { userRouter } from './userRouter';
+
+const app = express();
+
+const createContext = async ({ req, res }: ExpressAdapterContext) => {
+  const user = getUserFromJWT(req.cookies.jwt);
+
+  return {
+    req,
+    res,
+    user,
+  };
+};
+
+const { middleware, resolver, router, serve } = createServer({
+  ctx: createContext,
+});
+
+const isAuthed = middleware(({ ctx, next }) => {
+  if (!ctx.user) throw new Error('Must be logged in!');
+
+  return next({
+    ctx: {
+      user: ctx.user,
+    },
+  });
+});
+
+const protectedResolver = resolver.use(isAuthed);
+```

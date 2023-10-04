@@ -1,9 +1,10 @@
 {
   "index": "Introduction",
-  "about": {
-    "title": "About",
-    "type": "page"
-  },
+  "query": "Query",
+  "mutation": "Mutation",
+  "router": "Router",
+  "middleware": "Middleware",
+  "introspection": "Introspection query",
   "contact": {
     "title": "Contact ↗",
     "type": "page",

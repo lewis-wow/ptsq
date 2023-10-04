@@ -1,0 +1,17 @@
+{
+  "$ref": "#/definitions/mySchema",
+  "definitions": {
+    "mySchema": {
+      "type": "object",
+      "properties": {
+        "myString": { "type": "string", "format": "email", "minLength": 5 },
+        "myUnion": { "type": ["number", "boolean"] },
+        "date": { "type": "string", "format": "date-time" },
+        "never": { "not": {} }
+      },
+      "required": ["myString", "myUnion", "date", "never"],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

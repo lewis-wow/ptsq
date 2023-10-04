@@ -1,33 +1,25 @@
-import { z } from 'zod';
-import { Route } from './route';
+import { RoutesSchema, createProxyRouterSchema } from './createProxyRouterSchema';
+import { AnyRoute } from './route';
 import { DataTransformer } from './transformer';
+
+export type RouterRoutes<TDataTransformer extends DataTransformer = DataTransformer> = {
+  [Key: string]: AnyRoute | Router<TDataTransformer>;
+};
 
 export type Router<
   TDataTransformer extends DataTransformer = DataTransformer,
-  TRoutes extends {
-    [Key: string]:
-      | Route<'query', z.Schema | undefined, z.Schema | any, TDataTransformer>
-      | Route<'mutation', z.Schema | undefined, z.Schema | any, TDataTransformer>
-      | Router<TDataTransformer>;
-  } = {
-    [Key: string]:
-      | Route<'query', z.Schema | undefined, z.Schema | any, TDataTransformer>
-      | Route<'mutation', z.Schema | undefined, z.Schema | any, TDataTransformer>
-      | Router<TDataTransformer>;
-  },
+  TRoutes extends RouterRoutes<TDataTransformer> = RouterRoutes<TDataTransformer>,
 > = {
   nodeType: 'router';
   routes: TRoutes;
   dataTransformer: TDataTransformer;
+  schema: RoutesSchema<TRoutes>;
 };
 
 export type CreateRouter<TDataTransformer extends DataTransformer> = {
   <
     TRoutes extends {
-      [key: string]:
-        | Route<'query', z.Schema | undefined, z.Schema | any, TDataTransformer>
-        | Route<'mutation', z.Schema | undefined, z.Schema | any, TDataTransformer>
-        | Router<TDataTransformer>;
+      [key: string]: AnyRoute | Router<TDataTransformer>;
     },
   >(
     routes: TRoutes
@@ -41,9 +33,10 @@ type RouterDefinitionArgs<TDataTransformer extends DataTransformer> = {
 export const routerDefinition = <TDataTransformer extends DataTransformer>({
   dataTransformer,
 }: RouterDefinitionArgs<TDataTransformer>): CreateRouter<TDataTransformer> => {
-  return (routes: any) => ({
+  return (routes) => ({
     nodeType: 'router' as 'router',
     routes,
     dataTransformer,
+    schema: createProxyRouterSchema(routes),
   });
 };

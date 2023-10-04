@@ -1,19 +1,19 @@
 {
-  "name": "@schema-rpc/schema",
+  "name": "schema",
   "version": "0.0.1",
   "private": true,
-  "main": "src/main.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc --build"
   },
   "devDependencies": {
     "@types/node": "^20.7.0",
-    "typescript": "^5.2.2",
-    "typetest": "*"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
+    "@schema-rpc/schema": "*",
     "superjson": "^1.13.3",
-    "zod": "^3.22.2",
-    "zod-to-ts": "^1.2.0"
+    "zod": "^3.22.2"
   }
 }

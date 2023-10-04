@@ -6,7 +6,9 @@
   "scripts": {
     "build": "tsc --build",
     "client": "ts-node src/client.ts",
-    "server": "ts-node src/server.ts"
+    "server": "ts-node src/server.ts",
+    "generate-json": "ts-node src/zod-to-json.ts",
+    "schema": "ts-node src/server-new.ts"
   },
   "devDependencies": {
     "@types/express": "^4.17.18",
@@ -19,7 +21,11 @@
     "@schema-rpc/schema": "*",
     "@schema-rpc/server": "*",
     "express": "^4.18.2",
+    "schema": "*",
     "superjson": "^1.13.3",
-    "zod": "^3.22.2"
+    "test-t": "./test-v0.0.1.tgz",
+    "types.tgz": "./types.tgz",
+    "zod": "^3.22.2",
+    "zod-to-json-schema": "^3.21.4"
   }
 }

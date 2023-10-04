@@ -1,8 +1,4 @@
-# Introduction
-
-Welcome to schema-rpc!
-
-## Documentation
+# Query
 
 ```ts filename="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
@@ -22,7 +18,8 @@ const { middleware, resolver, router, serve } = createServer({
 
 const testQuery = resolver.query({
   input: z.object({ name: z.string() }),
-  resolve: async ({ ctx, input }) => {
+  output: z.string(),
+  resolve: ({ ctx, input }) => {
     return `Hello, ${input.name}`;
   },
 });

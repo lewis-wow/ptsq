@@ -1,8 +1,4 @@
-# Introduction
-
-Welcome to schema-rpc!
-
-## Documentation
+# Mutation
 
 ```ts filename="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
@@ -20,15 +16,16 @@ const { middleware, resolver, router, serve } = createServer({
   ctx: createContext,
 });
 
-const testQuery = resolver.query({
+const testMutation = resolver.mutation({
   input: z.object({ name: z.string() }),
+  output: z.string(),
   resolve: async ({ ctx, input }) => {
     return `Hello, ${input.name}`;
   },
 });
 
 const baseRouter = router({
-  test: testQuery,
+  test: testMutation,
 });
 
 app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
@@ -42,7 +39,7 @@ import { baseRouter } from './schema';
 
 const client = createProxyClient(baseRouter);
 
-const result = await client.test.query({
+const result = await client.test.mutate({
   name: 'John',
 });
 ```
