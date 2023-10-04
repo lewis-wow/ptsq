@@ -5,6 +5,7 @@ import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc
 import express from 'express';
 import { z } from 'zod';
 import { userRouter } from './userRouter';
+import { getUserFromJWT } from './getUserFromJWT';
 
 const app = express();
 
