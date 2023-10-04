@@ -1,5 +1,5 @@
 {
-  "name": "@schema-rpc/client-test",
+  "name": "test",
   "version": "0.0.1",
   "private": true,
   "main": "src/main.ts",

@@ -10,7 +10,7 @@ const createContext = ({ req, res }: ExpressAdapterContext) => {
   };
 };
 
-const { middleware, resolver, router, routes } = createServer({
+const { middleware, resolver, router } = createServer({
   router: baseRouter,
   ctx: createContext,
 });
@@ -27,12 +27,10 @@ const isLoggedIn = middleware(({ ctx, next }) => {
 
 const isLoggedInResolver = resolver.use(isLoggedIn);
 
-const testRouteResolver = isLoggedInResolver.resolve<typeof routes.test>(({ input, ctx }) => {
-  console.log(input, ctx);
-});
-
 const { serve } = router({
-  test: testRouteResolver,
+  test: isLoggedInResolver.resolve(({ input, ctx }) => {
+    console.log(input, ctx);
+  }),
 });
 
 const app = express();
