@@ -1,11 +1,30 @@
 import { Context, ContextBuilder, inferContextFromContextBuilder } from './context';
+import { createRouterFactory } from './createRouterFactory';
+import { createServeFactory } from './createServeFactory';
 import { Middleware, MiddlewareCallback } from './middleware';
 import { Resolver } from './resolver';
+import { DataTransformer, defaultDataTransformer } from './transformer';
 
-export const createServer = <TContextBuilder extends ContextBuilder>({ ctx }: { ctx: TContextBuilder }) => {
+type CreateServerArgs<
+  TContextBuilder extends ContextBuilder,
+  TDataTransformer extends DataTransformer = DataTransformer,
+> = {
+  ctx: TContextBuilder;
+  transformer?: TDataTransformer;
+};
+
+export const createServer = <TContextBuilder extends ContextBuilder, TDataTransformer extends DataTransformer>({
+  ctx,
+  transformer,
+}: CreateServerArgs<TContextBuilder, TDataTransformer>) => {
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
+  const dataTransformer = transformer ?? (defaultDataTransformer as TDataTransformer);
 
   const resolver = new Resolver<RootContext>({ middlewares: [] });
+
+  const router = createRouterFactory({ transformer: dataTransformer });
+
+  const serve = createServeFactory({ contextBuilder: ctx });
 
   const middleware = <TNextContext extends Context>(
     middlewareCallback: MiddlewareCallback<RootContext, TNextContext>
@@ -14,6 +33,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({ ctx }: { 
   return {
     middleware,
     resolver,
-    ctx,
+    router,
+    serve,
   };
 };

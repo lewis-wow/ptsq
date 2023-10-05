@@ -1,4 +1,4 @@
-import { Route } from '@schema-rpc/schema';
+import { Route } from './route';
 import { Context } from './context';
 import { Middleware } from './middleware';
 import { ParseResolverInput, ParseResolverOutput } from './types';
@@ -29,4 +29,4 @@ export type ResolveFunction<TRoute extends Route, TContext extends Context = Con
   ctx: TContext;
 }) => ParseResolverOutput<TRoute['output']>;
 
-export const resolverDefinition = <TContext extends Context>() => new Resolver<TContext>({ middlewares: [] });
+export type AnyResolveFunction = ResolveFunction<any, any>;

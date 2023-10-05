@@ -1,6 +1,11 @@
 import { z } from 'zod';
-import { Route, Router } from '@schema-rpc/schema';
+import { Route } from './route';
+import { Router } from './createRouterFactory';
 import { ResolveFunction } from './resolver';
+
+export type ResolverType = 'query' | 'mutation';
+
+export type NodeType = 'route' | 'router';
 
 export type MaybePromise<T> = T | Promise<T>;
 

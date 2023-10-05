@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Serve } from '../serve';
+import { Serve } from '../createServeFactory';
 
 export type ExpressAdapterContext = {
   req: Request;

@@ -1,5 +1,5 @@
 import { Context } from './context';
-import { MaybePromise } from '../dist/types';
+import { MaybePromise } from './types';
 
 export type NextFunction = <TNextContext extends Context>({ ctx }: { ctx: TNextContext }) => { ctx: TNextContext };
 

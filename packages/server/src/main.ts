@@ -1,39 +1,16 @@
-export type { Server } from './types';
-
 export { createServer } from './createServer';
+
+export { Resolver } from './resolver';
+export { Middleware } from './middleware';
+
+export type { Server } from './types';
+export type { Route, AnyRoute } from './route';
+export type { Router, AnyRouter } from './createRouterFactory';
+export type { Context } from './context';
+export type { Serve, AnyServe } from './createServeFactory';
 
 /**
  * @module adapters/express
  */
 export { expressAdapter } from './adapters/express';
 export type { ExpressAdapterContext } from './adapters/express';
-
-import { createServer as cs } from './createServer';
-
-const { resolver, middleware } = cs({
-  ctx: () => ({
-    test: 1 as number | null | undefined,
-  }),
-});
-
-const test = middleware(({ ctx, next }) => {
-  if (ctx.test === undefined) throw new Error();
-
-  return next({
-    ctx: {
-      test: ctx.test,
-    },
-  });
-});
-
-const piped = test.pipe(({ ctx, next }) => {
-  if (ctx.test === null) throw new Error();
-
-  return next({
-    ctx: {
-      test: ctx.test,
-    },
-  });
-});
-
-const nonUndef = resolver.use(piped);

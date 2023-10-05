@@ -1,6 +1,6 @@
 import { zodToTs, printNode } from 'zod-to-ts';
 import { Route } from './route';
-import { Router, RouterRoutes } from './routerDefinition';
+import { Router, RouterRoutes } from './createRouterFactory';
 
 export type RouteSchema<TRoute extends Route> = {
   input: TRoute['input'];
@@ -16,7 +16,7 @@ export type RoutesSchema<TRoutes extends RouterRoutes> = {
     : never;
 };
 
-export const createProxyRouterSchema = <TRoutes extends RouterRoutes>(routes: TRoutes): RoutesSchema<TRoutes> => {
+export const createRouterSchema = <TRoutes extends RouterRoutes>(routes: TRoutes): RoutesSchema<TRoutes> => {
   const schema: any = {};
 
   for (const [path, node] of Object.entries(routes)) {

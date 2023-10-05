@@ -1,4 +1,4 @@
-import { Route } from '@schema-rpc/schema';
+import { Route } from '@schema-rpc/server';
 import { z } from 'zod';
 
 export const createMutationClient = <TMutation extends Route<'mutation'>>(
