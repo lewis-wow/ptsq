@@ -1,21 +1,20 @@
-import { Route } from '@schema-rpc/server';
-import { z } from 'zod';
+import type { Route } from '@schema-rpc/server';
+import type { z } from 'zod';
 
 export const createMutationClient = <TMutation extends Route<'mutation'>>(
   mutation: TMutation,
   route: string
 ): MutationClient<TMutation> => ({
-  mutate: async (_input = undefined) => {
+  mutate: async (input = undefined) => {
     return {
       mutation,
       route,
+      input,
     } as unknown as MutationClientOutput<TMutation['output']>;
   },
 });
 
-type MutationClientOutput<TOutput extends z.Schema | any = any> = Promise<
-  TOutput extends z.Schema ? z.infer<TOutput> : TOutput
->;
+type MutationClientOutput<TOutput> = Promise<TOutput extends z.Schema ? z.infer<TOutput> : TOutput>;
 
 export type MutationClient<TQuery extends Route<'mutation'>> = {
   mutate: TQuery['input'] extends undefined

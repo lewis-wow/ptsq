@@ -1,6 +1,6 @@
 export type DataTransformer = {
-  serialize(object: any): any;
-  deserialize<TDeserializeOutput = any>(object: any): TDeserializeOutput;
+  serialize: (object: unknown) => unknown;
+  deserialize: <TDeserializeOutput = unknown>(object: unknown) => TDeserializeOutput;
 };
 
 export type CombinedDataTransformer = {
@@ -20,7 +20,7 @@ export type DataTransformerServer = {
 
 export const defaultDataTransformer: DataTransformer = {
   serialize: (obj) => obj,
-  deserialize: (obj) => obj,
+  deserialize: <TDeserializeOutput = unknown>(obj: unknown) => obj as TDeserializeOutput,
 };
 
 export type inferDeserializeDataTransformerOutput<TDataTransformer, TData> = TDataTransformer extends {

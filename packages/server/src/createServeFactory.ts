@@ -1,13 +1,13 @@
-import { ContextBuilder, inferContextParamsFromContextBuilder } from './context';
+import type { ContextBuilder, inferContextParamsFromContextBuilder } from './context';
 
-type ServeArgs<TParams extends any[]> = {
+type ServeArgs<TParams extends unknown[]> = {
   route: string[];
   params: TParams;
 };
 
-export type Serve<TParams extends any[]> = ({ route, params }: ServeArgs<TParams>) => Promise<void>;
+export type Serve<TParams extends unknown[]> = ({ route, params }: ServeArgs<TParams>) => Promise<void>;
 
-export type AnyServe = Serve<any[]>;
+export type AnyServe = Serve<unknown[]>;
 
 export const createServeFactory =
   <TContextBuilder extends ContextBuilder>({

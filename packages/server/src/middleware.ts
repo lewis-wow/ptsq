@@ -1,5 +1,5 @@
-import { Context } from './context';
-import { MaybePromise } from './types';
+import type { Context } from './context';
+import type { MaybePromise } from './types';
 
 export type NextFunction = <TNextContext extends Context>({ ctx }: { ctx: TNextContext }) => { ctx: TNextContext };
 
@@ -17,7 +17,7 @@ export class Middleware<TContext extends Context, TNextContext extends Context> 
   call(ctx: TContext) {
     return this.middlewareCallback({
       ctx,
-      next: ({ ctx }) => ({ ctx }),
+      next: ({ ctx: nextCtx }) => ({ ctx: nextCtx }),
     });
   }
 
@@ -26,7 +26,7 @@ export class Middleware<TContext extends Context, TNextContext extends Context> 
       const currentCtxResult = await this.call(ctx);
       const pipedCtxResult = await middlewareCallback({
         ctx: currentCtxResult.ctx,
-        next: ({ ctx }) => ({ ctx }),
+        next: ({ ctx: nextCtx }) => ({ ctx: nextCtx }),
       });
 
       return next(pipedCtxResult);

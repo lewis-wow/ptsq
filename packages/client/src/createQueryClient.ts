@@ -1,19 +1,20 @@
-import { Route } from '@schema-rpc/schema';
-import { z } from 'zod';
+import type { Route } from '@schema-rpc/server';
+import type { z } from 'zod';
 
 export const createQueryClient = <TQuery extends Route<'query'>>(
   query: TQuery,
   route: string
 ): QueryClient<TQuery> => ({
-  query: async (_input = undefined) => {
+  query: async (input = undefined) => {
     return {
       query,
       route,
+      input,
     } as unknown as QueryClientOutput<TQuery['output']>;
   },
 });
 
-type QueryClientOutput<TOutput extends z.Schema | any> = Promise<TOutput extends z.Schema ? z.infer<TOutput> : TOutput>;
+type QueryClientOutput<TOutput> = Promise<TOutput extends z.Schema ? z.infer<TOutput> : Exclude<TOutput, z.Schema>>;
 
 export type QueryClient<TQuery extends Route<'query'>> = {
   query: TQuery['input'] extends undefined

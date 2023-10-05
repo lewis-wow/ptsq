@@ -4,14 +4,17 @@
   "private": true,
   "main": "src/main.ts",
   "scripts": {
-    "build": "tsc --build"
+    "build": "tsc --build",
+    "lint": "eslint ."
   },
   "devDependencies": {
     "@types/node": "^20.7.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "tsconfig": "*",
+    "eslint-config-custom": "*"
   },
   "dependencies": {
-    "@schema-rpc/schema": "*",
+    "@schema-rpc/server": "*",
     "superjson": "^1.13.3",
     "zod": "^3.22.2"
   }

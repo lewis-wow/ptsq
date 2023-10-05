@@ -1,9 +1,9 @@
-import { Context, ContextBuilder, inferContextFromContextBuilder } from './context';
+import type { Context, ContextBuilder, inferContextFromContextBuilder } from './context';
 import { createRouterFactory } from './createRouterFactory';
 import { createServeFactory } from './createServeFactory';
-import { Middleware, MiddlewareCallback } from './middleware';
+import { Middleware, type MiddlewareCallback } from './middleware';
 import { Resolver } from './resolver';
-import { DataTransformer, defaultDataTransformer } from './transformer';
+import { type DataTransformer, defaultDataTransformer } from './transformer';
 
 type CreateServerArgs<
   TContextBuilder extends ContextBuilder,

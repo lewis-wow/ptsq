@@ -7,10 +7,10 @@ export type ExpressAdapterContext = {
 };
 
 export const expressAdapter =
-  (serve: Serve<[ExpressAdapterContext]>) => (req: Request, res: Response, next: NextFunction) => {
+  (serve: Serve<[ExpressAdapterContext]>) => async (req: Request, res: Response, next: NextFunction) => {
     const route = req.query.route;
     if (typeof route !== 'string') throw new Error('Route query param must be a string');
 
-    serve({ route: route.split('.'), params: [{ req, res }] });
+    await serve({ route: route.split('.'), params: [{ req, res }] });
     next();
   };

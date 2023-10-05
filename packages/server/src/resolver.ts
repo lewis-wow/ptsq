@@ -1,7 +1,7 @@
-import { Route } from './route';
-import { Context } from './context';
-import { Middleware } from './middleware';
-import { ParseResolverInput, ParseResolverOutput } from './types';
+import type { Route } from './route';
+import type { Context } from './context';
+import type { Middleware } from './middleware';
+import type { ParseResolverInput, ParseResolverOutput } from './types';
 
 export class Resolver<TContext extends Context> {
   middlewares: Middleware<TContext, TContext>[];
@@ -29,4 +29,4 @@ export type ResolveFunction<TRoute extends Route, TContext extends Context = Con
   ctx: TContext;
 }) => ParseResolverOutput<TRoute['output']>;
 
-export type AnyResolveFunction = ResolveFunction<any, any>;
+export type AnyResolveFunction = ResolveFunction<Route>;
