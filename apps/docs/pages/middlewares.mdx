@@ -1,4 +1,4 @@
-# Middleware
+# Middlewares
 
 ```ts filename="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
@@ -10,7 +10,7 @@ import { getUserFromJWT } from './getUserFromJWT';
 const app = express();
 
 const createContext = async ({ req, res }: ExpressAdapterContext) => {
-  const user = getUserFromJWT(req.cookies.jwt);
+  const user = await getUserFromJWT(req.cookies.jwt);
 
   return {
     req,

@@ -6,6 +6,10 @@
   "middlewares": "Middlewares",
   "introspection": "Introspection query",
   "errors": "Errors",
+  "cors": "Cors",
+  "file-upload": "File upload",
+  "server-side-calls": "Server side calls",
+  "logging": "Logging",
   "contact": {
     "title": "Contact ↗",
     "type": "page",

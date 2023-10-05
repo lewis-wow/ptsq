@@ -1,0 +1,31 @@
+# Server side calls
+
+```ts filename="server.ts"
+const { middleware, resolver, router, serve } = createServer({
+  ctx: createContext,
+});
+
+const testMutation = resolver.mutation({
+  input: z.object({ name: z.string() }),
+  output: z.string(),
+  resolve: async ({ input /* { name: string } */ }) /* string */ => {
+    return `Hello, ${input.name}`;
+  },
+});
+
+const baseRouter = router({
+  test: testMutation,
+});
+
+const caller = baseRouter.createCaller();
+
+const result = await caller.test.mutate({
+  name: /* string */ 'John',
+});
+
+// or
+
+const result = await testMutation.mutate({
+  name: /* string */ 'John',
+});
+```

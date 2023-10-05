@@ -1,0 +1,15 @@
+# Logging
+
+```ts filename="server.ts"
+const { middleware, resolver, router, serve } = createServer({
+  ctx: createContext,
+  logging: {
+    info(...args) {
+      logger.info(...args);
+    },
+    error(...args) {
+      logger.error(...args);
+    },
+  },
+});
+```

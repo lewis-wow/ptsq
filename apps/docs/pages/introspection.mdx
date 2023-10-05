@@ -16,3 +16,27 @@ const schema = await fetch('https://example.com/schema-trpc/introspection');
 
 writeFileSync('schema.ts', buildTSSchema(schema));
 ```
+
+## Introspection query for only some hosts
+
+```ts filename="server.ts"
+import { createServer } from '@schema-rpc/server';
+
+createServer({
+  introspection: ['http://localhost:3000' /* ... */],
+});
+```
+
+## Introspection query with authorization
+
+```ts filename="server.ts"
+import { createServer } from '@schema-rpc/server';
+
+createServer({
+  introspection: async ({ req, res }: ExpressAdapterContext) => {
+    const organization = await getOrganizationFromJWT(req.cookies.jwt);
+
+    return organization.isBilled;
+  },
+});
+```

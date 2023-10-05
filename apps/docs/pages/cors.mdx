@@ -1,0 +1,15 @@
+# Cors
+
+```ts filename="server.ts"
+const { middleware, resolver, router, serve } = createServer({
+  ctx: createContext,
+  cors: {
+    origin: 'http://localhost:4000',
+    credentials: true,
+    allowedHeaders: ['X-Custom-Header'],
+    methods: ['POST'],
+    maxAge: 300,
+    exposedHeaders: ['Content-Type'],
+  },
+});
+```
