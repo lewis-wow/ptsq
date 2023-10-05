@@ -1,0 +1,13 @@
+# Errors
+
+```ts filename="server.ts"
+const isAuthed = middleware(({ ctx, next }) => {
+  if (!ctx.user) throw new HTTPError({ code: 'UNAUTHORIZED', message: 'Must be logged in!' });
+
+  return next({
+    ctx: {
+      user: ctx.user,
+    },
+  });
+});
+```

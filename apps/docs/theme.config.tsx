@@ -7,6 +7,11 @@ const config: DocsThemeConfig = {
     link: 'https://github.com/lewis-wow/bakalarska-prace',
   },
   docsRepositoryBase: 'https://github.com/lewis-wow/bakalarska-prace',
+  useNextSeoProps() {
+    return {
+      titleTemplate: '%s – Schema-rpc',
+    };
+  },
 };
 
 export default config;

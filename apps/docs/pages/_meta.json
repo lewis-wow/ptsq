@@ -5,6 +5,7 @@
   "router": "Router",
   "middlewares": "Middlewares",
   "introspection": "Introspection query",
+  "errors": "Errors",
   "contact": {
     "title": "Contact ↗",
     "type": "page",
