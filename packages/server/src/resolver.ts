@@ -1,6 +1,6 @@
 import { Route } from '@schema-rpc/schema';
 import { Context } from './context';
-import { Middleware } from './middlewareDefinition';
+import { Middleware } from './middleware';
 import { ParseResolverInput, ParseResolverOutput } from './types';
 
 export class Resolver<TContext extends Context> {

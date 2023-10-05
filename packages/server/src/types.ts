@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Route, Router } from '@schema-rpc/schema';
-import { ResolveFunction } from './resolverDefinition';
+import { ResolveFunction } from './resolver';
 
 export type MaybePromise<T> = T | Promise<T>;
 

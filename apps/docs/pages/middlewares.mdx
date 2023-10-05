@@ -48,3 +48,36 @@ protectedResolver.query({
   },
 });
 ```
+
+## Middleware pipes
+
+```ts filename="server.ts"
+const isAuthed = middleware(({ ctx /* { user: User<any> | null } */, next }) => {
+  if (!ctx.user) throw new Error('Must be logged in!');
+
+  return next({
+    ctx: {
+      user: ctx.user,
+    },
+  });
+});
+
+const isAdmin = isAuthed.pipe(({ ctx /* { user: User<any> } */, next }) => {
+  if (ctx.user.role !== 'admin') throw new Error('Must be an admin!');
+
+  return next({
+    ctx: {
+      user: ctx.user,
+    },
+  });
+});
+
+const adminResolver = resolver.use(isAdmin);
+
+const deleteOrganization = adminResolver.mutation({
+  //...
+  resolve: ({ ctx /* { user: User<'admin'> } */, input }) => {
+    //...
+  },
+});
+```

@@ -1,6 +1,6 @@
 export type { Server } from './types';
 
-export { createServer } from './server';
+export { createServer } from './createServer';
 
 /**
  * @module adapters/express
@@ -8,7 +8,7 @@ export { createServer } from './server';
 export { expressAdapter } from './adapters/express';
 export type { ExpressAdapterContext } from './adapters/express';
 
-import { createServer as cs } from './server';
+import { createServer as cs } from './createServer';
 
 const { resolver, middleware } = cs({
   ctx: () => ({

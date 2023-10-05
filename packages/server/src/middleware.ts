@@ -1,5 +1,5 @@
 import { Context } from './context';
-import { MaybePromise } from './types';
+import { MaybePromise } from '../dist/types';
 
 export type NextFunction = <TNextContext extends Context>({ ctx }: { ctx: TNextContext }) => { ctx: TNextContext };
 
@@ -9,7 +9,7 @@ export type MiddlewareCallback<TContext extends Context, TNextContext extends Co
 }: {
   ctx: TContext;
   next: NextFunction;
-}) => ReturnType<typeof next<TNextContext>>;
+}) => MaybePromise<ReturnType<typeof next<TNextContext>>>;
 
 export class Middleware<TContext extends Context, TNextContext extends Context> {
   constructor(public middlewareCallback: MiddlewareCallback<TContext, TNextContext>) {}
@@ -22,9 +22,9 @@ export class Middleware<TContext extends Context, TNextContext extends Context> 
   }
 
   pipe<TNextPipeContext extends Context>(middlewareCallback: MiddlewareCallback<TNextContext, TNextPipeContext>) {
-    return new Middleware<TContext, TNextPipeContext>(({ ctx, next }) => {
-      const currentCtxResult = this.call(ctx);
-      const pipedCtxResult = middlewareCallback({
+    return new Middleware<TContext, TNextPipeContext>(async ({ ctx, next }) => {
+      const currentCtxResult = await this.call(ctx);
+      const pipedCtxResult = await middlewareCallback({
         ctx: currentCtxResult.ctx,
         next: ({ ctx }) => ({ ctx }),
       });
@@ -33,13 +33,3 @@ export class Middleware<TContext extends Context, TNextContext extends Context> 
     });
   }
 }
-
-export type Middleware_OLD<TContext extends Context, TNextContext extends Context> = (ctx: TContext) => MaybePromise<{
-  ctx: TNextContext;
-}>;
-
-export const middlewareDefinition = <TContext extends Context>() => {
-  return <TNextContext extends Context>(
-    middlewareCallback: MiddlewareCallback<TContext, TNextContext>
-  ): Middleware<TContext, TNextContext> => new Middleware(middlewareCallback);
-};
