@@ -10,7 +10,7 @@ export class Resolver<TContext extends Context> {
     this.middlewares = middlewares;
   }
 
-  use<TNextContext extends Context>(middleware: Middleware<TContext, TNextContext>) {
+  use<TNextContext extends Context>(middleware: Middleware<TContext, TContext & TNextContext>) {
     return new Resolver<TNextContext>({
       middlewares: [...this.middlewares, middleware] as unknown as Middleware<TNextContext, TNextContext>[],
     });
