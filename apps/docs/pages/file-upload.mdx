@@ -16,11 +16,18 @@ const { middleware, resolver, router, serve } = createServer({
   ctx: createContext,
 });
 
-const uploadFile = resolver.mutation({
-  input: z.object({ file: z.instanceof(File) }),
+const uploadFile = resolver.binary({
+  multiple: false,
   resolve: async ({ ctx /* { req: express.Request, res: express.Response } */, input /* { file: File } */ }) => {
     const textContent = await file.text();
     return textContent;
+  },
+});
+
+const uploadFiles = resolver.binary({
+  multiple: true,
+  resolve: async ({ ctx /* { req: express.Request, res: express.Response } */, input /* { file: FileList } */ }) => {
+    //...
   },
 });
 
@@ -43,7 +50,7 @@ const file = new File(['foo'], 'foo.txt', {
   type: 'text/plain',
 });
 
-const result = await client.uploadFile.mutate({
+const result = await client.uploadFile.upload({
   file: /* File */ file,
 });
 ```
