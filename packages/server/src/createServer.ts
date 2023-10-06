@@ -20,7 +20,7 @@ export const createServer = <TContextBuilder extends ContextBuilder, TDataTransf
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
   const dataTransformer = transformer ?? (defaultDataTransformer as TDataTransformer);
 
-  const resolver = new Resolver<RootContext>({ middlewares: [] });
+  const resolver = new Resolver<RootContext>({ transformer: dataTransformer, middlewares: [] });
 
   const router = createRouterFactory({ transformer: dataTransformer });
 

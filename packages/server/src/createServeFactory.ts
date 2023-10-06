@@ -1,11 +1,12 @@
 import { ContextBuilder, inferContextParamsFromContextBuilder } from './context';
+import { MaybePromise } from './types';
 
 type ServeArgs<TParams extends any[]> = {
   route: string[];
   params: TParams;
 };
 
-export type Serve<TParams extends any[]> = ({ route, params }: ServeArgs<TParams>) => Promise<void>;
+export type Serve<TParams extends any[]> = ({ route, params }: ServeArgs<TParams>) => MaybePromise<void>;
 
 export type AnyServe = Serve<any[]>;
 

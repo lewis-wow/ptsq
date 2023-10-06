@@ -1,21 +1,32 @@
 import { AnyRoute } from './route';
 import { DataTransformer } from './transformer';
-import { RoutesSchema } from './createRouterSchema';
-import { createRouterSchema } from './createRouterSchema';
 
 export type RouterRoutes<TDataTransformer extends DataTransformer = DataTransformer> = {
   [Key: string]: AnyRoute | Router<TDataTransformer>;
 };
 
-export type Router<
+type RouterOptions<TDataTransformer extends DataTransformer, TRoutes extends RouterRoutes<TDataTransformer>> = {
+  transformer: TDataTransformer;
+  routes: TRoutes;
+};
+
+export class Router<
   TDataTransformer extends DataTransformer = DataTransformer,
   TRoutes extends RouterRoutes<TDataTransformer> = RouterRoutes<TDataTransformer>,
-> = {
-  nodeType: 'router';
-  routes: TRoutes;
+> {
   transformer: TDataTransformer;
-  schema: RoutesSchema<TRoutes>;
-};
+  routes: TRoutes;
+  nodeType: 'router' = 'router';
+
+  constructor({ transformer, routes }: RouterOptions<TDataTransformer, TRoutes>) {
+    this.transformer = transformer;
+    this.routes = routes;
+  }
+
+  getSchema() {}
+
+  createCaller() {}
+}
 
 export type AnyRouter = Router;
 
@@ -27,9 +38,8 @@ export const createRouterFactory =
     },
   >(
     routes: TRoutes
-  ): Router<TDataTransformer, TRoutes> => ({
-    routes,
-    nodeType: 'router',
-    transformer,
-    schema: createRouterSchema(routes),
-  });
+  ): Router<TDataTransformer, TRoutes> =>
+    new Router({
+      routes,
+      transformer,
+    });
