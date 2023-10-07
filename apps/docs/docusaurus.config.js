@@ -40,7 +40,7 @@ const config = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/lewis-wow/bakalarska-prace/',
+          editUrl: 'https://github.com/lewis-wow/bakalarska-prace/edit/master/apps/docs',
           routeBasePath: '/', // Serve the blog at the site's root
           /* other blog options */
         },
