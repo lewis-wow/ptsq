@@ -1,9 +1,10 @@
-# Query
+# Router
 
-```ts filename="server.ts"
+```ts title="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
 import express from 'express';
 import { z } from 'zod';
+import { userRouter } from './userRouter';
 
 const app = express();
 
@@ -16,16 +17,15 @@ const { middleware, resolver, router, serve } = createServer({
   ctx: createContext,
 });
 
-const testQuery = resolver.query({
-  input: z.object({ name: z.string() }),
-  output: z.string(),
-  resolve: ({ input /* { name: string } */ }) /* string */ => {
-    return `Hello, ${input.name}`;
-  },
-});
-
+// routers can be merged as you want
 const baseRouter = router({
-  test: testQuery,
+  a: router({
+    b: router({
+      c: router({
+        user: userRouter,
+      }),
+    }),
+  }),
 });
 
 app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
@@ -33,13 +33,14 @@ app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
 app.listen(4000);
 ```
 
-```ts filename="client.ts"
+```ts title="client.ts"
 import { createProxyClient } from '@schema-rpc/client';
 import { baseRouter } from './schema';
 
 const client = createProxyClient(baseRouter);
 
-const result = await client.test.query({
-  name: /* string */ 'John',
-});
+const result = await client.a.b.c.user.current.query();
+
+// autocompletion
+const userList = await client.a. /* b.c.user.userList.query() */
 ```

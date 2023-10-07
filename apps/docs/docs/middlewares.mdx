@@ -1,6 +1,6 @@
 # Middlewares
 
-```ts filename="server.ts"
+```ts title="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
 import express from 'express';
 import { z } from 'zod';
@@ -51,7 +51,7 @@ protectedResolver.query({
 
 ## Middleware pipes
 
-```ts filename="server.ts"
+```ts title="server.ts"
 const isAuthed = middleware(({ ctx /* { user: User<any> | null } */, next }) => {
   if (!ctx.user) throw new Error('Must be logged in!');
 
