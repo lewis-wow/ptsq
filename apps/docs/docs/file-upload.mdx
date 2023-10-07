@@ -1,6 +1,6 @@
 # File upload
 
-```ts filename="server.ts"
+```ts title="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
 import express from 'express';
 import { z } from 'zod';
@@ -40,7 +40,7 @@ app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
 app.listen(4000);
 ```
 
-```ts filename="client.ts"
+```ts title="client.ts"
 import { createProxyClient } from '@schema-rpc/client';
 import { baseRouter } from './schema';
 
@@ -59,7 +59,7 @@ const result = await client.uploadFile.upload({
 
 DOM library has to be included in `tsconfig.json`
 
-```json filename="tsconfig.json"
+```json title="tsconfig.json"
 {
   "compilerOptions": {
     "lib": [

@@ -1,6 +1,6 @@
-# Mutation
+# Query
 
-```ts filename="server.ts"
+```ts title="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
 import express from 'express';
 import { z } from 'zod';
@@ -16,16 +16,16 @@ const { middleware, resolver, router, serve } = createServer({
   ctx: createContext,
 });
 
-const testMutation = resolver.mutation({
+const testQuery = resolver.query({
   input: z.object({ name: z.string() }),
   output: z.string(),
-  resolve: async ({ input /* { name: string } */ }) /* string */ => {
+  resolve: ({ input /* { name: string } */ }) /* string */ => {
     return `Hello, ${input.name}`;
   },
 });
 
 const baseRouter = router({
-  test: testMutation,
+  test: testQuery,
 });
 
 app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
@@ -33,13 +33,13 @@ app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
 app.listen(4000);
 ```
 
-```ts filename="client.ts"
+```ts title="client.ts"
 import { createProxyClient } from '@schema-rpc/client';
 import { baseRouter } from './schema';
 
 const client = createProxyClient(baseRouter);
 
-const result = await client.test.mutate({
+const result = await client.test.query({
   name: /* string */ 'John',
 });
 ```

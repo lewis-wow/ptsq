@@ -1,6 +1,6 @@
 # Introspection query
 
-```ts filename="server.ts"
+```ts title="server.ts"
 import { createServer } from '@schema-rpc/server';
 
 createServer({
@@ -8,7 +8,7 @@ createServer({
 });
 ```
 
-```ts filename="introspection.ts"
+```ts title="introspection.ts"
 import { buildTSSchema } from '@schema-rpc/server';
 import { writeFileSync } from 'fs';
 
@@ -19,7 +19,7 @@ writeFileSync('schema.ts', buildTSSchema(schema));
 
 ## Introspection query for only some hosts
 
-```ts filename="server.ts"
+```ts title="server.ts"
 import { createServer } from '@schema-rpc/server';
 
 createServer({
@@ -29,7 +29,7 @@ createServer({
 
 ## Introspection query with authorization
 
-```ts filename="server.ts"
+```ts title="server.ts"
 import { createServer } from '@schema-rpc/server';
 
 createServer({
