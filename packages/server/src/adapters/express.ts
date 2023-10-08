@@ -10,9 +10,9 @@ export type ExpressAdapterContext = {
 export const expressAdapter = (serve: ServePayload<[ExpressAdapterContext]>) => {
   const expressRouter = express.Router();
 
-  const { serveCaller, introspection } = serve;
+  const { serveCaller, introspection, cors: corsOptions } = serve;
 
-  expressRouter.all('/', async (req, res) => {
+  expressRouter.all('/', cors(corsOptions), async (req, res) => {
     const rawRoute = req.query.route;
     if (typeof rawRoute !== 'string') {
       res.status(400).json({ message: 'Route query param must be a string' });
