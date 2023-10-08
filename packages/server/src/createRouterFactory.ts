@@ -36,12 +36,12 @@ export class Router<
           properties: Object.entries(this.routes).reduce((acc, [key, node]) => {
             if (node.nodeType === 'router') {
               //@ts-expect-error
-              acc[key] = node.getJsonSchema(key);
+              acc[key] = node.getJsonSchema(`${title} ${key}`);
               return acc;
             }
 
             //@ts-expect-error
-            acc[key] = node.getJsonSchema(key);
+            acc[key] = node.getJsonSchema(`${title} ${key}`);
             return acc;
           }, {}),
         }),
