@@ -7,6 +7,7 @@ type CreateSchemaRootArgs = {
 
 export const createSchemaRoot = ({ title, properties }: CreateSchemaRootArgs) => {
   return {
+    $schema: 'http://json-schema.org/draft-07/schema#',
     title: title ? pascalcase(title) : undefined,
     type: 'object',
     additionalProperties: false,

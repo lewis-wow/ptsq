@@ -15,7 +15,7 @@ const baseRouter = router({
   }),
   inner: router({
     test: resolver.query({
-      input: z.object({ id: z.string() }),
+      input: z.object({ id: z.string(), kokot: z.union([z.number(), z.object({})]) }),
       resolve: () => {},
     }),
   }),
