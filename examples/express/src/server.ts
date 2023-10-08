@@ -6,6 +6,7 @@ const app = express();
 
 const { router, resolver, serve } = createServer({
   ctx: (params: ExpressAdapterContext) => ({ ...params }),
+  introspection: true,
 });
 
 const baseRouter = router({

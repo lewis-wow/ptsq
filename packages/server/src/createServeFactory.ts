@@ -12,6 +12,7 @@ export type ServeFunction<TParams extends any[] = any[]> = (options: {
   params: TParams;
   route?: string[];
   ctx: object;
+  introspection: boolean;
 }>;
 
 export type AnyServe = Serve;
@@ -20,8 +21,10 @@ export type AnyServeFunction = ServeFunction;
 export const createServeFactory =
   <TContextBuilder extends ContextBuilder>({
     contextBuilder,
+    introspection,
   }: {
     contextBuilder: TContextBuilder;
+    introspection: boolean;
   }): Serve<inferContextParamsFromContextBuilder<TContextBuilder>> =>
   ({ router }) =>
   async ({ route, params }) => {
@@ -33,5 +36,6 @@ export const createServeFactory =
       router,
       route: parsedRoute,
       params,
+      introspection,
     };
   };

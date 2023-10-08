@@ -21,7 +21,13 @@ export const expressAdapter = (serve: ServeFunction<[ExpressAdapterContext]>) =>
   });
 
   router.get('/introspection', async (req, res) => {
-    const { router } = await serve({ params: [{ req, res }] });
+    const { router, introspection } = await serve({ params: [{ req, res }] });
+
+    if (!introspection) {
+      res.status(400).json({ message: 'Introspection is not allowed on the server' });
+      return;
+    }
+
     res.json(router.getJsonSchema());
   });
 
