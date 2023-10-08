@@ -1,12 +1,16 @@
-import { z } from 'zod';
 import { ResolverType } from './types';
 import { DataTransformer } from './transformer';
 import { AnyResolveFunction } from './resolver';
+import { SerializableZodSchema } from './serializable';
+import { zodToJsonSchema } from 'zod-to-json-schema';
+import { JsonSchema7Type } from 'zod-to-json-schema/src/parseDef';
+import { ZodSchema } from 'zod';
+import { createSchemaRoot } from './createSchemaRoot';
 
 export class Route<
   TType extends ResolverType = ResolverType,
-  TInput extends z.Schema | undefined = z.Schema | undefined,
-  TOutput extends z.Schema | any = z.Schema | any,
+  TInput extends SerializableZodSchema | undefined = SerializableZodSchema | undefined,
+  TOutput extends SerializableZodSchema | unknown = SerializableZodSchema | unknown,
   TResolver extends AnyResolveFunction = AnyResolveFunction,
   TDataTransformer extends DataTransformer = DataTransformer,
 > {
@@ -32,6 +36,37 @@ export class Route<
     this.nodeType = options.nodeType;
     this.transformer = options.transformer;
   }
+
+  getJsonSchema(title: string) {
+    return createSchemaRoot({
+      title: `${title} route`,
+      properties: {
+        type: {
+          type: 'string',
+          enum: [this.type],
+        },
+        nodeType: {
+          type: 'string',
+          enum: [this.nodeType],
+        },
+        input: this.input instanceof ZodSchema ? zodToJsonSchema(this.input) : null,
+        output: this.output instanceof ZodSchema ? zodToJsonSchema(this.output) : null,
+      },
+    });
+  }
 }
+
+export type RouteSchema = {
+  type: ResolverType;
+  input: {
+    definitions?: Record<string, JsonSchema7Type>;
+    $schema?: string;
+  } | null;
+  output: {
+    definitions?: Record<string, JsonSchema7Type>;
+    $schema?: string;
+  } | null;
+  nodeType: 'route';
+};
 
 export type AnyRoute = Route;

@@ -1,14 +1,21 @@
 import { ContextBuilder, inferContextParamsFromContextBuilder } from './context';
+import { Router } from './createRouterFactory';
 import { MaybePromise } from './types';
 
-type ServeArgs<TParams extends any[]> = {
-  route: string[];
+export type Serve<TParams extends any[] = any[]> = ({ router }: { router: Router }) => ServeFunction<TParams>;
+
+export type ServeFunction<TParams extends any[] = any[]> = (options: {
+  route?: string;
   params: TParams;
-};
+}) => MaybePromise<{
+  router: Router;
+  params: TParams;
+  route?: string[];
+  ctx: object;
+}>;
 
-export type Serve<TParams extends any[]> = ({ route, params }: ServeArgs<TParams>) => MaybePromise<void>;
-
-export type AnyServe = Serve<any[]>;
+export type AnyServe = Serve;
+export type AnyServeFunction = ServeFunction;
 
 export const createServeFactory =
   <TContextBuilder extends ContextBuilder>({
@@ -16,8 +23,15 @@ export const createServeFactory =
   }: {
     contextBuilder: TContextBuilder;
   }): Serve<inferContextParamsFromContextBuilder<TContextBuilder>> =>
+  ({ router }) =>
   async ({ route, params }) => {
     const ctx = await contextBuilder(...params);
+    const parsedRoute = route?.split('.');
 
-    console.log(ctx, route, params);
+    return {
+      ctx,
+      router,
+      route: parsedRoute,
+      params,
+    };
   };

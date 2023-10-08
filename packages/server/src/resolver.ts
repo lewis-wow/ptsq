@@ -48,7 +48,22 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
     });
   }
 
-  query<TQueryInput extends z.Schema | undefined, TQueryOutput extends z.Schema | any>(options: {
+  query(options: {
+    resolve: ResolveFunction<undefined, unknown, TContext>;
+  }): Route<'query', undefined, unknown, ResolveFunction<undefined, unknown, TContext>, TDataTransformer>;
+
+  query<TQueryOutput extends z.Schema | unknown>(options: {
+    output?: TQueryOutput;
+    resolve: ResolveFunction<undefined, TQueryOutput, TContext>;
+  }): Route<'query', undefined, TQueryOutput, ResolveFunction<undefined, TQueryOutput, TContext>, TDataTransformer>;
+
+  query<TQueryInput extends z.Schema | undefined, TQueryOutput extends z.Schema | unknown>(options: {
+    input?: TQueryInput;
+    output?: TQueryOutput;
+    resolve: ResolveFunction<TQueryInput, TQueryOutput, TContext>;
+  }): Route<'query', TQueryInput, TQueryOutput, ResolveFunction<TQueryInput, TQueryOutput, TContext>, TDataTransformer>;
+
+  query<TQueryInput extends z.Schema | undefined, TQueryOutput extends z.Schema | unknown>(options: {
     input?: TQueryInput;
     output?: TQueryOutput;
     resolve: ResolveFunction<TQueryInput, TQueryOutput, TContext>;

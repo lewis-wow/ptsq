@@ -1,18 +1,19 @@
+import { createSchemaRoot } from './createSchemaRoot';
 import { AnyRoute } from './route';
 import { DataTransformer } from './transformer';
 
-export type RouterRoutes<TDataTransformer extends DataTransformer = DataTransformer> = {
+export type Routes<TDataTransformer extends DataTransformer = DataTransformer> = {
   [Key: string]: AnyRoute | Router<TDataTransformer>;
 };
 
-type RouterOptions<TDataTransformer extends DataTransformer, TRoutes extends RouterRoutes<TDataTransformer>> = {
+type RouterOptions<TDataTransformer extends DataTransformer, TRoutes extends Routes<TDataTransformer>> = {
   transformer: TDataTransformer;
   routes: TRoutes;
 };
 
 export class Router<
   TDataTransformer extends DataTransformer = DataTransformer,
-  TRoutes extends RouterRoutes<TDataTransformer> = RouterRoutes<TDataTransformer>,
+  TRoutes extends Routes<TDataTransformer> = Routes<TDataTransformer>,
 > {
   transformer: TDataTransformer;
   routes: TRoutes;
@@ -23,12 +24,33 @@ export class Router<
     this.routes = routes;
   }
 
-  getSchema() {}
+  getJsonSchema(title = 'root') {
+    return createSchemaRoot({
+      title: `${title} router`,
+      properties: {
+        nodeType: {
+          type: 'string',
+          enum: [this.nodeType],
+        },
+        routes: createSchemaRoot({
+          properties: Object.entries(this.routes).reduce((acc, [key, node]) => {
+            if (node.nodeType === 'router') {
+              //@ts-expect-error
+              acc[key] = node.getJsonSchema(key);
+              return acc;
+            }
 
-  createCaller() {}
+            //@ts-expect-error
+            acc[key] = node.getJsonSchema(key);
+            return acc;
+          }, {}),
+        }),
+      },
+    });
+  }
+
+  createProxyCaller() {}
 }
-
-export type AnyRouter = Router;
 
 export const createRouterFactory =
   <TDataTransformer extends DataTransformer>({ transformer }: { transformer: TDataTransformer }) =>
@@ -43,3 +65,5 @@ export const createRouterFactory =
       routes,
       transformer,
     });
+
+export type AnyRouter = Router;
