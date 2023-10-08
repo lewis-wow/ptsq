@@ -1,8 +1,15 @@
 import { ContextBuilder, inferContextParamsFromContextBuilder } from './context';
+import { CustomOrigin, StaticOrigin } from './cors';
 import { Router } from './createRouterFactory';
 import { MaybePromise } from './types';
 
-export type Serve<TParams extends any[] = any[]> = ({ router }: { router: Router }) => ServeFunction<TParams>;
+export type Serve<TParams extends any[] = any[]> = ({ router }: { router: Router }) => ServePayload<TParams>;
+
+export type ServePayload<TParams extends any[]> = {
+  introspection?: StaticOrigin | CustomOrigin | boolean;
+  router: Router;
+  serveCaller: ServeFunction<TParams>;
+};
 
 export type ServeFunction<TParams extends any[] = any[]> = (options: {
   route?: string;
@@ -12,7 +19,7 @@ export type ServeFunction<TParams extends any[] = any[]> = (options: {
   params: TParams;
   route?: string[];
   ctx: object;
-  introspection: boolean;
+  introspection?: StaticOrigin | CustomOrigin | boolean;
 }>;
 
 export type AnyServe = Serve;
@@ -24,18 +31,21 @@ export const createServeFactory =
     introspection,
   }: {
     contextBuilder: TContextBuilder;
-    introspection: boolean;
+    introspection?: StaticOrigin | CustomOrigin | boolean;
   }): Serve<inferContextParamsFromContextBuilder<TContextBuilder>> =>
-  ({ router }) =>
-  async ({ route, params }) => {
-    const ctx = await contextBuilder(...params);
-    const parsedRoute = route?.split('.');
+  ({ router }) => ({
+    introspection,
+    router,
+    serveCaller: async ({ route, params }) => {
+      const ctx = await contextBuilder(...params);
+      const parsedRoute = route?.split('.');
 
-    return {
-      ctx,
-      router,
-      route: parsedRoute,
-      params,
-      introspection,
-    };
-  };
+      return {
+        ctx,
+        router,
+        route: parsedRoute,
+        params,
+        introspection,
+      };
+    },
+  });

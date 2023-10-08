@@ -1,3 +1,5 @@
+import pascalcase from 'pascalcase';
+
 type CreateSchemaRootArgs = {
   title?: string;
   properties: object;
@@ -5,7 +7,7 @@ type CreateSchemaRootArgs = {
 
 export const createSchemaRoot = ({ title, properties }: CreateSchemaRootArgs) => {
   return {
-    title,
+    title: title ? pascalcase(title) : undefined,
     type: 'object',
     additionalProperties: false,
     properties,

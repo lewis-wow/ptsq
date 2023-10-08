@@ -1,4 +1,5 @@
 import { Context, ContextBuilder, inferContextFromContextBuilder } from './context';
+import { CustomOrigin, StaticOrigin } from './cors';
 import { createRouterFactory } from './createRouterFactory';
 import { createServeFactory } from './createServeFactory';
 import { Middleware, MiddlewareCallback } from './middleware';
@@ -11,7 +12,7 @@ type CreateServerArgs<
 > = {
   ctx: TContextBuilder;
   transformer?: TDataTransformer;
-  introspection?: boolean;
+  introspection?: StaticOrigin | CustomOrigin | boolean;
 };
 
 export const createServer = <TContextBuilder extends ContextBuilder, TDataTransformer extends DataTransformer>({

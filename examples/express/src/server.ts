@@ -6,7 +6,7 @@ const app = express();
 
 const { router, resolver, serve } = createServer({
   ctx: (params: ExpressAdapterContext) => ({ ...params }),
-  introspection: true,
+  introspection: ['http://localhost:8080', 'http://localhost:3000'],
 });
 
 const baseRouter = router({
@@ -22,14 +22,6 @@ const baseRouter = router({
 });
 
 app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
-
-const routerTEST = express.Router();
-
-routerTEST.get('/ff', (_req, res) => {
-  res.json({ a: 1 });
-});
-
-app.use('/ff', routerTEST);
 
 app.listen(4000, () => {
   console.log('Listening on: http://localhost:4000/schema-rpc');
