@@ -1,5 +1,5 @@
 import { ExpressAdapterContext, createServer, expressAdapter } from '@schema-rpc/server';
-import express = require('express');
+import express from 'express';
 import { z } from 'zod';
 
 const app = express();
@@ -10,13 +10,22 @@ const { router, resolver, serve } = createServer({
 });
 
 const baseRouter = router({
-  test: resolver.query({
-    resolve: () => {},
+  test: resolver.mutation({
+    resolve: (_input) => ({}),
+  }),
+  test2: resolver.mutation({
+    input: z.object({}),
+    output: z.object({}),
+    resolve: (_input) => ({}),
   }),
   inner: router({
-    test: resolver.query({
-      input: z.object({ id: z.string(), kokot: z.union([z.number(), z.object({})]) }),
-      resolve: () => {},
+    test1: resolver.query({
+      resolve: (_input) => ({}),
+    }),
+    test2: resolver.query({
+      input: z.object({}),
+      output: z.object({}),
+      resolve: (_input) => ({}),
     }),
   }),
 });

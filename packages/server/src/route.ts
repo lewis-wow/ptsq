@@ -49,7 +49,7 @@ export class Route<
           type: 'string',
           enum: [this.nodeType],
         },
-        input: this.input instanceof ZodSchema ? zodToJsonSchema(this.input) : {},
+        input: this.input instanceof ZodSchema ? zodToJsonSchema(this.input) : undefined,
         output: this.output instanceof ZodSchema ? zodToJsonSchema(this.output) : {},
       },
     });
