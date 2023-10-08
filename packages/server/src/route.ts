@@ -9,13 +9,13 @@ import { createSchemaRoot } from './createSchemaRoot';
 
 export class Route<
   TType extends ResolverType = ResolverType,
-  TInput extends SerializableZodSchema | undefined = SerializableZodSchema | undefined,
+  TInput extends SerializableZodSchema | void = SerializableZodSchema | void,
   TOutput extends SerializableZodSchema | unknown = SerializableZodSchema | unknown,
   TResolver extends AnyResolveFunction = AnyResolveFunction,
   TDataTransformer extends DataTransformer = DataTransformer,
 > {
   type: TType;
-  input: TInput;
+  input?: TInput;
   output: TOutput;
   resolver: TResolver;
   nodeType: 'route';
@@ -23,7 +23,7 @@ export class Route<
 
   constructor(options: {
     type: TType;
-    input: TInput;
+    input?: TInput;
     output: TOutput;
     resolver: TResolver;
     nodeType: 'route';
