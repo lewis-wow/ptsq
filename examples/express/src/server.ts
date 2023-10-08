@@ -35,3 +35,5 @@ app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
 app.listen(4000, () => {
   console.log('Listening on: http://localhost:4000/schema-rpc');
 });
+
+export type BaseRouter = typeof baseRouter;

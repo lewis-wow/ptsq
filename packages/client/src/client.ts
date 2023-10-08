@@ -1,15 +1,11 @@
-import { Route, Router } from '@schema-rpc/schema';
-import { QueryClient } from './createQueryClient';
-import { MutationClient } from './createMutationClient';
+import type { ClientRoute } from './clientRoute';
+import type { ClientRouter } from './clientRouter';
+import type { ClientResolver } from './clientResolver';
 
-export type ClientRouter<TRouter extends Router> = {
-  [K in keyof TRouter['routes']]: TRouter['routes'][K] extends Route<'query'>
-    ? QueryClient<TRouter['routes'][K]>
-    : TRouter['routes'][K] extends Route<'mutation'>
-    ? MutationClient<TRouter['routes'][K]>
-    : TRouter['routes'][K] extends Router
-    ? ClientRouter<TRouter['routes'][K]>
+export type Client<TRouter extends ClientRouter> = {
+  [K in keyof TRouter['routes']]: TRouter['routes'][K] extends ClientRoute
+    ? ClientResolver<TRouter['routes'][K]>
+    : TRouter['routes'][K] extends ClientRouter
+    ? Client<TRouter['routes'][K]>
     : never;
 };
-
-export type Client<TRouter extends Router> = ClientRouter<TRouter>;

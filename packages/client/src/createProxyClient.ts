@@ -1,23 +1,20 @@
-import { Router } from '@schema-rpc/schema';
-import { Client } from './client';
-import { createQueryClient } from './createQueryClient';
-import { createMutationClient } from './createMutationClient';
+import type { Client } from './client';
+import type { ClientRouter } from './clientRouter';
 
-export const createProxyClient = <TRouter extends Router>(router: TRouter, route: string[] = []): Client<TRouter> => {
+export const proxyClientCaller =
+  (route: string[]) =>
+  (input = undefined) => {
+    console.log(route, input);
+  };
+
+export const createProxyClient = <TRouter extends ClientRouter>(route: string[] = []): Client<TRouter> => {
   const proxyHandler: ProxyHandler<TRouter> = {
-    get: (target, key: string) => {
-      const node = target.routes[key];
-
-      if (node.nodeType === 'router') return createProxyClient(node, [...route, key]);
-      //@ts-ignore
-      if (node.type === 'query') return createQueryClient(node, [...route, key].join('.'));
-      //@ts-ignore
-
-      return createMutationClient(node, [...route, key].join('.'));
+    get: (_target, key: string) => {
+      return createProxyClient([...route, key]);
     },
   };
 
-  const proxy = new Proxy(router, proxyHandler);
+  const proxy = new Proxy(proxyClientCaller([...route]) as unknown as TRouter, proxyHandler);
 
   return proxy as Client<TRouter>;
 };
