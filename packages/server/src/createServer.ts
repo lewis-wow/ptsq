@@ -1,4 +1,5 @@
 import { Context, ContextBuilder, inferContextFromContextBuilder } from './context';
+import { CustomOrigin, StaticOrigin } from './cors';
 import { createRouterFactory } from './createRouterFactory';
 import { createServeFactory } from './createServeFactory';
 import { Middleware, MiddlewareCallback } from './middleware';
@@ -11,11 +12,13 @@ type CreateServerArgs<
 > = {
   ctx: TContextBuilder;
   transformer?: TDataTransformer;
+  introspection?: StaticOrigin | CustomOrigin | boolean;
 };
 
 export const createServer = <TContextBuilder extends ContextBuilder, TDataTransformer extends DataTransformer>({
   ctx,
   transformer,
+  introspection = false,
 }: CreateServerArgs<TContextBuilder, TDataTransformer>) => {
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
   const dataTransformer = transformer ?? (defaultDataTransformer as TDataTransformer);
@@ -24,7 +27,7 @@ export const createServer = <TContextBuilder extends ContextBuilder, TDataTransf
 
   const router = createRouterFactory({ transformer: dataTransformer });
 
-  const serve = createServeFactory({ contextBuilder: ctx });
+  const serve = createServeFactory({ contextBuilder: ctx, introspection });
 
   const middleware = <TNextContext extends Context>(
     middlewareCallback: MiddlewareCallback<RootContext, TNextContext>
