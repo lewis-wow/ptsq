@@ -1,13 +1,8 @@
 import type { Client } from './client';
 import type { ClientRouter } from './clientRouter';
+import { createClientCaller } from './createClientCaller';
 import { RequestHeaders } from './headers';
 import { MaybePromise } from '@schema-rpc/server';
-
-export const proxyClientCaller =
-  (route: string[]) =>
-  async (input = undefined) => {
-    console.log(route, input);
-  };
 
 export type CreateProxyClientArgs = {
   url: string;
@@ -39,7 +34,7 @@ const createProxyClientUtil = <TRouter extends ClientRouter>(
     },
   };
 
-  const proxy = new Proxy(createProxyClientUtil(options, [...route]) as unknown as TRouter, proxyHandler);
+  const proxy = new Proxy(createClientCaller({ options, route: [...route] }) as unknown as TRouter, proxyHandler);
 
   return proxy as Client<TRouter>;
 };
