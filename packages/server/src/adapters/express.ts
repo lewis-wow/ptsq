@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { ServePayload } from '../createServeFactory';
 import cors from 'cors';
+import { expressExpectedRequestBodySchema } from '../expectedRequestBodySchema';
 
 export type ExpressAdapterContext = {
   req: Request;
@@ -12,15 +13,18 @@ export const expressAdapter = (serve: ServePayload<[ExpressAdapterContext]>) => 
 
   const { serveCaller, introspection, cors: corsOptions } = serve;
 
-  expressRouter.all('/', cors(corsOptions), async (req, res) => {
-    const rawRoute = req.query.route;
-    if (typeof rawRoute !== 'string') {
+  expressRouter.post('/', cors(corsOptions), async (req, res) => {
+    const parsedRequestBody = expressExpectedRequestBodySchema.safeParse(req.body);
+
+    if (!parsedRequestBody.success) {
       res.status(400).json({ message: 'Route query param must be a string' });
       return;
     }
 
-    const { ctx, router, route, params } = await serveCaller({ route: rawRoute, params: [{ req, res }] });
-    console.log({ ctx, router, route, params });
+    const { route: requestRoute, input } = parsedRequestBody.data;
+
+    const { ctx, router, route, params } = await serveCaller({ route: requestRoute, params: [{ req, res }] });
+    console.log({ ctx, router, route, params, input });
   });
 
   expressRouter.get(
