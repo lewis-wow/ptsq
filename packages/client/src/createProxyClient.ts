@@ -29,14 +29,6 @@ export const createProxyClient = <TRouter extends ClientRouter>({
   return createProxyClientUtil({ url });
 };
 
-createProxyClient({
-  url: '',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  credentials: true,
-});
-
 const createProxyClientUtil = <TRouter extends ClientRouter>(
   options: CreateProxyClientArgs,
   route: string[] = []
