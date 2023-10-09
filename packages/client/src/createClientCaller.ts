@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { CreateProxyClientArgs } from './createProxyClient';
+import { getHeaders } from './headers';
 
 export type CreateClientCallerArgs = {
   options: CreateProxyClientArgs;
@@ -8,9 +9,17 @@ export type CreateClientCallerArgs = {
 
 export const createClientCaller =
   ({ route, options }: CreateClientCallerArgs) =>
-  async (input = {}) => {
-    console.log(route, options, input);
+  async (input = undefined) => {
+    const headers = await getHeaders(options.headers);
 
-    const result = await axios.post(options.url);
-    return result;
+    const result = await axios.post(
+      options.url,
+      { route, input },
+      {
+        withCredentials: options.credentials,
+        headers,
+      }
+    );
+
+    return result.data;
   };

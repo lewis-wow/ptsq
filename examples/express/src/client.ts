@@ -1,10 +1,13 @@
 import { createProxyClient } from '@schema-rpc/client';
-import { BaseRouter } from './server';
+//import { BaseRouter } from './server';
+import { RootRouter } from './schema.generated';
 
-const client = createProxyClient<BaseRouter>();
+const client = createProxyClient<RootRouter>({
+  url: 'http://localhost:4000/schema-rpc',
+});
 
 (async () => {
-  const result = await client.test.mutate();
+  const result = await client.inner.test2.query({});
 
   console.log('result: ', result);
 })();

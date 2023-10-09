@@ -21,17 +21,15 @@ type RawHeaders = {
   [key: string]: RawHeaderValue;
 };
 
-export type RequestHeaders =
-  | Partial<
-      RawHeaders & {
-        [Key in CommonRequestHeadersList]: RawHeaderValue;
-      } & {
-        'Content-Type': ContentType;
-      }
-    >
-  | Headers;
+export type RequestHeaders = Partial<
+  RawHeaders & {
+    [Key in CommonRequestHeadersList]: RawHeaderValue;
+  } & {
+    'Content-Type': ContentType;
+  }
+>;
 
-export const getHeaders = async (headers: RequestHeaders | (() => MaybePromise<RequestHeaders>)) => {
+export const getHeaders = async (headers?: RequestHeaders | (() => MaybePromise<RequestHeaders>)) => {
   if (typeof headers !== 'function') return headers;
 
   return await headers();
