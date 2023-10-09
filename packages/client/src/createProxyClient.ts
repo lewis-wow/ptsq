@@ -1,20 +1,53 @@
 import type { Client } from './client';
 import type { ClientRouter } from './clientRouter';
+import { RequestHeaders } from './headers';
+import { MaybePromise } from '@schema-rpc/server';
 
 export const proxyClientCaller =
   (route: string[]) =>
-  (input = undefined) => {
+  async (input = undefined) => {
     console.log(route, input);
   };
 
-export const createProxyClient = <TRouter extends ClientRouter>(route: string[] = []): Client<TRouter> => {
+export type CreateProxyClientArgs = {
+  url: string;
+  credentials?: boolean;
+  headers?: RequestHeaders | (() => MaybePromise<RequestHeaders>);
+};
+
+export const createProxyClient = <TRouter extends ClientRouter>({
+  url,
+  credentials,
+  headers,
+}: CreateProxyClientArgs): Client<TRouter> => {
+  console.log({
+    url,
+    credentials,
+    headers,
+  });
+
+  return createProxyClientUtil({ url });
+};
+
+createProxyClient({
+  url: '',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  credentials: true,
+});
+
+const createProxyClientUtil = <TRouter extends ClientRouter>(
+  options: CreateProxyClientArgs,
+  route: string[] = []
+): Client<TRouter> => {
   const proxyHandler: ProxyHandler<TRouter> = {
     get: (_target, key: string) => {
-      return createProxyClient([...route, key]);
+      return createProxyClientUtil(options, [...route, key]);
     },
   };
 
-  const proxy = new Proxy(proxyClientCaller([...route]) as unknown as TRouter, proxyHandler);
+  const proxy = new Proxy(createProxyClientUtil(options, [...route]) as unknown as TRouter, proxyHandler);
 
   return proxy as Client<TRouter>;
 };
