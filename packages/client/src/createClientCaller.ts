@@ -14,7 +14,7 @@ export const createClientCaller =
 
     const result = await axios.post(
       options.url,
-      { route, input },
+      { route: route.join('.'), input },
       {
         withCredentials: options.credentials,
         headers,
