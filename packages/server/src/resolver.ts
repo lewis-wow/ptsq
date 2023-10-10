@@ -1,6 +1,7 @@
 import { Context } from './context';
 import { Middleware } from './middleware';
-import { Route } from './route';
+import { Mutation } from './mutation';
+import { Query } from './query';
 import { SerializableZodSchema } from './serializable';
 import { DataTransformer } from './transformer';
 import { ParseResolverInput, ParseResolverOutput, MaybePromise } from './types';
@@ -31,8 +32,7 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
     input: TMutationInput;
     output: TMutationOutput;
     resolve: ResolveFunction<TMutationInput, TMutationOutput, TContext>;
-  }): Route<
-    'mutation',
+  }): Mutation<
     TMutationInput,
     TMutationOutput,
     ResolveFunction<TMutationInput, TMutationOutput, TContext>,
@@ -42,32 +42,29 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
   mutation<TMutationOutput extends SerializableZodSchema>(options: {
     output: TMutationOutput;
     resolve: ResolveFunction<undefined, TMutationOutput, TContext>;
-  }): Route<'mutation', void, TMutationOutput, ResolveFunction<undefined, TMutationOutput, TContext>, TDataTransformer>;
+  }): Mutation<void, TMutationOutput, ResolveFunction<void, TMutationOutput, TContext>, TDataTransformer>;
 
   mutation(options: {
     resolve: ResolveFunction<undefined, unknown, TContext>;
-  }): Route<'mutation', void, unknown, ResolveFunction<undefined, unknown, TContext>, TDataTransformer>;
+  }): Mutation<void, unknown, ResolveFunction<void, unknown, TContext>, TDataTransformer>;
 
   mutation<TMutationInput extends SerializableZodSchema, TMutationOutput extends SerializableZodSchema>(options: {
     input?: TMutationInput;
     output?: TMutationOutput;
     resolve: ResolveFunction<TMutationInput, TMutationOutput, TContext>;
   }):
-    | Route<
-        'mutation',
+    | Mutation<
         TMutationInput,
         TMutationOutput,
         ResolveFunction<TMutationInput, TMutationOutput, TContext>,
         TDataTransformer
       >
-    | Route<'mutation', void, TMutationOutput, ResolveFunction<undefined, TMutationOutput, TContext>, TDataTransformer>
-    | Route<'mutation', void, unknown, ResolveFunction<undefined, unknown, TContext>, TDataTransformer> {
-    return new Route({
-      type: 'mutation',
+    | Mutation<void, TMutationOutput, ResolveFunction<undefined, TMutationOutput, TContext>, TDataTransformer>
+    | Mutation<void, unknown, ResolveFunction<undefined, unknown, TContext>, TDataTransformer> {
+    return new Mutation({
       input: options.input as TMutationInput,
       output: options.output as TMutationOutput,
       resolver: options.resolve,
-      nodeType: 'route',
       transformer: this.transformer,
     });
   }
@@ -76,38 +73,36 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
     input: TQueryInput;
     output: TQueryOutput;
     resolve: ResolveFunction<TQueryInput, TQueryOutput, TContext>;
-  }): Route<'query', TQueryInput, TQueryOutput, ResolveFunction<TQueryInput, TQueryOutput, TContext>, TDataTransformer>;
+  }): Query<TQueryInput, TQueryOutput, ResolveFunction<TQueryInput, TQueryOutput, TContext>, TDataTransformer>;
 
   query<TQueryOutput extends SerializableZodSchema>(options: {
     output: TQueryOutput;
     resolve: ResolveFunction<undefined, TQueryOutput, TContext>;
-  }): Route<'query', void, TQueryOutput, ResolveFunction<undefined, TQueryOutput, TContext>, TDataTransformer>;
+  }): Query<void, TQueryOutput, ResolveFunction<void, TQueryOutput, TContext>, TDataTransformer>;
 
   query(options: {
     resolve: ResolveFunction<undefined, unknown, TContext>;
-  }): Route<'query', void, unknown, ResolveFunction<undefined, unknown, TContext>, TDataTransformer>;
+  }): Query<void, unknown, ResolveFunction<void, unknown, TContext>, TDataTransformer>;
 
   query<TQueryInput extends SerializableZodSchema, TQueryOutput extends SerializableZodSchema>(options: {
     input?: TQueryInput;
     output?: TQueryOutput;
     resolve: ResolveFunction<TQueryInput, TQueryOutput, TContext>;
   }):
-    | Route<'query', TQueryInput, TQueryOutput, ResolveFunction<TQueryInput, TQueryOutput, TContext>, TDataTransformer>
-    | Route<'query', void, TQueryOutput, ResolveFunction<undefined, TQueryOutput, TContext>, TDataTransformer>
-    | Route<'query', void, unknown, ResolveFunction<undefined, unknown, TContext>, TDataTransformer> {
-    return new Route({
-      type: 'query',
+    | Query<TQueryInput, TQueryOutput, ResolveFunction<TQueryInput, TQueryOutput, TContext>, TDataTransformer>
+    | Query<void, TQueryOutput, ResolveFunction<void, TQueryOutput, TContext>, TDataTransformer>
+    | Query<void, unknown, ResolveFunction<void, unknown, TContext>, TDataTransformer> {
+    return new Query({
       input: options.input as TQueryInput,
       output: options.output as TQueryOutput,
       resolver: options.resolve,
-      nodeType: 'route',
       transformer: this.transformer,
     });
   }
 }
 
 export type ResolveFunction<
-  TInput extends SerializableZodSchema | undefined = SerializableZodSchema | undefined,
+  TInput extends SerializableZodSchema | void = SerializableZodSchema | void,
   TOutput extends SerializableZodSchema | unknown = SerializableZodSchema | unknown,
   TContext extends Context = Context,
 > = ({

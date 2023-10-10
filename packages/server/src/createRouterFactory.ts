@@ -1,9 +1,11 @@
+import { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
-import { AnyRoute } from './route';
+import { AnyMutation, Mutation } from './mutation';
+import { AnyQuery, Query } from './query';
 import { DataTransformer } from './transformer';
 
 export type Routes<TDataTransformer extends DataTransformer = DataTransformer> = {
-  [Key: string]: AnyRoute | Router<TDataTransformer>;
+  [Key: string]: AnyQuery | AnyMutation | Router<TDataTransformer>;
 };
 
 type RouterOptions<TDataTransformer extends DataTransformer, TRoutes extends Routes<TDataTransformer>> = {
@@ -34,12 +36,6 @@ export class Router<
         },
         routes: createSchemaRoot({
           properties: Object.entries(this.routes).reduce((acc, [key, node]) => {
-            if (node.nodeType === 'router') {
-              //@ts-expect-error
-              acc[key] = node.getJsonSchema(`${title} ${key}`);
-              return acc;
-            }
-
             //@ts-expect-error
             acc[key] = node.getJsonSchema(`${title} ${key}`);
             return acc;
@@ -49,14 +45,36 @@ export class Router<
     });
   }
 
-  createProxyCaller() {}
+  createProxyCaller<TContext extends Context>(ctx: TContext): RouterProxyCaller<TRoutes, TContext> {
+    const proxyHandler: ProxyHandler<TRoutes> = {
+      get: (target, key: string) => {
+        const node = target[key];
+
+        if (node.nodeType === 'router') return node.createProxyCaller(ctx);
+
+        return node.type === 'mutation' ? node.createMutationCaller(ctx) : node.createQueryCaller(ctx);
+      },
+    };
+
+    return new Proxy(this.routes, proxyHandler) as unknown as RouterProxyCaller<TRoutes, TContext>;
+  }
 }
+
+type RouterProxyCaller<TRoutes extends Routes, TContext extends Context> = {
+  [K in keyof TRoutes]: TRoutes[K] extends Router
+    ? RouterProxyCaller<TRoutes[K]['routes'], TContext>
+    : TRoutes[K] extends Mutation
+    ? ReturnType<TRoutes[K]['createMutationCaller']>
+    : TRoutes[K] extends Query
+    ? ReturnType<TRoutes[K]['createQueryCaller']>
+    : never;
+};
 
 export const createRouterFactory =
   <TDataTransformer extends DataTransformer>({ transformer }: { transformer: TDataTransformer }) =>
   <
     TRoutes extends {
-      [key: string]: AnyRoute | Router<TDataTransformer>;
+      [key: string]: AnyQuery | AnyMutation | Router<TDataTransformer>;
     },
   >(
     routes: TRoutes

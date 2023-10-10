@@ -2,6 +2,8 @@ export { createServer } from './createServer';
 
 export { Resolver } from './resolver';
 export { Middleware } from './middleware';
+export { Query } from './query';
+export { Mutation } from './mutation';
 
 export type { Route, AnyRoute } from './route';
 export type { Router, AnyRouter } from './createRouterFactory';
