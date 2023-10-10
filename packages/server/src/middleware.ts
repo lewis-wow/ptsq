@@ -11,7 +11,7 @@ export type MiddlewareCallback<TContext extends Context, TNextContext extends Co
   next: NextFunction;
 }) => MaybePromise<ReturnType<typeof next<TNextContext>>>;
 
-export class Middleware<TContext extends Context, TNextContext extends Context> {
+export class Middleware<TContext extends Context = Context, TNextContext extends Context = Context> {
   constructor(public middlewareCallback: MiddlewareCallback<TContext, TNextContext>) {}
 
   call(ctx: TContext) {

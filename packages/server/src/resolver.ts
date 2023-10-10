@@ -1,10 +1,11 @@
+import { z } from 'zod';
 import { Context } from './context';
 import { Middleware } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
 import { SerializableZodSchema } from './serializable';
 import { DataTransformer } from './transformer';
-import { ParseResolverInput, ParseResolverOutput, MaybePromise } from './types';
+import { MaybePromise, ParseResolverInput } from './types';
 
 export class Resolver<TContext extends Context = Context, TDataTransformer extends DataTransformer = DataTransformer> {
   middlewares: Middleware<TContext, TContext>[];
@@ -41,11 +42,11 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
 
   mutation<TMutationOutput extends SerializableZodSchema>(options: {
     output: TMutationOutput;
-    resolve: ResolveFunction<undefined, TMutationOutput, TContext>;
+    resolve: ResolveFunction<void, TMutationOutput, TContext>;
   }): Mutation<void, TMutationOutput, ResolveFunction<void, TMutationOutput, TContext>, TDataTransformer>;
 
   mutation(options: {
-    resolve: ResolveFunction<undefined, unknown, TContext>;
+    resolve: ResolveFunction<void, unknown, TContext>;
   }): Mutation<void, unknown, ResolveFunction<void, unknown, TContext>, TDataTransformer>;
 
   mutation<TMutationInput extends SerializableZodSchema, TMutationOutput extends SerializableZodSchema>(options: {
@@ -59,13 +60,14 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
         ResolveFunction<TMutationInput, TMutationOutput, TContext>,
         TDataTransformer
       >
-    | Mutation<void, TMutationOutput, ResolveFunction<undefined, TMutationOutput, TContext>, TDataTransformer>
-    | Mutation<void, unknown, ResolveFunction<undefined, unknown, TContext>, TDataTransformer> {
+    | Mutation<void, TMutationOutput, ResolveFunction<void, TMutationOutput, TContext>, TDataTransformer>
+    | Mutation<void, unknown, ResolveFunction<void, unknown, TContext>, TDataTransformer> {
     return new Mutation({
       input: options.input as TMutationInput,
       output: options.output as TMutationOutput,
       resolver: options.resolve,
       transformer: this.transformer,
+      middlewares: this.middlewares as unknown as Middleware[],
     });
   }
 
@@ -77,11 +79,11 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
 
   query<TQueryOutput extends SerializableZodSchema>(options: {
     output: TQueryOutput;
-    resolve: ResolveFunction<undefined, TQueryOutput, TContext>;
+    resolve: ResolveFunction<void, TQueryOutput, TContext>;
   }): Query<void, TQueryOutput, ResolveFunction<void, TQueryOutput, TContext>, TDataTransformer>;
 
   query(options: {
-    resolve: ResolveFunction<undefined, unknown, TContext>;
+    resolve: ResolveFunction<void, unknown, TContext>;
   }): Query<void, unknown, ResolveFunction<void, unknown, TContext>, TDataTransformer>;
 
   query<TQueryInput extends SerializableZodSchema, TQueryOutput extends SerializableZodSchema>(options: {
@@ -97,6 +99,7 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
       output: options.output as TQueryOutput,
       resolver: options.resolve,
       transformer: this.transformer,
+      middlewares: this.middlewares as unknown as Middleware[],
     });
   }
 }
@@ -105,12 +108,14 @@ export type ResolveFunction<
   TInput extends SerializableZodSchema | void = SerializableZodSchema | void,
   TOutput extends SerializableZodSchema | unknown = SerializableZodSchema | unknown,
   TContext extends Context = Context,
-> = ({
-  input,
-  ctx,
-}: {
-  input: ParseResolverInput<TInput>;
-  ctx: TContext;
-}) => MaybePromise<ParseResolverOutput<TOutput>>;
+> = ({ input, ctx }: { input: ParseResolverInput<TInput>; ctx: TContext }) => ResolverOutput<TOutput>;
+
+export type ResolverOutput<TResolverOutput> = MaybePromise<
+  TResolverOutput extends z.Schema ? z.infer<TResolverOutput> : TResolverOutput
+>;
+
+export type ResolverInput<TResolverInput extends SerializableZodSchema | void> = TResolverInput extends z.Schema
+  ? z.infer<TResolverInput>
+  : void;
 
 export type AnyResolveFunction = ResolveFunction<any, any, any>;

@@ -1,18 +1,24 @@
 export type HTTPErrorOptions = {
   code: keyof typeof HTTPErrorCode;
   message?: string;
+  info?: any;
 };
 
 export class HTTPError extends Error {
   code: keyof typeof HTTPErrorCode;
+  info: any;
 
-  constructor({ code, message }: HTTPErrorOptions) {
+  constructor({ code, message, info }: HTTPErrorOptions) {
     super(message);
 
     this.code = code;
+    this.info = info;
+    this.name = this.constructor.name;
+
+    Object.setPrototypeOf(this, HTTPError.prototype);
   }
 
-  static isHttpError = (error: Error): error is HTTPError => error instanceof HTTPError;
+  static isHttpError = (error: unknown): error is HTTPError => error instanceof HTTPError;
 }
 
 export const HTTPErrorCode = {

@@ -1,7 +1,10 @@
 import { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
+import { HTTPError } from './httpError';
 import { AnyMutation, Mutation } from './mutation';
 import { AnyQuery, Query } from './query';
+import { ServerSideMutation } from './serverSideMutation';
+import { ServerSideQuery } from './serverSideQuery';
 import { DataTransformer } from './transformer';
 
 export type Routes<TDataTransformer extends DataTransformer = DataTransformer> = {
@@ -45,18 +48,31 @@ export class Router<
     });
   }
 
-  createProxyCaller<TContext extends Context>(ctx: TContext): RouterProxyCaller<TRoutes, TContext> {
+  createServerSideProxyCaller<TContext extends Context>(ctx: TContext): RouterProxyCaller<TRoutes, TContext> {
     const proxyHandler: ProxyHandler<TRoutes> = {
       get: (target, key: string) => {
         const node = target[key];
 
-        if (node.nodeType === 'router') return node.createProxyCaller(ctx);
+        if (node.nodeType === 'router') return node.createServerSideProxyCaller(ctx);
 
-        return node.type === 'mutation' ? node.createMutationCaller(ctx) : node.createQueryCaller(ctx);
+        return node.type === 'mutation' ? node.createServerSideMutation(ctx) : node.createServerSideQuery(ctx);
       },
     };
 
     return new Proxy(this.routes, proxyHandler) as unknown as RouterProxyCaller<TRoutes, TContext>;
+  }
+
+  call({ route, input, ctx }: { route: string[]; input: any; ctx: Context }): any {
+    const currentRoute = route.shift();
+
+    if (!currentRoute || !(currentRoute in this.routes))
+      throw new HTTPError({ code: 'BAD_REQUEST', message: 'Bad route input' });
+
+    const nextNode = this.routes[currentRoute];
+
+    if (nextNode.nodeType === 'router') return nextNode.call({ route, input, ctx });
+
+    return nextNode.call({ input, ctx });
   }
 }
 
@@ -64,9 +80,9 @@ type RouterProxyCaller<TRoutes extends Routes, TContext extends Context> = {
   [K in keyof TRoutes]: TRoutes[K] extends Router
     ? RouterProxyCaller<TRoutes[K]['routes'], TContext>
     : TRoutes[K] extends Mutation
-    ? ReturnType<TRoutes[K]['createMutationCaller']>
+    ? ServerSideQuery<TRoutes[K]['input'], TRoutes[K]['output'], TContext>
     : TRoutes[K] extends Query
-    ? ReturnType<TRoutes[K]['createQueryCaller']>
+    ? ServerSideMutation<TRoutes[K]['input'], TRoutes[K]['output'], TContext>
     : never;
 };
 

@@ -2,18 +2,27 @@ export { createServer } from './createServer';
 
 export { Resolver } from './resolver';
 export { Middleware } from './middleware';
-export { Query } from './query';
-export { Mutation } from './mutation';
+export type { Query } from './query';
+export type { Mutation } from './mutation';
+export type { ServerSideMutation } from './serverSideMutation';
+export type { ServerSideQuery } from './serverSideQuery';
 
 export type { Route, AnyRoute } from './route';
 export type { Router, AnyRouter } from './createRouterFactory';
 export type { Context } from './context';
 export type { Serve, AnyServe } from './createServeFactory';
-export type { ResolverType, MaybePromise } from './types';
+export type {
+  ResolverType,
+  MaybePromise,
+  inferResolverInput,
+  inferResolverOutput,
+  ParseResolverInput,
+  ParseResolverOutput,
+} from './types';
 export type { SerializableZodSchema } from './serializable';
 
 /**
- * @module adapters/express
+ * adapters/express
  */
 export { expressAdapter } from './adapters/express';
 export type { ExpressAdapterContext } from './adapters/express';

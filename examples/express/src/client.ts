@@ -7,7 +7,7 @@ const client = createProxyClient<RootRouter>({
 });
 
 (async () => {
-  const result = await client.inner.test2.query({});
+  const result = client.inner.test2.query({});
 
   console.log('result: ', result);
 })();
