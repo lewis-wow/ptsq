@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { CreateProxyClientArgs } from './createProxyClient';
 import { ClientRoute } from './types';
-import { inferResolverInput, ParseResolverOutput } from '@schema-rpc/server';
+import { ParseResolverOutput, inferResolverInput } from '@schema-rpc/server';
 
 type RequestOptions = {
   signal?: AbortSignal;
@@ -26,10 +26,7 @@ export class Requester {
     return await this.options.headers();
   }
 
-  async request<TClientRoute extends ClientRoute>(
-    input: inferResolverInput<TClientRoute['input']>,
-    options?: RequestOptions
-  ): Promise<ParseResolverOutput<TClientRoute['output']>> {
+  async request(input = undefined, options?: RequestOptions) {
     this.route.pop(); // remove the last key from route ('mutation' | 'query') call
     const headers = await this.getHeaders();
 
@@ -46,11 +43,17 @@ export class Requester {
     return result.data;
   }
 
-  query<TClientRoute extends ClientRoute>(input: inferResolverInput<TClientRoute['input']>, options?: RequestOptions) {
+  query<TClientRoute extends ClientRoute>(
+    input: inferResolverInput<TClientRoute['input']>,
+    options?: RequestOptions
+  ): ParseResolverOutput<TClientRoute['output']> {
     return this.request(input, options);
   }
 
-  mutate<TClientRoute extends ClientRoute>(input: inferResolverInput<TClientRoute['input']>, options?: RequestOptions) {
+  mutate<TClientRoute extends ClientRoute>(
+    input: inferResolverInput<TClientRoute['input']>,
+    options?: RequestOptions
+  ): ParseResolverOutput<TClientRoute['output']> {
     return this.request(input, options);
   }
 }

@@ -1,12 +1,23 @@
 import { createProxyClient } from '@schema-rpc/client';
 import { BaseRouter } from './server';
+import { HTTPError } from '@schema-rpc/server';
 
 const client = createProxyClient<BaseRouter>({
   url: 'http://localhost:4000/schema-rpc',
 });
 
 (async () => {
-  const result = await client.user.greetings.mutate({ name: 'John' });
+  try {
+    const result1 = await client.user.greetings.mutate({ name: 'John' });
 
-  console.log('result: ', result);
+    console.log('result: ', result1);
+
+    const result2 = await client.user.test.query();
+
+    console.log('result: ', result2);
+  } catch (err) {
+    //@ts-ignore
+    console.log(err);
+    if (HTTPError.isHttpError(err)) console.log(err.info);
+  }
 })();

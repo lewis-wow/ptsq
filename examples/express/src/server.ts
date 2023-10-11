@@ -10,10 +10,14 @@ const { router, resolver, serve } = createServer({
 
 const baseRouter = router({
   user: router({
+    test: resolver.query({
+      output: z.literal('hello world'),
+      resolve: () => `hello world` as const,
+    }),
     greetings: resolver.mutation({
       input: z.object({ name: z.string() }),
       output: z.string(),
-      resolve: ({ input }) => `hello ${input.name}` as const,
+      resolve: ({ input }) => `hello ${input.name}`,
     }),
   }),
 });

@@ -1,4 +1,5 @@
 export { createServer } from './createServer';
+export { HTTPError } from './httpError';
 
 export { Resolver } from './resolver';
 export { Middleware } from './middleware';

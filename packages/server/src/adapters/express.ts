@@ -13,40 +13,34 @@ export type ExpressAdapterContext = {
 export const expressAdapter = (serve: Serve) => {
   const expressRouter = express.Router();
 
-  expressRouter.post(
-    '/',
-    cors(serve.cors),
-    urlencoded({ extended: false }),
-    json(),
-    async (req: Request<{ route: string }>, res) => {
-      try {
-        const parsedRequestBody = requestBodySchema.safeParse(req.body);
+  expressRouter.post('/', cors(serve.cors), urlencoded({ extended: false }), json(), async (req: Request, res) => {
+    try {
+      const parsedRequestBody = requestBodySchema.safeParse(req.body);
 
-        if (!parsedRequestBody.success)
-          throw new HTTPError({
-            code: 'BAD_REQUEST',
-            message: 'Route query param must be a string separated by dots (a.b.c)',
-            info: parsedRequestBody.error,
-          });
-
-        const { ctx, route } = await serve.serve({
-          route: parsedRequestBody.data.route,
-          params: [{ req, res }],
+      if (!parsedRequestBody.success)
+        throw new HTTPError({
+          code: 'BAD_REQUEST',
+          message: 'Route query param must be a string separated by dots (a.b.c)',
+          info: parsedRequestBody.error,
         });
 
-        const dataResult = serve.router!.call({ route, input: parsedRequestBody.data.input, ctx });
+      const { ctx, route } = await serve.serve({
+        route: parsedRequestBody.data.route,
+        params: [{ req, res }],
+      });
 
-        res.json(dataResult);
-      } catch (error) {
-        if (HTTPError.isHttpError(error)) {
-          res.status(HTTPErrorCode[error.code]).json({ message: error.message, info: error.info });
-          return;
-        }
+      const dataResult = serve.router!.call({ route, input: parsedRequestBody.data.input, ctx });
 
-        throw error;
+      res.json(dataResult);
+    } catch (error) {
+      if (HTTPError.isHttpError(error)) {
+        res.status(HTTPErrorCode[error.code]).json({ message: error.message, info: error.info });
+        return;
       }
+
+      throw error;
     }
-  );
+  });
 
   expressRouter.get(
     '/introspection',

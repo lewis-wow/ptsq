@@ -21,7 +21,6 @@ export const createProxyClient = <TRouter extends ClientRouter>(options: CreateP
       return new Proxy(noop as unknown as Client<TRouter>, proxyHandler);
     },
     apply: function (_target, _thisArg, argumentsList) {
-      //@ts-ignore
       return requester.request(...argumentsList);
     },
   };

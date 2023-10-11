@@ -47,7 +47,7 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
 
   mutation(options: {
     resolve: ResolveFunction<void, unknown, TContext>;
-  }): Mutation<void, unknown, ResolveFunction<void, unknown, TContext>, TDataTransformer>;
+  }): Mutation<void, undefined, ResolveFunction<void, unknown, TContext>, TDataTransformer>;
 
   mutation<TMutationInput extends SerializableZodSchema, TMutationOutput extends SerializableZodSchema>(options: {
     input?: TMutationInput;
@@ -61,11 +61,11 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
         TDataTransformer
       >
     | Mutation<void, TMutationOutput, ResolveFunction<void, TMutationOutput, TContext>, TDataTransformer>
-    | Mutation<void, unknown, ResolveFunction<void, unknown, TContext>, TDataTransformer> {
+    | Mutation<void, undefined, ResolveFunction<void, unknown, TContext>, TDataTransformer> {
     return new Mutation({
       input: options.input as TMutationInput,
       output: options.output as TMutationOutput,
-      resolver: options.resolve,
+      resolveFunction: options.resolve,
       transformer: this.transformer,
       middlewares: this.middlewares as unknown as Middleware[],
     });
@@ -84,7 +84,7 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
 
   query(options: {
     resolve: ResolveFunction<void, unknown, TContext>;
-  }): Query<void, unknown, ResolveFunction<void, unknown, TContext>, TDataTransformer>;
+  }): Query<void, undefined, ResolveFunction<void, unknown, TContext>, TDataTransformer>;
 
   query<TQueryInput extends SerializableZodSchema, TQueryOutput extends SerializableZodSchema>(options: {
     input?: TQueryInput;
@@ -93,11 +93,11 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
   }):
     | Query<TQueryInput, TQueryOutput, ResolveFunction<TQueryInput, TQueryOutput, TContext>, TDataTransformer>
     | Query<void, TQueryOutput, ResolveFunction<void, TQueryOutput, TContext>, TDataTransformer>
-    | Query<void, unknown, ResolveFunction<void, unknown, TContext>, TDataTransformer> {
+    | Query<void, undefined, ResolveFunction<void, unknown, TContext>, TDataTransformer> {
     return new Query({
       input: options.input as TQueryInput,
       output: options.output as TQueryOutput,
-      resolver: options.resolve,
+      resolveFunction: options.resolve,
       transformer: this.transformer,
       middlewares: this.middlewares as unknown as Middleware[],
     });
