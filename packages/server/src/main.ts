@@ -10,7 +10,7 @@ export type { ServerSideQuery } from './serverSideQuery';
 export type { Route, AnyRoute } from './route';
 export type { Router, AnyRouter } from './createRouterFactory';
 export type { Context } from './context';
-export type { Serve, AnyServe } from './createServeFactory';
+export type { Serve } from './serve';
 export type {
   ResolverType,
   MaybePromise,

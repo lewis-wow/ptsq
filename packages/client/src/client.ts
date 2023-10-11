@@ -1,6 +1,12 @@
-import type { ClientRoute } from './clientRoute';
-import type { ClientRouter } from './clientRouter';
-import { inferResolverInput, ParseResolverOutput } from '@schema-rpc/server';
+import type { ClientRoute, ClientRouter } from './types';
+import type { Requester } from './requester';
+
+type QueryClient<TClientRoute extends ClientRoute> = {
+  query: typeof Requester.prototype.query<TClientRoute>;
+};
+type MutationClient<TClientRoute extends ClientRoute> = {
+  mutate: typeof Requester.prototype.mutate<TClientRoute>;
+};
 
 export type Client<TRouter extends ClientRouter> = {
   [K in keyof TRouter['routes']]: TRouter['routes'][K] extends ClientRouter
@@ -10,12 +16,4 @@ export type Client<TRouter extends ClientRouter> = {
     : TRouter['routes'][K] extends ClientRoute<'mutation'>
     ? MutationClient<TRouter['routes'][K]>
     : never;
-};
-
-export type QueryClient<TRoute extends ClientRoute<'query'>> = {
-  query: (input: inferResolverInput<TRoute['input']>) => ParseResolverOutput<TRoute['output']>;
-};
-
-export type MutationClient<TRoute extends ClientRoute<'mutation'>> = {
-  mutate: (input: inferResolverInput<TRoute['input']>) => ParseResolverOutput<TRoute['output']>;
 };

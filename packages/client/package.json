@@ -8,10 +8,10 @@
   },
   "devDependencies": {
     "@types/node": "^20.7.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "@schema-rpc/server": "*"
   },
   "dependencies": {
-    "@schema-rpc/server": "*",
     "axios": "^1.5.1",
     "superjson": "^1.13.3",
     "zod": "^3.22.2"

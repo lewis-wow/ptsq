@@ -1,5 +1,3 @@
-import { MaybePromise } from '@schema-rpc/server';
-
 type CommonRequestHeadersList = 'Accept' | 'Content-Length' | 'User-Agent' | 'Content-Encoding' | 'Authorization';
 
 type RawHeaderValue = string | string[] | number | boolean | null;
@@ -28,9 +26,3 @@ export type RequestHeaders = Partial<
     'Content-Type': ContentType;
   }
 >;
-
-export const getHeaders = async (headers?: RequestHeaders | (() => MaybePromise<RequestHeaders>)) => {
-  if (typeof headers !== 'function') return headers;
-
-  return await headers();
-};

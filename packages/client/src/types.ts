@@ -6,3 +6,10 @@ export type ClientRoute<TType extends ResolverType = ResolverType> = {
   input?: any;
   output: any;
 };
+
+export type ClientRouter = {
+  nodeType: 'router';
+  routes: {
+    [key: string]: ClientRouter | ClientRoute;
+  };
+};

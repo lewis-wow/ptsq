@@ -1,63 +1,59 @@
 import express, { Request, Response } from 'express';
-import { ServePayload } from '../createServeFactory';
 import cors from 'cors';
-import { expressExpectedRequestBodySchema } from '../expectedRequestBodySchema';
+import { requestBodySchema } from '../requestBodySchema';
 import { HTTPError, HTTPErrorCode } from '../httpError';
-import { json } from 'body-parser';
+import { json, urlencoded } from 'body-parser';
+import { Serve } from '../serve';
 
 export type ExpressAdapterContext = {
   req: Request;
   res: Response;
 };
 
-export const expressAdapter = (serve: ServePayload<[ExpressAdapterContext]>) => {
+export const expressAdapter = (serve: Serve) => {
   const expressRouter = express.Router();
 
-  const { serveCaller, introspection, cors: corsOptions } = serve;
+  expressRouter.post(
+    '/',
+    cors(serve.cors),
+    urlencoded({ extended: false }),
+    json(),
+    async (req: Request<{ route: string }>, res) => {
+      try {
+        const parsedRequestBody = requestBodySchema.safeParse(req.body);
 
-  expressRouter.post('/', cors(corsOptions), json(), async (req, res) => {
-    try {
-      const parsedRequestBody = expressExpectedRequestBodySchema.safeParse(req.body);
+        if (!parsedRequestBody.success)
+          throw new HTTPError({
+            code: 'BAD_REQUEST',
+            message: 'Route query param must be a string separated by dots (a.b.c)',
+            info: parsedRequestBody.error,
+          });
 
-      if (!parsedRequestBody.success)
-        throw new HTTPError({
-          code: 'BAD_REQUEST',
-          message: 'Route query param must be a string separated by dots (a.b.c)',
-          info: parsedRequestBody.error,
+        const { ctx, route } = await serve.serve({
+          route: parsedRequestBody.data.route,
+          params: [{ req, res }],
         });
 
-      const { route: requestRoute, input } = parsedRequestBody.data;
+        const dataResult = serve.router!.call({ route, input: parsedRequestBody.data.input, ctx });
 
-      const { ctx, router, route } = await serveCaller({ route: requestRoute, params: [{ req, res }] });
-      if (!route)
-        throw new HTTPError({
-          code: 'BAD_REQUEST',
-          message: 'Route query param must be a string separated by dots (a.b.c)',
-        });
+        res.json(dataResult);
+      } catch (error) {
+        if (HTTPError.isHttpError(error)) {
+          res.status(HTTPErrorCode[error.code]).json({ message: error.message, info: error.info });
+          return;
+        }
 
-      const dataResult = router.call({ route, input, ctx });
-
-      res.json(dataResult);
-    } catch (error) {
-      if (HTTPError.isHttpError(error)) {
-        res.status(HTTPErrorCode[error.code]).json({ message: error.message, info: error.info });
-        return;
+        throw error;
       }
-
-      throw error;
     }
-  });
+  );
 
   expressRouter.get(
     '/introspection',
     cors({
-      origin: introspection,
+      origin: serve.introspection,
     }),
-    async (req, res) => {
-      const { router } = await serveCaller({ params: [{ req, res }] });
-
-      res.json(router.getJsonSchema());
-    }
+    (_req, res) => res.json(serve.router!.getJsonSchema())
   );
 
   return expressRouter;
