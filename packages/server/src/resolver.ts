@@ -68,7 +68,7 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
         TDataTransformer
       > {
     return new Mutation({
-      inputValidationSchema: options.input as TMutationInput,
+      inputValidationSchema: (options.input ?? z.undefined()) as TMutationInput,
       outputValidationSchema: options.output as TMutationOutput,
       resolveFunction: options.resolve,
       transformer: this.transformer,
@@ -95,7 +95,7 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
     | Query<TQueryInput, TQueryOutput, ResolveFunction<TQueryInput, TQueryOutput, TContext>, TDataTransformer>
     | Query<ZodUndefined, TQueryOutput, ResolveFunction<ZodUndefined, TQueryOutput, TContext>, TDataTransformer> {
     return new Query({
-      inputValidationSchema: options.input as TQueryInput,
+      inputValidationSchema: (options.input ?? z.undefined()) as TQueryInput,
       outputValidationSchema: options.output as TQueryOutput,
       resolveFunction: options.resolve,
       transformer: this.transformer,

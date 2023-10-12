@@ -5,7 +5,6 @@ import { Context } from './context';
 import { Route } from './route';
 import { ServerSideMutation } from './serverSideMutation';
 import { Middleware } from './middleware';
-import { z } from 'zod';
 
 export class Mutation<
   TInput extends SerializableZodSchema = SerializableZodSchema,
@@ -14,7 +13,7 @@ export class Mutation<
   TDataTransformer extends DataTransformer = DataTransformer,
 > extends Route<'mutation', TInput, TOutput, TResolveFunction, TDataTransformer> {
   constructor(options: {
-    inputValidationSchema?: TInput;
+    inputValidationSchema: TInput;
     outputValidationSchema: TOutput;
     resolveFunction: TResolveFunction;
     transformer: TDataTransformer;
@@ -22,7 +21,6 @@ export class Mutation<
   }) {
     super({
       type: 'mutation',
-      inputValidationSchema: options.inputValidationSchema ?? (z.undefined() as unknown as TInput),
       ...options,
     });
   }

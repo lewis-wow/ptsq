@@ -5,7 +5,6 @@ import { Context } from './context';
 import { Route } from './route';
 import { ServerSideQuery } from './serverSideQuery';
 import { Middleware } from './middleware';
-import { z } from 'zod';
 
 export class Query<
   TInput extends SerializableZodSchema = SerializableZodSchema,
@@ -14,7 +13,7 @@ export class Query<
   TDataTransformer extends DataTransformer = DataTransformer,
 > extends Route<'query', TInput, TOutput, TResolveFunction, TDataTransformer> {
   constructor(options: {
-    inputValidationSchema?: TInput;
+    inputValidationSchema: TInput;
     outputValidationSchema: TOutput;
     resolveFunction: TResolveFunction;
     transformer: TDataTransformer;
@@ -22,7 +21,6 @@ export class Query<
   }) {
     super({
       type: 'query',
-      inputValidationSchema: options.inputValidationSchema ?? (z.undefined() as unknown as TInput),
       ...options,
     });
   }
