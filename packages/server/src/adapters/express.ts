@@ -1,38 +1,58 @@
 import express, { Request, Response } from 'express';
-import { ServePayload } from '../createServeFactory';
 import cors from 'cors';
+import { requestBodySchema } from '../requestBodySchema';
+import { HTTPError, HTTPErrorCode } from '../httpError';
+import { json, urlencoded } from 'body-parser';
+import { Serve } from '../serve';
+import { parse, stringify } from 'superjson';
 
 export type ExpressAdapterContext = {
   req: Request;
   res: Response;
 };
 
-export const expressAdapter = (serve: ServePayload<[ExpressAdapterContext]>) => {
+export const expressAdapter = (serve: Serve) => {
   const expressRouter = express.Router();
 
-  const { serveCaller, introspection, cors: corsOptions } = serve;
+  expressRouter.post('/', cors(serve.cors), urlencoded({ extended: false }), json(), async (req: Request, res) => {
+    try {
+      const parsedRequestBody = requestBodySchema.safeParse(req.body);
 
-  expressRouter.all('/', cors(corsOptions), async (req, res) => {
-    const rawRoute = req.query.route;
-    if (typeof rawRoute !== 'string') {
-      res.status(400).json({ message: 'Route query param must be a string' });
-      return;
+      if (!parsedRequestBody.success)
+        throw new HTTPError({
+          code: 'BAD_REQUEST',
+          message: 'Route query param must be a string separated by dots (a.b.c)',
+          info: parsedRequestBody.error,
+        });
+
+      const { ctx, route } = await serve.serve({
+        route: parsedRequestBody.data.route,
+        params: [{ req, res }],
+      });
+
+      const dataResult = serve.router!.call({
+        route,
+        input: parsedRequestBody.data.input === undefined ? undefined : parse(parsedRequestBody.data.input),
+        ctx,
+      });
+
+      res.json(stringify(dataResult));
+    } catch (error) {
+      if (HTTPError.isHttpError(error)) {
+        res.status(HTTPErrorCode[error.code]).json({ message: error.message, info: error.info });
+        return;
+      }
+
+      throw error;
     }
-
-    const { ctx, router, route, params } = await serveCaller({ route: rawRoute, params: [{ req, res }] });
-    console.log({ ctx, router, route, params });
   });
 
   expressRouter.get(
     '/introspection',
     cors({
-      origin: introspection,
+      origin: serve.introspection,
     }),
-    async (req, res) => {
-      const { router } = await serveCaller({ params: [{ req, res }] });
-
-      res.json(router.getJsonSchema());
-    }
+    (_req, res) => res.json(serve.router!.getJsonSchema())
   );
 
   return expressRouter;

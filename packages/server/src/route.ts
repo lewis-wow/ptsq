@@ -6,35 +6,39 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 import { JsonSchema7Type } from 'zod-to-json-schema/src/parseDef';
 import { ZodSchema } from 'zod';
 import { createSchemaRoot } from './createSchemaRoot';
+import { Context } from './context';
+import { Middleware } from './middleware';
+import { HTTPError } from './httpError';
 
 export class Route<
   TType extends ResolverType = ResolverType,
-  TInput extends SerializableZodSchema | undefined = SerializableZodSchema | undefined,
-  TOutput extends SerializableZodSchema | unknown = SerializableZodSchema | unknown,
-  TResolver extends AnyResolveFunction = AnyResolveFunction,
+  TInput extends SerializableZodSchema = SerializableZodSchema,
+  TOutput extends SerializableZodSchema = SerializableZodSchema,
+  TResolveFunction extends AnyResolveFunction = AnyResolveFunction,
   TDataTransformer extends DataTransformer = DataTransformer,
 > {
   type: TType;
-  input: TInput;
-  output: TOutput;
-  resolver: TResolver;
-  nodeType: 'route';
+  inputValidationSchema: TInput;
+  outputValidationSchema: TOutput;
+  resolveFunction: TResolveFunction;
+  nodeType: 'route' = 'route';
   transformer: TDataTransformer;
+  middlewares: Middleware[];
 
   constructor(options: {
     type: TType;
-    input: TInput;
-    output: TOutput;
-    resolver: TResolver;
-    nodeType: 'route';
+    inputValidationSchema: TInput;
+    outputValidationSchema: TOutput;
+    resolveFunction: TResolveFunction;
     transformer: TDataTransformer;
+    middlewares: Middleware[];
   }) {
     this.type = options.type;
-    this.input = options.input;
-    this.output = options.output;
-    this.resolver = options.resolver;
-    this.nodeType = options.nodeType;
+    this.inputValidationSchema = options.inputValidationSchema;
+    this.outputValidationSchema = options.outputValidationSchema;
+    this.resolveFunction = options.resolveFunction;
     this.transformer = options.transformer;
+    this.middlewares = options.middlewares;
   }
 
   getJsonSchema(title: string) {
@@ -49,10 +53,36 @@ export class Route<
           type: 'string',
           enum: [this.nodeType],
         },
-        input: this.input instanceof ZodSchema ? zodToJsonSchema(this.input) : undefined,
-        output: this.output instanceof ZodSchema ? zodToJsonSchema(this.output) : {},
+        input:
+          this.inputValidationSchema instanceof ZodSchema ? zodToJsonSchema(this.inputValidationSchema) : undefined,
+        output: zodToJsonSchema(this.outputValidationSchema),
       },
     });
+  }
+
+  call({ input, ctx }: { input: any; ctx: Context }) {
+    let finalCtx = ctx;
+    for (const middleware of this.middlewares) {
+      finalCtx = middleware.call(ctx);
+    }
+
+    const parsedInput = this.inputValidationSchema.safeParse(input);
+
+    if (!parsedInput.success)
+      throw new HTTPError({ code: 'BAD_REQUEST', message: 'Input validation error', info: parsedInput.error });
+
+    const resolverResult = this.resolveFunction({ input: parsedInput.data, ctx: finalCtx });
+
+    const parsedOutput = this.outputValidationSchema.safeParse(resolverResult);
+
+    if (!parsedOutput.success)
+      throw new HTTPError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Output validation error',
+        info: parsedOutput.error,
+      });
+
+    return parsedOutput.data;
   }
 }
 

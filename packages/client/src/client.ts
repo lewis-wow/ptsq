@@ -1,15 +1,27 @@
-import { Route, Router } from '@schema-rpc/schema';
-import { QueryClient } from './createQueryClient';
-import { MutationClient } from './createMutationClient';
+import type { ClientRoute, ClientRouter } from './types';
+import { ProxyClient } from './createProxyClient';
+import { inferResolverValidationSchema } from '@schema-rpc/server';
 
-export type ClientRouter<TRouter extends Router> = {
-  [K in keyof TRouter['routes']]: TRouter['routes'][K] extends Route<'query'>
-    ? QueryClient<TRouter['routes'][K]>
-    : TRouter['routes'][K] extends Route<'mutation'>
-    ? MutationClient<TRouter['routes'][K]>
-    : TRouter['routes'][K] extends Router
-    ? ClientRouter<TRouter['routes'][K]>
-    : never;
+type QueryClient<TClientRoute extends ClientRoute> = {
+  query: typeof ProxyClient.prototype.request<
+    inferResolverValidationSchema<TClientRoute['inputValidationSchema']>,
+    inferResolverValidationSchema<TClientRoute['outputValidationSchema']>
+  >;
 };
 
-export type Client<TRouter extends Router> = ClientRouter<TRouter>;
+type MutationClient<TClientRoute extends ClientRoute> = {
+  mutate: typeof ProxyClient.prototype.request<
+    inferResolverValidationSchema<TClientRoute['inputValidationSchema']>,
+    inferResolverValidationSchema<TClientRoute['outputValidationSchema']>
+  >;
+};
+
+export type Client<TRouter extends ClientRouter> = {
+  [K in keyof TRouter['routes']]: TRouter['routes'][K] extends ClientRouter
+    ? Client<TRouter['routes'][K]>
+    : TRouter['routes'][K] extends ClientRoute<'query'>
+    ? QueryClient<TRouter['routes'][K]>
+    : TRouter['routes'][K] extends ClientRoute<'mutation'>
+    ? MutationClient<TRouter['routes'][K]>
+    : never;
+};

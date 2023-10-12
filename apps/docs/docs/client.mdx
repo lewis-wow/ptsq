@@ -1,0 +1,72 @@
+# Client
+
+## Proprietary client
+
+```ts title="client.ts"
+import { createProxyClient } from '@schema-rpc/client';
+
+/**
+ * non introspcted or generated file, just type of server router
+ */
+import type { BaseRouter } from './server';
+
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/schema-rpc',
+});
+
+const result = await client.test.query({
+  name: /* string */ 'John',
+});
+```
+
+## Introspected schema
+
+Event if this is not directly the server router schema, it is introspected, the way you define client stays the same, client does not care
+
+```ts title="client.ts"
+import { createProxyClient } from '@schema-rpc/client';
+
+/**
+ * introspcted or generated file, no server exposed, ready for open api
+ */
+import type { RootRouter } from './schema.generated';
+
+const client = createProxyClient<RootRouter>({
+  url: 'http://localhost:4000/schema-rpc',
+});
+
+const result = await client.test.query({
+  name: /* string */ 'John',
+});
+```
+
+## Options
+
+```ts
+type CreateProxyClientArgs = {
+  url: string;
+  credentials?: boolean;
+  headers?: RequestHeaders | (() => MaybePromise<RequestHeaders>);
+};
+```
+
+```ts title="client.ts"
+import { createProxyClient } from '@schema-rpc/client';
+import type { BaseRouter } from './server';
+
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/schema-rpc',
+  headers: async () => {
+    const jwt = await cookies.get('jwt');
+
+    return {
+      Authorization: `Bearer ${jwt}`,
+    };
+  },
+  credentials: true,
+});
+
+const result = await client.test.query({
+  name: /* string */ 'John',
+});
+```
