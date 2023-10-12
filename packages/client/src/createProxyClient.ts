@@ -1,7 +1,7 @@
 import type { Client } from './client';
 import type { ClientRouter } from './types';
-import { RequestHeaders } from './headers';
-import { MaybePromise } from '@schema-rpc/server';
+import type { RequestHeaders } from './headers';
+import type { MaybePromise } from '@schema-rpc/server';
 import axios from 'axios';
 import { stringify, parse } from 'superjson';
 
@@ -31,13 +31,19 @@ export class ProxyClient {
     this.options = options;
   }
 
+  async request<TRequestOutput>(requestInput?: undefined, requestOptions?: RequestOptions): Promise<TRequestOutput>;
   async request<TRequestInput, TRequestOutput>(
-    requestInput: TRequestInput extends undefined ? undefined | void : TRequestInput,
+    requestInput: TRequestInput,
+    requestOptions?: RequestOptions
+  ): Promise<TRequestOutput>;
+
+  async request<TRequestInput, TRequestOutput>(
+    requestInput?: TRequestInput,
     requestOptions?: RequestOptions
   ): Promise<TRequestOutput> {
     const headers = typeof this.options.headers !== 'function' ? this.options.headers : await this.options.headers();
 
-    const result = await axios.post(
+    const result = await axios.post<string>(
       this.options.url,
       { route: this.route.join('.'), input: stringify(requestInput) },
       {
@@ -59,6 +65,7 @@ export const createProxyClient = <TRouter extends ClientRouter>(
 
     const proxyHandler: ProxyHandler<Client<TRouter>> = {
       get: (_target, key: string) => createRouteProxyClient([...route, key]),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       apply: (_target, _thisArg, argumentsList) => client.request(argumentsList[0], argumentsList[1]),
     };
 
@@ -68,4 +75,5 @@ export const createProxyClient = <TRouter extends ClientRouter>(
   return createRouteProxyClient([]);
 };
 
-const noop = () => {};
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = (): void => {};

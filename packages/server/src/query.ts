@@ -1,15 +1,16 @@
-import { DataTransformer } from './transformer';
-import { AnyResolveFunction } from './resolver';
-import { SerializableZodSchema } from './serializable';
-import { Context } from './context';
+import type { DataTransformer } from './transformer';
+import type { ResolveFunction } from './resolver';
+import type { SerializableZodSchema } from './serializable';
+import type { Context } from './context';
 import { Route } from './route';
 import { ServerSideQuery } from './serverSideQuery';
-import { Middleware } from './middleware';
+import type { Middleware } from './middleware';
 
 export class Query<
   TInput extends SerializableZodSchema = SerializableZodSchema,
   TOutput extends SerializableZodSchema = SerializableZodSchema,
-  TResolveFunction extends AnyResolveFunction = AnyResolveFunction,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TResolveFunction extends ResolveFunction<any, any, any> = ResolveFunction,
   TDataTransformer extends DataTransformer = DataTransformer,
 > extends Route<'query', TInput, TOutput, TResolveFunction, TDataTransformer> {
   constructor(options: {

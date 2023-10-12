@@ -3,8 +3,8 @@ import type { ResolverType } from '@schema-rpc/server';
 export type ClientRoute<TType extends ResolverType = ResolverType> = {
   nodeType: 'route';
   type: TType;
-  inputValidationSchema?: any;
-  outputValidationSchema: any;
+  inputValidationSchema?: unknown;
+  outputValidationSchema: unknown;
 };
 
 export type ClientRouter = {

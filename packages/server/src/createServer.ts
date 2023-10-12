@@ -1,11 +1,11 @@
-import { Context, ContextBuilder, inferContextFromContextBuilder } from './context';
-import { CustomOrigin, StaticOrigin } from './cors';
-import { Router, createRouterFactory } from './createRouterFactory';
-import { Middleware, MiddlewareCallback } from './middleware';
+import type { Context, ContextBuilder, inferContextFromContextBuilder } from './context';
+import type { CustomOrigin, StaticOrigin } from './cors';
+import { type Router, createRouterFactory } from './createRouterFactory';
+import { Middleware, type MiddlewareCallback } from './middleware';
 import { Resolver } from './resolver';
 import { Serve } from './serve';
-import { DataTransformer, defaultDataTransformer } from './transformer';
-import { CorsOptions } from 'cors';
+import { type DataTransformer, defaultDataTransformer } from './transformer';
+import type { CorsOptions } from 'cors';
 
 type CreateServerArgs<
   TContextBuilder extends ContextBuilder,
@@ -14,7 +14,7 @@ type CreateServerArgs<
   ctx: TContextBuilder;
   transformer?: TDataTransformer;
   cors?: CorsOptions;
-  introspection?: StaticOrigin | CustomOrigin | boolean;
+  introspection?: StaticOrigin | CustomOrigin;
 };
 
 export const createServer = <TContextBuilder extends ContextBuilder, TDataTransformer extends DataTransformer>({

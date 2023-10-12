@@ -3,6 +3,7 @@ type CommonRequestHeadersList = 'Accept' | 'Content-Length' | 'User-Agent' | 'Co
 type RawHeaderValue = string | string[] | number | boolean | null;
 
 type ContentType =
+  // eslint-disable-next-line @typescript-eslint/ban-types
   | (string & {})
   | string[]
   | number

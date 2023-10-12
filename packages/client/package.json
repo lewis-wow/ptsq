@@ -4,7 +4,8 @@
   "private": true,
   "main": "src/main.ts",
   "scripts": {
-    "build": "tsc --build"
+    "build": "tsc --build",
+    "lint": "eslint"
   },
   "devDependencies": {
     "@schema-rpc/server": "*",

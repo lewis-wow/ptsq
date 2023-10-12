@@ -1,7 +1,7 @@
-import { Context } from './context';
-import { ResolveFunction } from './resolver';
-import { SerializableZodSchema } from './serializable';
-import { inferResolverValidationSchema } from './types';
+import type { Context } from './context';
+import type { ResolveFunction } from './resolver';
+import type { SerializableZodSchema } from './serializable';
+import type { inferResolverValidationSchema } from './types';
 
 export class ServerSideMutation<
   TInput extends SerializableZodSchema = SerializableZodSchema,
