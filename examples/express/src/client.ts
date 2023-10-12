@@ -8,11 +8,11 @@ const client = createProxyClient<BaseRouter>({
 
 (async () => {
   try {
-    const result1 = await client.user.greetings.mutate({ name: 'John' });
+    const result1 = await client.user.greetings.query({ name: 'John' });
 
-    console.log('result: ', result1);
+    console.log('result1: ', result1);
 
-    const result2 = await client.user.test.query();
+    const result2 = await client.user.test.query(undefined);
 
     console.log('result: ', result2);
   } catch (err) {

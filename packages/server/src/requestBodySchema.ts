@@ -7,5 +7,5 @@ export const requestBodySchema = z.object({
 
     return segments.length > 0 && hasRoute.length === segments.length;
   }),
-  input: z.any(),
+  input: z.any().optional(),
 });

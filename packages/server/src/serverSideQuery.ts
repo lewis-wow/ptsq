@@ -1,11 +1,11 @@
 import { Context } from './context';
 import { ResolveFunction } from './resolver';
 import { SerializableZodSchema } from './serializable';
-import { ParseResolverInput } from './types';
+import { inferResolverValidationSchema } from './types';
 
 export class ServerSideQuery<
   TInput extends SerializableZodSchema | void = SerializableZodSchema | void,
-  TOutput extends SerializableZodSchema | unknown = unknown,
+  TOutput extends SerializableZodSchema = SerializableZodSchema,
   TServerSideContext extends Context = Context,
 > {
   ctx: TServerSideContext;
@@ -22,7 +22,7 @@ export class ServerSideQuery<
     this.resolveFunction = resolveFunction;
   }
 
-  query(input: ParseResolverInput<TInput>) {
+  query(input: inferResolverValidationSchema<TInput>) {
     return this.resolveFunction({ input, ctx: this.ctx });
   }
 }

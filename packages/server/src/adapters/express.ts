@@ -4,6 +4,7 @@ import { requestBodySchema } from '../requestBodySchema';
 import { HTTPError, HTTPErrorCode } from '../httpError';
 import { json, urlencoded } from 'body-parser';
 import { Serve } from '../serve';
+import { parse, stringify } from 'superjson';
 
 export type ExpressAdapterContext = {
   req: Request;
@@ -29,9 +30,13 @@ export const expressAdapter = (serve: Serve) => {
         params: [{ req, res }],
       });
 
-      const dataResult = serve.router!.call({ route, input: parsedRequestBody.data.input, ctx });
+      const dataResult = serve.router!.call({
+        route,
+        input: parsedRequestBody.data.input === undefined ? undefined : parse(parsedRequestBody.data.input),
+        ctx,
+      });
 
-      res.json(dataResult);
+      res.json(stringify(dataResult));
     } catch (error) {
       if (HTTPError.isHttpError(error)) {
         res.status(HTTPErrorCode[error.code]).json({ message: error.message, info: error.info });

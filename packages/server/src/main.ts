@@ -12,15 +12,8 @@ export type { Route, AnyRoute } from './route';
 export type { Router, AnyRouter } from './createRouterFactory';
 export type { Context } from './context';
 export type { Serve } from './serve';
-export type {
-  ResolverType,
-  MaybePromise,
-  inferResolverInput,
-  inferResolverOutput,
-  ParseResolverInput,
-  ParseResolverOutput,
-} from './types';
-export type { SerializableZodSchema } from './serializable';
+export type { ResolverType, MaybePromise, inferResolverValidationSchema } from './types';
+export type { SerializableZodSchema, Serializable } from './serializable';
 
 /**
  * adapters/express

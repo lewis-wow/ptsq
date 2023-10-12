@@ -1,12 +1,19 @@
 import type { ClientRoute, ClientRouter } from './types';
-import type { Requester } from './requester';
+import { ProxyClient } from './createProxyClient';
+import { inferResolverValidationSchema } from '@schema-rpc/server';
 
 type QueryClient<TClientRoute extends ClientRoute> = {
-  query: typeof Requester.prototype.query<TClientRoute>;
+  query: typeof ProxyClient.prototype.request<
+    inferResolverValidationSchema<TClientRoute['inputValidationSchema']>,
+    inferResolverValidationSchema<TClientRoute['outputValidationSchema']>
+  >;
 };
 
 type MutationClient<TClientRoute extends ClientRoute> = {
-  mutate: typeof Requester.prototype.mutate<TClientRoute>;
+  mutate: typeof ProxyClient.prototype.request<
+    inferResolverValidationSchema<TClientRoute['inputValidationSchema']>,
+    inferResolverValidationSchema<TClientRoute['outputValidationSchema']>
+  >;
 };
 
 export type Client<TRouter extends ClientRouter> = {

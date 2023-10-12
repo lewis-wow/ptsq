@@ -14,7 +14,7 @@ const baseRouter = router({
       output: z.literal('hello world'),
       resolve: () => `hello world` as const,
     }),
-    greetings: resolver.mutation({
+    greetings: resolver.query({
       input: z.object({ name: z.string() }),
       output: z.string(),
       resolve: ({ input }) => `hello ${input.name}`,

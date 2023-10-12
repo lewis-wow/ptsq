@@ -1,14 +1,14 @@
 import { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
-import { AnyMutation, Mutation } from './mutation';
-import { AnyQuery, Query } from './query';
+import { Mutation } from './mutation';
+import { Query } from './query';
 import { ServerSideMutation } from './serverSideMutation';
 import { ServerSideQuery } from './serverSideQuery';
 import { DataTransformer } from './transformer';
 
 export type Routes<TDataTransformer extends DataTransformer = DataTransformer> = {
-  [Key: string]: AnyQuery | AnyMutation | Router<TDataTransformer>;
+  [Key: string]: Query | Mutation | Router<TDataTransformer>;
 };
 
 type RouterOptions<TDataTransformer extends DataTransformer, TRoutes extends Routes<TDataTransformer>> = {
@@ -66,7 +66,7 @@ export class Router<
     const currentRoute = route.shift();
 
     if (!currentRoute || !(currentRoute in this.routes))
-      throw new HTTPError({ code: 'BAD_REQUEST', message: 'Bad route input' });
+      throw new HTTPError({ code: 'BAD_REQUEST', message: 'The route is invalid.' });
 
     const nextNode = this.routes[currentRoute];
 
@@ -80,9 +80,9 @@ type RouterProxyCaller<TRoutes extends Routes, TContext extends Context> = {
   [K in keyof TRoutes]: TRoutes[K] extends Router
     ? RouterProxyCaller<TRoutes[K]['routes'], TContext>
     : TRoutes[K] extends Mutation
-    ? ServerSideQuery<TRoutes[K]['input'], TRoutes[K]['output'], TContext>
+    ? ServerSideQuery<TRoutes[K]['inputValidationSchema'], TRoutes[K]['outputValidationSchema'], TContext>
     : TRoutes[K] extends Query
-    ? ServerSideMutation<TRoutes[K]['input'], TRoutes[K]['output'], TContext>
+    ? ServerSideMutation<TRoutes[K]['inputValidationSchema'], TRoutes[K]['outputValidationSchema'], TContext>
     : never;
 };
 
@@ -90,7 +90,7 @@ export const createRouterFactory =
   <TDataTransformer extends DataTransformer>({ transformer }: { transformer: TDataTransformer }) =>
   <
     TRoutes extends {
-      [key: string]: AnyQuery | AnyMutation | Router<TDataTransformer>;
+      [key: string]: Query | Mutation | Router<TDataTransformer>;
     },
   >(
     routes: TRoutes

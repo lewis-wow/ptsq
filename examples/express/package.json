@@ -5,8 +5,8 @@
   "main": "src/server.ts",
   "scripts": {
     "build": "tsc --build",
-    "dev": "ts-node src/server.ts",
-    "client": "ts-node src/client.ts"
+    "dev": "ts-node --esm src/server.ts",
+    "client": "ts-node --esm src/client.ts"
   },
   "devDependencies": {
     "@types/express": "^4.17.18",
