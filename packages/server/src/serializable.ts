@@ -1,9 +1,9 @@
-import { z } from 'zod';
+import type { z } from 'zod';
 
 export type Serializable =
   | string
   | number
-  | BigInt
+  | bigint
   | Date
   | null
   | RegExp

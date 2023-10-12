@@ -1,17 +1,17 @@
-import { CorsOptions } from 'cors';
-import { Context, ContextBuilder } from './context';
-import { StaticOrigin, CustomOrigin } from './cors';
-import { Router } from './createRouterFactory';
+import type { CorsOptions } from 'cors';
+import type { Context, ContextBuilder } from './context';
+import type { StaticOrigin, CustomOrigin } from './cors';
+import type { Router } from './createRouterFactory';
 
 export type ServeOptions<TContext extends Context> = {
   contextBuilder: ContextBuilder<TContext>;
-  introspection?: StaticOrigin | CustomOrigin | boolean;
+  introspection?: StaticOrigin | CustomOrigin;
   cors?: CorsOptions;
 };
 
 export class Serve<TContext extends Context = Context> {
   contextBuilder: ContextBuilder<TContext>;
-  introspection?: StaticOrigin | CustomOrigin | boolean;
+  introspection?: StaticOrigin | CustomOrigin;
   cors?: CorsOptions;
   router?: Router;
 
@@ -26,7 +26,7 @@ export class Serve<TContext extends Context = Context> {
     return this;
   }
 
-  async serve<TParams extends any[] = any[]>({ route, params }: { route: string; params: TParams }) {
+  async serve<TParams extends unknown[] = unknown[]>({ route, params }: { route: string; params: TParams }) {
     if (!this.router) throw new Error('Router must be set by Serve.prepareAdapter before serve the server');
 
     const ctx = await this.contextBuilder(...params);

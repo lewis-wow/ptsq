@@ -1,11 +1,11 @@
-import { Context } from './context';
+import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
-import { Mutation } from './mutation';
-import { Query } from './query';
-import { ServerSideMutation } from './serverSideMutation';
-import { ServerSideQuery } from './serverSideQuery';
-import { DataTransformer } from './transformer';
+import type { Mutation } from './mutation';
+import type { Query } from './query';
+import type { ServerSideMutation } from './serverSideMutation';
+import type { ServerSideQuery } from './serverSideQuery';
+import type { DataTransformer } from './transformer';
 
 export type Routes<TDataTransformer extends DataTransformer = DataTransformer> = {
   [Key: string]: Query | Mutation | Router<TDataTransformer>;
@@ -22,7 +22,7 @@ export class Router<
 > {
   transformer: TDataTransformer;
   routes: TRoutes;
-  nodeType: 'router' = 'router';
+  nodeType: 'router' = 'router' as const;
 
   constructor({ transformer, routes }: RouterOptions<TDataTransformer, TRoutes>) {
     this.transformer = transformer;
@@ -39,7 +39,7 @@ export class Router<
         },
         routes: createSchemaRoot({
           properties: Object.entries(this.routes).reduce((acc, [key, node]) => {
-            //@ts-expect-error
+            //@ts-expect-error acc don't have type right now
             acc[key] = node.getJsonSchema(`${title} ${key}`);
             return acc;
           }, {}),
@@ -62,7 +62,7 @@ export class Router<
     return new Proxy(this.routes, proxyHandler) as unknown as RouterProxyCaller<TRoutes, TContext>;
   }
 
-  call({ route, input, ctx }: { route: string[]; input: any; ctx: Context }): any {
+  call({ route, input, ctx }: { route: string[]; input: unknown; ctx: Context }): unknown {
     const currentRoute = route.shift();
 
     if (!currentRoute || !(currentRoute in this.routes))

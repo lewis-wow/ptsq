@@ -1,11 +1,11 @@
-import { ZodUndefined, z } from 'zod';
-import { Context } from './context';
-import { Middleware } from './middleware';
+import { type ZodUndefined, z } from 'zod';
+import type { Context } from './context';
+import type { Middleware } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
-import { SerializableZodSchema } from './serializable';
-import { DataTransformer } from './transformer';
-import { MaybePromise, inferResolverValidationSchema } from './types';
+import type { SerializableZodSchema } from './serializable';
+import type { DataTransformer } from './transformer';
+import type { MaybePromise, inferResolverValidationSchema } from './types';
 
 export class Resolver<TContext extends Context = Context, TDataTransformer extends DataTransformer = DataTransformer> {
   middlewares: Middleware<TContext, TContext>[];
@@ -69,7 +69,7 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
       > {
     return new Mutation({
       inputValidationSchema: (options.input ?? z.undefined()) as TMutationInput,
-      outputValidationSchema: options.output as TMutationOutput,
+      outputValidationSchema: options.output,
       resolveFunction: options.resolve,
       transformer: this.transformer,
       middlewares: this.middlewares as unknown as Middleware[],
@@ -96,7 +96,7 @@ export class Resolver<TContext extends Context = Context, TDataTransformer exten
     | Query<ZodUndefined, TQueryOutput, ResolveFunction<ZodUndefined, TQueryOutput, TContext>, TDataTransformer> {
     return new Query({
       inputValidationSchema: (options.input ?? z.undefined()) as TQueryInput,
-      outputValidationSchema: options.output as TQueryOutput,
+      outputValidationSchema: options.output,
       resolveFunction: options.resolve,
       transformer: this.transformer,
       middlewares: this.middlewares as unknown as Middleware[],
@@ -114,8 +114,4 @@ export type ResolverOutput<TResolverOutput> = MaybePromise<
   TResolverOutput extends z.Schema ? z.infer<TResolverOutput> : TResolverOutput
 >;
 
-export type ResolverInput<TResolverInput extends SerializableZodSchema | void> = TResolverInput extends z.Schema
-  ? z.infer<TResolverInput>
-  : void;
-
-export type AnyResolveFunction = ResolveFunction<any, any, any>;
+export type ResolverInput<TResolverInput extends SerializableZodSchema> = z.infer<TResolverInput>;
