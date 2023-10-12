@@ -4,7 +4,7 @@ import { SerializableZodSchema } from './serializable';
 import { inferResolverValidationSchema } from './types';
 
 export class ServerSideMutation<
-  TInput extends SerializableZodSchema | void = SerializableZodSchema | void,
+  TInput extends SerializableZodSchema = SerializableZodSchema,
   TOutput extends SerializableZodSchema = SerializableZodSchema,
   TServerSideContext extends Context = Context,
 > {

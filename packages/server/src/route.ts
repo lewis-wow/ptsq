@@ -12,13 +12,13 @@ import { HTTPError } from './httpError';
 
 export class Route<
   TType extends ResolverType = ResolverType,
-  TInput extends SerializableZodSchema | void = SerializableZodSchema | void,
+  TInput extends SerializableZodSchema = SerializableZodSchema,
   TOutput extends SerializableZodSchema = SerializableZodSchema,
   TResolveFunction extends AnyResolveFunction = AnyResolveFunction,
   TDataTransformer extends DataTransformer = DataTransformer,
 > {
   type: TType;
-  inputValidationSchema?: TInput;
+  inputValidationSchema: TInput;
   outputValidationSchema: TOutput;
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route';
@@ -27,7 +27,7 @@ export class Route<
 
   constructor(options: {
     type: TType;
-    inputValidationSchema?: TInput;
+    inputValidationSchema: TInput;
     outputValidationSchema: TOutput;
     resolveFunction: TResolveFunction;
     transformer: TDataTransformer;
@@ -66,15 +66,7 @@ export class Route<
       finalCtx = middleware.call(ctx);
     }
 
-    //@ts-ignore
-    console.log(this.inputValidationSchema?._def.typeName);
-
-    if (!this.inputValidationSchema) return this.resolveFunction({ input, ctx: finalCtx });
-
     const parsedInput = this.inputValidationSchema.safeParse(input);
-
-    //@ts-ignore
-    console.log(parsedInput.error);
 
     if (!parsedInput.success)
       throw new HTTPError({ code: 'BAD_REQUEST', message: 'Input validation error', info: parsedInput.error });

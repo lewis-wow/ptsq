@@ -12,7 +12,7 @@ const baseRouter = router({
   user: router({
     test: resolver.query({
       output: z.literal('hello world'),
-      resolve: () => `hello world` as const,
+      resolve: (_input) => `hello world` as const,
     }),
     greetings: resolver.query({
       input: z.object({ name: z.string() }),
