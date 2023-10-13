@@ -5,27 +5,20 @@ import type { Mutation } from './mutation';
 import type { Query } from './query';
 import type { ServerSideMutation } from './serverSideMutation';
 import type { ServerSideQuery } from './serverSideQuery';
-import type { DataTransformer } from './transformer';
 
-export type Routes<TDataTransformer extends DataTransformer = DataTransformer> = {
-  [Key: string]: Query | Mutation | Router<TDataTransformer>;
+export type Routes = {
+  [Key: string]: Query | Mutation | Router;
 };
 
-type RouterOptions<TDataTransformer extends DataTransformer, TRoutes extends Routes<TDataTransformer>> = {
-  transformer: TDataTransformer;
+type RouterOptions<TRoutes extends Routes> = {
   routes: TRoutes;
 };
 
-export class Router<
-  TDataTransformer extends DataTransformer = DataTransformer,
-  TRoutes extends Routes<TDataTransformer> = Routes<TDataTransformer>,
-> {
-  transformer: TDataTransformer;
+export class Router<TRoutes extends Routes = Routes> {
   routes: TRoutes;
   nodeType: 'router' = 'router' as const;
 
-  constructor({ transformer, routes }: RouterOptions<TDataTransformer, TRoutes>) {
-    this.transformer = transformer;
+  constructor({ routes }: RouterOptions<TRoutes>) {
     this.routes = routes;
   }
 
@@ -85,19 +78,5 @@ type RouterProxyCaller<TRoutes extends Routes, TContext extends Context> = {
     ? ServerSideMutation<TRoutes[K]['inputValidationSchema'], TRoutes[K]['outputValidationSchema'], TContext>
     : never;
 };
-
-export const createRouterFactory =
-  <TDataTransformer extends DataTransformer>({ transformer }: { transformer: TDataTransformer }) =>
-  <
-    TRoutes extends {
-      [key: string]: Query | Mutation | Router<TDataTransformer>;
-    },
-  >(
-    routes: TRoutes
-  ): Router<TDataTransformer, TRoutes> =>
-    new Router({
-      routes,
-      transformer,
-    });
 
 export type AnyRouter = Router;

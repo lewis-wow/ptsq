@@ -1,7 +1,7 @@
 import type { CorsOptions } from 'cors';
 import type { Context, ContextBuilder } from './context';
 import type { StaticOrigin, CustomOrigin } from './cors';
-import type { Router } from './createRouterFactory';
+import type { Router } from './router';
 
 export type ServeOptions<TContext extends Context> = {
   contextBuilder: ContextBuilder<TContext>;

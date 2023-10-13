@@ -1,34 +1,26 @@
-import type { Context, ContextBuilder, inferContextFromContextBuilder } from './context';
-import type { CustomOrigin, StaticOrigin } from './cors';
-import { type Router, createRouterFactory } from './createRouterFactory';
-import { Middleware, type MiddlewareCallback } from './middleware';
+import { Context, ContextBuilder, inferContextFromContextBuilder } from './context';
+import { CustomOrigin, StaticOrigin } from './cors';
+import { Router, Routes } from './router';
+import { Middleware, MiddlewareCallback } from './middleware';
 import { Resolver } from './resolver';
 import { Serve } from './serve';
-import { type DataTransformer, defaultDataTransformer } from './transformer';
-import type { CorsOptions } from 'cors';
+import { CorsOptions } from 'cors';
 
-type CreateServerArgs<
-  TContextBuilder extends ContextBuilder,
-  TDataTransformer extends DataTransformer = DataTransformer,
-> = {
+type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   ctx: TContextBuilder;
-  transformer?: TDataTransformer;
   cors?: CorsOptions;
   introspection?: StaticOrigin | CustomOrigin;
 };
 
-export const createServer = <TContextBuilder extends ContextBuilder, TDataTransformer extends DataTransformer>({
+export const createServer = <TContextBuilder extends ContextBuilder>({
   ctx,
-  transformer,
   cors,
   introspection = false,
-}: CreateServerArgs<TContextBuilder, TDataTransformer>) => {
+}: CreateServerArgs<TContextBuilder>) => {
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
-  const dataTransformer = transformer ?? (defaultDataTransformer as TDataTransformer);
+  const resolver = new Resolver<RootContext>({ middlewares: [] });
 
-  const resolver = new Resolver<RootContext>({ transformer: dataTransformer, middlewares: [] });
-
-  const routerFactory = createRouterFactory({ transformer: dataTransformer });
+  const router = <TRoutes extends Routes>(routes: TRoutes) => new Router({ routes });
 
   const serve = new Serve({ contextBuilder: ctx, introspection, cors });
 
@@ -39,7 +31,7 @@ export const createServer = <TContextBuilder extends ContextBuilder, TDataTransf
   return {
     middleware,
     resolver,
-    router: routerFactory,
+    router,
     serve: ({ router }: { router: Router }) => serve.adapter({ router }),
   };
 };
