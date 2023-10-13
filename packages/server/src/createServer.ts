@@ -1,10 +1,10 @@
-import { Context, ContextBuilder, inferContextFromContextBuilder } from './context';
-import { CustomOrigin, StaticOrigin } from './cors';
-import { Router, Routes } from './router';
-import { Middleware, MiddlewareCallback } from './middleware';
+import type { Context, ContextBuilder, inferContextFromContextBuilder } from './context';
+import type { CustomOrigin, StaticOrigin } from './cors';
+import { Router, type Routes } from './router';
+import { Middleware, type MiddlewareCallback } from './middleware';
 import { Resolver } from './resolver';
 import { Serve } from './serve';
-import { CorsOptions } from 'cors';
+import type { CorsOptions } from 'cors';
 
 type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   ctx: TContextBuilder;
@@ -32,6 +32,6 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
     middleware,
     resolver,
     router,
-    serve: ({ router }: { router: Router }) => serve.adapter({ router }),
+    serve: ({ router: rootRouter }: { router: Router }) => serve.adapter({ router: rootRouter }),
   };
 };
