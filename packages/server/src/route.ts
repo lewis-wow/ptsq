@@ -1,5 +1,4 @@
 import type { ResolverType } from './types';
-import type { DataTransformer } from './transformer';
 import type { ResolveFunction } from './resolver';
 import type { SerializableZodSchema } from './serializable';
 import { zodToJsonSchema } from 'zod-to-json-schema';
@@ -15,14 +14,12 @@ export class Route<
   TInput extends SerializableZodSchema = SerializableZodSchema,
   TOutput extends SerializableZodSchema = SerializableZodSchema,
   TResolveFunction extends ResolveFunction = ResolveFunction,
-  TDataTransformer extends DataTransformer = DataTransformer,
 > {
   type: TType;
   inputValidationSchema: TInput;
   outputValidationSchema: TOutput;
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
-  transformer: TDataTransformer;
   middlewares: Middleware[];
 
   constructor(options: {
@@ -30,14 +27,12 @@ export class Route<
     inputValidationSchema: TInput;
     outputValidationSchema: TOutput;
     resolveFunction: TResolveFunction;
-    transformer: TDataTransformer;
     middlewares: Middleware[];
   }) {
     this.type = options.type;
     this.inputValidationSchema = options.inputValidationSchema;
     this.outputValidationSchema = options.outputValidationSchema;
     this.resolveFunction = options.resolveFunction;
-    this.transformer = options.transformer;
     this.middlewares = options.middlewares;
   }
 

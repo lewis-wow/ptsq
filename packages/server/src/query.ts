@@ -1,4 +1,3 @@
-import type { DataTransformer } from './transformer';
 import type { ResolveFunction } from './resolver';
 import type { SerializableZodSchema } from './serializable';
 import type { Context } from './context';
@@ -11,13 +10,11 @@ export class Query<
   TOutput extends SerializableZodSchema = SerializableZodSchema,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TResolveFunction extends ResolveFunction<any, any, any> = ResolveFunction,
-  TDataTransformer extends DataTransformer = DataTransformer,
-> extends Route<'query', TInput, TOutput, TResolveFunction, TDataTransformer> {
+> extends Route<'query', TInput, TOutput, TResolveFunction> {
   constructor(options: {
     inputValidationSchema: TInput;
     outputValidationSchema: TOutput;
     resolveFunction: TResolveFunction;
-    transformer: TDataTransformer;
     middlewares: Middleware[];
   }) {
     super({
