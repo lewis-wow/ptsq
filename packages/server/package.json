@@ -2,11 +2,11 @@
   "name": "@schema-rpc/server",
   "version": "0.0.1",
   "private": true,
-  "main": "src/main.ts",
   "scripts": {
     "build": "tsc --build",
     "lint": "eslint"
   },
+  "main": "src/main.ts",
   "devDependencies": {
     "@types/cors": "^2.8.14",
     "@types/express": "^4.17.18",

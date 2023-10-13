@@ -9,7 +9,7 @@ export class Query<
   TInput extends SerializableZodSchema = SerializableZodSchema,
   TOutput extends SerializableZodSchema = SerializableZodSchema,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TResolveFunction extends ResolveFunction<any, any, any> = ResolveFunction,
+  TResolveFunction extends ResolveFunction<any, any, any> = ResolveFunction<any, any, any>,
 > extends Route<'query', TInput, TOutput, TResolveFunction> {
   constructor(options: {
     inputValidationSchema: TInput;
@@ -27,5 +27,3 @@ export class Query<
     return new ServerSideQuery({ ctx, resolveFunction: this.resolveFunction });
   }
 }
-
-export type AnyQuery = Query;

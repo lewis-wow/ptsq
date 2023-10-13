@@ -8,8 +8,8 @@ export type { Mutation } from './mutation';
 export type { ServerSideMutation } from './serverSideMutation';
 export type { ServerSideQuery } from './serverSideQuery';
 
-export type { Route, AnyRoute } from './route';
-export type { Router, AnyRouter } from './router';
+export type { Route } from './route';
+export type { Router } from './router';
 export type { Context } from './context';
 export type { Serve } from './serve';
 export type { ResolverType, MaybePromise, inferResolverValidationSchema } from './types';

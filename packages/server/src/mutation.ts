@@ -1,6 +1,6 @@
-import { ResolveFunction } from './resolver';
-import { SerializableZodSchema } from './serializable';
-import { Context } from './context';
+import type { ResolveFunction } from './resolver';
+import type { SerializableZodSchema } from './serializable';
+import type { Context } from './context';
 import { Route } from './route';
 import { ServerSideMutation } from './serverSideMutation';
 import type { Middleware } from './middleware';
@@ -9,7 +9,7 @@ export class Mutation<
   TInput extends SerializableZodSchema = SerializableZodSchema,
   TOutput extends SerializableZodSchema = SerializableZodSchema,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TResolveFunction extends ResolveFunction<any, any, any> = ResolveFunction,
+  TResolveFunction extends ResolveFunction<any, any, any> = ResolveFunction<any, any, any>,
 > extends Route<'mutation', TInput, TOutput, TResolveFunction> {
   constructor(options: {
     inputValidationSchema: TInput;
@@ -27,5 +27,3 @@ export class Mutation<
     return new ServerSideMutation({ ctx, resolveFunction: this.resolveFunction });
   }
 }
-
-export type AnyMutation = Mutation;

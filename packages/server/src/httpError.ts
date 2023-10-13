@@ -1,12 +1,12 @@
 export type HTTPErrorOptions = {
   code: keyof typeof HTTPErrorCode;
   message?: string;
-  info?: unknown;
+  info?: any;
 };
 
 export class HTTPError extends Error {
   code: keyof typeof HTTPErrorCode;
-  info: unknown;
+  info: any;
 
   constructor({ code, message, info }: HTTPErrorOptions) {
     super(message);

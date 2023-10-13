@@ -93,5 +93,3 @@ export type RouteSchema = {
   } | null;
   nodeType: 'route';
 };
-
-export type AnyRoute = Route;

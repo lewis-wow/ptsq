@@ -10,15 +10,11 @@ export type Routes = {
   [Key: string]: Query | Mutation | Router;
 };
 
-type RouterOptions<TRoutes extends Routes> = {
-  routes: TRoutes;
-};
-
 export class Router<TRoutes extends Routes = Routes> {
   routes: TRoutes;
   nodeType: 'router' = 'router' as const;
 
-  constructor({ routes }: RouterOptions<TRoutes>) {
+  constructor({ routes }: { routes: TRoutes }) {
     this.routes = routes;
   }
 
@@ -69,6 +65,8 @@ export class Router<TRoutes extends Routes = Routes> {
   }
 }
 
+export const router = <TRoutes extends Routes>(routes: TRoutes) => new Router({ routes });
+
 type RouterProxyCaller<TRoutes extends Routes, TContext extends Context> = {
   [K in keyof TRoutes]: TRoutes[K] extends Router
     ? RouterProxyCaller<TRoutes[K]['routes'], TContext>
@@ -78,5 +76,3 @@ type RouterProxyCaller<TRoutes extends Routes, TContext extends Context> = {
     ? ServerSideMutation<TRoutes[K]['inputValidationSchema'], TRoutes[K]['outputValidationSchema'], TContext>
     : never;
 };
-
-export type AnyRouter = Router;

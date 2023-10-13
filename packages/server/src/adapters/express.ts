@@ -1,9 +1,9 @@
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 import cors from 'cors';
 import { requestBodySchema } from '../requestBodySchema';
 import { HTTPError, HTTPErrorCode } from '../httpError';
 import { json, urlencoded } from 'body-parser';
-import { Serve } from '../serve';
+import type { Serve } from '../serve';
 import { parse, stringify } from 'superjson';
 
 export type ExpressAdapterContext = {
@@ -14,6 +14,7 @@ export type ExpressAdapterContext = {
 export const expressAdapter = (serve: Serve) => {
   const expressRouter = express.Router();
 
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   expressRouter.post('/', cors(serve.cors), urlencoded({ extended: false }), json(), async (req: Request, res) => {
     try {
       const parsedRequestBody = requestBodySchema.safeParse(req.body);
@@ -25,14 +26,17 @@ export const expressAdapter = (serve: Serve) => {
           info: parsedRequestBody.error,
         });
 
+      const rawInput = parsedRequestBody.data.input;
+
       const { ctx, route } = await serve.serve({
         route: parsedRequestBody.data.route,
         params: [{ req, res }],
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const dataResult = serve.router!.call({
         route,
-        input: parsedRequestBody.data.input === undefined ? undefined : parse(parsedRequestBody.data.input),
+        input: rawInput === undefined ? undefined : parse(rawInput),
         ctx,
       });
 
@@ -52,6 +56,7 @@ export const expressAdapter = (serve: Serve) => {
     cors({
       origin: serve.introspection,
     }),
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     (_req, res) => res.json(serve.router!.getJsonSchema())
   );
 

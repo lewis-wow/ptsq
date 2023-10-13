@@ -1,4 +1,4 @@
-import { ExpressAdapterContext, createServer, expressAdapter } from '@schema-rpc/server';
+import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
 import express from 'express';
 import { z } from 'zod';
 

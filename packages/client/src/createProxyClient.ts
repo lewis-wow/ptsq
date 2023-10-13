@@ -31,7 +31,10 @@ export class ProxyClient {
     this.options = options;
   }
 
-  async request<TRequestOutput>(requestInput?: undefined, requestOptions?: RequestOptions): Promise<TRequestOutput>;
+  async request<TRequestInput extends undefined, TRequestOutput>(
+    requestInput?: TRequestInput,
+    requestOptions?: RequestOptions
+  ): Promise<TRequestOutput>;
   async request<TRequestInput, TRequestOutput>(
     requestInput: TRequestInput,
     requestOptions?: RequestOptions
