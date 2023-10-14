@@ -31,17 +31,8 @@ export class ProxyClient {
     this.options = options;
   }
 
-  async request<TRequestInput extends undefined, TRequestOutput>(
-    requestInput?: TRequestInput,
-    requestOptions?: RequestOptions
-  ): Promise<TRequestOutput>;
   async request<TRequestInput, TRequestOutput>(
     requestInput: TRequestInput,
-    requestOptions?: RequestOptions
-  ): Promise<TRequestOutput>;
-
-  async request<TRequestInput, TRequestOutput>(
-    requestInput?: TRequestInput,
     requestOptions?: RequestOptions
   ): Promise<TRequestOutput> {
     const headers = typeof this.options.headers !== 'function' ? this.options.headers : await this.options.headers();

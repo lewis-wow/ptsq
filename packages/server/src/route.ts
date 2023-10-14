@@ -1,19 +1,22 @@
 import type { ResolverType } from './types';
 import type { ResolveFunction } from './resolver';
 import type { SerializableZodSchema } from './serializable';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import type { JsonSchema7Type } from 'zod-to-json-schema/src/parseDef';
-import { ZodSchema } from 'zod';
 import { createSchemaRoot } from './createSchemaRoot';
 import type { Context } from './context';
 import type { Middleware } from './middleware';
 import { HTTPError } from './httpError';
+import { zodSchemaToJsonSchema } from './zodSchemaToJsonSchema';
+import type { z } from 'zod';
 
 export class Route<
   TType extends ResolverType = ResolverType,
   TInput extends SerializableZodSchema = SerializableZodSchema,
   TOutput extends SerializableZodSchema = SerializableZodSchema,
-  TResolveFunction extends ResolveFunction = ResolveFunction,
+  TResolveFunction extends ResolveFunction<z.output<TInput>, z.input<TOutput>> = ResolveFunction<
+    z.output<TInput>,
+    z.input<TOutput>
+  >,
 > {
   type: TType;
   inputValidationSchema: TInput;
@@ -48,9 +51,8 @@ export class Route<
           type: 'string',
           enum: [this.nodeType],
         },
-        input:
-          this.inputValidationSchema instanceof ZodSchema ? zodToJsonSchema(this.inputValidationSchema) : undefined,
-        output: zodToJsonSchema(this.outputValidationSchema),
+        inputValidationSchema: zodSchemaToJsonSchema(this.inputValidationSchema),
+        outputValidationSchema: zodSchemaToJsonSchema(this.outputValidationSchema),
       },
     });
   }

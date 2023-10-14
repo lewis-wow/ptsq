@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 
-export type Serializable =
+export type SerializableElements =
   | string
   | number
   | bigint
@@ -11,9 +11,12 @@ export type Serializable =
   | Error
   | undefined
   | boolean
-  | Serializable[]
-  | { [key: string | number | symbol]: Serializable }
-  | Set<Serializable>
-  | Map<Serializable, Serializable>;
+  | SerializableElements[]
+  | { [key: string | number | symbol]: SerializableElements }
+  | Set<SerializableElements>
+  | Map<SerializableElements, SerializableElements>;
+
+// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+export type Serializable = SerializableElements | void;
 
 export type SerializableZodSchema = z.Schema<Serializable>;
