@@ -20,13 +20,35 @@ const protectedResolver = resolver.use(
   })
 );
 
+/**
+ * z.preprocess(
+    (url) =>
+      z
+        .instanceof(URL)
+        .transform((arg) => arg.toString())
+        .parse(url),
+    z.string()
+  )
+ */
+
 const URLScalar = new Scalar({
-  parse: (url: string) => new URL(url),
-  serialize: (url: URL) => url.toString(),
-  schema: z.instanceof(URL),
+  parse: {
+    schema: z.instanceof(URL),
+    value: (arg) => new URL(arg),
+  },
+  serialize: {
+    schema: z.string(),
+    value: (arg) => arg.toString(),
+  },
 });
 
 const baseRouter = router({
+  test: protectedResolver.query({
+    output: z.undefined(),
+    resolve: (_input) => {
+      return _input.input;
+    },
+  }),
   user: router({
     greetings: protectedResolver.query({
       input: URLScalar.input,

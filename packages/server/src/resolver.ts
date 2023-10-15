@@ -3,7 +3,7 @@ import type { Context } from './context';
 import type { Middleware } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
-import type { SerializableZodSchema } from './serializable';
+import type { SerializableInputZodSchema, SerializableOutputZodSchema, SerializableZodSchema } from './serializable';
 import type { MaybePromise } from './types';
 
 export class Resolver<TContext extends Context = Context> {
@@ -45,18 +45,18 @@ export class Resolver<TContext extends Context = Context> {
     });
   }
 
-  query<TQueryInput extends SerializableZodSchema, TQueryOutput extends SerializableZodSchema>(options: {
+  query<TQueryInput extends SerializableInputZodSchema, TQueryOutput extends SerializableOutputZodSchema>(options: {
     input: TQueryInput;
     output: TQueryOutput;
     resolve: ResolveFunction<z.output<TQueryInput>, z.input<TQueryOutput>, TContext>;
   }): Query<TQueryInput, TQueryOutput, ResolveFunction<z.output<TQueryInput>, z.input<TQueryOutput>, TContext>>;
 
-  query<TQueryOutput extends SerializableZodSchema>(options: {
+  query<TQueryOutput extends SerializableOutputZodSchema>(options: {
     output: TQueryOutput;
     resolve: ResolveFunction<undefined, z.input<TQueryOutput>, TContext>;
   }): Query<ZodVoid, TQueryOutput, ResolveFunction<undefined, z.input<TQueryOutput>, TContext>>;
 
-  query<TQueryInput extends SerializableZodSchema, TQueryOutput extends SerializableZodSchema>(options: {
+  query<TQueryInput extends SerializableInputZodSchema, TQueryOutput extends SerializableOutputZodSchema>(options: {
     input?: TQueryInput;
     output: TQueryOutput;
     resolve: ResolveFunction<z.output<TQueryInput>, z.input<TQueryOutput>, TContext>;
