@@ -65,8 +65,6 @@ export class Router<TRoutes extends Routes = Routes> {
   }
 }
 
-export const router = <TRoutes extends Routes>(routes: TRoutes) => new Router({ routes });
-
 type RouterProxyCaller<TRoutes extends Routes, TContext extends Context> = {
   [K in keyof TRoutes]: TRoutes[K] extends Router
     ? RouterProxyCaller<TRoutes[K]['routes'], TContext>

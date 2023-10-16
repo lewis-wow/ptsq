@@ -1,19 +1,19 @@
 import type { Serializable } from './serializable';
 import { z } from 'zod';
 
-type Parser<TInputSchema extends z.Schema<Serializable>, TOutputSchema extends z.Schema> = {
+export type ScalarParser<TInputSchema extends z.Schema<Serializable>, TOutputSchema extends z.Schema> = {
   value: (arg: z.infer<TInputSchema>) => z.infer<TOutputSchema>;
   schema: TOutputSchema;
 };
 
-type Serializer<TInputSchema extends z.Schema, TOutputSchema extends z.Schema<Serializable>> = {
+export type ScalarSerializer<TInputSchema extends z.Schema, TOutputSchema extends z.Schema<Serializable>> = {
   value: (arg: z.infer<TInputSchema>) => z.infer<TOutputSchema>;
   schema: TOutputSchema;
 };
 
 export class Scalar<TSerializeSchema extends z.Schema<Serializable>, TParseSchema extends z.Schema> {
-  protected parse: Parser<TSerializeSchema, TParseSchema>;
-  protected serialize: Serializer<TParseSchema, TSerializeSchema>;
+  protected parse: ScalarParser<TSerializeSchema, TParseSchema>;
+  protected serialize: ScalarSerializer<TParseSchema, TSerializeSchema>;
 
   public input: z.ZodEffects<TSerializeSchema, z.infer<TParseSchema>, z.input<TSerializeSchema>>;
   public output: z.ZodEffects<TSerializeSchema, z.infer<TSerializeSchema>, z.infer<TParseSchema>>;
@@ -22,8 +22,8 @@ export class Scalar<TSerializeSchema extends z.Schema<Serializable>, TParseSchem
     parse,
     serialize,
   }: {
-    parse: Parser<TSerializeSchema, TParseSchema>;
-    serialize: Serializer<TParseSchema, TSerializeSchema>;
+    parse: ScalarParser<TSerializeSchema, TParseSchema>;
+    serialize: ScalarSerializer<TParseSchema, TSerializeSchema>;
   }) {
     this.parse = parse;
     this.serialize = serialize;
