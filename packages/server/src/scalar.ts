@@ -12,6 +12,60 @@ export type ScalarSerializer<TInputSchema extends z.Schema, TOutputSchema extend
   schema: TOutputSchema;
 };
 
+/**
+ * Creates a scalar type with custom parsing and serialization
+ *
+ * Description is generic written only for you can see the description on the server in IDE
+ *
+ * @example
+ * ```ts
+ * const URLScalar = scalar({
+ *   parse: {
+ *     schema: z.instanceof(URL), // used to validate parsed value
+ *     value: (arg) => new URL(arg),
+ *   },
+ *   serialize: {
+ *     schema: z.string().url(), // used to validate requst and response
+ *     value: (arg) => arg.toString(),
+ *   },
+ *   description: {
+ *     input: 'String format of url', // used to describe scalar input for schema
+ *     output: 'String format of url', // used to describe scalar output for schema
+ *   }
+ * });
+ * ```
+ */
+export const scalar = <
+  TSerializeSchema extends z.Schema<Serializable>,
+  TParseSchema extends z.Schema,
+  TDescriptionInput extends string | undefined,
+  TDescriptionOutput extends string | undefined,
+>(scalarDefinition: {
+  parse: ScalarParser<TSerializeSchema, TParseSchema>;
+  serialize: ScalarSerializer<TParseSchema, TSerializeSchema>;
+  description?: {
+    input?: TDescriptionInput;
+    output?: TDescriptionOutput;
+  };
+}) =>
+  new Scalar<
+    TSerializeSchema,
+    TParseSchema,
+    {
+      input: TDescriptionInput;
+      output: TDescriptionOutput;
+    }
+  >(
+    scalarDefinition as {
+      parse: ScalarParser<TSerializeSchema, TParseSchema>;
+      serialize: ScalarSerializer<TParseSchema, TSerializeSchema>;
+      description: {
+        input: TDescriptionInput;
+        output: TDescriptionOutput;
+      };
+    }
+  );
+
 export class Scalar<
   TSerializeSchema extends z.Schema<Serializable>,
   TParseSchema extends z.Schema,
