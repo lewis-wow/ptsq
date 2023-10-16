@@ -1,9 +1,8 @@
 import type { ResolverType } from '@schema-rpc/server';
 
 /**
- * more
+ * more general route type than in server package, because of introspection result
  */
-
 export type ClientRoute<TType extends ResolverType = ResolverType> = {
   nodeType: 'route';
   type: TType;
@@ -11,6 +10,9 @@ export type ClientRoute<TType extends ResolverType = ResolverType> = {
   outputValidationSchema: any;
 };
 
+/**
+ * more general router type than in server package, because of introspection result
+ */
 export type ClientRouter = {
   nodeType: 'router';
   routes: {

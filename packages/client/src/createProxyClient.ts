@@ -34,6 +34,9 @@ export class ProxyClient {
     this.options = options;
   }
 
+  /**
+   * Creates a request to the server with generic input and output types from schema
+   */
   async request<TRequestInput, TRequestOutput>(
     requestInput: TRequestInput,
     requestOptions?: RequestOptions
@@ -56,11 +59,30 @@ export class ProxyClient {
 
 /**
  * Creates vanillajs proxy based client
+ *
+ * @example
+ * ```ts
+ * const client = createProxyClient<RootRouter>({
+ *   url: 'http://localhost:4000/schema-rpc/'
+ * });
+ *
+ * const currentUser = await client.user.getCurrent.query();
+ * ```
  */
 export const createProxyClient = <TRouter extends ClientRouter>(
   options: ProxyClientOptions['options']
 ): Client<TRouter> => {
   const createRouteProxyClient = (route: string[]) => {
+    /**
+     * Creating new proxy client for every route allows you to create route fragment
+     * like
+     *
+     * @example
+     * ```ts
+     * const userClient = client.user;
+     * await userClient.getCurrent.query();
+     * ```
+     */
     const client = new ProxyClient({ route, options });
 
     const proxyHandler: ProxyHandler<Client<TRouter>> = {

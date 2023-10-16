@@ -16,6 +16,9 @@ type MutationClient<TClientRoute extends ClientRoute> = {
   >;
 };
 
+/**
+ * Client type for casting proxy client to correct types
+ */
 export type Client<TRouter extends ClientRouter> = {
   [K in keyof TRouter['routes']]: TRouter['routes'][K] extends ClientRouter
     ? Client<TRouter['routes'][K]>
