@@ -9,36 +9,13 @@ export interface RootRouter {
   nodeType: 'router';
   routes: {
     test: RootTestRoute;
-    test2: RootTest2Route;
-    inner: RootInnerRouter;
   };
 }
 export interface RootTestRoute {
-  type: 'mutation';
+  type: 'query';
   nodeType: 'route';
-  output: unknown;
-}
-export interface RootTest2Route {
-  type: 'mutation';
-  nodeType: 'route';
-  input: {};
-  output: {};
-}
-export interface RootInnerRouter {
-  nodeType: 'router';
-  routes: {
-    test1: RootInnerTest1Route;
-    test2: RootInnerTest2Route;
+  inputValidationSchema: {
+    name: string;
   };
-}
-export interface RootInnerTest1Route {
-  type: 'query';
-  nodeType: 'route';
-  output: unknown;
-}
-export interface RootInnerTest2Route {
-  type: 'query';
-  nodeType: 'route';
-  input: {};
-  output: {};
+  outputValidationSchema: number;
 }

@@ -1,19 +1,26 @@
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 import cors from 'cors';
 import { requestBodySchema } from '../requestBodySchema';
 import { HTTPError, HTTPErrorCode } from '../httpError';
 import { json, urlencoded } from 'body-parser';
-import { Serve } from '../serve';
-import { parse, stringify } from 'superjson';
+import type { Serve } from '../serve';
 
 export type ExpressAdapterContext = {
   req: Request;
   res: Response;
 };
 
+/**
+ * create express routes for serve the server in the express app
+ * /introspection path is also created if introspection query is turn on
+ *
+ * /root is POST method only route
+ * /root/introspection is GET method only route
+ */
 export const expressAdapter = (serve: Serve) => {
   const expressRouter = express.Router();
 
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   expressRouter.post('/', cors(serve.cors), urlencoded({ extended: false }), json(), async (req: Request, res) => {
     try {
       const parsedRequestBody = requestBodySchema.safeParse(req.body);
@@ -25,18 +32,21 @@ export const expressAdapter = (serve: Serve) => {
           info: parsedRequestBody.error,
         });
 
+      const rawInput = parsedRequestBody.data.input;
+
       const { ctx, route } = await serve.serve({
         route: parsedRequestBody.data.route,
         params: [{ req, res }],
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const dataResult = serve.router!.call({
         route,
-        input: parsedRequestBody.data.input === undefined ? undefined : parse(parsedRequestBody.data.input),
+        input: rawInput === undefined ? undefined : JSON.parse(rawInput),
         ctx,
       });
 
-      res.json(stringify(dataResult));
+      res.json(dataResult);
     } catch (error) {
       if (HTTPError.isHttpError(error)) {
         res.status(HTTPErrorCode[error.code]).json({ message: error.message, info: error.info });
@@ -52,6 +62,7 @@ export const expressAdapter = (serve: Serve) => {
     cors({
       origin: serve.introspection,
     }),
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     (_req, res) => res.json(serve.router!.getJsonSchema())
   );
 

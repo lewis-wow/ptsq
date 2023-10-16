@@ -1,15 +1,15 @@
 import type { ResolveFunction } from './resolver';
-import type { SerializableZodSchema } from './serializable';
+import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
 import type { Context } from './context';
 import { Route } from './route';
 import { ServerSideQuery } from './serverSideQuery';
 import type { Middleware } from './middleware';
 
 export class Query<
-  TInput extends SerializableZodSchema = SerializableZodSchema,
-  TOutput extends SerializableZodSchema = SerializableZodSchema,
+  TInput extends SerializableInputZodSchema = SerializableInputZodSchema,
+  TOutput extends SerializableOutputZodSchema = SerializableOutputZodSchema,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TResolveFunction extends ResolveFunction<any, any, any> = ResolveFunction,
+  TResolveFunction extends ResolveFunction<any, any, any> = ResolveFunction<any, any, any>,
 > extends Route<'query', TInput, TOutput, TResolveFunction> {
   constructor(options: {
     inputValidationSchema: TInput;
@@ -27,5 +27,3 @@ export class Query<
     return new ServerSideQuery({ ctx, resolveFunction: this.resolveFunction });
   }
 }
-
-export type AnyQuery = Query;

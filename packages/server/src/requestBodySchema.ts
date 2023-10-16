@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+/**
+ * validation schema for validating POST request body in format that routers work
+ */
 export const requestBodySchema = z.object({
   route: z.string().refine((str) => {
     const segments = str.split('.');
@@ -7,5 +10,5 @@ export const requestBodySchema = z.object({
 
     return segments.length > 0 && hasRoute.length === segments.length;
   }),
-  input: z.any().optional(),
+  input: z.string().optional(),
 });

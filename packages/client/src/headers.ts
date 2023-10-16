@@ -20,6 +20,9 @@ type RawHeaders = {
   [key: string]: RawHeaderValue;
 };
 
+/**
+ * Request headers that can be defined in request in axios call
+ */
 export type RequestHeaders = Partial<
   RawHeaders & {
     [Key in CommonRequestHeadersList]: RawHeaderValue;

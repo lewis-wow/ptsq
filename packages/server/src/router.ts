@@ -10,15 +10,11 @@ export type Routes = {
   [Key: string]: Query | Mutation | Router;
 };
 
-type RouterOptions<TRoutes extends Routes> = {
-  routes: TRoutes;
-};
-
 export class Router<TRoutes extends Routes = Routes> {
   routes: TRoutes;
   nodeType: 'router' = 'router' as const;
 
-  constructor({ routes }: RouterOptions<TRoutes>) {
+  constructor({ routes }: { routes: TRoutes }) {
     this.routes = routes;
   }
 
@@ -33,6 +29,7 @@ export class Router<TRoutes extends Routes = Routes> {
         routes: createSchemaRoot({
           properties: Object.entries(this.routes).reduce((acc, [key, node]) => {
             //@ts-expect-error acc don't have type right now
+            // TODO: fix the acc type!
             acc[key] = node.getJsonSchema(`${title} ${key}`);
             return acc;
           }, {}),
@@ -78,5 +75,3 @@ type RouterProxyCaller<TRoutes extends Routes, TContext extends Context> = {
     ? ServerSideMutation<TRoutes[K]['inputValidationSchema'], TRoutes[K]['outputValidationSchema'], TContext>
     : never;
 };
-
-export type AnyRouter = Router;

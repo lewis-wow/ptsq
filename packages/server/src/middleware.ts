@@ -21,6 +21,10 @@ export class Middleware<TContext extends Context = Context, TNextContext extends
     });
   }
 
+  /**
+   * Pipe with another middleware callable
+   * cannot pipe directly to another Middleware, beacause of the TNextContext type
+   */
   pipe<TNextPipeContext extends Context>(middlewareCallback: MiddlewareCallback<TNextContext, TNextPipeContext>) {
     return new Middleware<TContext, TNextPipeContext>(async ({ ctx, next }) => {
       const currentCtxResult = await this.call(ctx);

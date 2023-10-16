@@ -26,8 +26,8 @@ export class Serve<TContext extends Context = Context> {
     return this;
   }
 
-  async serve<TParams extends unknown[] = unknown[]>({ route, params }: { route: string; params: TParams }) {
-    if (!this.router) throw new Error('Router must be set by Serve.prepareAdapter before serve the server');
+  async serve<TParams extends any[]>({ route, params }: { route: string; params: TParams }) {
+    if (!this.router) throw new Error('Router must be set by Serve.adapter before serve the server');
 
     const ctx = await this.contextBuilder(...params);
     const parsedRoute = route.split('.');

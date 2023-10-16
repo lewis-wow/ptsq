@@ -3,7 +3,6 @@ import type { ClientRouter } from './types';
 import type { RequestHeaders } from './headers';
 import type { MaybePromise } from '@schema-rpc/server';
 import axios from 'axios';
-import { stringify, parse } from 'superjson';
 
 export type ProxyClientOptions = {
   route: string[];
@@ -18,6 +17,9 @@ type RequestOptions = {
   signal?: AbortSignal;
 };
 
+/**
+ * Request making client
+ */
 export class ProxyClient {
   route: string[];
   options: {
@@ -31,21 +33,18 @@ export class ProxyClient {
     this.options = options;
   }
 
-  async request<TRequestOutput>(requestInput?: undefined, requestOptions?: RequestOptions): Promise<TRequestOutput>;
+  /**
+   * Creates a request to the server with generic input and output types from schema
+   */
   async request<TRequestInput, TRequestOutput>(
     requestInput: TRequestInput,
-    requestOptions?: RequestOptions
-  ): Promise<TRequestOutput>;
-
-  async request<TRequestInput, TRequestOutput>(
-    requestInput?: TRequestInput,
     requestOptions?: RequestOptions
   ): Promise<TRequestOutput> {
     const headers = typeof this.options.headers !== 'function' ? this.options.headers : await this.options.headers();
 
     const result = await axios.post<string>(
       this.options.url,
-      { route: this.route.join('.'), input: stringify(requestInput) },
+      { route: this.route.join('.'), input: JSON.stringify(requestInput) },
       {
         withCredentials: this.options.credentials,
         headers,
@@ -53,14 +52,36 @@ export class ProxyClient {
       }
     );
 
-    return parse(result.data);
+    return JSON.parse(result.data) as TRequestOutput;
   }
 }
 
+/**
+ * Creates vanillajs proxy based client
+ *
+ * @example
+ * ```ts
+ * const client = createProxyClient<RootRouter>({
+ *   url: 'http://localhost:4000/schema-rpc/'
+ * });
+ *
+ * const currentUser = await client.user.getCurrent.query();
+ * ```
+ */
 export const createProxyClient = <TRouter extends ClientRouter>(
   options: ProxyClientOptions['options']
 ): Client<TRouter> => {
   const createRouteProxyClient = (route: string[]) => {
+    /**
+     * Creating new proxy client for every route allows you to create route fragment
+     * like
+     *
+     * @example
+     * ```ts
+     * const userClient = client.user;
+     * await userClient.getCurrent.query();
+     * ```
+     */
     const client = new ProxyClient({ route, options });
 
     const proxyHandler: ProxyHandler<Client<TRouter>> = {
@@ -69,6 +90,10 @@ export const createProxyClient = <TRouter extends ClientRouter>(
       apply: (_target, _thisArg, argumentsList) => client.request(argumentsList[0], argumentsList[1]),
     };
 
+    /**
+     * assign noop function to proxy to create only appliable proxy handler
+     * the noop function is never called in proxy
+     */
     return new Proxy(noop as unknown as Client<TRouter>, proxyHandler);
   };
 

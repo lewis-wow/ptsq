@@ -1,11 +1,11 @@
 import type { Context } from './context';
 import type { ResolveFunction } from './resolver';
-import type { SerializableZodSchema } from './serializable';
+import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
 import type { inferResolverValidationSchema } from './types';
 
 export class ServerSideQuery<
-  TInput extends SerializableZodSchema = SerializableZodSchema,
-  TOutput extends SerializableZodSchema = SerializableZodSchema,
+  TInput extends SerializableInputZodSchema = SerializableInputZodSchema,
+  TOutput extends SerializableOutputZodSchema = SerializableOutputZodSchema,
   TServerSideContext extends Context = Context,
 > {
   ctx: TServerSideContext;

@@ -1,12 +1,15 @@
 export type HTTPErrorOptions = {
   code: keyof typeof HTTPErrorCode;
   message?: string;
-  info?: unknown;
+  info?: any;
 };
 
+/**
+ * Error class for throwing http response with error
+ */
 export class HTTPError extends Error {
   code: keyof typeof HTTPErrorCode;
-  info: unknown;
+  info: any;
 
   constructor({ code, message, info }: HTTPErrorOptions) {
     super(message);
@@ -18,6 +21,9 @@ export class HTTPError extends Error {
     Object.setPrototypeOf(this, HTTPError.prototype);
   }
 
+  /**
+   * Check if the error in catch scope is HTTPError
+   */
   static isHttpError = (error: unknown): error is HTTPError => error instanceof HTTPError;
 }
 

@@ -1,25 +1,42 @@
-import { ExpressAdapterContext, createServer, expressAdapter } from '@schema-rpc/server';
+import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
 import express from 'express';
 import { z } from 'zod';
 
 const app = express();
 
-const { router, resolver, serve } = createServer({
+const { router, resolver, serve, scalar } = createServer({
   ctx: (_params: ExpressAdapterContext) => ({ user: 'user' as 'user' | null | undefined }),
 });
 
-const baseRouter = router({
-  user: router({
-    test: resolver.query({
-      output: z.literal('hello world'),
-      resolve: (_input) => `hello world` as const,
-    }),
-    greetings: resolver.query({
-      input: z.object({ name: z.string() }),
-      output: z.string(),
-      resolve: ({ input }) => `hello ${input.name}`,
-    }),
+const URLScalar = scalar({
+  parse: {
+    schema: z.instanceof(URL),
+    value: (arg) => new URL(arg),
+  },
+  serialize: {
+    schema: z.string().url(),
+    value: (arg) => arg.toString(),
+  },
+  description: {
+    input: 'String that represent URL',
+    output: 'Same url but with /pathname',
+  },
+});
+
+console.log(URLScalar);
+
+const urlQuery = resolver.query({
+  input: z.object({
+    name: z.string(),
   }),
+  output: z.union([z.literal(404), z.literal(504)]),
+  resolve: () => {
+    return 404 as const;
+  },
+});
+
+const baseRouter = router({
+  test: urlQuery,
 });
 
 app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
