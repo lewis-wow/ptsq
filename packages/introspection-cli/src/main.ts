@@ -4,29 +4,38 @@ import { compile } from 'json-schema-to-typescript';
 import { writeFile } from 'fs/promises';
 import { resolve } from 'path';
 
-yargs.scriptName('introspection-cli');
+const argv = yargs
+  .scriptName('introspection-cli')
+  .usage('\nUsage: $0 --url=<url> --out=<outputPath>')
+  .alias('h', 'help')
+  .option('url', {
+    alias: 'u',
+    describe: 'the schema url to introspectate',
+    type: 'string',
+    demandOption: true,
+  })
+  .option('out', {
+    alias: 'o',
+    describe: 'the output path of the generated schema',
+    type: 'string',
+    demandOption: false,
+  });
 
-yargs.usage('\nUsage: $0 [cmd] <args>').alias('h', 'help');
+const { url, out } = argv.parseSync();
 
-yargs.command(
-  'url <url>',
-  'Add schema url',
-  (yargs) =>
-    yargs.positional('url', {
-      type: 'string',
-      describe: 'the schema url to introspectate',
-      demandOption: true,
-    }),
-  async (argv) => {
-    const jsonSchema = await axios.get(argv.url);
-
-    const tsSchema = await compile(jsonSchema.data, 'MySchema', {
+axios
+  .get(url)
+  .then(async (response) => {
+    const tsSchema = await compile(response.data, 'MySchema', {
       unreachableDefinitions: true,
     });
-    await writeFile('schema.ts', tsSchema, 'utf8');
 
-    console.log(`Schema generated into ${resolve('./schema.ts')}`);
-  }
-);
+    const outFile = out ?? 'schema.generated.ts';
 
-yargs.parse();
+    await writeFile(outFile, tsSchema, 'utf8');
+
+    console.log(`Schema generated into ${resolve(outFile)}`);
+  })
+  .catch((error) => {
+    console.error('Error fetching schema:', error.message);
+  });
