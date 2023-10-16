@@ -3,7 +3,6 @@ import type { ClientRouter } from './types';
 import type { RequestHeaders } from './headers';
 import type { MaybePromise } from '@schema-rpc/server';
 import axios from 'axios';
-import { stringify, parse } from 'superjson';
 
 export type ProxyClientOptions = {
   route: string[];
@@ -45,7 +44,7 @@ export class ProxyClient {
 
     const result = await axios.post<string>(
       this.options.url,
-      { route: this.route.join('.'), input: stringify(requestInput) },
+      { route: this.route.join('.'), input: JSON.stringify(requestInput) },
       {
         withCredentials: this.options.credentials,
         headers,
@@ -53,7 +52,7 @@ export class ProxyClient {
       }
     );
 
-    return parse(result.data);
+    return JSON.parse(result.data) as TRequestOutput;
   }
 }
 

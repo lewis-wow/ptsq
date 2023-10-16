@@ -4,7 +4,6 @@ import { requestBodySchema } from '../requestBodySchema';
 import { HTTPError, HTTPErrorCode } from '../httpError';
 import { json, urlencoded } from 'body-parser';
 import type { Serve } from '../serve';
-import { parse, stringify } from 'superjson';
 
 export type ExpressAdapterContext = {
   req: Request;
@@ -43,11 +42,11 @@ export const expressAdapter = (serve: Serve) => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const dataResult = serve.router!.call({
         route,
-        input: rawInput === undefined ? undefined : parse(rawInput),
+        input: rawInput === undefined ? undefined : JSON.parse(rawInput),
         ctx,
       });
 
-      res.json(stringify(dataResult));
+      res.json(dataResult);
     } catch (error) {
       if (HTTPError.isHttpError(error)) {
         res.status(HTTPErrorCode[error.code]).json({ message: error.message, info: error.info });
