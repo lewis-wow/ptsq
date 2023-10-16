@@ -29,6 +29,7 @@ export class Router<TRoutes extends Routes = Routes> {
         routes: createSchemaRoot({
           properties: Object.entries(this.routes).reduce((acc, [key, node]) => {
             //@ts-expect-error acc don't have type right now
+            // TODO: fix the acc type!
             acc[key] = node.getJsonSchema(`${title} ${key}`);
             return acc;
           }, {}),

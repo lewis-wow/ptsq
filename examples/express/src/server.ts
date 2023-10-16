@@ -28,7 +28,8 @@ const urlQuery = resolver.query({
     url: URLScalar.input,
   }),
   output: URLScalar.output,
-  resolve: ({ input }) => new URL(`${input.url.href}/pathname`),
+  //@ts-ignore
+  resolve: ({ input }) => 'https://example.com',
 });
 
 const baseRouter = router({

@@ -4,8 +4,5 @@ import zodToJsonSchema from 'zod-to-json-schema';
 export const zodSchemaToJsonSchema = (zodSchema?: z.Schema) => {
   if (zodSchema === undefined || zodSchema instanceof ZodUndefined || zodSchema instanceof ZodVoid) return undefined;
 
-  const jsonSchema = zodToJsonSchema(zodSchema);
-  console.log(jsonSchema);
-
-  return jsonSchema;
+  return zodToJsonSchema(zodSchema);
 };

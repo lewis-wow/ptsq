@@ -94,6 +94,8 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   /**
    * Creates a scalar type with custom parsing and serialization
    *
+   * Description is generic written only for you can see the description on the server in IDE
+   *
    * @example
    * ```ts
    * const URLScalar = scalar({
@@ -105,9 +107,9 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    *     schema: z.string().url(), // used to validate requst and response
    *     value: (arg) => arg.toString(),
    *   },
-   *   description: { // used to describe scalar input and output for introspection and schema
-   *     input: 'String format of url',
-   *     output: 'String format of url',
+   *   description: {
+   *     input: 'String format of url', // used to describe scalar input for schema
+   *     output: 'String format of url', // used to describe scalar output for schema
    *   }
    * });
    * ```

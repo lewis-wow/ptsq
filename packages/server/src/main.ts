@@ -21,7 +21,7 @@ export type {
   inferResolverValidationSchemaInput,
   inferResolverValidationSchemaOutput,
 } from './types';
-export type { SerializableZodSchema, Serializable } from './serializable';
+export type { SerializableInputZodSchema, SerializableOutputZodSchema, Serializable } from './serializable';
 
 /**
  * adapters/express

@@ -1,6 +1,6 @@
 import type { ResolverType } from './types';
 import type { ResolveFunction } from './resolver';
-import type { SerializableZodSchema } from './serializable';
+import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
 import type { JsonSchema7Type } from 'zod-to-json-schema/src/parseDef';
 import { createSchemaRoot } from './createSchemaRoot';
 import type { Context } from './context';
@@ -11,8 +11,8 @@ import type { z } from 'zod';
 
 export class Route<
   TType extends ResolverType = ResolverType,
-  TInput extends SerializableZodSchema = SerializableZodSchema,
-  TOutput extends SerializableZodSchema = SerializableZodSchema,
+  TInput extends SerializableInputZodSchema = SerializableInputZodSchema,
+  TOutput extends SerializableOutputZodSchema = SerializableOutputZodSchema,
   TResolveFunction extends ResolveFunction<z.output<TInput>, z.input<TOutput>> = ResolveFunction<
     z.output<TInput>,
     z.input<TOutput>

@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+/**
+ * validation schema for validating POST request body in format that routers work
+ */
 export const requestBodySchema = z.object({
   route: z.string().refine((str) => {
     const segments = str.split('.');

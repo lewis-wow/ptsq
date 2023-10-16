@@ -1,3 +1,4 @@
+import { HTTPError } from './httpError';
 import type { Serializable } from './serializable';
 import { z } from 'zod';
 
@@ -41,12 +42,43 @@ export class Scalar<
     this.serialize = serialize;
     this.description = description as TDescription;
 
-    this.input = this.serialize.schema
-      .transform((arg) => this.parse.schema.parse(this.parse.value(arg)))
-      .describe(this.description?.input ?? '');
+    this.input = this.serialize.schema.transform((arg) => {
+      const transformParseResult = this.parse.schema.safeParse(this.parse.value(arg));
 
-    this.output = z
-      .preprocess((arg) => this.serialize.value(this.parse.schema.parse(arg)), this.serialize.schema)
-      .describe(this.description?.output ?? '');
+      if (!transformParseResult.success)
+        throw new HTTPError({
+          code: 'BAD_REQUEST',
+          message: 'Scalar input type is invalid',
+          info: transformParseResult.error,
+        });
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return transformParseResult.data;
+    });
+
+    if (this.description?.input) this.input.describe(this.description.input);
+
+    this.output = z.preprocess((arg) => {
+      const preprocessParseResult = this.parse.schema.safeParse(arg);
+      if (!preprocessParseResult.success)
+        throw new HTTPError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Scalar output type is invalid',
+          info: preprocessParseResult.error,
+        });
+
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        return this.serialize.value(preprocessParseResult.data);
+      } catch (error) {
+        throw new HTTPError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Scalar output type is invalid',
+          info: error,
+        });
+      }
+    }, this.serialize.schema);
+
+    if (this.description?.output) this.output.describe(this.description.output);
   }
 }

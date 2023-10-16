@@ -1,5 +1,9 @@
 import type { ResolverType } from '@schema-rpc/server';
 
+/**
+ * more
+ */
+
 export type ClientRoute<TType extends ResolverType = ResolverType> = {
   nodeType: 'route';
   type: TType;

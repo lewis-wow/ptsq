@@ -11,6 +11,13 @@ export type ExpressAdapterContext = {
   res: Response;
 };
 
+/**
+ * create express routes for serve the server in the express app
+ * /introspection path is also created if introspection query is turn on
+ *
+ * /root is POST method only route
+ * /root/introspection is GET method only route
+ */
 export const expressAdapter = (serve: Serve) => {
   const expressRouter = express.Router();
 
