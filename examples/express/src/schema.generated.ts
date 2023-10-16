@@ -15,13 +15,7 @@ export interface RootTestRoute {
   type: 'query';
   nodeType: 'route';
   inputValidationSchema: {
-    /**
-     * String that represent URL
-     */
-    url: string;
+    name: string;
   };
-  /**
-   * Same url but with /pathname
-   */
-  outputValidationSchema: string;
+  outputValidationSchema: number;
 }

@@ -23,13 +23,16 @@ const URLScalar = scalar({
   },
 });
 
+console.log(URLScalar);
+
 const urlQuery = resolver.query({
   input: z.object({
-    url: URLScalar.input,
+    name: z.string(),
   }),
-  output: URLScalar.output,
-  //@ts-ignore
-  resolve: ({ input }) => 'https://example.com',
+  output: z.union([z.literal(404), z.literal(504)]),
+  resolve: () => {
+    return 404 as const;
+  },
 });
 
 const baseRouter = router({
