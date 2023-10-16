@@ -17,6 +17,10 @@ const URLScalar = scalar({
     schema: z.string().url(),
     value: (arg) => arg.toString(),
   },
+  description: {
+    input: 'String that represent URL',
+    output: 'Same url but with /pathname',
+  },
 });
 
 const urlQuery = resolver.query({

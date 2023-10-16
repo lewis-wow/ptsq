@@ -16,12 +16,12 @@ export interface RootTestRoute {
   nodeType: 'route';
   inputValidationSchema: {
     /**
-     * URL string
+     * String that represent URL
      */
     url: string;
   };
   /**
-   * URL string
+   * Same url but with /pathname
    */
   outputValidationSchema: string;
 }

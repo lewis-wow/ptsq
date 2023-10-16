@@ -1,8 +1,7 @@
 import { createProxyClient } from '@schema-rpc/client';
-//import { BaseRouter } from './server';
-import { RootRouter } from './schema.generated';
+import { BaseRouter } from './server';
 
-const client = createProxyClient<RootRouter>({
+const client = createProxyClient<BaseRouter>({
   url: 'http://localhost:4000/schema-rpc',
 });
 

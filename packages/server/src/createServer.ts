@@ -17,6 +17,17 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
 
 /**
  * Creates schema-rpc server
+ *
+ * @example
+ * ```ts
+ * const { resolver, router, middleware, serve, scalar } = createServer({
+ *   ctx: () => {},
+ *   cors: {
+ *     origin: ['http://localhost:3000', 'https://example.com'],
+ *   },
+ *   introspection: true,
+ * })
+ * ```
  */
 export const createServer = <TContextBuilder extends ContextBuilder>({
   ctx,
@@ -24,17 +35,57 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   introspection = false,
 }: CreateServerArgs<TContextBuilder>) => {
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
+
+  /**
+   * Creates a queries or mutations
+   * resolvers can use middlewares to create like protected resolver
+   *
+   * @example
+   * ```ts
+   * resolver.query({
+   *   input: z.object({ name: z.string() }),
+   *   output: z.string(),
+   *   resolve: ({ input, ctx }) => `Hello, ${input.name}!`,
+   * });
+   * ```
+   */
   const resolver = new Resolver<RootContext>({ middlewares: [] });
+
   const serveInternal = new Serve({ contextBuilder: ctx, introspection, cors });
 
   /**
    * Creates a fully typed router
    * routers can be merged as you want, they creates sdk-like structure
+   *
+   * @example
+   * ```ts
+   * router({
+   *   user: router({
+   *     create: resolver.mutation({
+   *       // ...
+   *     })
+   *   })
+   * })
+   * ```
    */
   const router = <TRoutes extends Routes>(routes: TRoutes) => new Router({ routes });
 
   /**
    * Creates a fully typed middleware
+   * middlewares can pipe another middleware function to create chain of fully typed middlewares
+   *
+   * @example
+   * ```ts
+   * middleware(({ ctx, next }) => {
+   *    if(!ctx.user) throw new HTTPError({ code: 'UNAUTHORIZED' });
+   *
+   *    return next({
+   *       ctx: {
+   *          ...ctx, user: ctx.user,
+   *       }
+   *    })
+   * })
+   * ```
    */
   const middleware = <TNextContext extends Context>(
     middlewareCallback: MiddlewareCallback<RootContext, TNextContext>
@@ -42,16 +93,63 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
 
   /**
    * Creates a scalar type with custom parsing and serialization
-   * input zod schema: serialize.schema.transform((arg) => parse.schema.parse(parse.value(arg)))
-   * output zod schema: z.preprocess((arg) => serialize.value(parse.schema.parse(arg)), serialize.schema)
+   *
+   * @example
+   * ```ts
+   * const URLScalar = scalar({
+   *   parse: {
+   *     schema: z.instanceof(URL), // used to validate parsed value
+   *     value: (arg) => new URL(arg),
+   *   },
+   *   serialize: {
+   *     schema: z.string().url(), // used to validate requst and response
+   *     value: (arg) => arg.toString(),
+   *   },
+   *   description: { // used to describe scalar input and output for introspection and schema
+   *     input: 'String format of url',
+   *     output: 'String format of url',
+   *   }
+   * });
+   * ```
    */
-  const scalar = <TSerializeSchema extends z.Schema<Serializable>, TParseSchema extends z.Schema>(scalarDefinition: {
+  const scalar = <
+    TSerializeSchema extends z.Schema<Serializable>,
+    TParseSchema extends z.Schema,
+    TDescriptionInput extends string | undefined,
+    TDescriptionOutput extends string | undefined,
+  >(scalarDefinition: {
     parse: ScalarParser<TSerializeSchema, TParseSchema>;
     serialize: ScalarSerializer<TParseSchema, TSerializeSchema>;
-  }) => new Scalar(scalarDefinition);
+    description?: {
+      input?: TDescriptionInput;
+      output?: TDescriptionOutput;
+    };
+  }) =>
+    new Scalar<
+      TSerializeSchema,
+      TParseSchema,
+      {
+        input: TDescriptionInput;
+        output: TDescriptionOutput;
+      }
+    >(
+      scalarDefinition as {
+        parse: ScalarParser<TSerializeSchema, TParseSchema>;
+        serialize: ScalarSerializer<TParseSchema, TSerializeSchema>;
+        description: {
+          input: TDescriptionInput;
+          output: TDescriptionOutput;
+        };
+      }
+    );
 
   /**
    * Serve your server into some rest-api adapter like express, fastify, node:http, ...
+   *
+   * @example
+   * ```ts
+   * expressAdapter(serve({ router: rootRouter }))
+   * ```
    */
   const serve = ({ router: rootRouter }: { router: Router }) => serveInternal.adapter({ router: rootRouter });
 
