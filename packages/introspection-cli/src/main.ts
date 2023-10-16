@@ -19,7 +19,8 @@ yargs.command(
     }),
   async (argv) => {
     const jsonSchema = await axios.get(argv.url);
-    const tsSchema = await compile(jsonSchema, 'MySchema', {
+
+    const tsSchema = await compile(jsonSchema.data, 'MySchema', {
       unreachableDefinitions: true,
     });
     await writeFile('schema.ts', tsSchema, 'utf8');
