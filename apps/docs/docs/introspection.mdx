@@ -8,15 +8,6 @@ createServer({
 });
 ```
 
-```ts title="introspection.ts"
-import { buildTSSchema } from '@schema-rpc/server';
-import { writeFileSync } from 'fs';
-
-const schema = await fetch('https://example.com/schema-trpc/introspection');
-
-writeFileSync('schema.ts', buildTSSchema(schema));
-```
-
 ## Introspection query for only some hosts
 
 ```ts title="server.ts"
@@ -27,28 +18,12 @@ createServer({
 });
 ```
 
-## Introspection query with authorization
-
-```ts title="server.ts"
-import { createServer } from '@schema-rpc/server';
-
-createServer({
-  introspection: async ({ req, res }: ExpressAdapterContext) => {
-    const organization = await getOrganizationFromJWT(req.cookies.jwt);
-
-    return organization.isBilled;
-  },
-});
-```
-
 ## CLI
 
 ```bash
-instrospection-cli --url="http://localhost:4000/schema-rpc/introspection" --lang="ts"
+instrospection-cli --url="http://localhost:4000/schema-rpc/introspection" --out="schema.generated.ts" --lang="ts"
 ```
 
 ### Supported languages
 
 - ts
-- java
-- python

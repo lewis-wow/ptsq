@@ -28,6 +28,8 @@ const baseRouter = router({
   test: testMutation,
 });
 
+export type BaseRouter = typeof baseRouter;
+
 app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
 
 app.listen(4000);
@@ -35,9 +37,11 @@ app.listen(4000);
 
 ```ts title="client.ts"
 import { createProxyClient } from '@schema-rpc/client';
-import { baseRouter } from './schema';
+import { BaseRouter } from './server';
 
-const client = createProxyClient(baseRouter);
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/schema-rpc',
+});
 
 const result = await client.test.mutate({
   name: /* string */ 'John',

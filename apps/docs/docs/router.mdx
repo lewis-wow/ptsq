@@ -13,7 +13,7 @@ const createContext = ({ req, res }: ExpressAdapterContext) => ({
   res,
 });
 
-const { middleware, resolver, router, serve } = createServer({
+const { middleware, resolver, router, serve, scalar } = createServer({
   ctx: createContext,
 });
 
@@ -28,6 +28,8 @@ const baseRouter = router({
   }),
 });
 
+export type BaseRouter = typeof baseRouter;
+
 app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
 
 app.listen(4000);
@@ -35,9 +37,11 @@ app.listen(4000);
 
 ```ts title="client.ts"
 import { createProxyClient } from '@schema-rpc/client';
-import { baseRouter } from './schema';
+import { BaseRouter } from './server';
 
-const client = createProxyClient(baseRouter);
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/schema-rpc'
+});
 
 const result = await client.a.b.c.user.current.query();
 

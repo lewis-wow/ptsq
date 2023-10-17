@@ -1,0 +1,159 @@
+# Scalars
+
+```ts title="server.ts"
+import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
+import express from 'express';
+import { z } from 'zod';
+const app = express();
+
+const createContext = ({ req, res }: ExpressAdapterContext) => ({
+  req,
+  res,
+});
+
+const { middleware, resolver, router, serve, scalar } = createServer({
+  ctx: createContext,
+});
+
+const URLScalar = scalar({
+  parse: {
+    schema: z.instanceof(URL), // used to validate parsed value
+    value: (arg) => new URL(arg),
+  },
+  serialize: {
+    schema: z.string().url(), // used to validate requst and response
+    value: (arg) => arg.toString(),
+  },
+  description: {
+    input: 'String format of url', // used to describe scalar input for schema
+    output: 'String format of url', // used to describe scalar output for schema
+  },
+});
+
+const baseRouter = router({
+  urlQuery: resolver.query({
+    input: z.object({
+      url: URLScalar.input,
+    }),
+    output: URLScalar.output,
+    resolve: ({ input /* { url: URL } */ }) => new URL(`${input.url.href}/pathname`),
+  }),
+});
+
+export type BaseRouter = typeof baseRouter;
+
+app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
+
+app.listen(4000);
+```
+
+```ts title="client.ts"
+import { createProxyClient } from '@schema-rpc/client';
+import { BaseRouter } from './server';
+
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/schema-rpc',
+});
+
+const result /* string */ = await client.urlQuery.query({
+  url: /* string */ 'https://example.com',
+});
+```
+
+## Validation
+
+Scalar throws `BAD_REQUEST` `HTTPError` if the input is not valid before parsing it to some object in `parse.value` function.
+
+Scalar throws `INTERNAL_SERVER_ERROR` `HTTPError` if the parsed input is not valid by the `parse.schema` schema.
+
+Scalar throws `INTERNAL_SERVER_ERROR` `HTTPError` if the output is not valid after serializing it to the string or something else serializable.
+
+## Another example - Date scalar
+
+```ts title="server.ts"
+import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
+import express from 'express';
+import { z } from 'zod';
+const app = express();
+
+const createContext = ({ req, res }: ExpressAdapterContext) => ({
+  req,
+  res,
+});
+
+const { middleware, resolver, router, serve, scalar } = createServer({
+  ctx: createContext,
+});
+
+const DateScalar = scalar({
+  parse: {
+    schema: z.instanceof(Date),
+    value: (arg) => new Date(arg),
+  },
+  serialize: {
+    schema: z.string().datetime(),
+    value: (arg) => arg.toISOString(),
+  },
+  description: {
+    input: 'ISO string format of date',
+    output: 'ISO string format of date',
+  },
+});
+
+const baseRouter = router({
+  dateQuery: resolver.query({
+    input: z.object({
+      dateNow: DateScalar.input,
+      hours: z.number(),
+    }),
+    output: URLScalar.output,
+    resolve: ({ input /* { dateNow: Date, hours: number } */ }) =>
+      new Date(input.dateNow.getTime() + hours * 60 * 60 * 1000),
+  }),
+});
+
+export type BaseRouter = typeof baseRouter;
+
+app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
+
+app.listen(4000);
+```
+
+```ts title="client.ts"
+import { createProxyClient } from '@schema-rpc/client';
+import { BaseRouter } from './server';
+
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/schema-rpc',
+});
+
+const result /* string */ = await client.dateQuery.query({
+  date: /* string */ new Date().toISOString(),
+  hours: /* number */ 3,
+});
+```
+
+## Scalar description
+
+The description is very useful in schema introspection, cause the introspected schema is generated with that description like this
+
+```ts
+export interface DateQuery {
+  type: 'query';
+  nodeType: 'route';
+  inputValidationSchema: {
+    /**
+     * ISO string format of date
+     */
+    date: string;
+    hours: number;
+  };
+
+  /**
+   * ISO string format of date
+   */
+  outputValidationSchema: string;
+}
+```
+
+So the user knows what format to pass and expect from the server, even it is a string.
