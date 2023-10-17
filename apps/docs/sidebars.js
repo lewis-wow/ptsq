@@ -12,7 +12,6 @@ const sidebars = {
     'introspection',
     'errors',
     'cors',
-    'logging',
     'server-side-calls',
   ],
 };
