@@ -1,4 +1,4 @@
-import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
+import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
 import express from 'express';
 import { z } from 'zod';
 
@@ -39,10 +39,10 @@ const baseRouter = router({
   test: urlQuery,
 });
 
-app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
+app.use('/ptsq', expressAdapter(serve({ router: baseRouter })));
 
 app.listen(4000, () => {
-  console.log('Listening on: http://localhost:4000/schema-rpc');
+  console.log('Listening on: http://localhost:4000/ptsq');
 });
 
 export type BaseRouter = typeof baseRouter;

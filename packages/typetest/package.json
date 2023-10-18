@@ -1,5 +1,5 @@
 {
-  "name": "@schema-rpc/typetest",
+  "name": "@ptsq/typetest",
   "version": "0.0.1",
   "private": true,
   "main": "src/main.ts",

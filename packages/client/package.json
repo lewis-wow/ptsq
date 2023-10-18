@@ -1,5 +1,5 @@
 {
-  "name": "@schema-rpc/client",
+  "name": "@ptsq/client",
   "version": "0.0.1",
   "private": true,
   "main": "src/main.ts",
@@ -8,7 +8,7 @@
     "lint": "eslint"
   },
   "devDependencies": {
-    "@schema-rpc/server": "*",
+    "@ptsq/server": "*",
     "@types/node": "^20.7.0",
     "typescript": "^5.2.2"
   },

@@ -6,7 +6,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/palenight');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Schema-rpc',
+  title: 'ptsq',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
@@ -18,7 +18,7 @@ const config = {
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'lewis-wow', // Usually your GitHub org/user name.
-  projectName: 'Schema-rpc', // Usually your repo name.
+  projectName: 'ptsq', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -56,7 +56,7 @@ const config = {
     ({
       // Replace with your project's social card
       navbar: {
-        title: 'Schema-rpc',
+        title: 'ptsq',
         items: [
           {
             href: 'https://github.com/lewis-wow/bakalarska-prace',

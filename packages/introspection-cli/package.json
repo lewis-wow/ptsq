@@ -1,5 +1,5 @@
 {
-  "name": "@schema-rpc/introspection-cli",
+  "name": "@ptsq/introspection-cli",
   "version": "0.0.1",
   "private": true,
   "main": "src/main.ts",

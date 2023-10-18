@@ -1,7 +1,7 @@
 # Introspection query
 
 ```ts title="server.ts"
-import { createServer } from '@schema-rpc/server';
+import { createServer } from '@ptsq/server';
 
 createServer({
   introspection: true,
@@ -11,7 +11,7 @@ createServer({
 ## Introspection query for only some hosts
 
 ```ts title="server.ts"
-import { createServer } from '@schema-rpc/server';
+import { createServer } from '@ptsq/server';
 
 createServer({
   introspection: ['http://localhost:3000' /* ... */],
@@ -21,7 +21,7 @@ createServer({
 ## CLI
 
 ```bash
-instrospection-cli --url="http://localhost:4000/schema-rpc/introspection" --out="schema.generated.ts" --lang="ts"
+instrospection-cli --url="http://localhost:4000/ptsq/introspection" --out="schema.generated.ts" --lang="ts"
 ```
 
 ### Supported languages

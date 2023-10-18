@@ -1,7 +1,9 @@
-# Schema-rpc
+# ptsq
+
+Public type-safe query
 
 ```ts title="server.ts"
-import { createServer, expressAdapter, ExpressAdapterContext } from '@schema-rpc/server';
+import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
 import express from 'express';
 import { z } from 'zod';
 
@@ -27,13 +29,13 @@ const baseRouter = router({
   test: testQuery,
 });
 
-app.use('/schema-rpc', expressAdapter(serve({ router: baseRouter })));
+app.use('/ptsq', expressAdapter(serve({ router: baseRouter })));
 
 app.listen(4000);
 ```
 
 ```ts title="client.ts"
-import { createProxyClient } from '@schema-rpc/client';
+import { createProxyClient } from '@ptsq/client';
 import { baseRouter } from './schema';
 
 const client = createProxyClient(baseRouter);
