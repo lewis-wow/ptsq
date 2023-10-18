@@ -28,3 +28,8 @@ export type { SerializableInputZodSchema, SerializableOutputZodSchema, Serializa
  */
 export { expressAdapter } from './adapters/express';
 export type { ExpressAdapterContext } from './adapters/express';
+
+/**
+ * experimental guard
+ */
+export type { Guard } from './guard';

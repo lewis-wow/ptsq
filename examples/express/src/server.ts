@@ -1,10 +1,10 @@
-import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
+import { createServer, expressAdapter, ExpressAdapterContext, HTTPError } from '@ptsq/server';
 import express from 'express';
 import { z } from 'zod';
 
 const app = express();
 
-const { router, resolver, serve, scalar } = createServer({
+const { router, resolver, serve, scalar, experimental_guard } = createServer({
   ctx: (_params: ExpressAdapterContext) => ({ user: 'user' as 'user' | null | undefined }),
 });
 

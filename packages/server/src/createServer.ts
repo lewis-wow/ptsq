@@ -8,6 +8,7 @@ import type { CorsOptions } from 'cors';
 import type { z } from 'zod';
 import type { Serializable } from './serializable';
 import { type ScalarParser, type ScalarSerializer, Scalar } from './scalar';
+import { Guard } from './guard';
 
 type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   ctx: TContextBuilder;
@@ -155,11 +156,17 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    */
   const serve = ({ router: rootRouter }: { router: Router }) => serveInternal.adapter({ router: rootRouter });
 
+  /**
+   * experimental guard
+   */
+  const experimental_guard = new Guard<RootContext>();
+
   return {
     middleware,
     resolver,
     router,
     scalar,
     serve,
+    experimental_guard,
   };
 };
