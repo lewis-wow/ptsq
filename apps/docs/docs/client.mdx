@@ -3,7 +3,7 @@
 ## Proprietary client
 
 ```ts title="client.ts"
-import { createProxyClient } from '@schema-rpc/client';
+import { createProxyClient } from '@ptsq/client';
 
 /**
  * non introspcted or generated file, just type of server router
@@ -11,7 +11,7 @@ import { createProxyClient } from '@schema-rpc/client';
 import type { BaseRouter } from './server';
 
 const client = createProxyClient<BaseRouter>({
-  url: 'http://localhost:4000/schema-rpc',
+  url: 'http://localhost:4000/ptsq',
 });
 
 const result = await client.test.query({
@@ -24,7 +24,7 @@ const result = await client.test.query({
 Event if this is not directly the server router schema, it is introspected, the way you define client stays the same, client does not care
 
 ```ts title="client.ts"
-import { createProxyClient } from '@schema-rpc/client';
+import { createProxyClient } from '@ptsq/client';
 
 /**
  * introspcted or generated file, no server exposed, ready for open api
@@ -32,7 +32,7 @@ import { createProxyClient } from '@schema-rpc/client';
 import type { RootRouter } from './schema.generated';
 
 const client = createProxyClient<RootRouter>({
-  url: 'http://localhost:4000/schema-rpc',
+  url: 'http://localhost:4000/ptsq',
 });
 
 const result = await client.test.query({
@@ -51,11 +51,11 @@ type CreateProxyClientArgs = {
 ```
 
 ```ts title="client.ts"
-import { createProxyClient } from '@schema-rpc/client';
+import { createProxyClient } from '@ptsq/client';
 import type { BaseRouter } from './server';
 
 const client = createProxyClient<BaseRouter>({
-  url: 'http://localhost:4000/schema-rpc',
+  url: 'http://localhost:4000/ptsq',
   headers: async () => {
     const jwt = await cookies.get('jwt');
 

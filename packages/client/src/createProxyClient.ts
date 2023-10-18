@@ -1,7 +1,7 @@
 import type { Client } from './client';
 import type { ClientRouter } from './types';
 import type { RequestHeaders } from './headers';
-import type { MaybePromise } from '@schema-rpc/server';
+import type { MaybePromise } from '@ptsq/server';
 import axios from 'axios';
 
 export type ProxyClientOptions = {
@@ -62,7 +62,7 @@ export class ProxyClient {
  * @example
  * ```ts
  * const client = createProxyClient<RootRouter>({
- *   url: 'http://localhost:4000/schema-rpc/'
+ *   url: 'http://localhost:4000/ptsq/'
  * });
  *
  * const currentUser = await client.user.getCurrent.query();

@@ -1,9 +1,9 @@
-import { createProxyClient } from '@schema-rpc/client';
+import { createProxyClient } from '@ptsq/client';
 import { BaseRouter } from './server';
 //import { RootRouter } from './schema.generated';
 
 const client = createProxyClient<BaseRouter>({
-  url: 'http://localhost:4000/schema-rpc',
+  url: 'http://localhost:4000/ptsq',
 });
 
 (async () => {

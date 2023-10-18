@@ -46,7 +46,7 @@ axios
         outFile = out ?? 'schema.generated.ts';
         break;
       default:
-        throw new Error('This programming language has not implement instrospection of schema-rpc schema');
+        throw new Error('This programming language has not implement instrospection of ptsq schema');
     }
 
     await writeFile(outFile, schema, 'utf8');

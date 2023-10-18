@@ -1,4 +1,4 @@
-import type { ResolverType } from '@schema-rpc/server';
+import type { ResolverType } from '@ptsq/server';
 
 /**
  * more general route type than in server package, because of introspection result

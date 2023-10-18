@@ -16,7 +16,7 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
 };
 
 /**
- * Creates schema-rpc server
+ * Creates ptsq server
  *
  * @example
  * ```ts

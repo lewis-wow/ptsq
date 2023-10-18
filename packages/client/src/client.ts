@@ -1,6 +1,6 @@
 import type { ClientRoute, ClientRouter } from './types';
 import type { ProxyClient } from './createProxyClient';
-import type { inferResolverValidationSchemaInput, inferResolverValidationSchemaOutput } from '@schema-rpc/server';
+import type { inferResolverValidationSchemaInput, inferResolverValidationSchemaOutput } from '@ptsq/server';
 
 type QueryClient<TClientRoute extends ClientRoute> = {
   query: typeof ProxyClient.prototype.request<

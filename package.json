@@ -1,5 +1,5 @@
 {
-  "name": "bakalarska_prace",
+  "name": "ptsq",
   "private": true,
   "scripts": {
     "build": "turbo run build",
