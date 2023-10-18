@@ -36,9 +36,11 @@ app.listen(4000);
 
 ```ts title="client.ts"
 import { createProxyClient } from '@ptsq/client';
-import { baseRouter } from './schema';
+import type { BaseRouter } from './server';
 
-const client = createProxyClient(baseRouter);
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/ptsq/',
+});
 
 const result = await client.test.query({
   name: /* string */ 'John',
