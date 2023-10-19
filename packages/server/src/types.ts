@@ -6,10 +6,6 @@ export type NodeType = 'route' | 'router';
 
 export type MaybePromise<T> = T | Promise<T>;
 
-export type inferResolverValidationSchema<TResolveOutput> = TResolveOutput extends z.Schema
-  ? z.infer<TResolveOutput>
-  : TResolveOutput;
-
 export type inferResolverValidationSchemaInput<TResolveOutput> = TResolveOutput extends z.Schema
   ? z.input<TResolveOutput>
   : TResolveOutput;

@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "build": "tsc --build",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest"
   },
   "main": "src/main.ts",
   "devDependencies": {
@@ -19,6 +20,7 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "pascalcase": "^0.1.1",
+    "vitest": "^0.34.6",
     "zod": "^3.22.2",
     "zod-to-json-schema": "^3.21.4"
   }

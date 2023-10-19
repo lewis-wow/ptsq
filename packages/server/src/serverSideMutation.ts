@@ -1,28 +1,20 @@
+import type { z } from 'zod';
 import type { Context } from './context';
-import type { ResolveFunction } from './resolver';
-import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
-import type { inferResolverValidationSchema } from './types';
+import type { Mutation } from './mutation';
 
-export class ServerSideMutation<
-  TInput extends SerializableInputZodSchema = SerializableInputZodSchema,
-  TOutput extends SerializableOutputZodSchema = SerializableOutputZodSchema,
-  TServerSideContext extends Context = Context,
-> {
+export class ServerSideMutation<TMutation extends Mutation, TServerSideContext extends Context = Context> {
   ctx: TServerSideContext;
-  resolveFunction: ResolveFunction<TInput, TOutput, TServerSideContext>;
+  _mutation: TMutation;
 
-  constructor({
-    ctx,
-    resolveFunction,
-  }: {
-    ctx: TServerSideContext;
-    resolveFunction: ResolveFunction<TInput, TOutput, TServerSideContext>;
-  }) {
+  constructor({ mutation, ctx }: { mutation: TMutation; ctx: TServerSideContext }) {
     this.ctx = ctx;
-    this.resolveFunction = resolveFunction;
+    this._mutation = mutation;
   }
 
-  mutate(input: inferResolverValidationSchema<TInput>) {
-    return this.resolveFunction({ input, ctx: this.ctx });
+  async mutate(
+    input: z.output<TMutation['inputValidationSchema']>
+  ): Promise<z.input<TMutation['outputValidationSchema']>> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return await this._mutation.call({ input, ctx: this.ctx });
   }
 }

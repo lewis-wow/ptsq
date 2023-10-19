@@ -5,9 +5,7 @@ import { Middleware, type MiddlewareCallback } from './middleware';
 import { Resolver } from './resolver';
 import { Serve } from './serve';
 import type { CorsOptions } from 'cors';
-import type { z } from 'zod';
-import type { Serializable } from './serializable';
-import { type ScalarParser, type ScalarSerializer, Scalar } from './scalar';
+import { scalar } from './scalar';
 
 type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   ctx: TContextBuilder;
@@ -90,60 +88,6 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   const middleware = <TNextContext extends Context>(
     middlewareCallback: MiddlewareCallback<RootContext, TNextContext>
   ): Middleware<RootContext, TNextContext> => new Middleware(middlewareCallback);
-
-  /**
-   * Creates a scalar type with custom parsing and serialization
-   *
-   * Description is generic written only for you can see the description on the server in IDE
-   *
-   * @example
-   * ```ts
-   * const URLScalar = scalar({
-   *   parse: {
-   *     schema: z.instanceof(URL), // used to validate parsed value
-   *     value: (arg) => new URL(arg),
-   *   },
-   *   serialize: {
-   *     schema: z.string().url(), // used to validate requst and response
-   *     value: (arg) => arg.toString(),
-   *   },
-   *   description: {
-   *     input: 'String format of url', // used to describe scalar input for schema
-   *     output: 'String format of url', // used to describe scalar output for schema
-   *   }
-   * });
-   * ```
-   */
-  const scalar = <
-    TSerializeSchema extends z.Schema<Serializable>,
-    TParseSchema extends z.Schema,
-    TDescriptionInput extends string | undefined,
-    TDescriptionOutput extends string | undefined,
-  >(scalarDefinition: {
-    parse: ScalarParser<TSerializeSchema, TParseSchema>;
-    serialize: ScalarSerializer<TParseSchema, TSerializeSchema>;
-    description?: {
-      input?: TDescriptionInput;
-      output?: TDescriptionOutput;
-    };
-  }) =>
-    new Scalar<
-      TSerializeSchema,
-      TParseSchema,
-      {
-        input: TDescriptionInput;
-        output: TDescriptionOutput;
-      }
-    >(
-      scalarDefinition as {
-        parse: ScalarParser<TSerializeSchema, TParseSchema>;
-        serialize: ScalarSerializer<TParseSchema, TSerializeSchema>;
-        description: {
-          input: TDescriptionInput;
-          output: TDescriptionOutput;
-        };
-      }
-    );
 
   /**
    * Serve your server into some rest-api adapter like express, fastify, node:http, ...
