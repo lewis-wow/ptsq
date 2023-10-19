@@ -17,7 +17,6 @@ export type { Serve } from './serve';
 export type {
   ResolverType,
   MaybePromise,
-  inferResolverValidationSchema,
   inferResolverValidationSchemaInput,
   inferResolverValidationSchemaOutput,
 } from './types';
