@@ -32,7 +32,7 @@ export const expressAdapter = (serve: Serve) => {
           info: parsedRequestBody.error,
         });
 
-      const rawInput = parsedRequestBody.data.input;
+      const input = parsedRequestBody.data.input;
 
       const { ctx, route } = await serve.serve({
         route: parsedRequestBody.data.route,
@@ -42,7 +42,7 @@ export const expressAdapter = (serve: Serve) => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const dataResult = serve.router!.call({
         route,
-        input: rawInput === undefined ? undefined : JSON.parse(rawInput),
+        input,
         ctx,
       });
 
