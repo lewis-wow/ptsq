@@ -1,28 +1,18 @@
+import type { z } from 'zod';
 import type { Context } from './context';
-import type { ResolveFunction } from './resolver';
-import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
-import type { inferResolverValidationSchema } from './types';
+import type { Query } from './query';
 
-export class ServerSideQuery<
-  TInput extends SerializableInputZodSchema = SerializableInputZodSchema,
-  TOutput extends SerializableOutputZodSchema = SerializableOutputZodSchema,
-  TServerSideContext extends Context = Context,
-> {
+export class ServerSideQuery<TQuery extends Query, TServerSideContext extends Context = Context> {
   ctx: TServerSideContext;
-  resolveFunction: ResolveFunction<TInput, TOutput, TServerSideContext>;
+  _query: TQuery;
 
-  constructor({
-    ctx,
-    resolveFunction,
-  }: {
-    ctx: TServerSideContext;
-    resolveFunction: ResolveFunction<TInput, TOutput, TServerSideContext>;
-  }) {
+  constructor({ query, ctx }: { query: TQuery; ctx: TServerSideContext }) {
     this.ctx = ctx;
-    this.resolveFunction = resolveFunction;
+    this._query = query;
   }
 
-  query(input: inferResolverValidationSchema<TInput>) {
-    return this.resolveFunction({ input, ctx: this.ctx });
+  async query(input: z.output<TQuery['inputValidationSchema']>): Promise<z.input<TQuery['outputValidationSchema']>> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return await this._query.call({ input, ctx: this.ctx });
   }
 }

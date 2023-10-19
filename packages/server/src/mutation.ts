@@ -24,6 +24,6 @@ export class Mutation<
   }
 
   createServerSideMutation<TContext extends Context>(ctx: TContext) {
-    return new ServerSideMutation({ ctx, resolveFunction: this.resolveFunction });
+    return new ServerSideMutation({ ctx, mutation: this });
   }
 }

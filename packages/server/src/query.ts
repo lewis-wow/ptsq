@@ -24,6 +24,6 @@ export class Query<
   }
 
   createServerSideQuery<TContext extends Context>(ctx: TContext) {
-    return new ServerSideQuery({ ctx, resolveFunction: this.resolveFunction });
+    return new ServerSideQuery({ ctx, query: this });
   }
 }

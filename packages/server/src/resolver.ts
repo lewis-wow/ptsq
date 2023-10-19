@@ -1,4 +1,4 @@
-import { type ZodUndefined, z, type ZodVoid } from 'zod';
+import { z, type ZodVoid } from 'zod';
 import type { Context } from './context';
 import type { Middleware } from './middleware';
 import { Mutation } from './mutation';
@@ -24,13 +24,17 @@ export class Resolver<TContext extends Context = Context> {
   >(options: {
     input: TMutationInput;
     output: TMutationOutput;
-    resolve: ResolveFunction<TMutationInput, TMutationOutput, TContext>;
-  }): Mutation<TMutationInput, TMutationOutput, ResolveFunction<TMutationInput, TMutationOutput, TContext>>;
+    resolve: ResolveFunction<z.output<TMutationInput>, z.input<TMutationOutput>, TContext>;
+  }): Mutation<
+    TMutationInput,
+    TMutationOutput,
+    ResolveFunction<z.output<TMutationInput>, z.input<TMutationOutput>, TContext>
+  >;
 
   mutation<TMutationOutput extends SerializableInputZodSchema>(options: {
     output: TMutationOutput;
-    resolve: ResolveFunction<ZodUndefined, TMutationOutput, TContext>;
-  }): Mutation<ZodVoid, TMutationOutput, ResolveFunction<ZodUndefined, TMutationOutput, TContext>>;
+    resolve: ResolveFunction<undefined, z.input<TMutationOutput>, TContext>;
+  }): Mutation<ZodVoid, TMutationOutput, ResolveFunction<undefined, z.input<TMutationOutput>, TContext>>;
 
   mutation<
     TMutationInput extends SerializableInputZodSchema,
@@ -38,10 +42,12 @@ export class Resolver<TContext extends Context = Context> {
   >(options: {
     input?: TMutationInput;
     output: TMutationOutput;
-    resolve: ResolveFunction<TMutationInput, TMutationOutput, TContext>;
-  }):
-    | Mutation<TMutationInput, TMutationOutput, ResolveFunction<TMutationInput, TMutationOutput, TContext>>
-    | Mutation<ZodVoid, TMutationOutput, ResolveFunction<ZodUndefined, TMutationOutput, TContext>> {
+    resolve: ResolveFunction<z.output<TMutationInput>, z.input<TMutationOutput>, TContext>;
+  }): Mutation<
+    TMutationInput,
+    TMutationOutput,
+    ResolveFunction<z.output<TMutationInput>, z.input<TMutationOutput>, TContext>
+  > {
     return new Mutation({
       inputValidationSchema: (options.input ?? z.void()) as TMutationInput,
       outputValidationSchema: options.output,

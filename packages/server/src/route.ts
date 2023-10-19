@@ -57,11 +57,11 @@ export class Route<
     });
   }
 
-  call({ input, ctx }: { input: unknown; ctx: Context }) {
-    let finalCtx = ctx;
-    for (const middleware of this.middlewares) {
-      finalCtx = middleware.call(ctx);
-    }
+  async call({ input, ctx }: { input: z.output<TInput>; ctx: Context }): Promise<z.input<TOutput>> {
+    const finalCtx = await this.middlewares.reduce(
+      async (contextAcc, middleware) => await middleware.call({ ctx: await contextAcc }),
+      Promise.resolve(ctx)
+    );
 
     const parsedInput = this.inputValidationSchema.safeParse(input);
 
