@@ -70,8 +70,8 @@ type RouterProxyCaller<TRoutes extends Routes, TContext extends Context> = {
   [K in keyof TRoutes]: TRoutes[K] extends Router
     ? RouterProxyCaller<TRoutes[K]['routes'], TContext>
     : TRoutes[K] extends Mutation
-    ? ServerSideQuery<TRoutes[K]['inputValidationSchema'], TRoutes[K]['outputValidationSchema'], TContext>
+    ? ServerSideMutation<TRoutes[K], TContext>
     : TRoutes[K] extends Query
-    ? ServerSideMutation<TRoutes[K]['inputValidationSchema'], TRoutes[K]['outputValidationSchema'], TContext>
+    ? ServerSideQuery<TRoutes[K], TContext>
     : never;
 };
