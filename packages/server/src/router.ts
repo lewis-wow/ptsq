@@ -3,6 +3,7 @@ import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
 import type { Mutation } from './mutation';
 import type { Query } from './query';
+import type { Queue } from './queue';
 import type { ServerSideMutation } from './serverSideMutation';
 import type { ServerSideQuery } from './serverSideQuery';
 
@@ -52,8 +53,8 @@ export class Router<TRoutes extends Routes = Routes> {
     return new Proxy(this.routes, proxyHandler) as unknown as RouterProxyCaller<TRoutes, TContext>;
   }
 
-  call({ route, input, ctx }: { route: string[]; input: unknown; ctx: Context }): unknown {
-    const currentRoute = route.shift();
+  call({ route, input, ctx }: { route: Queue<string>; input: unknown; ctx: Context }): unknown {
+    const currentRoute = route.dequeue();
 
     if (!currentRoute || !(currentRoute in this.routes))
       throw new HTTPError({ code: 'BAD_REQUEST', message: 'The route is invalid.' });
