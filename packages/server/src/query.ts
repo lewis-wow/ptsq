@@ -4,16 +4,19 @@ import type { Context } from './context';
 import { Route } from './route';
 import { ServerSideQuery } from './serverSideQuery';
 import type { Middleware } from './middleware';
+import type { AuthorizeFunction } from './authorize';
 
 export class Query<
   TInput extends SerializableInputZodSchema = SerializableInputZodSchema,
   TOutput extends SerializableOutputZodSchema = SerializableOutputZodSchema,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TResolveFunction extends ResolveFunction<any, any, any> = ResolveFunction<any, any, any>,
-> extends Route<'query', TInput, TOutput, TResolveFunction> {
+  TAuthorizeFunction extends AuthorizeFunction<any, any> = AuthorizeFunction<any, any>,
+> extends Route<'query', TInput, TOutput, TResolveFunction, TAuthorizeFunction> {
   constructor(options: {
     inputValidationSchema: TInput;
     outputValidationSchema: TOutput;
+    authorizeFunction?: TAuthorizeFunction;
     resolveFunction: TResolveFunction;
     middlewares: Middleware[];
   }) {

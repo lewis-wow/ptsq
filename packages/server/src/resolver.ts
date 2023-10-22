@@ -4,6 +4,7 @@ import type { Middleware } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
 import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
+import type { AuthorizeFunction } from './authorize';
 
 export class Resolver<TContext extends Context = Context> {
   middlewares: Middleware<TContext, TContext>[];
@@ -24,17 +25,25 @@ export class Resolver<TContext extends Context = Context> {
   >(options: {
     input: TMutationInput;
     output: TMutationOutput;
+    authorize?: AuthorizeFunction<z.output<TMutationInput>, TContext>;
     resolve: ResolveFunction<z.output<TMutationInput>, z.input<TMutationOutput>, TContext>;
   }): Mutation<
     TMutationInput,
     TMutationOutput,
-    ResolveFunction<z.output<TMutationInput>, z.input<TMutationOutput>, TContext>
+    ResolveFunction<z.output<TMutationInput>, z.input<TMutationOutput>, TContext>,
+    AuthorizeFunction<z.output<TMutationInput>, TContext>
   >;
 
   mutation<TMutationOutput extends SerializableInputZodSchema>(options: {
     output: TMutationOutput;
+    authorize?: AuthorizeFunction<undefined, TContext>;
     resolve: ResolveFunction<undefined, z.input<TMutationOutput>, TContext>;
-  }): Mutation<ZodVoid, TMutationOutput, ResolveFunction<undefined, z.input<TMutationOutput>, TContext>>;
+  }): Mutation<
+    ZodVoid,
+    TMutationOutput,
+    ResolveFunction<undefined, z.input<TMutationOutput>, TContext>,
+    AuthorizeFunction<undefined, TContext>
+  >;
 
   mutation<
     TMutationInput extends SerializableInputZodSchema,
@@ -42,11 +51,13 @@ export class Resolver<TContext extends Context = Context> {
   >(options: {
     input?: TMutationInput;
     output: TMutationOutput;
+    authorize?: AuthorizeFunction<z.output<TMutationInput>, TContext>;
     resolve: ResolveFunction<z.output<TMutationInput>, z.input<TMutationOutput>, TContext>;
   }): Mutation<
     TMutationInput,
     TMutationOutput,
-    ResolveFunction<z.output<TMutationInput>, z.input<TMutationOutput>, TContext>
+    ResolveFunction<z.output<TMutationInput>, z.input<TMutationOutput>, TContext>,
+    AuthorizeFunction<z.output<TMutationInput>, TContext>
   > {
     return new Mutation({
       inputValidationSchema: (options.input ?? z.void()) as TMutationInput,
@@ -59,19 +70,37 @@ export class Resolver<TContext extends Context = Context> {
   query<TQueryInput extends SerializableInputZodSchema, TQueryOutput extends SerializableOutputZodSchema>(options: {
     input: TQueryInput;
     output: TQueryOutput;
+    authorize?: AuthorizeFunction<z.output<TQueryInput>, TContext>;
     resolve: ResolveFunction<z.output<TQueryInput>, z.input<TQueryOutput>, TContext>;
-  }): Query<TQueryInput, TQueryOutput, ResolveFunction<z.output<TQueryInput>, z.input<TQueryOutput>, TContext>>;
+  }): Query<
+    TQueryInput,
+    TQueryOutput,
+    ResolveFunction<z.output<TQueryInput>, z.input<TQueryOutput>, TContext>,
+    AuthorizeFunction<z.output<TQueryInput>, TContext>
+  >;
 
   query<TQueryOutput extends SerializableOutputZodSchema>(options: {
     output: TQueryOutput;
+    authorize?: AuthorizeFunction<undefined, TContext>;
     resolve: ResolveFunction<undefined, z.input<TQueryOutput>, TContext>;
-  }): Query<ZodVoid, TQueryOutput, ResolveFunction<undefined, z.input<TQueryOutput>, TContext>>;
+  }): Query<
+    ZodVoid,
+    TQueryOutput,
+    ResolveFunction<undefined, z.input<TQueryOutput>, TContext>,
+    AuthorizeFunction<undefined, TContext>
+  >;
 
   query<TQueryInput extends SerializableInputZodSchema, TQueryOutput extends SerializableOutputZodSchema>(options: {
     input?: TQueryInput;
     output: TQueryOutput;
+    authorize?: AuthorizeFunction<z.output<TQueryInput>, TContext>;
     resolve: ResolveFunction<z.output<TQueryInput>, z.input<TQueryOutput>, TContext>;
-  }): Query<TQueryInput, TQueryOutput, ResolveFunction<z.output<TQueryInput>, z.input<TQueryOutput>, TContext>> {
+  }): Query<
+    TQueryInput,
+    TQueryOutput,
+    ResolveFunction<z.output<TQueryInput>, z.input<TQueryOutput>, TContext>,
+    AuthorizeFunction<z.output<TQueryInput>, TContext>
+  > {
     return new Query({
       inputValidationSchema: (options.input ?? z.void()) as TQueryInput,
       outputValidationSchema: options.output,

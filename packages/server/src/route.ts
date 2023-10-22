@@ -1,13 +1,13 @@
 import type { ResolverType } from './types';
 import type { ResolveFunction } from './resolver';
 import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
-import type { JsonSchema7Type } from 'zod-to-json-schema/src/parseDef';
 import { createSchemaRoot } from './createSchemaRoot';
 import type { Context } from './context';
 import type { Middleware } from './middleware';
 import { HTTPError } from './httpError';
 import { zodSchemaToJsonSchema } from './zodSchemaToJsonSchema';
 import type { z } from 'zod';
+import type { AuthorizeFunction } from './authorize';
 
 export class Route<
   TType extends ResolverType = ResolverType,
@@ -17,10 +17,12 @@ export class Route<
     z.output<TInput>,
     z.input<TOutput>
   >,
+  TAuthorizeFunction extends AuthorizeFunction<z.output<TInput>> = AuthorizeFunction<z.output<TInput>>,
 > {
   type: TType;
   inputValidationSchema: TInput;
   outputValidationSchema: TOutput;
+  authorizeFunction?: TAuthorizeFunction;
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
   middlewares: Middleware[];
@@ -29,12 +31,14 @@ export class Route<
     type: TType;
     inputValidationSchema: TInput;
     outputValidationSchema: TOutput;
+    authorizeFunction?: TAuthorizeFunction;
     resolveFunction: TResolveFunction;
     middlewares: Middleware[];
   }) {
     this.type = options.type;
     this.inputValidationSchema = options.inputValidationSchema;
     this.outputValidationSchema = options.outputValidationSchema;
+    this.authorizeFunction = options.authorizeFunction;
     this.resolveFunction = options.resolveFunction;
     this.middlewares = options.middlewares;
   }
@@ -82,16 +86,3 @@ export class Route<
     return parsedOutput.data;
   }
 }
-
-export type RouteSchema = {
-  type: ResolverType;
-  input: {
-    definitions?: Record<string, JsonSchema7Type>;
-    $schema?: string;
-  } | null;
-  output: {
-    definitions?: Record<string, JsonSchema7Type>;
-    $schema?: string;
-  } | null;
-  nodeType: 'route';
-};
