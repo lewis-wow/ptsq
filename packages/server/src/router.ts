@@ -52,7 +52,7 @@ export class Router<TRoutes extends Routes = Routes> {
     return new Proxy(this.routes, proxyHandler) as unknown as RouterProxyCaller<TRoutes, TContext>;
   }
 
-  call({ route, input, ctx }: { route: string[]; input: unknown; ctx: Context }): Promise<any> {
+  call({ route, input, ctx }: { route: string[]; input: unknown; ctx: Context }): Promise<unknown> {
     const currentRoute = route.shift();
 
     if (!currentRoute || !(currentRoute in this.routes))
