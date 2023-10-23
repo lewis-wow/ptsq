@@ -4,6 +4,7 @@ import { requestBodySchema } from '../requestBodySchema';
 import { HTTPError, HTTPErrorCode } from '../httpError';
 import { json, urlencoded } from 'body-parser';
 import type { Serve } from '../serve';
+import { Queue } from '../queue';
 
 export type ExpressAdapterContext = {
   req: Request;
@@ -39,9 +40,11 @@ export const expressAdapter = (serve: Serve) => {
         params: [{ req, res }],
       });
 
+      const routeQueue = new Queue(route);
+
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const dataResult = serve.router!.call({
-        route,
+        route: routeQueue,
         input,
         ctx,
       });
