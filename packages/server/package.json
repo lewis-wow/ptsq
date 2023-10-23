@@ -1,13 +1,46 @@
 {
   "name": "@ptsq/server",
   "version": "0.0.1",
-  "private": true,
+  "homepage": "https://ptsq-docs.vercel.app/",
+  "author": "lewis-wow",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lewis-wow/ptsq.git",
+    "directory": "packages/server"
+  },
   "scripts": {
     "build": "tsc --build",
     "lint": "eslint",
     "test": "vitest"
   },
-  "main": "src/main.ts",
+  "main": "dist/main.js",
+  "module": "dist/main.mjs",
+  "typings": "dist/main.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./dist/main.mjs",
+      "require": "./dist/main.js",
+      "default": "./dist/main.js"
+    },
+    "./adapters/express": {
+      "import": "./dist/adapters/express.mjs",
+      "require": "./dist/adapters/express.js",
+      "default": "./dist/adapters/express.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "package.json",
+    "adapters",
+    "!**/*.test.*"
+  ],
   "devDependencies": {
     "@types/cors": "^2.8.14",
     "@types/express": "^4.17.18",

@@ -1,13 +1,40 @@
 {
   "name": "@ptsq/introspection-cli",
   "version": "0.0.1",
-  "private": true,
-  "main": "src/main.ts",
+  "homepage": "https://ptsq-docs.vercel.app/",
+  "author": "lewis-wow",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lewis-wow/ptsq.git",
+    "directory": "packages/introspection-cli"
+  },
   "scripts": {
     "build": "tsc --build",
     "dev": "ts-node src/main.ts",
     "start": "node dist/main.js"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "dist/main.js",
+  "module": "dist/main.mjs",
+  "typings": "dist/main.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./dist/main.mjs",
+      "require": "./dist/main.js",
+      "default": "./dist/main.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "package.json",
+    "!**/*.test.*"
+  ],
   "devDependencies": {
     "@types/node": "^20.7.0",
     "ts-node": "^10.9.1",
