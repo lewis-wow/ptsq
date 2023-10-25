@@ -1,7 +1,6 @@
 # Middlewares
 
-Middleware function run before every route call (query, mutation).
-If middlewares are piped, then all middlewares runs before route call in piping order.
+Middleware function run before every route call (query, mutation) that the resolver that uses the middleware creates.
 
 ```ts title="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
@@ -57,6 +56,8 @@ It is only for keep the context type up to date after e.g. `if` condition.
 
 ## Middleware pipes
 
+If middlewares are piped, then all the middlewares runs before the route call in piping order.
+
 ```ts title="server.ts"
 const isAuthed = middleware(({ ctx /* { user: User<any> | null } */, next }) => {
   if (!ctx.user) throw new Error('Must be logged in!');
@@ -88,9 +89,9 @@ const deleteOrganization = adminResolver.mutation({
 });
 ```
 
-Piping the middleware with another middleware, pass the result context type to the next middleware input.
+Piping the middleware with another middleware, pass the context returned from first middleware as a input to the piped (next) middleware.
 
-The middleware type is something like this.
+There is a demonstration how the `Middleware` types work.
 
 ```ts
 // the mutation without any middlware

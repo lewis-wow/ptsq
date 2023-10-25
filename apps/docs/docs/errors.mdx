@@ -12,7 +12,15 @@ const isAuthed = middleware(({ ctx, next }) => {
 });
 ```
 
-The `HTTPError` is the only error that is catched by the ptsq and the adapter after throw response with code.
+The `HTTPError` is the only error that is catched by the `ptsq`.
+The adapter such as `Express` or `Koa` then reponse with that error code and message, if specified.
+You can also specify info, which is anything you want. It won't be displayed in the response message, it is for developers only, can be something like schema validation error or something like that.
+
+```ts
+throw new HTTPError({ code: 'BAD_REQUEST', message: 'User already exists.', info: databaseInsert.error });
+```
+
+## Error codes
 
 | HTTPError code        | Status code |
 | --------------------- | ----------- |
@@ -30,4 +38,4 @@ The `HTTPError` is the only error that is catched by the ptsq and the adapter af
 | CLIENT_CLOSED_REQUEST | 499         |
 | INTERNAL_SERVER_ERROR | 500         |
 
-Any other exception, (non `HTTPError`) throws as normal, so it stops the server.
+Any other thrown exception that is not a `HTTPError`, throws as normal, so it can stops the running server.

@@ -1,6 +1,15 @@
 # Mutation
 
 Mutation is `POST` request route that should update, create or delete some data.
+When the `mutation` is requested from the client, then the `resolve` function that is defined in the mutation will be called.
+
+The `resolve` function gets parameter `{ input, ctx }`, where the input is the actual `input` for that mutation, and the `ctx` is a context, it can be the root context or some other context if the resolver that creates the `mutation` use some middleware.
+
+The input is validated by the input schema, and the output of the resolver (return from the `resolve` function), is validated by the output schema.
+
+If the input validation failed, then the `HTTPError` throws `BAD_REQUEST` error.
+If the output validation failed, then the `HTTPError` throws `INTERNAL_SERVER_ERROR` error.
+That errors are trown with the `info` property as a `zod` validation schema error result.
 
 ```ts title="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
@@ -36,6 +45,10 @@ app.use('/ptsq', expressAdapter(serve({ router: baseRouter })));
 
 app.listen(4000);
 ```
+
+## Client
+
+On the client side, the `mutation` requires to call a `mutate` method on the route.
 
 ```ts title="client.ts"
 import { createProxyClient } from '@ptsq/client';
