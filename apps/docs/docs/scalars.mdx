@@ -13,22 +13,8 @@ If the server side serialize schema fails before sending value to client, then `
 
 The parse schema check the output of the parse function and of the resolver output before serialization.
 
-```ts title="server.ts"
-import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
-import express from 'express';
-import { z } from 'zod';
-const app = express();
-
-const createContext = ({ req, res }: ExpressAdapterContext) => ({
-  req,
-  res,
-});
-
-const { middleware, resolver, router, serve, scalar } = createServer({
-  ctx: createContext,
-});
-
-const URLScalar = scalar({
+```ts title="URLScalar.ts"
+export const URLScalar = scalar({
   parse: {
     schema: z.instanceof(URL), // used to validate parsed value
     value: (arg) => new URL(arg),
@@ -41,6 +27,23 @@ const URLScalar = scalar({
     input: 'String format of url', // used to describe scalar input for schema
     output: 'String format of url', // used to describe scalar output for schema
   },
+});
+```
+
+```ts title="server.ts"
+import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
+import express from 'express';
+import { z } from 'zod';
+import { URLScalar } from './URLScalar';
+const app = express();
+
+const createContext = ({ req, res }: ExpressAdapterContext) => ({
+  req,
+  res,
+});
+
+const { middleware, resolver, router, serve, scalar } = createServer({
+  ctx: createContext,
 });
 
 const baseRouter = router({
@@ -72,14 +75,6 @@ const result /* string */ = await client.urlQuery.query({
   url: /* string */ 'https://example.com',
 });
 ```
-
-## Validation
-
-Scalar throws `BAD_REQUEST` `HTTPError` if the input is not valid before parsing it to some object in `parse.value` function.
-
-Scalar throws `INTERNAL_SERVER_ERROR` `HTTPError` if the parsed input is not valid by the `parse.schema` schema.
-
-Scalar throws `INTERNAL_SERVER_ERROR` `HTTPError` if the output is not valid after serializing it to the string or something else serializable.
 
 ## Another example - Date scalar
 

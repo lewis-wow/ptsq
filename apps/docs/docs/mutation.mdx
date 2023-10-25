@@ -45,7 +45,7 @@ const client = createProxyClient<BaseRouter>({
   url: 'http://localhost:4000/ptsq',
 });
 
-const result = await client.test.mutate({
+const result /* string */ = await client.test.mutate({
   name: /* string */ 'John',
 });
 ```

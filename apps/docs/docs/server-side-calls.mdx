@@ -19,15 +19,11 @@ const baseRouter = router({
   test: testMutation,
 });
 
-const caller = baseRouter.createCaller();
+const caller = baseRouter.createCaller({});
 
 const result = await caller.test.mutate({
   name: /* string */ 'John',
 });
-
-// or
-
-const result = await testMutation.mutate({
-  name: /* string */ 'John',
-});
 ```
+
+The `Router.createCaller` function expects context object as the parameter, because there is no context on the server side without request from client side.

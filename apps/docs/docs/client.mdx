@@ -23,7 +23,7 @@ const client = createProxyClient<BaseRouter>({
   url: 'http://localhost:4000/ptsq',
 });
 
-const result = await client.test.query({
+const result /* string */ = await client.test.query({
   name: /* string */ 'John',
 });
 ```
@@ -36,7 +36,7 @@ Even if this is not directly the server router schema, it is introspected, the w
 import { createProxyClient } from '@ptsq/client';
 
 /**
- * introspcted or generated file, no server exposed, ready for open api
+ * introspected or generated file, no server exposed, ready for open api
  */
 import type { RootRouter } from './schema.generated';
 
@@ -44,10 +44,12 @@ const client = createProxyClient<RootRouter>({
   url: 'http://localhost:4000/ptsq',
 });
 
-const result = await client.test.query({
+const result /* string */ = await client.test.query({
   name: /* string */ 'John',
 });
 ```
+
+Introspected schema can also has comments with hints what the serialized type is actuall is. So if the response return `DateTime` as a string, then there is a way to describe the `DateTime` scalar on the server, to give hints on the client side.
 
 ## Options
 
@@ -58,6 +60,11 @@ type CreateProxyClientArgs = {
   headers?: RequestHeaders | (() => MaybePromise<RequestHeaders>);
 };
 ```
+
+The url is the url of ptsq server e.g. `https://example.com/ptsq/'.
+If credentials option is true, then credentials like cookies are sent to the server with every request.
+You can also specify headers you want to send such as `Authorization`header and so on.
+Headers can be defined as callable funciton, so for example you can get cookies like jwt token in the function that is then passed to`Authorization` header.
 
 ```ts title="client.ts"
 import { createProxyClient } from '@ptsq/client';
@@ -75,7 +82,7 @@ const client = createProxyClient<BaseRouter>({
   credentials: true,
 });
 
-const result = await client.test.query({
+const result /* string */ = await client.test.query({
   name: /* string */ 'John',
 });
 ```
