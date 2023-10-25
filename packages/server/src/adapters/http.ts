@@ -26,7 +26,7 @@ export const httpAdapter = Adapter<HttpAdapterContext, RequestListener>(
     koaRouter.post(
       '/',
       cors({
-        origin: Array.isArray(corsOptions?.origin) ? corsOptions.origin.join(',') : corsOptions?.origin,
+        origin: Array.isArray(corsOptions?.origin) ? corsOptions?.origin.join(',') : corsOptions?.origin,
         allowHeaders: corsOptions?.allowedHeaders,
         allowMethods: corsOptions?.methods,
         maxAge: corsOptions?.maxAge,
@@ -50,7 +50,7 @@ export const httpAdapter = Adapter<HttpAdapterContext, RequestListener>(
       '/introspection',
       cors({
         origin: Array.isArray(corsOptions?.introspection)
-          ? corsOptions.introspection.join(',')
+          ? corsOptions?.introspection.join(',')
           : corsOptions?.introspection,
       }),
       ({ response }) => (response.body = handler.introspection())
