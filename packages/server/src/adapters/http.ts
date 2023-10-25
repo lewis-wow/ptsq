@@ -1,10 +1,9 @@
 import { HTTPError, HTTPErrorCode } from '../httpError';
 import { Adapter } from '../adapter';
-import cors from '@koa/cors';
-import Router from 'koa-router';
-import bodyParser from 'koa-bodyparser';
 import { type RequestListener, type IncomingMessage, type ServerResponse } from 'http';
-import Koa from 'koa';
+import express from 'express';
+import cors from 'cors';
+import { json, urlencoded } from 'body-parser';
 
 export type HttpAdapterContext = {
   req: IncomingMessage;
@@ -20,46 +19,42 @@ export type HttpAdapterContext = {
  */
 export const httpAdapter = Adapter<HttpAdapterContext, RequestListener>(
   ({ handler, options: { cors: corsOptions } }) => {
-    const koaApp = new Koa();
-    const koaRouter = new Router();
+    const expressApp = express();
+    const expressRouter = express.Router();
 
-    koaRouter.post(
+    expressRouter.post(
       '/',
       cors({
         origin: Array.isArray(corsOptions?.origin) ? corsOptions?.origin.join(',') : corsOptions?.origin,
-        allowHeaders: corsOptions?.allowedHeaders,
-        allowMethods: corsOptions?.methods,
+        allowedHeaders: corsOptions?.allowedHeaders,
+        methods: corsOptions?.methods,
         maxAge: corsOptions?.maxAge,
         credentials: corsOptions?.credentials,
       }),
-      bodyParser(),
-      ({ req, res, request: koaRequest, response: koaResponse }) => {
+      urlencoded({ extended: false }),
+      json(),
+      (req, res) => {
         handler
-          .server({ body: koaRequest.body, params: { req, res } })
-          .then((data) => (koaResponse.body = data))
+          .server({ body: req.body, params: { req, res } })
+          .then((data) => res.json(data))
           .catch((error) => {
-            if (HTTPError.isHttpError(error)) {
-              koaResponse.status = HTTPErrorCode[error.code];
-              koaResponse.body = { message: error.message, info: error.info };
-            }
+            if (HTTPError.isHttpError(error))
+              res.status(HTTPErrorCode[error.code]).json({ message: error.message, info: error.info });
           });
       }
     );
 
-    koaRouter.get(
+    expressRouter.get(
       '/introspection',
       cors({
-        origin: Array.isArray(corsOptions?.introspection)
-          ? corsOptions?.introspection.join(',')
-          : corsOptions?.introspection,
+        origin: corsOptions?.introspection,
       }),
-      ({ response }) => (response.body = handler.introspection())
+      (_req, res) => res.json(handler.introspection())
     );
 
-    koaApp.use(koaRouter.routes());
-    koaApp.use(koaRouter.allowedMethods());
+    expressApp.use('/ptsq', expressRouter);
 
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    return koaApp.callback();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return (req: IncomingMessage, res: ServerResponse) => expressApp(req, res);
   }
 );

@@ -46,7 +46,7 @@ export const expressAdapter = Adapter<ExpressAdapterContext, Router>(({ handler,
     cors({
       origin: corsOptions?.introspection,
     }),
-    (_req, res) => res.json(handler.introspection)
+    (_req, res) => res.json(handler.introspection())
   );
 
   return expressRouter;

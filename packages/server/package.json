@@ -50,11 +50,12 @@
     "@types/koa__cors": "^4.0.2",
     "@types/node": "^20.7.0",
     "@types/pascalcase": "^1.0.1",
+    "axios": "^1.5.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {
     "@koa/cors": "^4.0.0",
-    "@koa/router": "^11.0.2",
+    "@koa/router": "^12.0.1",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
