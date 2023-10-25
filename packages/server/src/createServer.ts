@@ -1,16 +1,14 @@
 import type { Context, ContextBuilder, inferContextFromContextBuilder } from './context';
-import type { CustomOrigin, StaticOrigin } from './cors';
 import { type Routes, Router } from './router';
 import { Middleware, type MiddlewareCallback } from './middleware';
 import { Resolver } from './resolver';
 import { Serve } from './serve';
-import type { CorsOptions } from 'cors';
 import { scalar } from './scalar';
+import type { CORSOptions } from './cors';
 
 type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   ctx: TContextBuilder;
-  cors?: CorsOptions;
-  introspection?: StaticOrigin | CustomOrigin;
+  cors?: CORSOptions;
 };
 
 /**
@@ -22,15 +20,14 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
  *   ctx: () => {},
  *   cors: {
  *     origin: ['http://localhost:3000', 'https://example.com'],
+ *     introspection: '*',
  *   },
- *   introspection: true,
  * })
  * ```
  */
 export const createServer = <TContextBuilder extends ContextBuilder>({
   ctx,
   cors,
-  introspection = false,
 }: CreateServerArgs<TContextBuilder>) => {
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
 
@@ -49,7 +46,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    */
   const resolver = new Resolver<RootContext>({ middlewares: [] });
 
-  const serveInternal = new Serve({ contextBuilder: ctx, introspection, cors });
+  const serveInternal = new Serve({ contextBuilder: ctx, cors });
 
   /**
    * Creates a fully typed router

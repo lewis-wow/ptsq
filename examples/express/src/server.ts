@@ -5,7 +5,10 @@ import { z } from 'zod';
 const app = express();
 
 const { router, resolver, serve, scalar } = createServer({
-  ctx: (_params: ExpressAdapterContext) => ({ user: 'user' as 'user' | null | undefined }),
+  ctx: async ({ req, res }: ExpressAdapterContext) => ({
+    req,
+    res,
+  }),
 });
 
 const URLScalar = scalar({
