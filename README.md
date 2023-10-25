@@ -2,6 +2,34 @@
 
 Public type-safe query
 
+## npm
+
+```bash
+npm i @ptsq/server
+```
+
+```bash
+npm i @ptsq/client
+```
+
+```bash
+npm i -D @ptsq/introspection-cli
+```
+
+## yarn
+
+```bash
+yarn add @ptsq/server
+```
+
+```bash
+yarn add @ptsq/client
+```
+
+```bash
+yarn add -D @ptsq/introspection-cli
+```
+
 ```ts title="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
 import express from 'express';
