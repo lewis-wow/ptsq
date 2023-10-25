@@ -52,6 +52,9 @@ protectedResolver.query({
 });
 ```
 
+The `next` function only returns the passed context.
+It is only for keep the context type up to date after e.g. `if` condition.
+
 ## Middleware pipes
 
 ```ts title="server.ts"
@@ -83,4 +86,22 @@ const deleteOrganization = adminResolver.mutation({
     //...
   },
 });
+```
+
+Piping the middleware with another middleware, pass the result context type to the next middleware input.
+
+The middleware type is something like this.
+
+```ts
+// the mutation without any middlware
+Mutation<{ user?: User | null }>;
+
+// the first middleware get the root context and check if user is undefined
+Middleware<{ user?: User | null }, { user: User | null }>;
+
+// the piped middleware get the result context of the first middleware and check if user is null
+Middleware<{ user: User | null }, { user: User }>;
+
+// then if you have e.g. mutation with resolver that use the piped middleware
+Mutation<{ user: User }>;
 ```

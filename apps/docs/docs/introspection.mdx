@@ -8,6 +8,14 @@ createServer({
 });
 ```
 
+The introspected schema is in JSON schema format.
+The `introspection-cli` tool automatically converts JSON schema into Typescript interfaces.
+If you want you can use raw output of the schema by `--raw` option in the cli or fetch the schema by yourself.
+
+```ts
+const ptsqJSONSchema = await fetch('https://example.com/ptsq/introspection');
+```
+
 ## Introspection query for only some hosts
 
 ```ts title="server.ts"

@@ -1,7 +1,7 @@
 # Query
 
 Query is `POST` request route that should get or list some data.
-It isn't `GET` request because of complex data structure that is sending to server from client.
+It isn't `GET` request because of complex data that is send to the server from client.
 
 ```ts title="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
@@ -46,7 +46,7 @@ const client = createProxyClient<BaseRouter>({
   url: 'http://localhost:4000/ptsq',
 });
 
-const result = await client.test.query({
+const result /* string */ = await client.test.query({
   name: /* string */ 'John',
 });
 ```
