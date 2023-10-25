@@ -4,7 +4,7 @@
 import { createServer } from '@ptsq/server';
 
 createServer({
-  introspection: true,
+  introspection: '*',
 });
 ```
 
@@ -21,9 +21,9 @@ createServer({
 ## CLI
 
 ```bash
-instrospection-cli --url="http://localhost:4000/ptsq/introspection" --out="schema.generated.ts" --lang="ts"
+instrospection-cli --url="http://localhost:4000/ptsq/introspection" --out="schema.generated.ts"
 ```
 
-### Supported languages
+### Curently supported languages
 
 - ts

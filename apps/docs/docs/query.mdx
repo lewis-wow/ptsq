@@ -1,5 +1,8 @@
 # Query
 
+Query is `POST` request route that should get or list some data.
+It isn't `GET` request because of complex data structure that is sending to server from client.
+
 ```ts title="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
 import express from 'express';

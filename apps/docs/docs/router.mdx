@@ -1,5 +1,12 @@
 # Router
 
+Routers describes the api shape.
+It creates some kind of sdk-like type.
+
+The strength of this model lies in the nesting of routers into one `Base` router.
+
+Routers can be merged across files.
+
 ```ts title="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
 import express from 'express';
