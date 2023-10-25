@@ -1,6 +1,7 @@
 # Server side calls
 
-Server side call also run all the middlewares registered to resolver unlike calling resolver function only.
+Server side calls are for calling the `route` (mutation or query) directly on the server.
+They also run all the middlewares registered to the resolver that creates the `mutation` or `query` unlike calling `resolve` function of the resolver only.
 
 ```ts title="server.ts"
 const { middleware, resolver, router, serve } = createServer({
@@ -26,4 +27,4 @@ const result = await caller.test.mutate({
 });
 ```
 
-The `Router.createCaller` function expects context object as the parameter, because there is no context on the server side without request from client side.
+The `Router.createCaller` function expects context object as the parameter, because there is no context on the server side without request from the client.

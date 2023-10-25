@@ -7,7 +7,10 @@ It has only a `noop` function in the proxy and anything else.
 const noop = () => {};
 ```
 
-But you cannot call the function, because Typescript cast that type of the `Proxy` client into something like `PsqlClient<BaseRouter>`.
+But you cannot call that `noop` function, because Typescript cast that type of the `Proxy` client into something like `PsqlClient<BaseRouter>`.
+The `noop` function is there for only that the `Proxy` of the function can have `apply` handler.
+That `apply` handler is for calling the `query` or `mutate` requests.
+There is only one requester for both `query and `mutation`, so they are called the same way.
 
 ## Proprietary client
 
@@ -30,7 +33,7 @@ const result /* string */ = await client.test.query({
 
 ## Introspected schema
 
-Even if this is not directly the server router schema, it is introspected, the way you define client stays the same, client does not care if the server is in your repository or somewhere remote.
+Even if this is not directly the server router schema, it is introspected, the way you define client stays the same, client does not care if the server is in your repository or somewhere else.
 
 ```ts title="client.ts"
 import { createProxyClient } from '@ptsq/client';
