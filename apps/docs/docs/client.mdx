@@ -1,5 +1,14 @@
 # Client
 
+The client is a Javascript `Proxy` object.
+It has only a `noop` function in the proxy and anything else.
+
+```ts
+const noop = () => {};
+```
+
+But you cannot call the function, because Typescript cast that type of the `Proxy` client into something like `PsqlClient<BaseRouter>`.
+
 ## Proprietary client
 
 ```ts title="client.ts"
@@ -21,7 +30,7 @@ const result = await client.test.query({
 
 ## Introspected schema
 
-Event if this is not directly the server router schema, it is introspected, the way you define client stays the same, client does not care
+Even if this is not directly the server router schema, it is introspected, the way you define client stays the same, client does not care if the server is in your repository or somewhere remote.
 
 ```ts title="client.ts"
 import { createProxyClient } from '@ptsq/client';

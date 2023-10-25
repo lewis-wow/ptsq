@@ -1,5 +1,7 @@
 # Server side calls
 
+Server side call also run all the middlewares registered to resolver unlike calling resolver function only.
+
 ```ts title="server.ts"
 const { middleware, resolver, router, serve } = createServer({
   ctx: createContext,

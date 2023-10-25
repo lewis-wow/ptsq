@@ -1,5 +1,18 @@
 # Scalars
 
+Scalar allows you to create complex types. You can define how to serialize/parse that type.
+The scalar returns two zod schemas for `input` and `output` that can be used inside another zod schemas in your application.
+
+On the server side, you always work with the parsed value, so the parsed value comes to resolver and returns from resolver.
+Serializing is done after calling the route with that scalar on output.
+
+The serialize schema check the input from the client and the output from the server.
+
+If the client serialize schema fails, then `BAD_REQUEST` is thrown.
+If the server side serialize schema fails before sending value to client, then `INTERNAL_SERVER_ERROR` is thrown.
+
+The parse schema check the output of the parse function and of the resolver output before serialization.
+
 ```ts title="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
 import express from 'express';

@@ -1,5 +1,8 @@
 # Middlewares
 
+Middleware function run before every route call (query, mutation).
+If middlewares are piped, then all middlewares runs before route call in piping order.
+
 ```ts title="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
 import express from 'express';
