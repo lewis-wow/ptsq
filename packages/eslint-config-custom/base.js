@@ -16,7 +16,7 @@ module.exports = {
       },
     },
   },
-  ignorePatterns: ['node_modules/', 'dist/', '.eslintrc.js'],
+  ignorePatterns: ['node_modules/', 'dist/', '.eslintrc.js', 'vite.config.ts', 'rollup.config.js'],
 
   rules: {
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],

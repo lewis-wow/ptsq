@@ -1,6 +1,6 @@
 {
   "name": "@ptsq/client",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "homepage": "https://ptsq-docs.vercel.app/",
   "author": "lewis-wow",
   "license": "MIT",
@@ -10,7 +10,7 @@
     "directory": "packages/client"
   },
   "scripts": {
-    "build": "tsc --build",
+    "build": "rollup -c --bundleConfigAsCjs",
     "lint": "eslint"
   },
   "publishConfig": {

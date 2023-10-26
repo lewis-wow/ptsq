@@ -2,7 +2,13 @@
   "extends": "../../packages/tsconfig/base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+      "paths": {
+        "@ptsq/client": ["../packages/client/src"],
+        "@ptsq/client/*": ["../packages/client/src/*"],
+        "@ptsq/server": ["../packages/server/src"],
+        "@ptsq/server/*": ["../packages/server/src/*"]
+      },
   },
   "include": ["./src/**/*"]
 }
