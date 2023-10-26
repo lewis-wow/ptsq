@@ -6,11 +6,11 @@ import path from 'path';
 import typescript from 'rollup-plugin-typescript2';
 import del from 'rollup-plugin-delete';
 import resolve from 'rollup-plugin-node-resolve'
-import multiInput from 'rollup-plugin-multi-input';
+import terser from '@rollup/plugin-terser';
 
 /** @type {import('rollup').RollupOptions} */
 export default {
-  input: ['src/main.ts'],
+  input: 'src/main.ts',
   output: [
     {
       dir: 'dist',
@@ -29,8 +29,6 @@ export default {
     del({
       targets: 'dist',
     }),
-    // @ts-expect-error no typedefs exist for this plugin
-    multiInput.default({ relative: path.resolve(__dirname, 'src') }),
     externals({
       packagePath: path.resolve(__dirname, 'package.json'),
       deps: true,
@@ -41,6 +39,7 @@ export default {
       tsconfig: path.resolve(__dirname, 'tsconfig.json'),
       tsconfigOverride: { emitDeclarationOnly: true },
     }),
+    terser(),
     resolve(),
   ],
 };
