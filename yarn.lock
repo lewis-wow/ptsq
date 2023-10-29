@@ -2334,6 +2334,26 @@
   resolved "https://registry.npmjs.org/@polka/url/-/url-1.0.0-next.23.tgz"
   integrity sha512-C16M+IYz0rgRhWZdCmK+h58JMv8vijAA61gmz2rspCSwKwzBebpdcsiUmwrtJRdphuY30i6BSLEOP8ppbNLyLg==
 
+"@ptsq/client@0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@ptsq/client/-/client-0.0.6.tgz#09365a34c33b3996ff9be4ae1ce65fc9e7b0342d"
+  integrity sha512-4hq0Xd8oUJXcpJiIT9lxHGVvi2ToqTgVSSBLmCK5Mh/MNQDOkno1aNRnT/neOHg5K8WbyUCRi8M6j9V1P1VrCQ==
+  dependencies:
+    axios "^1.5.1"
+    zod "^3.22.2"
+
+"@ptsq/server@0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@ptsq/server/-/server-0.0.6.tgz#adda444a2ef1756c6431423dbc2fcc257d464d54"
+  integrity sha512-mjBaxUkwFpmra4xeHdygO6TAqbjZYUjLjv4L1oXZQx4YE84Yv2WX4ROdXh2nEWru4ASl37qLI0WP+pl+T6ImFg==
+  dependencies:
+    body-parser "^1.20.2"
+    cors "^2.8.5"
+    express "^4.18.2"
+    pascalcase "^0.1.1"
+    zod "^3.22.2"
+    zod-to-json-schema "^3.21.4"
+
 "@rollup/plugin-terser@^0.4.4":
   version "0.4.4"
   resolved "https://registry.yarnpkg.com/@rollup/plugin-terser/-/plugin-terser-0.4.4.tgz#15dffdb3f73f121aa4fbb37e7ca6be9aeea91962"
