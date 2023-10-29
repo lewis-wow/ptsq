@@ -10,7 +10,8 @@
     "directory": "packages/client"
   },
   "scripts": {
-    "build": "rollup -c --bundleConfigAsCjs",
+    "prebuild": "rm -rf dist",
+    "build": "rollup --config rollup.config.ts --bundleConfigAsCjs",
     "lint": "eslint"
   },
   "publishConfig": {

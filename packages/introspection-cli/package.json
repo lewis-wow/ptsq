@@ -10,7 +10,8 @@
     "directory": "packages/introspection-cli"
   },
   "scripts": {
-    "build": "tsc --build",
+    "prebuild": "rm -rf dist",
+    "build": "rollup --config rollup.config.ts --bundleConfigAsCjs",
     "dev": "ts-node src/main.ts",
     "start": "node dist/main.js"
   },
