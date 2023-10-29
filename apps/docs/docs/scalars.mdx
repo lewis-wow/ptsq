@@ -13,7 +13,7 @@ If the server side serialize schema fails before sending value to client, then `
 
 The parse schema check the output of the parse function and of the resolver output before serialization.
 
-```ts title="URLScalar.ts"
+```ts title="scalars/URLScalar.ts"
 export const URLScalar = scalar({
   parse: {
     schema: z.instanceof(URL), // used to validate parsed value
@@ -76,24 +76,12 @@ const result /* string */ = await client.urlQuery.query({
 });
 ```
 
-## Another example - Date scalar
+## Date scalar
 
-```ts title="server.ts"
-import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
-import express from 'express';
-import { z } from 'zod';
-const app = express();
+Just another example of scalar.
 
-const createContext = ({ req, res }: ExpressAdapterContext) => ({
-  req,
-  res,
-});
-
-const { middleware, resolver, router, serve, scalar } = createServer({
-  ctx: createContext,
-});
-
-const DateScalar = scalar({
+```ts title="scalars/DateScalar.ts"
+export const DateScalar = scalar({
   parse: {
     schema: z.instanceof(Date),
     value: (arg) => new Date(arg),
@@ -107,25 +95,9 @@ const DateScalar = scalar({
     output: 'ISO string format of date',
   },
 });
-
-const baseRouter = router({
-  dateQuery: resolver.query({
-    input: z.object({
-      dateNow: DateScalar.input,
-      hours: z.number(),
-    }),
-    output: URLScalar.output,
-    resolve: ({ input /* { dateNow: Date, hours: number } */ }) =>
-      new Date(input.dateNow.getTime() + hours * 60 * 60 * 1000),
-  }),
-});
-
-export type BaseRouter = typeof baseRouter;
-
-app.use('/ptsq', expressAdapter(serve({ router: baseRouter })));
-
-app.listen(4000);
 ```
+
+On the client side, IDE hints you to use `string` as a query input and of course hints you to expect string as well.
 
 ```ts title="client.ts"
 import { createProxyClient } from '@ptsq/client';
@@ -137,13 +109,12 @@ const client = createProxyClient<BaseRouter>({
 
 const result /* string */ = await client.dateQuery.query({
   date: /* string */ new Date().toISOString(),
-  hours: /* number */ 3,
 });
 ```
 
 ## Scalar description
 
-The description is very useful in schema introspection, cause the introspected schema is generated with that description like this
+The description is very useful in schema introspection, cause the introspected schema is generated with that description in comments.
 
 ```ts
 export interface DateQuery {
@@ -164,4 +135,4 @@ export interface DateQuery {
 }
 ```
 
-So the user knows what format to pass and expect from the server, even it is a string or some serializable type.
+So the user knows what format to pass and expect from the server, even it is a string or some other serializable type.
