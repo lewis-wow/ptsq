@@ -15,8 +15,8 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@ptsq/client": "0.0.6",
-    "@ptsq/server": "0.0.6",
+    "@ptsq/client": "0.0.7",
+    "@ptsq/server": "0.0.7",
     "express": "^4.18.2",
     "zod": "^3.22.2"
   }

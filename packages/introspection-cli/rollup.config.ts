@@ -6,7 +6,7 @@ import typescript from '@rollup/plugin-typescript';
 
 /** @type {import('rollup').RollupOptions} */
 export default {
-  external: Object.keys(pkg.dependencies),
+  external: [...Object.keys(pkg.dependencies), 'path', 'fs/promises'],
   input: 'src/main.ts',
   plugins: [typescript()],
   output: [
