@@ -25,5 +25,9 @@ export type { SerializableInputZodSchema, SerializableOutputZodSchema, Serializa
 /**
  * adapters/express
  */
-export { expressAdapter } from './adapters/express';
-export type { ExpressAdapterContext } from './adapters/express';
+export { expressAdapter, type ExpressAdapterContext } from './adapters/express';
+
+/**
+ * adapters/http
+ */
+export { httpAdapter, type HttpAdapterContext } from './adapters/http';

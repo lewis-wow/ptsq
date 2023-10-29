@@ -1,5 +1,4 @@
-import type { Client } from './client';
-import type { ClientRouter } from './types';
+import type { ClientRouter, Client } from './types';
 import type { RequestHeaders } from './headers';
 import type { MaybePromise } from '@ptsq/server';
 import axios from 'axios';

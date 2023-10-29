@@ -1,6 +1,6 @@
 {
   "name": "@ptsq/introspection-cli",
-  "version": "0.0.3",
+  "version": "0.0.8",
   "homepage": "https://ptsq-docs.vercel.app/",
   "author": "lewis-wow",
   "license": "MIT",
@@ -10,7 +10,8 @@
     "directory": "packages/introspection-cli"
   },
   "scripts": {
-    "build": "tsc --build",
+    "prebuild": "rm -rf dist",
+    "build": "rollup --config rollup.config.ts --bundleConfigAsCjs",
     "dev": "ts-node src/main.ts",
     "start": "node dist/main.js"
   },

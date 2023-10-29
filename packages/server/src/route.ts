@@ -1,7 +1,6 @@
 import type { ResolverType } from './types';
 import type { ResolveFunction } from './resolver';
 import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
-import type { JsonSchema7Type } from 'zod-to-json-schema/src/parseDef';
 import { createSchemaRoot } from './createSchemaRoot';
 import type { Context } from './context';
 import type { Middleware } from './middleware';
@@ -82,16 +81,3 @@ export class Route<
     return parsedOutput.data;
   }
 }
-
-export type RouteSchema = {
-  type: ResolverType;
-  input: {
-    definitions?: Record<string, JsonSchema7Type>;
-    $schema?: string;
-  } | null;
-  output: {
-    definitions?: Record<string, JsonSchema7Type>;
-    $schema?: string;
-  } | null;
-  nodeType: 'route';
-};
