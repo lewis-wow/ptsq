@@ -43,7 +43,7 @@ export class ProxyClient {
 
     const result = await axios.post<string>(
       this.options.url,
-      { route: this.route.join('.'), input: JSON.stringify(requestInput) },
+      { route: this.route.join('.'), input: requestInput },
       {
         withCredentials: this.options.credentials,
         headers,
@@ -51,7 +51,7 @@ export class ProxyClient {
       }
     );
 
-    return JSON.parse(result.data) as TRequestOutput;
+    return result.data as TRequestOutput;
   }
 }
 
