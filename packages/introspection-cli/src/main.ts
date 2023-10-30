@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import axios from 'axios';
 import yargs from 'yargs';
 import { compile } from 'json-schema-to-typescript';
