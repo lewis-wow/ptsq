@@ -20,7 +20,9 @@ const baseRouter = router({
   test: testMutation,
 });
 
-const caller = baseRouter.createCaller({});
+const caller = baseRouter.createCaller({
+  /* server context */
+});
 
 const result = await caller.test.mutate({
   name: /* string */ 'John',
