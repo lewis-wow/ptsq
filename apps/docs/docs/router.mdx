@@ -61,3 +61,15 @@ const result = await client.a.b.c.user.current.query();
 // autocompletion
 const userList = await client.a. /* b.c.user.userList.query() */
 ```
+
+## Type-level only
+
+The `BaseRouter` is Typescript type, that means the client doesn't know anything about the server in runtime.
+
+```ts
+//@ts-ignore
+const result = await client.a.wrong.route.query();
+```
+
+That means you can disable the type hinting and call wrong route.
+If wrong route is called, then the server response with `BAD_REQUEST` error.
