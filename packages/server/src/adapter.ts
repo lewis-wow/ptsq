@@ -40,7 +40,7 @@ export const Adapter =
       if (!parsedRequestBody.success)
         throw new HTTPError({
           code: 'BAD_REQUEST',
-          message: 'Route query param must be a string separated by dots (a.b.c)',
+          message: 'Route query param must be a string separated by dots (user.passwordReset.request)',
           info: parsedRequestBody.error,
         });
 
