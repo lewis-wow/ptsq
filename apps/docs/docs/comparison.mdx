@@ -68,9 +68,9 @@ There is no output validation, it means that only types must match, but the runt
 ```ts title="ptsq query resolver"
 resolver.query({
   input: z.object({ name: z.string() }),
-  output: z.string(),
-  resolve: ({ input /* { name: string } */ }) /* string */ => {
-    return `Hello, ${input.name}`;
+  output: UserSchema, // can be generated zod schema from database ORM like Prisma
+  resolve: () => {
+    // ...
   },
 });
 ```
@@ -120,8 +120,16 @@ publicProcedure.query(() => {
 });
 ```
 
-On the client it tells you that the incomming type is `MyClass`, but that is not true, incomming type will be `{ x: number; y: number }`, becase classes are not serializable.
+On the client it tells you that the incomming type is `MyClass`, but that is not true, incomming type will be `{ x: number; y: number }`, because classes are not serializable.
 
-ptsq has another solution for this and that is (scalars)[/scalars].
+ptsq has another solution for this problem and that are [scalars](/scalars).
 
-Scalar types do not allow you to use any non-serializable type for resolver input and output.
+Scalar types does not allow you to use any non-serializable type for resolver input and output.
+
+## Summary
+
+So as you can see, both tools, GraphQL and tRPC has some downsides of creating type-safe API.
+
+GraphQL in its complexity and code duplication and tRPC in lying types in some cases. strict project structure and no support for type-safe open API.
+
+ptsq tries to combine the best from those two tools for creating type-safe open API.
