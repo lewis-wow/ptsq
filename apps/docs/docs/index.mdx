@@ -2,49 +2,29 @@
 
 Welcome to ptsq!
 
-```ts title="server.ts"
-import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
-import express from 'express';
-import { z } from 'zod';
+Public type-safe query is library for creating type-safe API with TS backend and any language client.
 
-const app = express();
+It offers introspection of API schema and allow you to easily create type-safe queries, mutations, middlewares and so on.
 
-const createContext = ({ req, res }: ExpressAdapterContext) => ({
-  req,
-  res,
-});
+## Motivation
 
-const { middleware, resolver, router, serve } = createServer({
-  ctx: createContext,
-});
+The motivation is that (tRPC)[https://trpc.io/] allows you to create easily type-safe backend but does not offer some kind of introspectoin, so it cannot be used for type-safe open API.
+On the other hand (GraphQL)[https://graphql.org/] offers the schema introspection for type-safe open API, but setting up the project and writing graphql resolvers is much more harder.
 
-const testQuery = resolver.query({
-  input: z.object({ name: z.string() }),
-  resolve: async ({ ctx /* { req: express.Request, res: express.Response } */, input /* { name: string } */ }) => {
-    return `Hello, ${input.name}`;
-  },
-});
+This library combining the best from those two worlds.
 
-const baseRouter = router({
-  test: testQuery,
-});
+## Requirements
 
-export type BaseRouter = typeof baseRouter;
+You have to enable `strictNullChecks` or use `strict` mode which includes `strictNullChecks`. Otherwise Zod cannot correctly infer the types of your schemas.
 
-app.use('/ptsq', expressAdapter(serve({ router: baseRouter })));
-
-app.listen(4000);
-```
-
-```ts title="client.ts"
-import { createProxyClient } from '@ptsq/client';
-import { BaseRouter } from './server';
-
-const client = createProxyClient<BaseRouter>({
-  url: 'http://localhost:4000/ptsq',
-});
-
-const result /* string */ = await client.test.query({
-  name: /* string */ 'John',
-});
+```json title="tsconfig.json"
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  //...
+  "compilerOptions": {
+    "strictNullChecks": true // <- must be true
+    //...
+  }
+  //...
+}
 ```

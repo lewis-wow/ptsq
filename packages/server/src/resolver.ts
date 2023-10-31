@@ -4,6 +4,7 @@ import type { Middleware } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
 import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
+import type { MaybePromise } from './types';
 
 export class Resolver<TContext extends Context = Context> {
   middlewares: Middleware<TContext, TContext>[];
@@ -87,4 +88,4 @@ export type ResolveFunction<TInput, TOutput, TContext extends Context = Context>
 }: {
   input: TInput;
   ctx: TContext;
-}) => TOutput;
+}) => MaybePromise<TOutput>;

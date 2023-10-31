@@ -16,7 +16,7 @@ const greetingsQuery = resolver.query({
     name: z.string(),
   }),
   output: z.string(),
-  resolve: ({ input }) => {
+  resolve: async ({ input }) => {
     return `Hello, ${input.name}`;
   },
 });
