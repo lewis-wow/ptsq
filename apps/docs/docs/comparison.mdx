@@ -1,0 +1,127 @@
+# Comparison with other tools
+
+## GraphQL
+
+GraphQL is one of the best tools for creating type-safe API. It offers much more than only type-safe API, but `ptsq` aims only to the type-safety.
+
+ptsq is more for smaller projects unlike GraphQL which is for large to enormous project, however setting ptsq to be type safe is much easier than GraphQL where you need to know how to run other tools to create a type safe API as well as a type-safe backend and client.
+
+ptsq backend must be written in TS, GraphQL supports the possibility of creating a backend in almost any programming language.
+
+Tools for creating type-safe backend code and for generating the GraphQL schema such as (Nexus)[https://nexusjs.org/] or (Pothos)[https://pothos-graphql.dev/] are very good, but they both requires to have a `build` step in creating a schema, ptsq does not require any build step for creating a schema of the API.
+
+As you can see below, the GraphQL resolver requires to define a schema of input arguments, but the schema does not have any validation, just a type validation.
+
+```ts title="Nexus query resolver"
+import { stringArg } from 'nexus';
+
+queryField('user', {
+  type: 'User',
+  args: {
+    id: stringArg(),
+  },
+  resolve: () => {
+    // ...
+  },
+});
+```
+
+Validation must be done inside a `resolve` function or with some plugin that allows to write validation schema in the resolver.
+
+```ts title="Duplicated input schema in args and validation"
+import { stringArg } from 'nexus';
+import { z } from 'zod';
+
+queryField('user', {
+  type: 'User',
+  args: {
+    id: stringArg(),
+  },
+  validationSchema: z.object({
+    id: z.string(),
+  }),
+  resolve: () => {
+    // ...
+  },
+});
+```
+
+How you can see, we literally duplicate the input arguments schema in the validation Schema. But GraphQL requires to define the schema of args, so we cannot infer the GraphQL schema from the validation schema, because GraphQL schema types can be complex and must have name, such as `type: User` that we returning from the resolver.
+
+```ts title="Cannot do this for infer the args GraphQL types from the schema"
+import { stringArg } from 'nexus';
+import { z } from 'zod';
+
+queryField('user', {
+  type: 'User',
+  validationSchema: z.object({
+    id: z.string(),
+  }),
+  resolve: () => {
+    // ...
+  },
+});
+```
+
+There is no output validation, it means that only types must match, but the runtime types can be different.
+
+```ts title="ptsq query resolver"
+resolver.query({
+  input: z.object({ name: z.string() }),
+  output: z.string(),
+  resolve: ({ input /* { name: string } */ }) /* string */ => {
+    return `Hello, ${input.name}`;
+  },
+});
+```
+
+In ptsq you don't duplicate the input and output schemas, the open API schema for introspection is infered from validation schemas that are defined for input and output.
+
+That means both, input and output, are validated on the type-level and in runtime.
+
+You don't have to setup some other tools such as Nexus or Pothos for generating a schema and writing type-safe resolvers, because ptsq offer this in the library directly.
+
+## tRPC
+
+tRPC is also a tool for creating type-safe API, but is does not allow to create a type-safe open API. That means the type-safety is only proprietary.
+
+There are plugins for creating REST API by tRPC resolvers, but the REST API router lose the type-safety.
+
+It's designed for monorepos, as you need to export/import the type definitions from/to your server. The ptsq thanks to schema introspection can be easily used in multirepos.
+
+tRPC is designed for full-stack Typescript setup, that means both, server and client must be written in Typescript for type-safety, in ptsq only server must be written in Typescript.
+
+tRPC lose type-safety with transformer such as `superjson` transformer, because then it does not respect serializable types.
+
+In the example below it really returns `Date` object and the transformer transform it to something serializable, on the client the same transformer transform it back to the `Date` object.
+
+```ts "tRPC query procedure that returns Date"
+publicProcedure.output(z.Date()).query(() => {
+  return new Date();
+});
+```
+
+The way that tRPC can lie to to you in the incomming type from the server or the input type to the procedure is described below.
+
+```ts "tRPC query procedure that returns Date"
+class MyClass {
+  constructor(
+    public x: number,
+    public y: number
+  ) {}
+
+  calculateDiff() {
+    return this.y - this.x;
+  }
+}
+
+publicProcedure.query(() => {
+  return new MyClass(10, 20);
+});
+```
+
+On the client it tells you that the incomming type is `MyClass`, but that is not true, incomming type will be `{ x: number; y: number }`, becase classes are not serializable.
+
+ptsq has another solution for this and that is (scalars)[/scalars].
+
+Scalar types do not allow you to use any non-serializable type for resolver input and output.

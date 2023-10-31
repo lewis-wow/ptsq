@@ -13,6 +13,7 @@ const sidebars = {
     'errors',
     'cors',
     'server-side-calls',
+    'comparison',
   ],
 };
 

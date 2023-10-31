@@ -67,7 +67,7 @@ export class Route<
     if (!parsedInput.success)
       throw new HTTPError({ code: 'BAD_REQUEST', message: 'Input validation error', info: parsedInput.error });
 
-    const resolverResult = this.resolveFunction({ input: parsedInput.data, ctx: finalCtx });
+    const resolverResult = await this.resolveFunction({ input: parsedInput.data, ctx: finalCtx });
 
     const parsedOutput = this.outputValidationSchema.safeParse(resolverResult);
 
