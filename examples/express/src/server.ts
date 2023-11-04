@@ -12,14 +12,16 @@ const { router, resolver, serve } = createServer({
   }),
 });
 
-const anotherResolver = resolver.use(({ ctx, next }) => {
+const anotherResolver = resolver.use(async ({ ctx, next }) => {
   if (ctx.user === null) throw new HTTPError({ code: 'CONFLICT' });
 
-  const res = next({
+  console.time('start');
+
+  const res = await next({
     user: ctx.user,
   });
 
-  console.log('asdf');
+  console.timeEnd('start');
 
   return res;
 });

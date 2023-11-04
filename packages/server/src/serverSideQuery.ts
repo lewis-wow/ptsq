@@ -13,6 +13,6 @@ export class ServerSideQuery<TQuery extends Query, TServerSideContext extends Co
 
   async query(input: z.output<TQuery['inputValidationSchema']>): Promise<z.input<TQuery['outputValidationSchema']>> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return await this._query.call({ input, ctx: this.ctx });
+    return await this._query.call({ meta: { input, route }, ctx: this.ctx });
   }
 }

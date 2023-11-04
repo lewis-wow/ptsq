@@ -20,7 +20,15 @@ test('Should create query route', async () => {
   expect(query.inputValidationSchema).toBe(validationSchema);
   expect(query.outputValidationSchema).toBe(validationSchema);
   expect(query.resolveFunction).toBe(resolveFunction);
-  expect(await query.call({ input: 'John', ctx: { greetingsPrefix: 'Hello' as const } })).toBe('John');
+  expect(
+    await query.call({ meta: { input: 'John', route: 'dummy.route' }, ctx: { greetingsPrefix: 'Hello' as const } })
+  ).toStrictEqual({
+    data: 'John',
+    ok: true,
+    ctx: {
+      greetingsPrefix: 'Hello',
+    },
+  });
   expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -77,7 +85,15 @@ test('Should create mutation route', async () => {
   expect(mutation.inputValidationSchema).toBe(validationSchema);
   expect(mutation.outputValidationSchema).toBe(validationSchema);
   expect(mutation.resolveFunction).toBe(resolveFunction);
-  expect(await mutation.call({ input: 'John', ctx: { greetingsPrefix: 'Hello' as const } })).toBe('John');
+  expect(
+    await mutation.call({ meta: { input: 'John', route: 'dummy.route' }, ctx: { greetingsPrefix: 'Hello' as const } })
+  ).toStrictEqual({
+    data: 'John',
+    ok: true,
+    ctx: {
+      greetingsPrefix: 'Hello',
+    },
+  });
   expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
       "$schema": "http://json-schema.org/draft-07/schema#",

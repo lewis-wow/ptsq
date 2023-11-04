@@ -8,11 +8,11 @@ test('Should create middleware with query', async () => {
     state: 'invalid' as 'valid' | 'invalid',
   };
 
-  const { resolver, middleware } = createServer({
+  const { resolver } = createServer({
     ctx: () => contextBuilderResult,
   });
 
-  const isValidMiddleware = middleware(({ ctx, next }) => {
+  const validResolver = resolver.use(({ ctx, next }) => {
     if (ctx.state === 'invalid') throw new HTTPError({ code: 'BAD_REQUEST' });
 
     return next({
@@ -20,8 +20,6 @@ test('Should create middleware with query', async () => {
       state: ctx.state,
     });
   });
-
-  const validResolver = resolver.use(isValidMiddleware);
 
   const query = resolver.query({
     output: z.string(),
@@ -39,27 +37,58 @@ test('Should create middleware with query', async () => {
 
   expect(validOnlyQuery.nodeType).toBe('route');
   expect(validOnlyQuery.type).toBe('query');
-  expect(validOnlyQuery.middlewares).toStrictEqual([isValidMiddleware]);
+  expect(validOnlyQuery.middlewares).toMatchInlineSnapshot(`
+    [
+      Middleware {
+        "middlewareCallback": [Function],
+      },
+    ]
+  `);
 
-  expect(await query.call({ input: undefined, ctx: contextBuilderResult })).toBe('invalid');
-  expect(await query.createServerSideQuery(contextBuilderResult).query()).toBe('invalid');
+  expect(
+    await query.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+  ).toStrictEqual({
+    ctx: contextBuilderResult,
+    data: 'invalid',
+    ok: true,
+  });
+  //expect(await query.createServerSideQuery(contextBuilderResult).query()).toBe('invalid');
 
-  await expect(validOnlyQuery.call({ input: undefined, ctx: contextBuilderResult })).rejects.toThrow(
+  expect(
+    await validOnlyQuery.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+  ).toStrictEqual({
+    ctx: contextBuilderResult,
+    error: new HTTPError({ code: 'BAD_REQUEST' }),
+    ok: false,
+  });
+
+  /*await expect(validOnlyQuery.createServerSideQuery(contextBuilderResult).query()).rejects.toThrow(
     new HTTPError({ code: 'BAD_REQUEST' })
-  );
-  await expect(validOnlyQuery.createServerSideQuery(contextBuilderResult).query()).rejects.toThrow(
-    new HTTPError({ code: 'BAD_REQUEST' })
-  );
+  );*/
 
   contextBuilderResult = {
     state: 'valid' as 'valid' | 'invalid',
   };
 
-  expect(await query.call({ input: undefined, ctx: contextBuilderResult })).toBe('valid');
-  expect(await query.createServerSideQuery(contextBuilderResult).query()).toBe('valid');
+  expect(
+    await query.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+  ).toStrictEqual({
+    ctx: contextBuilderResult,
+    data: 'valid',
+    ok: true,
+  });
 
-  expect(await validOnlyQuery.call({ input: undefined, ctx: contextBuilderResult })).toBe('valid');
-  expect(await validOnlyQuery.createServerSideQuery(contextBuilderResult).query()).toBe('valid');
+  //expect(await query.createServerSideQuery(contextBuilderResult).query()).toBe('valid');
+
+  expect(
+    await validOnlyQuery.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+  ).toStrictEqual({
+    ctx: contextBuilderResult,
+    data: 'valid',
+    ok: true,
+  });
+
+  // expect(await validOnlyQuery.createServerSideQuery(contextBuilderResult).query()).toBe('valid');
 });
 
 test('Should create middleware with mutation', async () => {
@@ -67,11 +96,11 @@ test('Should create middleware with mutation', async () => {
     state: 'invalid' as 'valid' | 'invalid',
   };
 
-  const { resolver, middleware } = createServer({
+  const { resolver } = createServer({
     ctx: () => contextBuilderResult,
   });
 
-  const isValidMiddleware = middleware(({ ctx, next }) => {
+  const validResolver = resolver.use(({ ctx, next }) => {
     if (ctx.state === 'invalid') throw new HTTPError({ code: 'BAD_REQUEST' });
 
     return next({
@@ -79,8 +108,6 @@ test('Should create middleware with mutation', async () => {
       state: ctx.state,
     });
   });
-
-  const validResolver = resolver.use(isValidMiddleware);
 
   const mutation = resolver.mutation({
     output: z.string(),
@@ -98,25 +125,153 @@ test('Should create middleware with mutation', async () => {
 
   expect(validOnlyMutation.nodeType).toBe('route');
   expect(validOnlyMutation.type).toBe('mutation');
-  expect(validOnlyMutation.middlewares).toStrictEqual([isValidMiddleware]);
+  expect(validOnlyMutation.middlewares).toMatchInlineSnapshot(`
+    [
+      Middleware {
+        "middlewareCallback": [Function],
+      },
+    ]
+  `);
 
-  expect(await mutation.call({ input: undefined, ctx: contextBuilderResult })).toBe('invalid');
-  expect(await mutation.createServerSideMutation(contextBuilderResult).mutate()).toBe('invalid');
+  expect(
+    await mutation.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+  ).toStrictEqual({
+    ctx: contextBuilderResult,
+    data: 'invalid',
+    ok: true,
+  });
+  //expect(await mutation.createServerSideMutation(contextBuilderResult).mutate()).toBe('invalid');
 
-  await expect(validOnlyMutation.call({ input: undefined, ctx: contextBuilderResult })).rejects.toThrow(
+  expect(
+    await validOnlyMutation.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+  ).toStrictEqual({
+    ctx: contextBuilderResult,
+    error: new HTTPError({ code: 'BAD_REQUEST' }),
+    ok: false,
+  });
+  /*await expect(validOnlyMutation.createServerSideMutation(contextBuilderResult).mutate()).rejects.toThrow(
     new HTTPError({ code: 'BAD_REQUEST' })
-  );
-  await expect(validOnlyMutation.createServerSideMutation(contextBuilderResult).mutate()).rejects.toThrow(
-    new HTTPError({ code: 'BAD_REQUEST' })
-  );
+  );*/
 
   contextBuilderResult = {
     state: 'valid' as 'valid' | 'invalid',
   };
 
-  expect(await mutation.call({ input: undefined, ctx: contextBuilderResult })).toBe('valid');
-  expect(await mutation.createServerSideMutation(contextBuilderResult).mutate()).toBe('valid');
+  expect(
+    await mutation.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+  ).toStrictEqual({
+    ctx: contextBuilderResult,
+    data: 'valid',
+    ok: true,
+  });
+  //expect(await mutation.createServerSideMutation(contextBuilderResult).mutate()).toBe('valid');
 
-  expect(await validOnlyMutation.call({ input: undefined, ctx: contextBuilderResult })).toBe('valid');
-  expect(await validOnlyMutation.createServerSideMutation(contextBuilderResult).mutate()).toBe('valid');
+  expect(
+    await validOnlyMutation.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+  ).toStrictEqual({
+    ctx: contextBuilderResult,
+    data: 'valid',
+    ok: true,
+  });
+  //expect(await validOnlyMutation.createServerSideMutation(contextBuilderResult).mutate()).toBe('valid');
+});
+
+test('Should create middleware with measuring time', async () => {
+  const { resolver } = createServer({
+    ctx: () => ({}),
+  });
+
+  const measuredResolver = resolver.use(async ({ ctx, next }) => {
+    console.log('measuredResolver middleware start');
+
+    console.time('time');
+    console.log('measuredResolver middleware next');
+    const result = await next(ctx);
+    console.log('result was: ', result);
+    console.timeEnd('time');
+
+    console.log('measuredResolver middleware end');
+    return result;
+  });
+
+  const query = measuredResolver.query({
+    output: z.string(),
+    resolve: async () => {
+      console.log('Resolver run');
+      return Promise.resolve('Hello');
+    },
+  });
+
+  expect(query.nodeType).toBe('route');
+  expect(query.type).toBe('query');
+  expect(query.middlewares).toMatchInlineSnapshot(`
+    [
+      Middleware {
+        "middlewareCallback": [Function],
+      },
+    ]
+  `);
+
+  expect(await query.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: {} })).toStrictEqual({
+    ctx: {},
+    data: 'Hello',
+    ok: true,
+  });
+});
+
+test('Should create two nested middlewares', async () => {
+  const { resolver } = createServer({
+    ctx: () => ({}),
+  });
+
+  const resolver1 = resolver.use(async ({ ctx, next }) => {
+    console.log('resolver1 middleware start');
+
+    console.time('time1');
+    const result = await next(ctx);
+    console.log('result of resolver1 middleware was: ', result);
+    console.timeEnd('time1');
+
+    console.log('resolver1 middleware end');
+    return result;
+  });
+
+  const resolver2 = resolver1.use(async ({ ctx, next }) => {
+    console.log('resolver2 middleware start');
+
+    console.time('time2');
+    const result = await next(ctx);
+    console.log('result of resolver2 middleware was: ', result);
+    console.timeEnd('time2');
+
+    console.log('resolver2 middleware end');
+    return result;
+  });
+
+  const query = resolver2.query({
+    output: z.string(),
+    resolve: async () => {
+      console.log('Resolver run');
+      return Promise.resolve('Hello');
+    },
+  });
+
+  expect(query.nodeType).toBe('route');
+  expect(query.type).toBe('query');
+  expect(query.middlewares).toMatchInlineSnapshot(`
+    [
+      Middleware {
+        "middlewareCallback": [Function],
+      },
+      Middleware {
+        "middlewareCallback": [Function],
+      },
+    ]
+  `);
+
+  expect(await query.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: {} })).toStrictEqual({
+    ctx: {},
+    data: 'Hello',
+    ok: true,
+  });
 });

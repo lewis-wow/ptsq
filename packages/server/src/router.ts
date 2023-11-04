@@ -4,6 +4,7 @@ import { HTTPError } from './httpError';
 import type { Mutation } from './mutation';
 import type { Query } from './query';
 import type { Queue } from './queue';
+import type { ResolverRequest } from './resolver';
 import type { ServerSideMutation } from './serverSideMutation';
 import type { ServerSideQuery } from './serverSideQuery';
 
@@ -53,7 +54,7 @@ export class Router<TRoutes extends Routes = Routes> {
     return new Proxy(this.routes, proxyHandler) as unknown as RouterProxyCaller<TRoutes, TContext>;
   }
 
-  call({ route, input, ctx }: { route: Queue<string>; input: unknown; ctx: Context }): unknown {
+  call({ route, ctx, meta }: { route: Queue<string>; ctx: Context; meta: ResolverRequest }): unknown {
     const currentRoute = route.dequeue();
 
     if (!currentRoute || !(currentRoute in this.routes))
@@ -61,9 +62,11 @@ export class Router<TRoutes extends Routes = Routes> {
 
     const nextNode = this.routes[currentRoute];
 
-    if (nextNode.nodeType === 'router') return nextNode.call({ route, input, ctx });
+    if (nextNode.nodeType === 'router') return nextNode.call({ route, ctx, meta });
 
-    return nextNode.call({ input, ctx });
+    if (route.size !== 0) throw new HTTPError({ code: 'BAD_REQUEST', message: 'The route is invalid.' });
+
+    return nextNode.call({ meta, ctx });
   }
 }
 
