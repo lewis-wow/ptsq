@@ -34,13 +34,19 @@ test('Should create query', async () => {
       greetingsPrefix: 'Hello',
     },
   });
-  /*expect(await query.createServerSideQuery({ greetingsPrefix: 'Hello' as const }).query('John')).toBe({
+
+  expect(
+    await query
+      .createServerSideQuery({ ctx: { greetingsPrefix: 'Hello' as const }, route: ['dummy', 'route'] })
+      .query('John')
+  ).toStrictEqual({
     data: 'Hello John',
     ok: true,
     ctx: {
       greetingsPrefix: 'Hello',
     },
-  });*/
+  });
+
   expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
       "$schema": "http://json-schema.org/draft-07/schema#",

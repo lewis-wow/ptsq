@@ -23,7 +23,7 @@ export class Mutation<
     });
   }
 
-  createServerSideMutation<TContext extends Context>(ctx: TContext) {
-    return new ServerSideMutation({ ctx, mutation: this });
+  createServerSideMutation<TContext extends Context>({ ctx, route }: { ctx: TContext; route: string[] }) {
+    return new ServerSideMutation({ ctx, mutation: this, route });
   }
 }

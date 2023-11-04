@@ -5,8 +5,8 @@ import type { Mutation } from './mutation';
 import type { Query } from './query';
 import type { Queue } from './queue';
 import type { ResolverRequest, ResolverResponse } from './resolver';
-//import type { ServerSideMutation } from './serverSideMutation';
-//import type { ServerSideQuery } from './serverSideQuery';
+import type { ServerSideMutation } from './serverSideMutation';
+import type { ServerSideQuery } from './serverSideQuery';
 
 export type Routes = {
   [Key: string]: Query | Mutation | Router;
@@ -40,19 +40,32 @@ export class Router<TRoutes extends Routes = Routes> {
     });
   }
 
-  /*createServerSideProxyCaller<TContext extends Context>(ctx: TContext): RouterProxyCaller<TRoutes, TContext> {
+  createServerSideProxyCaller<TContext extends Context>(ctx: TContext): RouterProxyCaller<TRoutes, TContext> {
+    return this._createServerSideProxyCallerInternal({ ctx, route: [] });
+  }
+
+  _createServerSideProxyCallerInternal<TContext extends Context>({
+    ctx,
+    route,
+  }: {
+    ctx: TContext;
+    route: string[];
+  }): RouterProxyCaller<TRoutes, TContext> {
     const proxyHandler: ProxyHandler<TRoutes> = {
       get: (target, key: string) => {
         const node = target[key];
 
-        if (node.nodeType === 'router') return node.createServerSideProxyCaller(ctx);
+        if (node.nodeType === 'router')
+          return node._createServerSideProxyCallerInternal({ ctx, route: [...route, key] });
 
-        return node.type === 'mutation' ? node.createServerSideMutation(ctx) : node.createServerSideQuery(ctx);
+        return node.type === 'mutation'
+          ? node.createServerSideMutation({ ctx, route })
+          : node.createServerSideQuery({ ctx, route });
       },
     };
 
     return new Proxy(this.routes, proxyHandler) as unknown as RouterProxyCaller<TRoutes, TContext>;
-  }*/
+  }
 
   call({
     route,
@@ -78,7 +91,7 @@ export class Router<TRoutes extends Routes = Routes> {
   }
 }
 
-/*type RouterProxyCaller<TRoutes extends Routes, TContext extends Context> = {
+type RouterProxyCaller<TRoutes extends Routes, TContext extends Context> = {
   [K in keyof TRoutes]: TRoutes[K] extends Router
     ? RouterProxyCaller<TRoutes[K]['routes'], TContext>
     : TRoutes[K] extends Mutation
@@ -86,4 +99,4 @@ export class Router<TRoutes extends Routes = Routes> {
     : TRoutes[K] extends Query
     ? ServerSideQuery<TRoutes[K], TContext>
     : never;
-};*/
+};

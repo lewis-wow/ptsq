@@ -23,7 +23,7 @@ export class Query<
     });
   }
 
-  createServerSideQuery<TContext extends Context>({ ctx }: { ctx: TContext }) {
-    return new ServerSideQuery({ ctx, query: this });
+  createServerSideQuery<TContext extends Context>({ ctx, route }: { ctx: TContext; route: string[] }) {
+    return new ServerSideQuery({ ctx, query: this, route });
   }
 }

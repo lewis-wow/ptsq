@@ -34,13 +34,19 @@ test('Should create mutation', async () => {
       greetingsPrefix: 'Hello',
     },
   });
-  /*expect(await mutation.createServerSideMutation({ greetingsPrefix: 'Hello' as const }).mutate('John')).toStrictEqual({
+
+  expect(
+    await mutation
+      .createServerSideMutation({ ctx: { greetingsPrefix: 'Hello' as const }, route: ['dummy', 'route'] })
+      .mutate('John')
+  ).toStrictEqual({
     data: 'Hello John',
     ok: true,
     ctx: {
       greetingsPrefix: 'Hello',
     },
-  });*/
+  });
+
   expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
       "$schema": "http://json-schema.org/draft-07/schema#",
