@@ -1,5 +1,5 @@
 import type { ResolverType } from './types';
-import type { ResolveFunction, ResolverRequest } from './resolver';
+import type { ResolveFunction, ResolverRequest, ResolverResponse } from './resolver';
 import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
 import { createSchemaRoot } from './createSchemaRoot';
 import type { Context } from './context';
@@ -56,7 +56,7 @@ export class Route<
     });
   }
 
-  async call({ ctx, meta }: { ctx: Context; meta: ResolverRequest }): Promise<z.input<TOutput>> {
+  async call({ ctx, meta }: { ctx: Context; meta: ResolverRequest }): Promise<ResolverResponse<Context>> {
     const response = await Middleware.recursiveCall({
       ctx,
       meta,

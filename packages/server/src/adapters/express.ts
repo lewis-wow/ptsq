@@ -1,5 +1,5 @@
 import express, { type Request, type Response, type Router } from 'express';
-import { HTTPError, HTTPErrorCode } from '../httpError';
+import { HTTPErrorCode } from '../httpError';
 import { json, urlencoded } from 'body-parser';
 import { Adapter } from '../adapter';
 import cors from 'cors';
@@ -33,10 +33,15 @@ export const expressAdapter = Adapter<ExpressAdapterContext, Router>(({ handler,
     (req, res) => {
       handler
         .server({ body: req.body, params: { req, res } })
-        .then((data) => res.json(data))
+        .then((response) =>
+          response.ok
+            ? res.json(response.data)
+            : res
+                .status(HTTPErrorCode[response.error.code])
+                .json({ message: response.error.message, info: response.error.info })
+        )
         .catch((error) => {
-          if (HTTPError.isHttpError(error))
-            res.status(HTTPErrorCode[error.code]).json({ message: error.message, info: error.info });
+          throw error;
         });
     }
   );
