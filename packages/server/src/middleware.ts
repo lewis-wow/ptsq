@@ -1,40 +1,55 @@
 import type { Context } from './context';
-import type { MaybePromise } from './types';
+import type { ResolverResponse } from './resolver';
+import type { ResolverRequest } from './resolver';
+import { HTTPError } from './httpError';
 
-export type NextFunction = <TNextContext extends Context>(nextContext: TNextContext) => TNextContext;
+export type NextFunction = <TNextContext extends Context>(
+  nextContext: TNextContext
+) => Promise<ResolverResponse<TNextContext>>;
 
-export type MiddlewareCallback<TContext extends Context, TNextContext extends Context> = ({
-  ctx,
-  next,
-}: {
+export type MiddlewareCallback<TContext extends Context, TNextContext extends Context> = (options: {
+  meta: ResolverRequest;
   ctx: TContext;
   next: NextFunction;
-}) => MaybePromise<ReturnType<typeof next<TNextContext>>>;
+}) => ReturnType<typeof options.next<TNextContext>>;
 
 export class Middleware<TContext extends Context = Context, TNextContext extends Context = Context> {
   constructor(public middlewareCallback: MiddlewareCallback<TContext, TNextContext>) {}
 
-  call({ ctx }: { ctx: TContext }) {
-    return this.middlewareCallback({
-      ctx,
-      next: (nextFunctionResult) => nextFunctionResult,
-    });
-  }
-
-  /**
-   * Pipe with another middleware callable
-   * cannot pipe directly to another Middleware, beacause of the TNextContext type
-   */
-  pipe<TNextPipeContext extends Context>(middlewareCallback: MiddlewareCallback<TNextContext, TNextPipeContext>) {
-    return new Middleware<TContext, TNextPipeContext>(async ({ ctx, next }) => {
-      const currentCtxResult = await this.call({ ctx });
-
-      const pipedCtxResult = await middlewareCallback({
-        ctx: currentCtxResult,
-        next: (nextFunctionResult) => nextFunctionResult,
+  static async recursiveCall({
+    ctx,
+    meta,
+    index,
+    middlewares,
+  }: {
+    ctx: any;
+    meta: ResolverRequest;
+    index: number;
+    middlewares: Middleware<any, any>[];
+  }): Promise<ResolverResponse<any>> {
+    try {
+      return await middlewares[index].middlewareCallback({
+        meta,
+        ctx,
+        next: async (nextContext): Promise<ResolverResponse<any>> => {
+          return await Middleware.recursiveCall({
+            ctx: nextContext,
+            meta,
+            index: index + 1,
+            middlewares,
+          });
+        },
       });
+    } catch (error) {
+      if (HTTPError.isHttpError(error))
+        return {
+          ok: false,
+          error,
+          ctx,
+        };
 
-      return next(pipedCtxResult);
-    });
+      // rethrow original error
+      throw error;
+    }
   }
 }

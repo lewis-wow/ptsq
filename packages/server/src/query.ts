@@ -15,7 +15,7 @@ export class Query<
     inputValidationSchema: TInput;
     outputValidationSchema: TOutput;
     resolveFunction: TResolveFunction;
-    middlewares: Middleware[];
+    middlewares: Middleware<any, any>[];
   }) {
     super({
       type: 'query',

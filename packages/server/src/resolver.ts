@@ -1,22 +1,34 @@
 import { z, type ZodVoid } from 'zod';
 import type { Context } from './context';
-import type { Middleware } from './middleware';
+import { Middleware, type MiddlewareCallback } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
 import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
 import type { MaybePromise } from './types';
+import type { HTTPError } from './httpError';
+
+export type ResolverResponse<TContext extends Context> =
+  | {
+      ok: true;
+      data: unknown;
+      ctx: TContext;
+    }
+  | {
+      ok: false;
+      error: HTTPError;
+      ctx: TContext;
+    };
+
+export type ResolverRequest = {
+  input: unknown;
+  route: string;
+};
 
 export class Resolver<TContext extends Context = Context> {
-  middlewares: Middleware<TContext, TContext>[];
+  constructor(public middlewares: Middleware<any>[] = []) {}
 
-  constructor({ middlewares }: { middlewares: Middleware<TContext, TContext>[] }) {
-    this.middlewares = middlewares;
-  }
-
-  use<TNextContext extends Context>(middleware: Middleware<TContext, TNextContext>) {
-    return new Resolver<TNextContext>({
-      middlewares: [...this.middlewares, middleware] as unknown as Middleware<TNextContext, TNextContext>[],
-    });
+  use<TNextContext extends Context>(middleware: MiddlewareCallback<TContext, TNextContext>) {
+    return new Resolver<TNextContext>([...this.middlewares, new Middleware(middleware)]);
   }
 
   mutation<
@@ -53,7 +65,7 @@ export class Resolver<TContext extends Context = Context> {
       inputValidationSchema: (options.input ?? z.void()) as TMutationInput,
       outputValidationSchema: options.output,
       resolveFunction: options.resolve,
-      middlewares: this.middlewares as unknown as Middleware[],
+      middlewares: this.middlewares,
     });
   }
 
@@ -77,15 +89,13 @@ export class Resolver<TContext extends Context = Context> {
       inputValidationSchema: (options.input ?? z.void()) as TQueryInput,
       outputValidationSchema: options.output,
       resolveFunction: options.resolve,
-      middlewares: this.middlewares as unknown as Middleware[],
+      middlewares: this.middlewares,
     });
   }
 }
 
-export type ResolveFunction<TInput, TOutput, TContext extends Context = Context> = ({
-  input,
-  ctx,
-}: {
+export type ResolveFunction<TInput, TOutput, TContext extends Context = Context> = (options: {
   input: TInput;
   ctx: TContext;
+  meta: ResolverRequest;
 }) => MaybePromise<TOutput>;

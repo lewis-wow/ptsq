@@ -15,7 +15,7 @@ export class Mutation<
     inputValidationSchema: TInput;
     outputValidationSchema: TOutput;
     resolveFunction: TResolveFunction;
-    middlewares: Middleware[];
+    middlewares: Middleware<any, any>[];
   }) {
     super({
       type: 'mutation',
