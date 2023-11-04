@@ -8,6 +8,7 @@ const { router, resolver, serve } = createServer({
   ctx: async ({ req, res }: ExpressAdapterContext) => ({
     req,
     res,
+    user: 'user' as 'user' | undefined | null,
   }),
 });
 

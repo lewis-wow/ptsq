@@ -15,7 +15,7 @@ export class Query<
     inputValidationSchema: TInput;
     outputValidationSchema: TOutput;
     resolveFunction: TResolveFunction;
-    middlewares: Middleware[];
+    middlewares: Middleware<any, any>[];
   }) {
     super({
       type: 'query',
@@ -23,7 +23,7 @@ export class Query<
     });
   }
 
-  createServerSideQuery<TContext extends Context>(ctx: TContext) {
-    return new ServerSideQuery({ ctx, query: this });
+  createServerSideQuery<TContext extends Context>({ ctx, route }: { ctx: TContext; route: string[] }) {
+    return new ServerSideQuery({ ctx, query: this, route });
   }
 }

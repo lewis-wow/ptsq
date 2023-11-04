@@ -1,9 +1,9 @@
 import type { ResolverType } from './types';
-import type { ResolveFunction } from './resolver';
+import type { ResolveFunction, ResolverRequest, ResolverResponse } from './resolver';
 import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
 import { createSchemaRoot } from './createSchemaRoot';
 import type { Context } from './context';
-import type { Middleware } from './middleware';
+import { Middleware } from './middleware';
 import { HTTPError } from './httpError';
 import { zodSchemaToJsonSchema } from './zodSchemaToJsonSchema';
 import type { z } from 'zod';
@@ -22,14 +22,14 @@ export class Route<
   outputValidationSchema: TOutput;
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
-  middlewares: Middleware[];
+  middlewares: Middleware<any, any>[];
 
   constructor(options: {
     type: TType;
     inputValidationSchema: TInput;
     outputValidationSchema: TOutput;
     resolveFunction: TResolveFunction;
-    middlewares: Middleware[];
+    middlewares: Middleware<any, any>[];
   }) {
     this.type = options.type;
     this.inputValidationSchema = options.inputValidationSchema;
@@ -56,28 +56,43 @@ export class Route<
     });
   }
 
-  async call({ input, ctx }: { input: z.output<TInput>; ctx: Context }): Promise<z.input<TOutput>> {
-    const finalCtx = await this.middlewares.reduce(
-      async (contextAcc, middleware) => await middleware.call({ ctx: await contextAcc }),
-      Promise.resolve(ctx)
-    );
+  async call({ ctx, meta }: { ctx: Context; meta: ResolverRequest }): Promise<ResolverResponse<Context>> {
+    const response = await Middleware.recursiveCall({
+      ctx,
+      meta,
+      index: 0,
+      middlewares: [
+        ...this.middlewares,
+        new Middleware(async ({ ctx: finalContext, meta: finalMeta }) => {
+          const parsedInput = this.inputValidationSchema.safeParse(finalMeta.input);
 
-    const parsedInput = this.inputValidationSchema.safeParse(input);
+          if (!parsedInput.success)
+            throw new HTTPError({ code: 'BAD_REQUEST', message: 'Input validation error', info: parsedInput.error });
 
-    if (!parsedInput.success)
-      throw new HTTPError({ code: 'BAD_REQUEST', message: 'Input validation error', info: parsedInput.error });
+          const resolverResult = await this.resolveFunction({
+            input: parsedInput.data,
+            ctx: finalContext,
+            meta: finalMeta,
+          });
 
-    const resolverResult = await this.resolveFunction({ input: parsedInput.data, ctx: finalCtx });
+          const parsedOutput = this.outputValidationSchema.safeParse(resolverResult);
 
-    const parsedOutput = this.outputValidationSchema.safeParse(resolverResult);
+          if (!parsedOutput.success)
+            throw new HTTPError({
+              code: 'INTERNAL_SERVER_ERROR',
+              message: 'Output validation error',
+              info: parsedOutput.error,
+            });
 
-    if (!parsedOutput.success)
-      throw new HTTPError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Output validation error',
-        info: parsedOutput.error,
-      });
+          return {
+            ok: true,
+            data: parsedOutput.data,
+            ctx: finalContext,
+          };
+        }),
+      ],
+    });
 
-    return parsedOutput.data;
+    return response;
   }
 }

@@ -25,8 +25,28 @@ test('Should create query', async () => {
   expect(query.inputValidationSchema).toBe(validationSchema);
   expect(query.outputValidationSchema).toBe(validationSchema);
   expect(query.resolveFunction).toBe(resolveFunction);
-  expect(await query.call({ input: 'John', ctx: { greetingsPrefix: 'Hello' as const } })).toBe('Hello John');
-  expect(await query.createServerSideQuery({ greetingsPrefix: 'Hello' as const }).query('John')).toBe('Hello John');
+  expect(
+    await query.call({ meta: { input: 'John', route: 'dummy.route' }, ctx: { greetingsPrefix: 'Hello' as const } })
+  ).toStrictEqual({
+    data: 'Hello John',
+    ok: true,
+    ctx: {
+      greetingsPrefix: 'Hello',
+    },
+  });
+
+  expect(
+    await query
+      .createServerSideQuery({ ctx: { greetingsPrefix: 'Hello' as const }, route: ['dummy', 'route'] })
+      .query('John')
+  ).toStrictEqual({
+    data: 'Hello John',
+    ok: true,
+    ctx: {
+      greetingsPrefix: 'Hello',
+    },
+  });
+
   expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
       "$schema": "http://json-schema.org/draft-07/schema#",
