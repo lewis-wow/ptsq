@@ -1,4 +1,4 @@
-import { createServer, expressAdapter, ExpressAdapterContext, HTTPError } from '@ptsq/server';
+import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
 import express from 'express';
 import { z } from 'zod';
 
@@ -10,32 +10,6 @@ const { router, resolver, serve } = createServer({
     res,
     user: 'user' as 'user' | undefined | null,
   }),
-});
-
-const anotherResolver = resolver.use(async ({ ctx, next }) => {
-  if (ctx.user === null) throw new HTTPError({ code: 'CONFLICT' });
-
-  console.time('start');
-
-  const res = await next({
-    user: ctx.user,
-  });
-
-  console.timeEnd('start');
-
-  return res;
-});
-
-const anotherResolverW = anotherResolver.use(({ ctx, next }) => {
-  if (ctx.user === undefined) throw new HTTPError({ code: 'CONFLICT' });
-
-  const res = next({
-    user: ctx.user,
-  });
-
-  console.log('asdf');
-
-  return res;
 });
 
 const greetingsQuery = resolver.query({
