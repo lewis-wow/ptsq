@@ -1,6 +1,5 @@
-import type { Context, ContextBuilder, inferContextFromContextBuilder } from './context';
+import type { ContextBuilder, inferContextFromContextBuilder } from './context';
 import { type Routes, Router } from './router';
-import { Middleware, type MiddlewareCallback } from './middleware';
 import { Resolver } from './resolver';
 import { Serve } from './serve';
 import { scalar } from './scalar';
@@ -66,27 +65,6 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   const router = <TRoutes extends Routes>(routes: TRoutes) => new Router({ routes });
 
   /**
-   * Creates a fully typed middleware
-   * middlewares can pipe another middleware function to create chain of fully typed middlewares
-   *
-   * @example
-   * ```ts
-   * middleware(({ ctx, next }) => {
-   *    if(!ctx.user) throw new HTTPError({ code: 'UNAUTHORIZED' });
-   *
-   *    return next({
-   *       ctx: {
-   *          ...ctx, user: ctx.user,
-   *       }
-   *    })
-   * })
-   * ```
-   */
-  const middleware = <TNextContext extends Context>(
-    middlewareCallback: MiddlewareCallback<RootContext, TNextContext>
-  ): Middleware<RootContext, TNextContext> => new Middleware(middlewareCallback);
-
-  /**
    * Serve your server into some rest-api adapter like express, fastify, node:http, ...
    *
    * @example
@@ -97,7 +75,6 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   const serve = ({ router: rootRouter }: { router: Router }) => serveInternal.adapter({ router: rootRouter });
 
   return {
-    middleware,
     resolver,
     router,
     scalar,
