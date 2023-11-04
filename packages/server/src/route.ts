@@ -60,6 +60,7 @@ export class Route<
     const response = await Middleware.recursiveCall({
       ctx,
       meta,
+      index: 0,
       middlewares: [
         ...this.middlewares,
         new Middleware(async ({ ctx: finalContext, meta: finalMeta }) => {
@@ -90,7 +91,6 @@ export class Route<
           };
         }),
       ],
-      index: 0,
     });
 
     return response;
