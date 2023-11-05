@@ -1,18 +1,18 @@
-import type { ResolveFunction } from './resolver';
-import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
+import type { ResolveFunction, ResolverArgs } from './resolver';
+import type { SerializableOutputZodSchema } from './serializable';
 import type { Context } from './context';
 import { Route } from './route';
 import { ServerSideQuery } from './serverSideQuery';
 import type { Middleware } from './middleware';
 
 export class Query<
-  TInput extends SerializableInputZodSchema = SerializableInputZodSchema,
+  TArgs extends ResolverArgs = ResolverArgs,
   TOutput extends SerializableOutputZodSchema = SerializableOutputZodSchema,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TResolveFunction extends ResolveFunction<any, any, any> = ResolveFunction<any, any, any>,
-> extends Route<'query', TInput, TOutput, TResolveFunction> {
+> extends Route<'query', TArgs, TOutput, TResolveFunction> {
   constructor(options: {
-    inputValidationSchema: TInput;
+    args: TArgs;
     outputValidationSchema: TOutput;
     resolveFunction: TResolveFunction;
     middlewares: Middleware<any, any>[];

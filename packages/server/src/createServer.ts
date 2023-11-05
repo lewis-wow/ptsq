@@ -43,7 +43,10 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * });
    * ```
    */
-  const resolver = new Resolver<RootContext>();
+  const resolver = new Resolver<Record<string, never>, RootContext>({
+    args: {},
+    middlewares: [],
+  });
 
   const serveInternal = new Serve({ contextBuilder: ctx, cors });
 

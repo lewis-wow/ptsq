@@ -1,38 +1,37 @@
 import type { ResolverType } from './types';
-import type { ResolveFunction, ResolverRequest, ResolverResponse } from './resolver';
-import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
+import type { ResolveFunction, ResolverArgs, ResolverRequest, ResolverResponse } from './resolver';
+import type { SerializableOutputZodSchema } from './serializable';
 import { createSchemaRoot } from './createSchemaRoot';
 import type { Context } from './context';
 import { Middleware } from './middleware';
 import { HTTPError } from './httpError';
 import { zodSchemaToJsonSchema } from './zodSchemaToJsonSchema';
-import type { z } from 'zod';
+import { type ZodObject, z } from 'zod';
 
 export class Route<
   TType extends ResolverType = ResolverType,
-  TInput extends SerializableInputZodSchema = SerializableInputZodSchema,
+  TArgs extends ResolverArgs = ResolverArgs,
   TOutput extends SerializableOutputZodSchema = SerializableOutputZodSchema,
-  TResolveFunction extends ResolveFunction<z.output<TInput>, z.input<TOutput>> = ResolveFunction<
-    z.output<TInput>,
-    z.input<TOutput>
-  >,
+  TResolveFunction extends ResolveFunction<any, any> = ResolveFunction<any, any>,
 > {
   type: TType;
-  inputValidationSchema: TInput;
+  args: TArgs;
   outputValidationSchema: TOutput;
+  inputValidationSchema: ZodObject<TArgs, 'strict'>;
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
   middlewares: Middleware<any, any>[];
 
   constructor(options: {
     type: TType;
-    inputValidationSchema: TInput;
+    args: TArgs;
     outputValidationSchema: TOutput;
     resolveFunction: TResolveFunction;
     middlewares: Middleware<any, any>[];
   }) {
     this.type = options.type;
-    this.inputValidationSchema = options.inputValidationSchema;
+    this.args = options.args;
+    this.inputValidationSchema = z.object(this.args).strict();
     this.outputValidationSchema = options.outputValidationSchema;
     this.resolveFunction = options.resolveFunction;
     this.middlewares = options.middlewares;
@@ -63,32 +62,30 @@ export class Route<
       index: 0,
       middlewares: [
         ...this.middlewares,
-        new Middleware(async ({ ctx: finalContext, meta: finalMeta }) => {
-          const parsedInput = this.inputValidationSchema.safeParse(finalMeta.input);
-
-          if (!parsedInput.success)
-            throw new HTTPError({ code: 'BAD_REQUEST', message: 'Input validation error', info: parsedInput.error });
-
-          const resolverResult = await this.resolveFunction({
-            input: parsedInput.data,
-            ctx: finalContext,
-            meta: finalMeta,
-          });
-
-          const parsedOutput = this.outputValidationSchema.safeParse(resolverResult);
-
-          if (!parsedOutput.success)
-            throw new HTTPError({
-              code: 'INTERNAL_SERVER_ERROR',
-              message: 'Output validation error',
-              info: parsedOutput.error,
+        new Middleware({
+          argsValidationSchema: this.inputValidationSchema,
+          middlewareCallback: async ({ ctx: finalContext, input, meta: finalMeta }) => {
+            const resolverResult = await this.resolveFunction({
+              input,
+              ctx: finalContext,
+              meta: finalMeta,
             });
 
-          return {
-            ok: true,
-            data: parsedOutput.data,
-            ctx: finalContext,
-          };
+            const parsedOutput = this.outputValidationSchema.safeParse(resolverResult);
+
+            if (!parsedOutput.success)
+              throw new HTTPError({
+                code: 'INTERNAL_SERVER_ERROR',
+                message: 'Output validation error',
+                info: parsedOutput.error,
+              });
+
+            return {
+              ok: true,
+              data: parsedOutput.data,
+              ctx: finalContext,
+            };
+          },
         }),
       ],
     });

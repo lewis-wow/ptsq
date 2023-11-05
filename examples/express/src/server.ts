@@ -12,15 +12,30 @@ const { router, resolver, serve } = createServer({
   }),
 });
 
-const greetingsQuery = resolver.query({
-  input: z.object({
-    name: z.string(),
+const resolverWithName = resolver.args({
+  email: z.object({
+    kk: z.string(),
   }),
-  output: z.string(),
-  resolve: async ({ input }) => {
-    return `Hello, ${input.name}`;
-  },
 });
+
+const resolverWithNameAndMiddleware = resolverWithName.use(({ ctx, input, next }) => {
+  console.log(input.email.kk);
+
+  return next(ctx);
+});
+
+const greetingsQuery = resolverWithNameAndMiddleware
+  .args({
+    email: z.object({
+      ff: z.string(),
+    }),
+  })
+  .query({
+    output: z.string(),
+    resolve: async ({ input }) => {
+      return `Hello, ${input.email.kk}`;
+    },
+  });
 
 const baseRouter = router({
   greetings: greetingsQuery,
