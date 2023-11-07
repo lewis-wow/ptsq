@@ -10,13 +10,13 @@ test('Should create query', async () => {
     }),
   });
 
-  const arg = { name: z.string() };
+  const argsSchema = { name: z.string() };
   const outputValidationSchema = z.string();
 
   const resolveFunction = ({ input, ctx }: { input: { name: string }; ctx: { greetingsPrefix: 'Hello' } }) =>
     `${ctx.greetingsPrefix} ${input.name}`;
 
-  const query = resolver.args(arg).query({
+  const query = resolver.args(argsSchema).query({
     output: outputValidationSchema,
     resolve: resolveFunction,
   });
@@ -24,8 +24,8 @@ test('Should create query', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares).toStrictEqual([]);
-  expect(query.inputValidationSchema._def.shape()).toStrictEqual(arg);
-  expect(query.outputValidationSchema).toStrictEqual(outputValidationSchema);
+  expect(query.args).toStrictEqual(argsSchema);
+  expect(query.output).toStrictEqual(outputValidationSchema);
   expect(query.resolveFunction).toBe(resolveFunction);
 
   expect(
@@ -71,7 +71,7 @@ test('Should create query', async () => {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
-        "inputValidationSchema": {
+        "args": {
           "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
@@ -90,7 +90,7 @@ test('Should create query', async () => {
           ],
           "type": "string",
         },
-        "outputValidationSchema": {
+        "output": {
           "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "string",
         },
@@ -104,8 +104,8 @@ test('Should create query', async () => {
       "required": [
         "type",
         "nodeType",
-        "inputValidationSchema",
-        "outputValidationSchema",
+        "args",
+        "output",
       ],
       "title": "TestRoute",
       "type": "object",
@@ -120,21 +120,21 @@ test('Should create query without args', async () => {
     }),
   });
 
-  const outputValidationSchema = z.string();
+  const validationSchema = z.string();
 
   const resolveFunction = ({ ctx }: { input: Record<string, never>; ctx: { greetingsPrefix: 'Hello' } }) =>
     `${ctx.greetingsPrefix}`;
 
   const query = resolver.query({
-    output: outputValidationSchema,
+    output: validationSchema,
     resolve: resolveFunction,
   });
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares).toStrictEqual([]);
-  expect(query.inputValidationSchema._def.shape()).toStrictEqual({});
-  expect(query.outputValidationSchema).toStrictEqual(outputValidationSchema);
+  expect(query.args).toStrictEqual({});
+  expect(query.output).toStrictEqual(validationSchema);
   expect(query.resolveFunction).toBe(resolveFunction);
 
   expect(
@@ -152,7 +152,7 @@ test('Should create query without args', async () => {
 
   expect(
     await query.call({
-      meta: { input: { name: 'John' }, route: 'dummy.route' },
+      meta: { input: 'John', route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     })
   ).toStrictEqual({
@@ -178,7 +178,7 @@ test('Should create query without args', async () => {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
-        "inputValidationSchema": {
+        "args": {
           "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
@@ -190,7 +190,7 @@ test('Should create query without args', async () => {
           ],
           "type": "string",
         },
-        "outputValidationSchema": {
+        "output": {
           "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "string",
         },
@@ -204,8 +204,142 @@ test('Should create query without args', async () => {
       "required": [
         "type",
         "nodeType",
-        "inputValidationSchema",
-        "outputValidationSchema",
+        "args",
+        "output",
+      ],
+      "title": "TestRoute",
+      "type": "object",
+    }
+  `);
+});
+
+test('Should create query with twice chain', async () => {
+  const { resolver } = createServer({
+    ctx: () => ({
+      greetingsPrefix: 'Hello' as const,
+    }),
+  });
+
+  const validationSchema = z.string();
+
+  const resolveFunction = ({
+    input,
+    ctx,
+  }: {
+    input: { firstName: string; lastName: string };
+    ctx: { greetingsPrefix: 'Hello' };
+  }) => `${ctx.greetingsPrefix} ${input.firstName} ${input.lastName}`;
+
+  const query = resolver.args({ firstName: validationSchema }).args({ lastName: validationSchema }).query({
+    output: validationSchema,
+    resolve: resolveFunction,
+  });
+
+  expect(query.nodeType).toBe('route');
+  expect(query.type).toBe('query');
+  expect(query.middlewares).toStrictEqual([]);
+  expect(query.args).toStrictEqual({
+    firstName: validationSchema,
+    lastName: validationSchema,
+  });
+  expect(query.output).toStrictEqual(validationSchema);
+  expect(query.resolveFunction).toBe(resolveFunction);
+
+  expect(
+    await query.call({
+      meta: { input: { firstName: 'John', lastName: 'Doe' }, route: 'dummy.route' },
+      ctx: { greetingsPrefix: 'Hello' as const },
+    })
+  ).toStrictEqual({
+    data: 'Hello John Doe',
+    ok: true,
+    ctx: {
+      greetingsPrefix: 'Hello',
+    },
+  });
+
+  expect(
+    await query.call({
+      meta: { input: { firstName: 'John' }, route: 'dummy.route' },
+      ctx: { greetingsPrefix: 'Hello' as const },
+    })
+  ).toStrictEqual({
+    error: new HTTPError({ code: 'BAD_REQUEST', message: 'Args validation error.' }),
+    ok: false,
+    ctx: {
+      greetingsPrefix: 'Hello',
+    },
+  });
+
+  expect(
+    await query.call({
+      meta: { input: { lastName: 'Doe' }, route: 'dummy.route' },
+      ctx: { greetingsPrefix: 'Hello' as const },
+    })
+  ).toStrictEqual({
+    error: new HTTPError({ code: 'BAD_REQUEST', message: 'Args validation error.' }),
+    ok: false,
+    ctx: {
+      greetingsPrefix: 'Hello',
+    },
+  });
+
+  expect(
+    await query
+      .createServerSideQuery({ ctx: { greetingsPrefix: 'Hello' as const }, route: ['dummy', 'route'] })
+      .query({ firstName: 'John', lastName: 'Doe' })
+  ).toStrictEqual({
+    data: 'Hello John Doe',
+    ok: true,
+    ctx: {
+      greetingsPrefix: 'Hello',
+    },
+  });
+
+  expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "firstName": {
+              "type": "string",
+            },
+            "lastName": {
+              "$ref": "#/properties/firstName",
+            },
+          },
+          "required": [
+            "firstName",
+            "lastName",
+          ],
+          "type": "object",
+        },
+        "nodeType": {
+          "enum": [
+            "route",
+          ],
+          "type": "string",
+        },
+        "output": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "string",
+        },
+        "type": {
+          "enum": [
+            "query",
+          ],
+          "type": "string",
+        },
+      },
+      "required": [
+        "type",
+        "nodeType",
+        "args",
+        "output",
       ],
       "title": "TestRoute",
       "type": "object",

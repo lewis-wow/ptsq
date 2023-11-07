@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import type { z } from 'zod';
 import type { Context } from './context';
 import { Middleware, type MiddlewareCallback } from './middleware';
 import { Mutation } from './mutation';
@@ -6,7 +6,7 @@ import { Query } from './query';
 import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
 import type { MaybePromise } from './types';
 import type { HTTPError } from './httpError';
-import { ZodObject } from 'zod';
+import { zipResolverArgs } from './zipResolverArgs';
 
 export type ResolverResponse<TContext extends Context> =
   | {
@@ -25,23 +25,21 @@ export type ResolverRequest = {
   route: string;
 };
 
-export type ResolverArgs = SerializableInputZodSchema;
+export type ResolverArgs = Record<string, SerializableInputZodSchema>;
+export type ResolverOutput = SerializableOutputZodSchema;
 
-export type inferResolverArgs<TResolverArgs extends ResolverArgs> = TResolverArgs extends Record<
-  string,
-  SerializableInputZodSchema
->
-  ? {
-      [K in keyof TResolverArgs]: z.output<TResolverArgs[K]>;
-    }
-  : undefined;
+export type inferResolverArgs<TResolverArgs extends ResolverArgs> = {
+  [K in keyof TResolverArgs]: z.output<TResolverArgs[K]>;
+};
+
+export type inferResolverOutput<TResolverOutput extends ResolverOutput> = z.input<TResolverOutput>;
 
 export class Resolver<TArgs extends ResolverArgs = ResolverArgs, TContext extends Context = Context> {
   _middlewares: Middleware<any, any>[];
-  _args: ZodObject<TArgs>;
+  _args: TArgs;
 
-  constructor({ args, middlewares = [] }: { args: TArgs[]; middlewares: Middleware<any, any>[] }) {
-    this._args = z.object(args);
+  constructor({ args, middlewares = [] }: { args: TArgs; middlewares: Middleware<any, any>[] }) {
+    this._args = args;
     this._middlewares = middlewares;
   }
 
@@ -52,41 +50,61 @@ export class Resolver<TArgs extends ResolverArgs = ResolverArgs, TContext extend
         ...this._middlewares,
         new Middleware({
           middlewareCallback: middleware,
-          argsValidationSchema: this._args,
+          args: this._args,
         }),
       ],
     });
   }
 
   args<TNextArgs extends ResolverArgs>(args: TNextArgs) {
-    return new Resolver<[...TArgs, TNextArgs], TContext>({
-      args: [...this._args, args],
+    return new Resolver<TArgs & TNextArgs, TContext>({
+      args: this.mergeResolverArguments(args),
       middlewares: [...this._middlewares],
     });
   }
 
-  mutation<TMutationOutput extends SerializableOutputZodSchema>(options: {
-    output: TMutationOutput;
-    resolve: ResolveFunction<inferResolverArgs<TArgs>, z.input<TMutationOutput>, TContext>;
-  }): Mutation<TArgs, TMutationOutput, ResolveFunction<inferResolverArgs<TArgs>, z.input<TMutationOutput>, TContext>> {
+  mutation<TResolverOutput extends ResolverOutput>(options: {
+    output: TResolverOutput;
+    resolve: ResolveFunction<inferResolverArgs<TArgs>, inferResolverOutput<TResolverOutput>, TContext>;
+  }): Mutation<
+    TArgs,
+    TResolverOutput,
+    ResolveFunction<inferResolverArgs<TArgs>, inferResolverOutput<TResolverOutput>, TContext>
+  > {
     return new Mutation({
       args: this._args,
-      outputValidationSchema: options.output,
+      output: options.output,
       resolveFunction: options.resolve,
       middlewares: this._middlewares,
     });
   }
 
-  query<TQueryOutput extends SerializableOutputZodSchema>(options: {
-    output: TQueryOutput;
-    resolve: ResolveFunction<inferResolverArgs<TArgs>, z.input<TQueryOutput>, TContext>;
-  }): Query<TArgs, TQueryOutput, ResolveFunction<inferResolverArgs<TArgs>, z.input<TQueryOutput>, TContext>> {
+  query<TResolverOutput extends ResolverOutput>(options: {
+    output: TResolverOutput;
+    resolve: ResolveFunction<inferResolverArgs<TArgs>, inferResolverOutput<TResolverOutput>, TContext>;
+  }): Query<
+    TArgs,
+    TResolverOutput,
+    ResolveFunction<inferResolverArgs<TArgs>, inferResolverOutput<TResolverOutput>, TContext>
+  > {
     return new Query({
       args: this._args,
-      outputValidationSchema: options.output,
+      output: options.output,
       resolveFunction: options.resolve,
       middlewares: this._middlewares,
     });
+  }
+
+  private mergeResolverArguments<TNextResolverArgs extends ResolverArgs>(
+    nextArgs: TNextResolverArgs
+  ): TArgs & TNextResolverArgs {
+    return zipResolverArgs(this._args, nextArgs).reduce(
+      (acc, { key, value: [argsValue, nextArgsValue] }) => ({
+        ...acc,
+        [key]: argsValue && nextArgsValue ? argsValue.and(nextArgsValue) : argsValue ?? nextArgsValue,
+      }),
+      {}
+    ) as TArgs & TNextResolverArgs;
   }
 }
 

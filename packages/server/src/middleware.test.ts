@@ -38,7 +38,7 @@ test('Should create middleware with query and serverSideQuery', async () => {
   expect(validOnlyQuery.nodeType).toBe('route');
   expect(validOnlyQuery.type).toBe('query');
   expect(validOnlyQuery.middlewares.length).toBe(1);
-  expect(validOnlyQuery.middlewares[0]._argsValidationSchema._def.shape()).toStrictEqual({});
+  expect(validOnlyQuery.middlewares[0]._args).toStrictEqual({});
 
   expect(await query.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })).toStrictEqual({
     ctx: contextBuilderResult,
@@ -140,7 +140,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
   expect(validOnlyMutation.nodeType).toBe('route');
   expect(validOnlyMutation.type).toBe('mutation');
   expect(validOnlyMutation.middlewares.length).toBe(1);
-  expect(validOnlyMutation.middlewares[0]._argsValidationSchema._def.shape()).toStrictEqual({});
+  expect(validOnlyMutation.middlewares[0]._args).toStrictEqual({});
 
   expect(await mutation.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })).toStrictEqual({
     ctx: contextBuilderResult,
@@ -240,7 +240,7 @@ test('Should create middleware with measuring time', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares.length).toBe(1);
-  expect(query.middlewares[0]._argsValidationSchema._def.shape()).toStrictEqual({});
+  expect(query.middlewares[0]._args).toStrictEqual({});
 
   expect(middlewareWasCalled).toBe(false);
   expect(middlewareMeasuredTime).toBe(0);
@@ -316,8 +316,8 @@ test('Should create two nested middlewares', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares.length).toBe(2);
-  expect(query.middlewares[0]._argsValidationSchema._def.shape()).toStrictEqual({});
-  expect(query.middlewares[1]._argsValidationSchema._def.shape()).toStrictEqual({});
+  expect(query.middlewares[0]._args).toStrictEqual({});
+  expect(query.middlewares[1]._args).toStrictEqual({});
 
   expect(innerMiddlewareWasCalled).toBe(false);
   expect(outerMiddlewareWasCalled).toBe(false);
@@ -378,8 +378,8 @@ test('Should create nested middlewares with query', async () => {
   expect(validOnlyQuery.nodeType).toBe('route');
   expect(validOnlyQuery.type).toBe('query');
   expect(validOnlyQuery.middlewares.length).toBe(2);
-  expect(validOnlyQuery.middlewares[0]._argsValidationSchema._def.shape()).toStrictEqual({});
-  expect(validOnlyQuery.middlewares[1]._argsValidationSchema._def.shape()).toStrictEqual({});
+  expect(validOnlyQuery.middlewares[0]._args).toStrictEqual({});
+  expect(validOnlyQuery.middlewares[1]._args).toStrictEqual({});
 
   expect(await query.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })).toStrictEqual({
     ctx: contextBuilderResult,
@@ -458,8 +458,8 @@ test('Should create nested middlewares with mutation', async () => {
   expect(validOnlyMutation.nodeType).toBe('route');
   expect(validOnlyMutation.type).toBe('mutation');
   expect(validOnlyMutation.middlewares.length).toBe(2);
-  expect(validOnlyMutation.middlewares[0]._argsValidationSchema._def.shape()).toStrictEqual({});
-  expect(validOnlyMutation.middlewares[1]._argsValidationSchema._def.shape()).toStrictEqual({});
+  expect(validOnlyMutation.middlewares[0]._args).toStrictEqual({});
+  expect(validOnlyMutation.middlewares[1]._args).toStrictEqual({});
 
   expect(await mutation.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })).toStrictEqual({
     ctx: contextBuilderResult,
@@ -536,8 +536,8 @@ test('Should create nested middlewares with query with args chaining', async () 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares.length).toBe(2);
-  expect(query.middlewares[0]._argsValidationSchema._def.shape()).toStrictEqual({ name: stringSchema });
-  expect(query.middlewares[1]._argsValidationSchema._def.shape()).toStrictEqual({
+  expect(query.middlewares[0]._args).toStrictEqual({ name: stringSchema });
+  expect(query.middlewares[1]._args).toStrictEqual({
     name: stringSchema,
     lastName: stringSchema,
   });

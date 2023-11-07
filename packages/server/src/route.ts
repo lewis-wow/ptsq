@@ -1,38 +1,35 @@
 import type { ResolverType } from './types';
-import type { ResolveFunction, ResolverArgs, ResolverRequest, ResolverResponse } from './resolver';
-import type { SerializableOutputZodSchema } from './serializable';
+import type { ResolveFunction, ResolverArgs, ResolverRequest, ResolverResponse, ResolverOutput } from './resolver';
 import { createSchemaRoot } from './createSchemaRoot';
 import type { Context } from './context';
 import { Middleware } from './middleware';
 import { HTTPError } from './httpError';
 import { zodSchemaToJsonSchema } from './zodSchemaToJsonSchema';
-import { type ZodObject, z } from 'zod';
+import { z } from 'zod';
 
 export class Route<
   TType extends ResolverType = ResolverType,
   TArgs extends ResolverArgs = ResolverArgs,
-  TOutput extends SerializableOutputZodSchema = SerializableOutputZodSchema,
+  TResolverOutput extends ResolverOutput = ResolverOutput,
   TResolveFunction extends ResolveFunction<any, any> = ResolveFunction<any, any>,
 > {
   type: TType;
   args: TArgs;
-  outputValidationSchema: TOutput;
-  inputValidationSchema: ZodObject<TArgs, 'strict'>;
+  output: TResolverOutput;
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
-  middlewares: Middleware<any, any>[];
+  middlewares: Middleware<ResolverArgs, any>[];
 
   constructor(options: {
     type: TType;
     args: TArgs;
-    outputValidationSchema: TOutput;
+    output: TResolverOutput;
     resolveFunction: TResolveFunction;
-    middlewares: Middleware<any, any>[];
+    middlewares: Middleware<ResolverArgs, any>[];
   }) {
     this.type = options.type;
     this.args = options.args;
-    this.inputValidationSchema = z.object(this.args).strict();
-    this.outputValidationSchema = options.outputValidationSchema;
+    this.output = options.output;
     this.resolveFunction = options.resolveFunction;
     this.middlewares = options.middlewares;
   }
@@ -49,8 +46,8 @@ export class Route<
           type: 'string',
           enum: [this.nodeType],
         },
-        inputValidationSchema: zodSchemaToJsonSchema(this.inputValidationSchema),
-        outputValidationSchema: zodSchemaToJsonSchema(this.outputValidationSchema),
+        args: zodSchemaToJsonSchema(z.object(this.args)),
+        output: zodSchemaToJsonSchema(this.output),
       },
     });
   }
@@ -62,8 +59,8 @@ export class Route<
       index: 0,
       middlewares: [
         ...this.middlewares,
-        new Middleware({
-          argsValidationSchema: this.inputValidationSchema,
+        new Middleware<ResolverArgs>({
+          args: this.args,
           middlewareCallback: async ({ ctx: finalContext, input, meta: finalMeta }) => {
             const resolverResult = await this.resolveFunction({
               input,
@@ -71,7 +68,7 @@ export class Route<
               meta: finalMeta,
             });
 
-            const parsedOutput = this.outputValidationSchema.safeParse(resolverResult);
+            const parsedOutput = this.output.safeParse(resolverResult);
 
             if (!parsedOutput.success)
               throw new HTTPError({

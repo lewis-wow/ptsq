@@ -13,10 +13,7 @@ test('Should create URL scalar', () => {
       schema: z.string().url(),
       value: (arg) => arg.toString(),
     },
-    description: {
-      input: 'String format of url',
-      output: 'String format of url',
-    },
+    description: 'String format of url',
   });
 
   expect(URLScalar.input.parse('https://example.com/')).toStrictEqual(new URL('https://example.com/'));
@@ -40,8 +37,8 @@ test('Should create URL scalar', () => {
   /**
    * Test if description is really const generic values that can be seen in IDE
    */
-  expectTypeOf(URLScalar.description.input).toMatchTypeOf<'String format of url'>('String format of url');
-  expectTypeOf(URLScalar.description.output).toMatchTypeOf<'String format of url'>('String format of url');
+  expectTypeOf(URLScalar.description).toMatchTypeOf<'String format of url'>('String format of url');
+  expectTypeOf(URLScalar.description).toMatchTypeOf<'String format of url'>('String format of url');
 });
 
 test('Should create Date scalar', () => {
@@ -54,10 +51,7 @@ test('Should create Date scalar', () => {
       schema: z.string().datetime(),
       value: (arg) => arg.toISOString(),
     },
-    description: {
-      input: 'ISO string format of date',
-      output: 'ISO string format of date',
-    },
+    description: 'ISO string format of date',
   });
 
   const dateMock = new Date();
@@ -82,6 +76,6 @@ test('Should create Date scalar', () => {
   /**
    * Test if description is really const generic values that can be seen in IDE
    */
-  expectTypeOf(DateScalar.description.input).toMatchTypeOf<'ISO string format of date'>('ISO string format of date');
-  expectTypeOf(DateScalar.description.output).toMatchTypeOf<'ISO string format of date'>('ISO string format of date');
+  expectTypeOf(DateScalar.description).toMatchTypeOf<'ISO string format of date'>('ISO string format of date');
+  expectTypeOf(DateScalar.description).toMatchTypeOf<'ISO string format of date'>('ISO string format of date');
 });

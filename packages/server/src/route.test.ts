@@ -4,12 +4,12 @@ import { Route } from './route';
 
 test('Should create query route', async () => {
   const validationSchema = z.string();
-  const resolveFunction = ({ input, ctx: _ctx }: { input: string; ctx: object }) => `${input}`;
+  const resolveFunction = ({ input, ctx: _ctx }: { input: { name: string }; ctx: object }) => `${input.name}`;
 
   const query = new Route({
     type: 'query',
-    inputValidationSchema: validationSchema,
-    outputValidationSchema: validationSchema,
+    args: { name: validationSchema },
+    output: validationSchema,
     resolveFunction: resolveFunction,
     middlewares: [],
   });
@@ -17,11 +17,14 @@ test('Should create query route', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares).toStrictEqual([]);
-  expect(query.inputValidationSchema).toBe(validationSchema);
-  expect(query.outputValidationSchema).toBe(validationSchema);
+  expect(query.args).toStrictEqual({ name: validationSchema });
+  expect(query.output).toBe(validationSchema);
   expect(query.resolveFunction).toBe(resolveFunction);
   expect(
-    await query.call({ meta: { input: 'John', route: 'dummy.route' }, ctx: { greetingsPrefix: 'Hello' as const } })
+    await query.call({
+      meta: { input: { name: 'John' }, route: 'dummy.route' },
+      ctx: { greetingsPrefix: 'Hello' as const },
+    })
   ).toStrictEqual({
     data: 'John',
     ok: true,
@@ -34,9 +37,18 @@ test('Should create query route', async () => {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
-        "inputValidationSchema": {
+        "args": {
           "$schema": "http://json-schema.org/draft-07/schema#",
-          "type": "string",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+            },
+          },
+          "required": [
+            "name",
+          ],
+          "type": "object",
         },
         "nodeType": {
           "enum": [
@@ -44,7 +56,7 @@ test('Should create query route', async () => {
           ],
           "type": "string",
         },
-        "outputValidationSchema": {
+        "output": {
           "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "string",
         },
@@ -58,8 +70,8 @@ test('Should create query route', async () => {
       "required": [
         "type",
         "nodeType",
-        "inputValidationSchema",
-        "outputValidationSchema",
+        "args",
+        "output",
       ],
       "title": "TestRoute",
       "type": "object",
@@ -69,12 +81,12 @@ test('Should create query route', async () => {
 
 test('Should create mutation route', async () => {
   const validationSchema = z.string();
-  const resolveFunction = ({ input, ctx: _ctx }: { input: string; ctx: object }) => `${input}`;
+  const resolveFunction = ({ input, ctx: _ctx }: { input: { name: string }; ctx: object }) => `${input.name}`;
 
   const mutation = new Route({
     type: 'mutation',
-    inputValidationSchema: validationSchema,
-    outputValidationSchema: validationSchema,
+    args: { name: validationSchema },
+    output: validationSchema,
     resolveFunction: resolveFunction,
     middlewares: [],
   });
@@ -82,11 +94,14 @@ test('Should create mutation route', async () => {
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
   expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.inputValidationSchema).toBe(validationSchema);
-  expect(mutation.outputValidationSchema).toBe(validationSchema);
+  expect(mutation.args).toStrictEqual({ name: validationSchema });
+  expect(mutation.output).toBe(validationSchema);
   expect(mutation.resolveFunction).toBe(resolveFunction);
   expect(
-    await mutation.call({ meta: { input: 'John', route: 'dummy.route' }, ctx: { greetingsPrefix: 'Hello' as const } })
+    await mutation.call({
+      meta: { input: { name: 'John' }, route: 'dummy.route' },
+      ctx: { greetingsPrefix: 'Hello' as const },
+    })
   ).toStrictEqual({
     data: 'John',
     ok: true,
@@ -99,9 +114,18 @@ test('Should create mutation route', async () => {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
-        "inputValidationSchema": {
+        "args": {
           "$schema": "http://json-schema.org/draft-07/schema#",
-          "type": "string",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+            },
+          },
+          "required": [
+            "name",
+          ],
+          "type": "object",
         },
         "nodeType": {
           "enum": [
@@ -109,7 +133,7 @@ test('Should create mutation route', async () => {
           ],
           "type": "string",
         },
-        "outputValidationSchema": {
+        "output": {
           "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "string",
         },
@@ -123,8 +147,8 @@ test('Should create mutation route', async () => {
       "required": [
         "type",
         "nodeType",
-        "inputValidationSchema",
-        "outputValidationSchema",
+        "args",
+        "output",
       ],
       "title": "TestRoute",
       "type": "object",
