@@ -7,7 +7,10 @@ const client = createProxyClient<BaseRouter>({
 
 client.greetings
   .query({
-    name: 'John',
+    email: {
+      kk: 'John',
+      ff: 'sdf',
+    },
   })
   .then((result) => {
     console.log(`Hover over the result variable to see it is a string.`);

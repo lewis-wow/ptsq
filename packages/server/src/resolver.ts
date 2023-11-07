@@ -28,11 +28,23 @@ export type ResolverRequest = {
 export type ResolverArgs = Record<string, SerializableInputZodSchema>;
 export type ResolverOutput = SerializableOutputZodSchema;
 
-export type inferResolverArgs<TResolverArgs extends ResolverArgs> = {
-  [K in keyof TResolverArgs]: z.output<TResolverArgs[K]>;
+export type inferResolverArgs<TResolverArgs extends Record<string, any>> = {
+  [K in keyof TResolverArgs]: TResolverArgs[K] extends z.Schema ? z.output<TResolverArgs[K]> : TResolverArgs[K];
 };
 
-export type inferResolverOutput<TResolverOutput extends ResolverOutput> = z.input<TResolverOutput>;
+export type inferResolverArgsInput<TResolverArgs extends Record<string, any>> = TResolverArgs extends
+  | Record<string, never>
+  | undefined
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+  | void
+  ? // make it voidable, so the input is not required
+    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+    undefined | void | Record<string, never>
+  : inferResolverArgs<TResolverArgs>;
+
+export type inferResolverOutput<TResolverOutput> = TResolverOutput extends z.Schema
+  ? z.input<TResolverOutput>
+  : TResolverOutput;
 
 export class Resolver<TArgs extends ResolverArgs = ResolverArgs, TContext extends Context = Context> {
   _middlewares: Middleware<any, any>[];

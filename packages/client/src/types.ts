@@ -1,6 +1,5 @@
-import type { ResolverType } from '@ptsq/server';
+import type { ResolverType, inferResolverArgsInput, inferResolverOutput } from '@ptsq/server';
 import type { ProxyClient } from './createProxyClient';
-import type { inferResolverValidationSchemaInput, inferResolverValidationSchemaOutput } from '@ptsq/server';
 
 /**
  * more general route type than in server package, because of introspection result
@@ -8,8 +7,8 @@ import type { inferResolverValidationSchemaInput, inferResolverValidationSchemaO
 export type ClientRoute<TType extends ResolverType = ResolverType> = {
   nodeType: 'route';
   type: TType;
-  inputValidationSchema?: any;
-  outputValidationSchema: any;
+  args?: any;
+  output: any;
 };
 
 /**
@@ -24,15 +23,15 @@ export type ClientRouter = {
 
 type QueryClient<TClientRoute extends ClientRoute> = {
   query: typeof ProxyClient.prototype.request<
-    inferResolverValidationSchemaInput<TClientRoute['inputValidationSchema']>,
-    inferResolverValidationSchemaOutput<TClientRoute['outputValidationSchema']>
+    inferResolverArgsInput<TClientRoute['args']>,
+    inferResolverOutput<TClientRoute['output']>
   >;
 };
 
 type MutationClient<TClientRoute extends ClientRoute> = {
   mutate: typeof ProxyClient.prototype.request<
-    inferResolverValidationSchemaInput<TClientRoute['inputValidationSchema']>,
-    inferResolverValidationSchemaOutput<TClientRoute['outputValidationSchema']>
+    inferResolverArgsInput<TClientRoute['args']>,
+    inferResolverOutput<TClientRoute['output']>
   >;
 };
 

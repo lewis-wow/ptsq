@@ -3,7 +3,7 @@ export { HTTPError } from './httpError';
 
 export type { Scalar } from './scalar';
 
-export { Resolver } from './resolver';
+export { Resolver, type inferResolverArgsInput, type inferResolverOutput } from './resolver';
 export { Middleware } from './middleware';
 export type { Query } from './query';
 export type { Mutation } from './mutation';
