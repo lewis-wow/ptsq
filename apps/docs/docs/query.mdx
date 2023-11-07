@@ -26,8 +26,7 @@ const { middleware, resolver, router, serve } = createServer({
   ctx: createContext,
 });
 
-const testQuery = resolver.query({
-  input: z.object({ name: z.string() }),
+const testQuery = resolver.args({ name: z.string() }).query({
   output: z.string(),
   resolve: ({ input /* { name: string } */ }) /* string */ => {
     return `Hello, ${input.name}`;
