@@ -6,6 +6,7 @@ import { Query } from './query';
 import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
 import type { MaybePromise } from './types';
 import type { HTTPError } from './httpError';
+import { ZodObject } from 'zod';
 
 export type ResolverResponse<TContext extends Context> =
   | {
@@ -24,18 +25,23 @@ export type ResolverRequest = {
   route: string;
 };
 
-export type ResolverArgs = Record<string, SerializableInputZodSchema>;
+export type ResolverArgs = SerializableInputZodSchema;
 
-export type inferResolverArgs<TResolverArgs extends ResolverArgs> = {
-  [K in keyof TResolverArgs]: z.output<TResolverArgs[K]>;
-};
+export type inferResolverArgs<TResolverArgs extends ResolverArgs> = TResolverArgs extends Record<
+  string,
+  SerializableInputZodSchema
+>
+  ? {
+      [K in keyof TResolverArgs]: z.output<TResolverArgs[K]>;
+    }
+  : undefined;
 
 export class Resolver<TArgs extends ResolverArgs = ResolverArgs, TContext extends Context = Context> {
   _middlewares: Middleware<any, any>[];
-  _args: TArgs;
+  _args: ZodObject<TArgs>;
 
-  constructor({ args, middlewares = [] }: { args: TArgs; middlewares: Middleware<any, any>[] }) {
-    this._args = args;
+  constructor({ args, middlewares = [] }: { args: TArgs[]; middlewares: Middleware<any, any>[] }) {
+    this._args = z.object(args);
     this._middlewares = middlewares;
   }
 
@@ -44,14 +50,17 @@ export class Resolver<TArgs extends ResolverArgs = ResolverArgs, TContext extend
       args: this._args,
       middlewares: [
         ...this._middlewares,
-        new Middleware({ middlewareCallback: middleware, argsValidationSchema: z.object(this._args).strip() }),
+        new Middleware({
+          middlewareCallback: middleware,
+          argsValidationSchema: this._args,
+        }),
       ],
     });
   }
 
   args<TNextArgs extends ResolverArgs>(args: TNextArgs) {
-    return new Resolver<TArgs & TNextArgs>({
-      args: { ...this._args, ...args },
+    return new Resolver<[...TArgs, TNextArgs], TContext>({
+      args: [...this._args, args],
       middlewares: [...this._middlewares],
     });
   }

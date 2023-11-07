@@ -4,6 +4,21 @@ import { z } from 'zod';
 
 const app = express();
 
+const test: unknown = {
+  a: '111',
+};
+
+const schema1 = z.object({
+  b: z.string().optional(),
+});
+
+const schema2 = z.object({
+  a: z.string(),
+});
+
+let res = schema1.parse(test);
+res = schema2.parse(res);
+
 const { router, resolver, serve } = createServer({
   ctx: async ({ req, res }: ExpressAdapterContext) => ({
     req,

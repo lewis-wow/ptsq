@@ -37,17 +37,10 @@ test('Should create middleware with query and serverSideQuery', async () => {
 
   expect(validOnlyQuery.nodeType).toBe('route');
   expect(validOnlyQuery.type).toBe('query');
-  expect(validOnlyQuery.middlewares).toMatchInlineSnapshot(`
-    [
-      Middleware {
-        "middlewareCallback": [Function],
-      },
-    ]
-  `);
+  expect(validOnlyQuery.middlewares.length).toBe(1);
+  expect(validOnlyQuery.middlewares[0]._argsValidationSchema._def.shape()).toStrictEqual({});
 
-  expect(
-    await query.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
-  ).toStrictEqual({
+  expect(await query.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'invalid',
     ok: true,
@@ -62,7 +55,7 @@ test('Should create middleware with query and serverSideQuery', async () => {
   });
 
   expect(
-    await validOnlyQuery.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+    await validOnlyQuery.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })
   ).toStrictEqual({
     ctx: contextBuilderResult,
     error: new HTTPError({ code: 'BAD_REQUEST' }),
@@ -81,9 +74,7 @@ test('Should create middleware with query and serverSideQuery', async () => {
     state: 'valid' as 'valid' | 'invalid',
   };
 
-  expect(
-    await query.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
-  ).toStrictEqual({
+  expect(await query.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'valid',
     ok: true,
@@ -98,7 +89,7 @@ test('Should create middleware with query and serverSideQuery', async () => {
   });
 
   expect(
-    await validOnlyQuery.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+    await validOnlyQuery.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })
   ).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'valid',
@@ -148,17 +139,10 @@ test('Should create middleware with mutation and serverSideMutation', async () =
 
   expect(validOnlyMutation.nodeType).toBe('route');
   expect(validOnlyMutation.type).toBe('mutation');
-  expect(validOnlyMutation.middlewares).toMatchInlineSnapshot(`
-    [
-      Middleware {
-        "middlewareCallback": [Function],
-      },
-    ]
-  `);
+  expect(validOnlyMutation.middlewares.length).toBe(1);
+  expect(validOnlyMutation.middlewares[0]._argsValidationSchema._def.shape()).toStrictEqual({});
 
-  expect(
-    await mutation.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
-  ).toStrictEqual({
+  expect(await mutation.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'invalid',
     ok: true,
@@ -173,7 +157,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
   });
 
   expect(
-    await validOnlyMutation.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+    await validOnlyMutation.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })
   ).toStrictEqual({
     ctx: contextBuilderResult,
     error: new HTTPError({ code: 'BAD_REQUEST' }),
@@ -192,9 +176,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
     state: 'valid' as 'valid' | 'invalid',
   };
 
-  expect(
-    await mutation.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
-  ).toStrictEqual({
+  expect(await mutation.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'valid',
     ok: true,
@@ -209,7 +191,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
   });
 
   expect(
-    await validOnlyMutation.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+    await validOnlyMutation.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })
   ).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'valid',
@@ -257,18 +239,13 @@ test('Should create middleware with measuring time', async () => {
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
-  expect(query.middlewares).toMatchInlineSnapshot(`
-    [
-      Middleware {
-        "middlewareCallback": [Function],
-      },
-    ]
-  `);
+  expect(query.middlewares.length).toBe(1);
+  expect(query.middlewares[0]._argsValidationSchema._def.shape()).toStrictEqual({});
 
   expect(middlewareWasCalled).toBe(false);
   expect(middlewareMeasuredTime).toBe(0);
 
-  expect(await query.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: {} })).toStrictEqual({
+  expect(await query.call({ meta: { input: {}, route: 'dummy.route' }, ctx: {} })).toStrictEqual({
     ctx: {},
     data: 'Hello',
     ok: true,
@@ -338,22 +315,15 @@ test('Should create two nested middlewares', async () => {
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
-  expect(query.middlewares).toMatchInlineSnapshot(`
-    [
-      Middleware {
-        "middlewareCallback": [Function],
-      },
-      Middleware {
-        "middlewareCallback": [Function],
-      },
-    ]
-  `);
+  expect(query.middlewares.length).toBe(2);
+  expect(query.middlewares[0]._argsValidationSchema._def.shape()).toStrictEqual({});
+  expect(query.middlewares[1]._argsValidationSchema._def.shape()).toStrictEqual({});
 
   expect(innerMiddlewareWasCalled).toBe(false);
   expect(outerMiddlewareWasCalled).toBe(false);
   expect(middlewareMeasuredTime).toBe(0);
 
-  expect(await query.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: {} })).toStrictEqual({
+  expect(await query.call({ meta: { input: {}, route: 'dummy.route' }, ctx: {} })).toStrictEqual({
     ctx: {},
     data: 'Hello',
     ok: true,
@@ -366,7 +336,7 @@ test('Should create two nested middlewares', async () => {
 
 test('Should create nested middlewares with query', async () => {
   let contextBuilderResult = {
-    state: 'invalid' as 'valid' | 'invalid' | undefined,
+    state: 'invalid' as 'valid' | 'invalid' | null,
   };
 
   const { resolver } = createServer({
@@ -374,7 +344,7 @@ test('Should create nested middlewares with query', async () => {
   });
 
   const dummyResolver = resolver.use(({ ctx, next }) => {
-    if (ctx.state === undefined) throw new HTTPError({ code: 'BAD_REQUEST' });
+    if (ctx.state === null) throw new HTTPError({ code: 'BAD_REQUEST' });
 
     return next({
       ...ctx,
@@ -392,7 +362,7 @@ test('Should create nested middlewares with query', async () => {
   });
 
   const query = resolver.query({
-    output: z.union([z.string(), z.undefined()]),
+    output: z.union([z.string(), z.null()]),
     resolve: ({ ctx }) => ctx.state,
   });
 
@@ -407,27 +377,18 @@ test('Should create nested middlewares with query', async () => {
 
   expect(validOnlyQuery.nodeType).toBe('route');
   expect(validOnlyQuery.type).toBe('query');
-  expect(validOnlyQuery.middlewares).toMatchInlineSnapshot(`
-    [
-      Middleware {
-        "middlewareCallback": [Function],
-      },
-      Middleware {
-        "middlewareCallback": [Function],
-      },
-    ]
-  `);
+  expect(validOnlyQuery.middlewares.length).toBe(2);
+  expect(validOnlyQuery.middlewares[0]._argsValidationSchema._def.shape()).toStrictEqual({});
+  expect(validOnlyQuery.middlewares[1]._argsValidationSchema._def.shape()).toStrictEqual({});
 
-  expect(
-    await query.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
-  ).toStrictEqual({
+  expect(await query.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'invalid',
     ok: true,
   });
 
   expect(
-    await validOnlyQuery.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+    await validOnlyQuery.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })
   ).toStrictEqual({
     ctx: contextBuilderResult,
     error: new HTTPError({ code: 'BAD_REQUEST' }),
@@ -438,16 +399,14 @@ test('Should create nested middlewares with query', async () => {
     state: 'valid' as 'valid' | 'invalid',
   };
 
-  expect(
-    await query.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
-  ).toStrictEqual({
+  expect(await query.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'valid',
     ok: true,
   });
 
   expect(
-    await validOnlyQuery.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+    await validOnlyQuery.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })
   ).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'valid',
@@ -457,7 +416,7 @@ test('Should create nested middlewares with query', async () => {
 
 test('Should create nested middlewares with mutation', async () => {
   let contextBuilderResult = {
-    state: 'invalid' as 'valid' | 'invalid' | undefined,
+    state: 'invalid' as 'valid' | 'invalid' | null,
   };
 
   const { resolver } = createServer({
@@ -465,7 +424,7 @@ test('Should create nested middlewares with mutation', async () => {
   });
 
   const dummyResolver = resolver.use(({ ctx, next }) => {
-    if (ctx.state === undefined) throw new HTTPError({ code: 'BAD_REQUEST' });
+    if (ctx.state === null) throw new HTTPError({ code: 'BAD_REQUEST' });
 
     return next({
       ...ctx,
@@ -483,7 +442,7 @@ test('Should create nested middlewares with mutation', async () => {
   });
 
   const mutation = resolver.mutation({
-    output: z.union([z.string(), z.undefined()]),
+    output: z.union([z.string(), z.null()]),
     resolve: ({ ctx }) => ctx.state,
   });
 
@@ -498,27 +457,18 @@ test('Should create nested middlewares with mutation', async () => {
 
   expect(validOnlyMutation.nodeType).toBe('route');
   expect(validOnlyMutation.type).toBe('mutation');
-  expect(validOnlyMutation.middlewares).toMatchInlineSnapshot(`
-    [
-      Middleware {
-        "middlewareCallback": [Function],
-      },
-      Middleware {
-        "middlewareCallback": [Function],
-      },
-    ]
-  `);
+  expect(validOnlyMutation.middlewares.length).toBe(2);
+  expect(validOnlyMutation.middlewares[0]._argsValidationSchema._def.shape()).toStrictEqual({});
+  expect(validOnlyMutation.middlewares[1]._argsValidationSchema._def.shape()).toStrictEqual({});
 
-  expect(
-    await mutation.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
-  ).toStrictEqual({
+  expect(await mutation.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'invalid',
     ok: true,
   });
 
   expect(
-    await validOnlyMutation.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+    await validOnlyMutation.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })
   ).toStrictEqual({
     ctx: contextBuilderResult,
     error: new HTTPError({ code: 'BAD_REQUEST' }),
@@ -529,19 +479,82 @@ test('Should create nested middlewares with mutation', async () => {
     state: 'valid' as 'valid' | 'invalid',
   };
 
-  expect(
-    await mutation.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
-  ).toStrictEqual({
+  expect(await mutation.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'valid',
     ok: true,
   });
 
   expect(
-    await validOnlyMutation.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
+    await validOnlyMutation.call({ meta: { input: {}, route: 'dummy.route' }, ctx: contextBuilderResult })
   ).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'valid',
+    ok: true,
+  });
+});
+
+test('Should create nested middlewares with query with args chaining', async () => {
+  const { resolver } = createServer({
+    ctx: () => ({}),
+  });
+
+  const stringSchema = z.string();
+
+  const resolverWithName = resolver.args({
+    name: stringSchema,
+  });
+
+  const resolverWithNameWithMiddleware = resolverWithName.use(({ ctx, input, next }) => {
+    // can log the input for example!
+
+    return next({
+      ...ctx,
+      name: input.name,
+    });
+  });
+
+  const resolverWithNameChainAndLastName = resolverWithNameWithMiddleware.args({
+    lastName: stringSchema,
+  });
+
+  const resolverWithNameChainAndLastNameWithMiddleware = resolverWithNameChainAndLastName.use(
+    ({ ctx, input, next }) => {
+      // can log the input for example!
+      return next({
+        ...ctx,
+        name: input.name,
+        lastName: input.lastName,
+      });
+    }
+  );
+
+  const query = resolverWithNameChainAndLastNameWithMiddleware.query({
+    output: z.string(),
+    resolve: ({ ctx }) => `${ctx.name} ${ctx.lastName}`,
+  });
+  expect(query.nodeType).toBe('route');
+  expect(query.type).toBe('query');
+  expect(query.middlewares.length).toBe(2);
+  expect(query.middlewares[0]._argsValidationSchema._def.shape()).toStrictEqual({ name: stringSchema });
+  expect(query.middlewares[1]._argsValidationSchema._def.shape()).toStrictEqual({
+    name: stringSchema,
+    lastName: stringSchema,
+  });
+
+  expect(
+    await query.call({ meta: { input: { name: 'John', lastName: 'Doe' }, route: 'dummy.route' }, ctx: {} })
+  ).toStrictEqual({
+    ctx: { name: 'John', lastName: 'Doe' },
+    data: 'John Doe',
+    ok: true,
+  });
+
+  expect(
+    await query.createServerSideQuery({ ctx: {}, route: ['dummy', 'route'] }).query({ name: 'John', lastName: 'Doe' })
+  ).toStrictEqual({
+    ctx: { name: 'John', lastName: 'Doe' },
+    data: 'John Doe',
     ok: true,
   });
 });

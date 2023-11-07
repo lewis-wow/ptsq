@@ -16,7 +16,7 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
  * @example
  * ```ts
  * const { resolver, router, middleware, serve, scalar } = createServer({
- *   ctx: () => {},
+ *   ctx: () => ({}),
  *   cors: {
  *     origin: ['http://localhost:3000', 'https://example.com'],
  *     introspection: '*',
@@ -32,18 +32,20 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
 
   /**
    * Creates a queries or mutations
+   *
    * resolvers can use middlewares to create like protected resolver
    *
    * @example
    * ```ts
    * resolver.query({
-   *   input: z.object({ name: z.string() }),
    *   output: z.string(),
    *   resolve: ({ input, ctx }) => `Hello, ${input.name}!`,
    * });
    * ```
    */
-  const resolver = new Resolver<Record<string, never>, RootContext>({
+  // The {} type actually describes empty object here, no non-nullish
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  const resolver = new Resolver<{}, RootContext>({
     args: {},
     middlewares: [],
   });
@@ -72,7 +74,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    *
    * @example
    * ```ts
-   * expressAdapter(serve({ router: rootRouter }))
+   * serve({ router: rootRouter });
    * ```
    */
   const serve = ({ router: rootRouter }: { router: Router }) => serveInternal.adapter({ router: rootRouter });

@@ -4,14 +4,14 @@ import type { ResolverRequest } from './resolver';
 import { HTTPError } from './httpError';
 import type { ResolverArgs } from './resolver';
 import type { inferResolverArgs } from './resolver';
-import type { ZodObject } from 'zod';
+import type { ResolverArgsValidationSchema } from './types';
 
 export type NextFunction = <TNextContext extends Context>(
   nextContext: TNextContext
 ) => Promise<ResolverResponse<TNextContext>>;
 
 export type MiddlewareCallback<
-  TArgs extends ResolverArgs,
+  TArgs extends ResolverArgs[],
   TContext extends Context,
   TNextContext extends Context,
 > = (options: {
@@ -22,21 +22,21 @@ export type MiddlewareCallback<
 }) => ReturnType<typeof options.next<TNextContext>>;
 
 export class Middleware<
-  TArgs extends ResolverArgs = ResolverArgs,
+  TArgs extends ResolverArgs[] = ResolverArgs[],
   TContext extends Context = Context,
   TNextContext extends Context = Context,
 > {
-  _argsValidationSchema: ZodObject<TArgs>;
+  _args: TArgs;
   _middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext>;
 
   constructor({
     argsValidationSchema,
     middlewareCallback,
   }: {
-    argsValidationSchema: ZodObject<TArgs>;
+    args: TArgs;
     middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext>;
   }) {
-    this._argsValidationSchema = argsValidationSchema;
+    this._args = args;
     this._middlewareCallback = middlewareCallback;
   }
 
