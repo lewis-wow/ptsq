@@ -4,8 +4,8 @@ import { createSchemaRoot } from './createSchemaRoot';
 import type { Context } from './context';
 import { Middleware } from './middleware';
 import { HTTPError } from './httpError';
-import { zodSchemaToJsonSchema } from './zodSchemaToJsonSchema';
 import { z } from 'zod';
+import { zodToJsonSchema } from '@ptsq/zod-parser';
 
 export class Route<
   TType extends ResolverType = ResolverType,
@@ -46,8 +46,8 @@ export class Route<
           type: 'string',
           enum: [this.nodeType],
         },
-        args: zodSchemaToJsonSchema(z.object(this.args)),
-        output: zodSchemaToJsonSchema(this.output),
+        args: zodToJsonSchema(z.object(this.args)),
+        output: zodToJsonSchema(this.output),
       },
     });
   }

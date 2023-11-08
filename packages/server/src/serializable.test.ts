@@ -40,7 +40,6 @@ test('Should parse with valid serializable value with undefined', () => {
         },
       },
     },
-    undef: undefined,
   });
 
   expect(parseResult.success).toBe(true);

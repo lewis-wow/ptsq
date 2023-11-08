@@ -72,7 +72,6 @@ test('Should create mutation', async () => {
       "additionalProperties": false,
       "properties": {
         "args": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "name": {
@@ -91,7 +90,6 @@ test('Should create mutation', async () => {
           "type": "string",
         },
         "output": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "string",
         },
         "type": {
@@ -181,7 +179,6 @@ test('Should create mutation without args', async () => {
       "additionalProperties": false,
       "properties": {
         "args": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
           "type": "object",
@@ -193,7 +190,6 @@ test('Should create mutation without args', async () => {
           "type": "string",
         },
         "output": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "string",
         },
         "type": {
@@ -304,7 +300,6 @@ test('Should create mutation with twice chain', async () => {
       "additionalProperties": false,
       "properties": {
         "args": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "firstName": {
@@ -327,7 +322,6 @@ test('Should create mutation with twice chain', async () => {
           "type": "string",
         },
         "output": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "string",
         },
         "type": {

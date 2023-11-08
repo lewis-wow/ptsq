@@ -53,9 +53,9 @@ export const scalar = <
   );
 
 export class Scalar<
-  TSerializeSchema extends z.Schema<Serializable>,
-  TParseSchema extends z.Schema,
-  TDescription extends string | undefined,
+  TSerializeSchema extends z.Schema<Serializable> = z.Schema<Serializable>,
+  TParseSchema extends z.Schema = z.Schema,
+  TDescription extends string | undefined = string | undefined,
 > {
   protected parse: ScalarParser<TSerializeSchema, TParseSchema>;
   protected serialize: ScalarSerializer<TParseSchema, TSerializeSchema>;

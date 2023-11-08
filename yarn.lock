@@ -11680,11 +11680,6 @@ z-schema@~5.0.2:
   optionalDependencies:
     commander "^10.0.0"
 
-zod-to-json-schema@^3.21.4:
-  version "3.21.4"
-  resolved "https://registry.npmjs.org/zod-to-json-schema/-/zod-to-json-schema-3.21.4.tgz"
-  integrity sha512-fjUZh4nQ1s6HMccgIeE0VP4QG/YRGPmyjO9sAh890aQKPEk3nqbfUXhMFaC+Dr5KvYBm8BCyvfpZf2jY9aGSsw==
-
 zod@^3.22.2:
   version "3.22.2"
   resolved "https://registry.npmjs.org/zod/-/zod-3.22.2.tgz"

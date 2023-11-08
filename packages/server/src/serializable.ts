@@ -3,7 +3,6 @@ import { z } from 'zod';
 export type Serializable = string | number | null | void | boolean | Serializable[] | { [key: string]: Serializable }; // eslint-disable-line @typescript-eslint/no-invalid-void-type
 
 export const serializableZodSchema: z.Schema<Serializable> = z.union([
-  z.void(),
   z.string(),
   z.number(),
   z.null(),

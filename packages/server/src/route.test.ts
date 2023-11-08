@@ -38,7 +38,6 @@ test('Should create query route', async () => {
       "additionalProperties": false,
       "properties": {
         "args": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "name": {
@@ -57,7 +56,6 @@ test('Should create query route', async () => {
           "type": "string",
         },
         "output": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "string",
         },
         "type": {
@@ -115,7 +113,6 @@ test('Should create mutation route', async () => {
       "additionalProperties": false,
       "properties": {
         "args": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "name": {
@@ -134,7 +131,6 @@ test('Should create mutation route', async () => {
           "type": "string",
         },
         "output": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "string",
         },
         "type": {

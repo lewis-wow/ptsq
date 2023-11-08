@@ -72,7 +72,6 @@ test('Should create query', async () => {
       "additionalProperties": false,
       "properties": {
         "args": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "name": {
@@ -91,7 +90,6 @@ test('Should create query', async () => {
           "type": "string",
         },
         "output": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "string",
         },
         "type": {
@@ -179,7 +177,6 @@ test('Should create query without args', async () => {
       "additionalProperties": false,
       "properties": {
         "args": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {},
           "type": "object",
@@ -191,7 +188,6 @@ test('Should create query without args', async () => {
           "type": "string",
         },
         "output": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "string",
         },
         "type": {
@@ -302,7 +298,6 @@ test('Should create query with twice chain', async () => {
       "additionalProperties": false,
       "properties": {
         "args": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "firstName": {
@@ -325,7 +320,6 @@ test('Should create query with twice chain', async () => {
           "type": "string",
         },
         "output": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "type": "string",
         },
         "type": {
