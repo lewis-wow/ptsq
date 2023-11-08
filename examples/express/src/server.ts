@@ -18,10 +18,14 @@ const resolverWithName = resolver.args({
   }),
 });
 
-const resolverWithNameAndMiddleware = resolverWithName.use(({ ctx, input, next }) => {
+const resolverWithNameAndMiddleware = resolverWithName.use(async ({ ctx, input, next }) => {
   console.log(input.email.kk);
 
-  return next(ctx);
+  const res = await next(ctx);
+
+  console.log('res', res);
+
+  return res;
 });
 
 const greetingsQuery = resolverWithNameAndMiddleware

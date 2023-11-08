@@ -41,6 +41,11 @@ export class ProxyClient {
   ): Promise<TRequestOutput> {
     const headers = typeof this.options.headers !== 'function' ? this.options.headers : await this.options.headers();
 
+    /**
+     * Removes the last route from path, the last one is 'mutate' | 'query'
+     */
+    this.route.pop();
+
     const result = await axios.post<string>(
       this.options.url,
       { route: this.route.join('.'), input: requestInput },

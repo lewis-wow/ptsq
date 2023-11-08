@@ -20,7 +20,7 @@ export class Router<TRoutes extends Routes = Routes> {
     this.routes = routes;
   }
 
-  getJsonSchema(title = 'root') {
+  getJsonSchema(title = 'base') {
     return createSchemaRoot({
       title: `${title} router`,
       properties: {

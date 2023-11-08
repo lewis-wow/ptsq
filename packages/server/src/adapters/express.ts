@@ -1,5 +1,5 @@
 import express, { type Request, type Response, type Router } from 'express';
-import { HTTPErrorCode } from '../httpError';
+import { HTTPError, HTTPErrorCode } from '../httpError';
 import { json, urlencoded } from 'body-parser';
 import { Adapter } from '../adapter';
 import cors from 'cors';
@@ -41,6 +41,11 @@ export const expressAdapter = Adapter<ExpressAdapterContext, Router>(({ handler,
                 .json({ message: response.error.message, info: response.error.info })
         )
         .catch((error) => {
+          if (HTTPError.isHttpError(error)) {
+            res.status(HTTPErrorCode[error.code]).json({ message: error.message, info: error.info });
+            return;
+          }
+
           throw error;
         });
     }
