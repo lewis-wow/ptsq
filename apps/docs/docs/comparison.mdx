@@ -48,6 +48,10 @@ queryField('user', {
 
 How you can see, we literally duplicate the input arguments schema in the validation Schema. But GraphQL requires to define the schema of args, so we cannot infer the GraphQL schema from the validation schema, because GraphQL schema types can be complex and must have name, such as `type: User` that we returning from the resolver.
 
+Another issue is that the graphql validation is really slow, cause it has to validate every argument agains its graphql schema, and then validate agains the validation schema.
+
+If there are many of the arguments, the validation step can lasts really long time. ptsq does not have own schema, only one validation `zod` schema, that validates once whole pool of arguments.
+
 ```ts title="Cannot do this for infer the args GraphQL types from the schema"
 import { stringArg } from 'nexus';
 import { z } from 'zod';
