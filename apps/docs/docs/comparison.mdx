@@ -130,10 +130,70 @@ ptsq has another solution for this problem and that are [scalars](/scalars).
 
 Scalar types does not allow you to use any non-serializable type for resolver input and output.
 
+Another way that tRPC can lie to you is in complex schema chaining.
+
+```ts "tRPC query procedure that lie on the client in the response type"
+export const test = publicProcedure
+  .input(z.object({ obj: z.object({ string: z.string(), num1: z.number() }) }))
+  .input(z.object({ obj: z.object({ string: z.string(), num2: z.number() }) }))
+  .use(({ input, next }) => {
+    console.log(input);
+    return next();
+  })
+  .input(z.object({ obj: z.object({ string: z.string(), num3: z.number() }) }))
+  .query(({ input }) => input);
+```
+
+This is complex input chaining, but tRPC lies in the middleware on the server, that the type of the `input` is
+
+```ts
+{
+  obj: { string: string; num1: number; }
+} & {
+  obj: { string: string; num2: number; }
+}
+```
+
+but that is not true. The input will be only
+
+```ts
+{
+  obj: {
+    string: string;
+    num2: number;
+  }
+}
+```
+
+because zod validation schema strip the additional keys of the input object.
+
+The same way, it will lie on the client side, that the incomming response type will be
+
+```ts
+{
+  obj: { string: string; num1: number; }
+} & {
+  obj: { string: string; num2: number; }
+} & {
+  obj: { string: string; num3: number; }
+}
+```
+
+that is also not true, the type that the server will send is only
+
+```ts
+{
+  obj: {
+    string: string;
+    num3: number;
+  }
+}
+```
+
 ## Summary
 
 So as you can see, both tools, GraphQL and tRPC has some downsides of creating type-safe API.
 
-GraphQL in its complexity and code duplication and tRPC in lying types in some cases. strict project structure and no support for type-safe open API.
+GraphQL in its complexity, slow validation and code duplication and tRPC in lying types, strict project structure and no support for type-safe open API.
 
 ptsq tries to combine the best from those two tools for creating type-safe open API.
