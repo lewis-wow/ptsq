@@ -4,16 +4,16 @@ import { createSchemaRoot } from './createSchemaRoot';
 import type { Context } from './context';
 import { Middleware } from './middleware';
 import { HTTPError } from './httpError';
-import { z } from 'zod';
 import { zodToJsonSchema } from '@ptsq/zod-parser';
 
 export class Route<
   TType extends ResolverType = ResolverType,
+  TArgs extends ResolverArgs[] = ResolverArgs[],
   TResolverOutput extends ResolverOutput = ResolverOutput,
   TResolveFunction extends ResolveFunction<any, any> = ResolveFunction<any, any>,
 > {
   type: TType;
-  args: ResolverArgs[];
+  args: TArgs;
   output: TResolverOutput;
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
@@ -21,7 +21,7 @@ export class Route<
 
   constructor(options: {
     type: TType;
-    args: ResolverArgs[];
+    args: TArgs;
     output: TResolverOutput;
     resolveFunction: TResolveFunction;
     middlewares: Middleware<ResolverArgs, any>[];
@@ -45,15 +45,13 @@ export class Route<
           type: 'string',
           enum: [this.nodeType],
         },
-        args: zodToJsonSchema(z.object(this.args)),
+        args: zodToJsonSchema(this.args),
         output: zodToJsonSchema(this.output),
       },
     });
   }
 
   async call({ ctx, meta }: { ctx: Context; meta: ResolverRequest }): Promise<ResolverResponse<Context>> {
-    const parsedData = args.
-
     const response = await Middleware.recursiveCall({
       ctx,
       meta,

@@ -20,7 +20,7 @@ export type MiddlewareCallback<
 }) => ReturnType<typeof options.next<TNextContext>>;
 
 export class Middleware<
-  TArgs extends ResolverArgs = ResolverArgs,
+  TArgs extends ResolverArgs[] = ResolverArgs[],
   TContext extends Context = Context,
   TNextContext extends Context = Context,
 > {

@@ -1,9 +1,10 @@
 import type { ContextBuilder, inferContextFromContextBuilder } from './context';
 import { type Routes, Router } from './router';
-import { Resolver } from './resolver';
+import { Resolver, ResolverArgs } from './resolver';
 import { Serve } from './serve';
 import { scalar } from './scalar';
 import type { CORSOptions } from './cors';
+import { ZodObject } from 'zod';
 
 type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   ctx: TContextBuilder;
@@ -45,8 +46,8 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    */
   // The {} type actually describes empty object here, no non-nullish
   // eslint-disable-next-line @typescript-eslint/ban-types
-  const resolver = new Resolver<{}, RootContext>({
-    args: {},
+  const resolver = new Resolver<ZodObject<{}>, RootContext>({
+    args: [],
     middlewares: [],
   });
 

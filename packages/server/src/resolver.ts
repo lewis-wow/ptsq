@@ -54,7 +54,7 @@ export class Resolver<TArgs extends ResolverArgs = ResolverArgs, TContext extend
 
   use<TNextContext extends Context>(middleware: MiddlewareCallback<TArgs, TContext, TNextContext>) {
     return new Resolver<TArgs, TNextContext>({
-      args: this._args,
+      args: [...this._args],
       middlewares: [
         ...this._middlewares,
         new Middleware({
@@ -65,7 +65,7 @@ export class Resolver<TArgs extends ResolverArgs = ResolverArgs, TContext extend
   }
 
   args<TNextArgs extends TArgs>(args: TNextArgs) {
-    return new Resolver<TArgs & TNextArgs, TContext>({
+    return new Resolver<TNextArgs, TContext>({
       args: [...this._args, args],
       middlewares: [...this._middlewares],
     });
@@ -101,18 +101,6 @@ export class Resolver<TArgs extends ResolverArgs = ResolverArgs, TContext extend
       resolveFunction: options.resolve,
       middlewares: this._middlewares,
     });
-  }
-
-  private mergeResolverArguments<TNextResolverArgs extends ResolverArgs>(
-    nextArgs: TNextResolverArgs
-  ): TArgs & TNextResolverArgs {
-    return zipResolverArgs(this._args, nextArgs).reduce(
-      (acc, { key, value: [argsValue, nextArgsValue] }) => ({
-        ...acc,
-        [key]: argsValue && nextArgsValue ? argsValue.and(nextArgsValue) : argsValue ?? nextArgsValue,
-      }),
-      {}
-    ) as TArgs & TNextResolverArgs;
   }
 }
 

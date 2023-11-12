@@ -12,41 +12,32 @@ const { router, resolver, serve } = createServer({
   }),
 });
 
-const resolverWithName = resolver
-  .args({
-    test: z.object({
-      recursion: z.object({
-        recursion: z.object({
-          recursion: z.object({
-            recursion: z.object({
-              recursion: z.object({
-                recursion: z.object({
-                  num: z.number(),
-                }),
-              }),
-            }),
-          }),
-        }),
-      }),
-    }),
+resolver.args(z.object({}));
+
+const resolverWithName = resolver.args(
+  z.object({
+    test: z.string(),
   })
-  .args({
-    test: z.object({
-      recursion: z.object({
-        recursion: z.object({
-          recursion: z.object({
-            recursion: z.object({
-              recursion: z.object({
-                recursion: z.object({
-                  a: z.number(),
-                }),
-              }),
-            }),
-          }),
-        }),
-      }),
-    }),
-  });
+);
+
+resolverWithName.use((opts) => {
+  console.log(opts.input);
+
+  return opts.next(opts.ctx);
+});
+
+const another = resolverWithName.args(
+  z.object({
+    test: z.string().email(),
+    num: z.number(),
+  })
+);
+
+another.use((opts) => {
+  console.log(opts.input);
+
+  return opts.next(opts.ctx);
+});
 
 const resolverWithNameAndMiddleware = resolverWithName.use(async ({ ctx, input, next }) => {
   console.log(input.email.kk);
@@ -58,21 +49,11 @@ const resolverWithNameAndMiddleware = resolverWithName.use(async ({ ctx, input, 
   return res;
 });
 
-const greetingsQuery = resolverWithNameAndMiddleware
-  .args({
-    person: arg({
-      firstName: arg('string'),
-    }),
-  })
-  .query({
-    output: z.string(),
-    resolve: async ({ input }) => {
-      return `Hello, ${input.email.ff}`;
-    },
-  });
-
 const baseRouter = router({
-  greetings: greetingsQuery,
+  test: another.query({
+    output: z.object({ test: z.string(), num: z.number() }),
+    resolve: ({ input }) => input,
+  }),
 });
 
 app.use('/ptsq', expressAdapter(serve({ router: baseRouter })));
