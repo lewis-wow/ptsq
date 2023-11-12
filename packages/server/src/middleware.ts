@@ -3,7 +3,6 @@ import type { ResolverResponse, inferResolverArgs } from './resolver';
 import type { ResolverRequest } from './resolver';
 import { HTTPError } from './httpError';
 import type { ResolverArgs } from './resolver';
-import { z } from 'zod';
 
 export type NextFunction = <TNextContext extends Context>(
   nextContext: TNextContext
@@ -25,11 +24,9 @@ export class Middleware<
   TContext extends Context = Context,
   TNextContext extends Context = Context,
 > {
-  _args: TArgs;
   _middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext>;
 
-  constructor(options: { args: TArgs; middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext> }) {
-    this._args = options.args;
+  constructor(options: { middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext> }) {
     this._middlewareCallback = options.middlewareCallback;
   }
 
@@ -37,21 +34,18 @@ export class Middleware<
     ctx,
     meta,
     index,
+    data,
     middlewares,
   }: {
     ctx: any;
     meta: ResolverRequest;
     index: number;
+    data: ResolverArgs;
     middlewares: Middleware<ResolverArgs, any>[];
   }): Promise<ResolverResponse<any>> {
     try {
-      const parseResult = z.object(middlewares[index]._args).safeParse(meta.input);
-
-      if (!parseResult.success)
-        throw new HTTPError({ code: 'BAD_REQUEST', message: 'Args validation error.', info: parseResult.error });
-
       return await middlewares[index]._middlewareCallback({
-        input: parseResult.data,
+        input: data,
         meta,
         ctx,
         next: async (nextContext): Promise<ResolverResponse<any>> => {
@@ -59,6 +53,7 @@ export class Middleware<
             ctx: nextContext,
             meta,
             index: index + 1,
+            data,
             middlewares,
           });
         },

@@ -15,9 +15,7 @@
     "lint": "eslint",
     "test": "vitest"
   },
-  "main": "dist/main.js",
-  "module": "dist/main.mjs",
-  "typings": "dist/main.d.ts",
+  "main": "src/main.ts",
   "publishConfig": {
     "access": "public"
   },

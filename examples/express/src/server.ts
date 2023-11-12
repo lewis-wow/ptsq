@@ -12,11 +12,41 @@ const { router, resolver, serve } = createServer({
   }),
 });
 
-const resolverWithName = resolver.args({
-  email: z.object({
-    kk: z.string(),
-  }),
-});
+const resolverWithName = resolver
+  .args({
+    test: z.object({
+      recursion: z.object({
+        recursion: z.object({
+          recursion: z.object({
+            recursion: z.object({
+              recursion: z.object({
+                recursion: z.object({
+                  num: z.number(),
+                }),
+              }),
+            }),
+          }),
+        }),
+      }),
+    }),
+  })
+  .args({
+    test: z.object({
+      recursion: z.object({
+        recursion: z.object({
+          recursion: z.object({
+            recursion: z.object({
+              recursion: z.object({
+                recursion: z.object({
+                  a: z.number(),
+                }),
+              }),
+            }),
+          }),
+        }),
+      }),
+    }),
+  });
 
 const resolverWithNameAndMiddleware = resolverWithName.use(async ({ ctx, input, next }) => {
   console.log(input.email.kk);
@@ -30,8 +60,8 @@ const resolverWithNameAndMiddleware = resolverWithName.use(async ({ ctx, input, 
 
 const greetingsQuery = resolverWithNameAndMiddleware
   .args({
-    email: z.object({
-      ff: z.string(),
+    person: arg({
+      firstName: arg('string'),
     }),
   })
   .query({

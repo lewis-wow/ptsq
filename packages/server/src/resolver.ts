@@ -25,21 +25,18 @@ export type ResolverRequest = {
   route: string;
 };
 
-export type ResolverArgs = Record<string, SerializableInputZodSchema>;
+export type ResolverArgs = SerializableInputZodSchema;
 export type ResolverOutput = SerializableOutputZodSchema;
 
-export type inferResolverArgs<TResolverArgs extends Record<string, any>> = {
-  [K in keyof TResolverArgs]: TResolverArgs[K] extends z.Schema ? z.output<TResolverArgs[K]> : TResolverArgs[K];
-};
+export type inferResolverArgs<TResolverArgs> = TResolverArgs extends z.Schema ? z.output<TResolverArgs> : TResolverArgs;
 
-export type inferResolverArgsInput<TResolverArgs extends Record<string, any>> = TResolverArgs extends
-  | Record<string, never>
+export type inferResolverArgsInput<TResolverArgs> = TResolverArgs extends
   | undefined
   // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
   | void
   ? // make it voidable, so the input is not required
     // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-    undefined | void | Record<string, never>
+    undefined | void
   : inferResolverArgs<TResolverArgs>;
 
 export type inferResolverOutput<TResolverOutput> = TResolverOutput extends z.Schema
@@ -48,9 +45,9 @@ export type inferResolverOutput<TResolverOutput> = TResolverOutput extends z.Sch
 
 export class Resolver<TArgs extends ResolverArgs = ResolverArgs, TContext extends Context = Context> {
   _middlewares: Middleware<any, any>[];
-  _args: TArgs;
+  _args: ResolverArgs[];
 
-  constructor({ args, middlewares = [] }: { args: TArgs; middlewares: Middleware<any, any>[] }) {
+  constructor({ args, middlewares = [] }: { args: ResolverArgs[]; middlewares: Middleware<any, any>[] }) {
     this._args = args;
     this._middlewares = middlewares;
   }
@@ -62,15 +59,14 @@ export class Resolver<TArgs extends ResolverArgs = ResolverArgs, TContext extend
         ...this._middlewares,
         new Middleware({
           middlewareCallback: middleware,
-          args: this._args,
         }),
       ],
     });
   }
 
-  args<TNextArgs extends ResolverArgs>(args: TNextArgs) {
+  args<TNextArgs extends TArgs>(args: TNextArgs) {
     return new Resolver<TArgs & TNextArgs, TContext>({
-      args: this.mergeResolverArguments(args),
+      args: [...this._args, args],
       middlewares: [...this._middlewares],
     });
   }

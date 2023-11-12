@@ -9,12 +9,11 @@ import { zodToJsonSchema } from '@ptsq/zod-parser';
 
 export class Route<
   TType extends ResolverType = ResolverType,
-  TArgs extends ResolverArgs = ResolverArgs,
   TResolverOutput extends ResolverOutput = ResolverOutput,
   TResolveFunction extends ResolveFunction<any, any> = ResolveFunction<any, any>,
 > {
   type: TType;
-  args: TArgs;
+  args: ResolverArgs[];
   output: TResolverOutput;
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
@@ -22,7 +21,7 @@ export class Route<
 
   constructor(options: {
     type: TType;
-    args: TArgs;
+    args: ResolverArgs[];
     output: TResolverOutput;
     resolveFunction: TResolveFunction;
     middlewares: Middleware<ResolverArgs, any>[];
@@ -53,6 +52,8 @@ export class Route<
   }
 
   async call({ ctx, meta }: { ctx: Context; meta: ResolverRequest }): Promise<ResolverResponse<Context>> {
+    const parsedData = args.
+
     const response = await Middleware.recursiveCall({
       ctx,
       meta,

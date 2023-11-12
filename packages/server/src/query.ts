@@ -5,13 +5,12 @@ import { ServerSideQuery } from './serverSideQuery';
 import type { Middleware } from './middleware';
 
 export class Query<
-  TArgs extends ResolverArgs = ResolverArgs,
   TResolverOutput extends ResolverOutput = ResolverOutput,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TResolveFunction extends ResolveFunction<any, any, any> = ResolveFunction<any, any, any>,
-> extends Route<'query', TArgs, TResolverOutput, TResolveFunction> {
+> extends Route<'query', TResolverOutput, TResolveFunction> {
   constructor(options: {
-    args: TArgs;
+    args: ResolverArgs[];
     output: TResolverOutput;
     resolveFunction: TResolveFunction;
     middlewares: Middleware<any, any>[];
