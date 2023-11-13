@@ -1,7 +1,5 @@
 import type { Context } from './context';
 import type { CORSOptions } from './cors';
-import { HTTPError } from './httpError';
-import { requestBodySchema } from './requestBodySchema';
 import type { ResolverResponse } from './resolver';
 import type { Serve } from './serve';
 
@@ -33,42 +31,10 @@ export const Adapter =
       return serve.router.getJsonSchema();
     };
 
-    const serverAdapterHandler = async ({
-      body,
-      params,
-    }: {
+    const serverAdapterHandler = async (options: {
       body: unknown;
       params: object;
-    }): Promise<ResolverResponse<Context>> => {
-      if (serve.router === undefined) throw new Error('Router must be set when calling serve.');
-
-      const parsedRequestBody = requestBodySchema.safeParse(body);
-
-      if (!parsedRequestBody.success)
-        throw new HTTPError({
-          code: 'BAD_REQUEST',
-          message: 'Route query param must be a string separated by dots (user.passwordReset.request)',
-          info: parsedRequestBody.error,
-        });
-
-      const input = parsedRequestBody.data.input;
-
-      const { ctx, route } = await serve.serve({
-        route: parsedRequestBody.data.route,
-        params,
-      });
-
-      const dataResult = await serve.router.call({
-        route,
-        meta: {
-          input,
-          route: parsedRequestBody.data.route,
-        },
-        ctx,
-      });
-
-      return dataResult;
-    };
+    }): Promise<ResolverResponse<Context>> => serve.call(options);
 
     return adapterHandler({
       handler: {

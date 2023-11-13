@@ -12,18 +12,46 @@ const { router, resolver, serve } = createServer({
   }),
 });
 
-const greetingsQuery = resolver.query({
-  input: z.object({
-    name: z.string(),
-  }),
-  output: z.string(),
-  resolve: async ({ input }) => {
-    return `Hello, ${input.name}`;
-  },
+resolver.use((opts) => {
+  console.log(opts.input);
+
+  return opts.next(opts.ctx);
+});
+
+const resolverWithName = resolver.args(
+  z.object({
+    test: z.string(),
+  })
+);
+
+resolverWithName.use((opts) => {
+  console.log(opts.input);
+
+  return opts.next(opts.ctx);
+});
+
+const another = resolverWithName.args(
+  z.object({
+    test: z.string().email(),
+    num: z.number(),
+  })
+);
+
+another.use((opts) => {
+  console.log(opts.input);
+
+  return opts.next(opts.ctx);
 });
 
 const baseRouter = router({
-  greetings: greetingsQuery,
+  test: another.query({
+    output: z.object({ test: z.string(), num: z.number() }),
+    resolve: ({ input }) => input,
+  }),
+  empty: resolver.query({
+    output: z.null(),
+    resolve: ({ input }) => input ?? null,
+  }),
 });
 
 app.use('/ptsq', expressAdapter(serve({ router: baseRouter })));

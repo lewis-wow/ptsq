@@ -9,6 +9,7 @@ const sidebars = {
     'scalars',
     'router',
     'middlewares',
+    'args-chaining',
     'introspection',
     'errors',
     'cors',

@@ -1,4 +1,4 @@
-import { HTTPError, HTTPErrorCode } from '../httpError';
+import { HTTPErrorCode } from '../httpError';
 import { Adapter } from '../adapter';
 import { type RequestListener, type IncomingMessage, type ServerResponse } from 'http';
 import express from 'express';
@@ -34,13 +34,13 @@ export const httpAdapter = Adapter<HttpAdapterContext, RequestListener>(
       urlencoded({ extended: false }),
       json(),
       (req, res) => {
-        handler
-          .server({ body: req.body, params: { req, res } })
-          .then((data) => res.json(data))
-          .catch((error) => {
-            if (HTTPError.isHttpError(error))
-              res.status(HTTPErrorCode[error.code]).json({ message: error.message, info: error.info });
-          });
+        handler.server({ body: req.body, params: { req, res } }).then((response) => {
+          if (!response.ok)
+            return res
+              .status(HTTPErrorCode[response.error.code])
+              .json({ message: response.error.message, info: response.error.info });
+          return res.json(response.data);
+        });
       }
     );
 

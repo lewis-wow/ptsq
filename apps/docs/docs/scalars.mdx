@@ -23,10 +23,7 @@ export const URLScalar = scalar({
     schema: z.string().url(), // used to validate requst and response
     value: (arg) => arg.toString(),
   },
-  description: {
-    input: 'String format of url', // used to describe scalar input for schema
-    output: 'String format of url', // used to describe scalar output for schema
-  },
+  description: 'String format of url', // used to describe scalar input for schema
 });
 ```
 
@@ -47,10 +44,7 @@ const { middleware, resolver, router, serve, scalar } = createServer({
 });
 
 const baseRouter = router({
-  urlQuery: resolver.query({
-    input: z.object({
-      url: URLScalar.input,
-    }),
+  urlQuery: resolver.args(z.object({ url: URLScalar.input })).query({
     output: URLScalar.output,
     resolve: ({ input /* { url: URL } */ }) => new URL(`${input.url.href}/pathname`),
   }),
@@ -90,10 +84,7 @@ export const DateScalar = scalar({
     schema: z.string().datetime(),
     value: (arg) => arg.toISOString(),
   },
-  description: {
-    input: 'ISO string format of date',
-    output: 'ISO string format of date',
-  },
+  description: 'ISO string format of date',
 });
 ```
 
@@ -120,7 +111,7 @@ The description is very useful in schema introspection, cause the introspected s
 export interface DateQuery {
   type: 'query';
   nodeType: 'route';
-  inputValidationSchema: {
+  args: {
     /**
      * ISO string format of date
      */
@@ -131,7 +122,7 @@ export interface DateQuery {
   /**
    * ISO string format of date
    */
-  outputValidationSchema: string;
+  output: string;
 }
 ```
 

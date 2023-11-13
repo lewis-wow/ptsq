@@ -40,10 +40,15 @@ test('Should parse with valid serializable value with undefined', () => {
         },
       },
     },
-    undef: undefined,
   });
 
   expect(parseResult.success).toBe(true);
+});
+
+test('Should parse without input', () => {
+  const parseResult = serializableZodSchema.safeParse(undefined);
+
+  expect(parseResult.success).toBe(false);
 });
 
 test('Should not parse with invalid serializable value with Date object', () => {

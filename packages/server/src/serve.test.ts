@@ -12,8 +12,8 @@ test('Should create serve', async () => {
     contextBuilder,
   });
 
-  await expect(async () => await serve.serve({ route: 'a.b', params: {} })).rejects.toThrowError(
-    new Error('Router must be set by Serve.adapter before serve the server')
+  await expect(async () => await serve.call({ body: { route: 'a.b' }, params: {} })).rejects.toThrowError(
+    new Error('Router must be set by Serve.adapt before server call.')
   );
 
   const { router } = createServer({
@@ -22,80 +22,44 @@ test('Should create serve', async () => {
 
   const baseRouter = router({});
 
-  serve.adapter({ router: baseRouter });
+  serve.adapt({ router: baseRouter });
 
   /**
    * should pass even with bad params type
    */
-  expect(await serve.serve({ route: 'a.b', params: {} })).toMatchInlineSnapshot(`
+  expect(await serve.call({ body: { route: 'a.b' }, params: {} })).toMatchInlineSnapshot(`
     {
       "ctx": {
         "test1": undefined,
         "test2": "Hello",
       },
-      "route": Queue {
-        "_size": 2,
-        "head": QueueNode {
-          "next": QueueNode {
-            "next": undefined,
-            "value": "b",
-          },
-          "value": "a",
-        },
-        "tail": QueueNode {
-          "next": undefined,
-          "value": "b",
-        },
-      },
+      "error": [_HTTPError: The route was invalid.],
+      "ok": false,
     }
   `);
 
-  expect(await serve.serve({ route: 'a.b', params: { test1: 1 } })).toMatchInlineSnapshot(`
+  expect(await serve.call({ body: { route: 'a.b' }, params: { test1: 1 } })).toMatchInlineSnapshot(`
     {
       "ctx": {
         "test1": 1,
         "test2": "Hello",
       },
-      "route": Queue {
-        "_size": 2,
-        "head": QueueNode {
-          "next": QueueNode {
-            "next": undefined,
-            "value": "b",
-          },
-          "value": "a",
-        },
-        "tail": QueueNode {
-          "next": undefined,
-          "value": "b",
-        },
-      },
+      "error": [_HTTPError: The route was invalid.],
+      "ok": false,
     }
   `);
 
   /**
    * should pass even with bad params type
    */
-  expect(await serve.serve({ route: 'a.b', params: { test1: 'not a number' } })).toMatchInlineSnapshot(`
+  expect(await serve.call({ body: { route: 'a.b' }, params: { test1: 'not a number' } })).toMatchInlineSnapshot(`
     {
       "ctx": {
         "test1": "not a number",
         "test2": "Hello",
       },
-      "route": Queue {
-        "_size": 2,
-        "head": QueueNode {
-          "next": QueueNode {
-            "next": undefined,
-            "value": "b",
-          },
-          "value": "a",
-        },
-        "tail": QueueNode {
-          "next": undefined,
-          "value": "b",
-        },
-      },
+      "error": [_HTTPError: The route was invalid.],
+      "ok": false,
     }
   `);
 });

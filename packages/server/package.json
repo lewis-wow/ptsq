@@ -1,6 +1,6 @@
 {
   "name": "@ptsq/server",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "homepage": "https://ptsq-docs.vercel.app/",
   "author": "lewis-wow",
   "license": "MIT",
@@ -35,10 +35,7 @@
     "@types/node": "^20.7.0",
     "@types/pascalcase": "^1.0.1",
     "axios": "^1.5.1",
-    "typescript": "^5.2.2",
-    "vite": "^4.5.0",
-    "vite-plugin-dts": "^3.6.1",
-    "vitest": "^0.34.6"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
@@ -46,6 +43,7 @@
     "express": "^4.18.2",
     "pascalcase": "^0.1.1",
     "zod": "^3.22.2",
-    "zod-to-json-schema": "^3.21.4"
+    "zod-to-json-schema": "^3.21.4",
+    "@ptsq/zod-parser": "*"
   }
 }

@@ -1,4 +1,4 @@
-import { z, type ZodVoid } from 'zod';
+import type { ZodUndefined, ZodVoid, z } from 'zod';
 import type { Context } from './context';
 import { Middleware, type MiddlewareCallback } from './middleware';
 import { Mutation } from './mutation';
@@ -24,72 +24,91 @@ export type ResolverRequest = {
   route: string;
 };
 
-export class Resolver<TContext extends Context = Context> {
-  constructor(public middlewares: Middleware<any>[] = []) {}
+export type ResolverArgs = SerializableInputZodSchema;
+export type ResolverOutput = SerializableOutputZodSchema;
 
-  use<TNextContext extends Context>(middleware: MiddlewareCallback<TContext, TNextContext>) {
-    return new Resolver<TNextContext>([...this.middlewares, new Middleware(middleware)]);
+export type inferResolverArgs<TResolverArgs> = TResolverArgs extends z.Schema
+  ? TResolverArgs extends ZodVoid
+    ? undefined
+    : z.output<TResolverArgs>
+  : TResolverArgs;
+
+export type inferResolverArgsInput<TResolverArgs> = TResolverArgs extends
+  | undefined
+  | ZodUndefined
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+  | void
+  | ZodVoid
+  ? // make it voidable, so the input is not required
+    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+    undefined | void
+  : inferResolverArgs<TResolverArgs>;
+
+export type inferResolverOutput<TResolverOutput> = TResolverOutput extends z.Schema
+  ? z.input<TResolverOutput>
+  : TResolverOutput;
+
+export class Resolver<
+  TArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
+  TContext extends Context = Context,
+> {
+  _middlewares: Middleware<any, any>[];
+  _args: TArgs;
+
+  constructor({ args, middlewares = [] }: { args: unknown; middlewares: Middleware<any, any>[] }) {
+    this._args = args as TArgs;
+    this._middlewares = middlewares;
   }
 
-  mutation<
-    TMutationInput extends SerializableInputZodSchema,
-    TMutationOutput extends SerializableOutputZodSchema,
-  >(options: {
-    input: TMutationInput;
-    output: TMutationOutput;
-    resolve: ResolveFunction<z.output<TMutationInput>, z.input<TMutationOutput>, TContext>;
-  }): Mutation<
-    TMutationInput,
-    TMutationOutput,
-    ResolveFunction<z.output<TMutationInput>, z.input<TMutationOutput>, TContext>
-  >;
-
-  mutation<TMutationOutput extends SerializableInputZodSchema>(options: {
-    output: TMutationOutput;
-    resolve: ResolveFunction<undefined, z.input<TMutationOutput>, TContext>;
-  }): Mutation<ZodVoid, TMutationOutput, ResolveFunction<undefined, z.input<TMutationOutput>, TContext>>;
-
-  mutation<
-    TMutationInput extends SerializableInputZodSchema,
-    TMutationOutput extends SerializableOutputZodSchema,
-  >(options: {
-    input?: TMutationInput;
-    output: TMutationOutput;
-    resolve: ResolveFunction<z.output<TMutationInput>, z.input<TMutationOutput>, TContext>;
-  }): Mutation<
-    TMutationInput,
-    TMutationOutput,
-    ResolveFunction<z.output<TMutationInput>, z.input<TMutationOutput>, TContext>
-  > {
-    return new Mutation({
-      inputValidationSchema: (options.input ?? z.void()) as TMutationInput,
-      outputValidationSchema: options.output,
-      resolveFunction: options.resolve,
-      middlewares: this.middlewares,
+  use<TNextContext extends Context>(middleware: MiddlewareCallback<TArgs, TContext, TNextContext>) {
+    return new Resolver<TArgs, TNextContext>({
+      args: this._args,
+      middlewares: [
+        ...this._middlewares,
+        new Middleware({
+          args: this._args as any,
+          middlewareCallback: middleware,
+        }),
+      ],
     });
   }
 
-  query<TQueryInput extends SerializableInputZodSchema, TQueryOutput extends SerializableOutputZodSchema>(options: {
-    input: TQueryInput;
-    output: TQueryOutput;
-    resolve: ResolveFunction<z.output<TQueryInput>, z.input<TQueryOutput>, TContext>;
-  }): Query<TQueryInput, TQueryOutput, ResolveFunction<z.output<TQueryInput>, z.input<TQueryOutput>, TContext>>;
+  args<TNextArgs extends TArgs extends ZodVoid ? ResolverArgs : TArgs>(nextArgs: TNextArgs) {
+    return new Resolver<TNextArgs, TContext>({
+      args: nextArgs,
+      middlewares: [...this._middlewares],
+    });
+  }
 
-  query<TQueryOutput extends SerializableOutputZodSchema>(options: {
-    output: TQueryOutput;
-    resolve: ResolveFunction<undefined, z.input<TQueryOutput>, TContext>;
-  }): Query<ZodVoid, TQueryOutput, ResolveFunction<undefined, z.input<TQueryOutput>, TContext>>;
-
-  query<TQueryInput extends SerializableInputZodSchema, TQueryOutput extends SerializableOutputZodSchema>(options: {
-    input?: TQueryInput;
-    output: TQueryOutput;
-    resolve: ResolveFunction<z.output<TQueryInput>, z.input<TQueryOutput>, TContext>;
-  }): Query<TQueryInput, TQueryOutput, ResolveFunction<z.output<TQueryInput>, z.input<TQueryOutput>, TContext>> {
-    return new Query({
-      inputValidationSchema: (options.input ?? z.void()) as TQueryInput,
-      outputValidationSchema: options.output,
+  mutation<TResolverOutput extends ResolverOutput>(options: {
+    output: TResolverOutput;
+    resolve: ResolveFunction<inferResolverArgs<TArgs>, inferResolverOutput<TResolverOutput>, TContext>;
+  }): Mutation<
+    TArgs,
+    TResolverOutput,
+    ResolveFunction<inferResolverArgs<TArgs>, inferResolverOutput<TResolverOutput>, TContext>
+  > {
+    return new Mutation({
+      args: this._args,
+      output: options.output,
       resolveFunction: options.resolve,
-      middlewares: this.middlewares,
+      middlewares: this._middlewares,
+    });
+  }
+
+  query<TResolverOutput extends ResolverOutput>(options: {
+    output: TResolverOutput;
+    resolve: ResolveFunction<inferResolverArgs<TArgs>, inferResolverOutput<TResolverOutput>, TContext>;
+  }): Query<
+    TArgs,
+    TResolverOutput,
+    ResolveFunction<inferResolverArgs<TArgs>, inferResolverOutput<TResolverOutput>, TContext>
+  > {
+    return new Query({
+      args: this._args,
+      output: options.output,
+      resolveFunction: options.resolve,
+      middlewares: this._middlewares,
     });
   }
 }

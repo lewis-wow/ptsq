@@ -5,8 +5,6 @@ import type { Mutation } from './mutation';
 import type { Query } from './query';
 import type { Queue } from './queue';
 import type { ResolverRequest, ResolverResponse } from './resolver';
-import type { ServerSideMutation } from './serverSideMutation';
-import type { ServerSideQuery } from './serverSideQuery';
 
 export type Routes = {
   [Key: string]: Query | Mutation | Router;
@@ -20,7 +18,7 @@ export class Router<TRoutes extends Routes = Routes> {
     this.routes = routes;
   }
 
-  getJsonSchema(title = 'root') {
+  getJsonSchema(title = 'base') {
     return createSchemaRoot({
       title: `${title} router`,
       properties: {
@@ -78,14 +76,27 @@ export class Router<TRoutes extends Routes = Routes> {
   }): Promise<ResolverResponse<Context>> {
     const currentRoute = route.dequeue();
 
-    if (!currentRoute || !(currentRoute in this.routes))
-      throw new HTTPError({ code: 'BAD_REQUEST', message: 'The route is invalid.' });
+    if (!currentRoute)
+      throw new HTTPError({
+        code: 'BAD_REQUEST',
+        message: 'The route was terminated by query or mutate but should continue.',
+      });
+
+    if (!(currentRoute in this.routes))
+      throw new HTTPError({
+        code: 'BAD_REQUEST',
+        message: 'The route was invalid.',
+      });
 
     const nextNode = this.routes[currentRoute];
 
     if (nextNode.nodeType === 'router') return nextNode.call({ route, ctx, meta });
 
-    if (route.size !== 0) throw new HTTPError({ code: 'BAD_REQUEST', message: 'The route is invalid.' });
+    if (route.size !== 0)
+      throw new HTTPError({
+        code: 'BAD_REQUEST',
+        message: 'The route continues, but should be terminated by query or mutate.',
+      });
 
     return nextNode.call({ meta, ctx });
   }
@@ -95,8 +106,8 @@ type RouterProxyCaller<TRoutes extends Routes, TContext extends Context> = {
   [K in keyof TRoutes]: TRoutes[K] extends Router
     ? RouterProxyCaller<TRoutes[K]['routes'], TContext>
     : TRoutes[K] extends Mutation
-    ? ServerSideMutation<TRoutes[K], TContext>
+    ? ReturnType<TRoutes[K]['createServerSideMutation']>
     : TRoutes[K] extends Query
-    ? ServerSideQuery<TRoutes[K], TContext>
+    ? ReturnType<TRoutes[K]['createServerSideQuery']>
     : never;
 };

@@ -1,20 +1,48 @@
 import type { Context } from './context';
-import type { ResolverResponse } from './resolver';
+import type { ResolverResponse, inferResolverArgs } from './resolver';
 import type { ResolverRequest } from './resolver';
 import { HTTPError } from './httpError';
+import type { ResolverArgs } from './resolver';
 
 export type NextFunction = <TNextContext extends Context>(
   nextContext: TNextContext
 ) => Promise<ResolverResponse<TNextContext>>;
 
-export type MiddlewareCallback<TContext extends Context, TNextContext extends Context> = (options: {
+export type MiddlewareCallback<TArgs, TContext extends Context, TNextContext extends Context> = (options: {
+  input: inferResolverArgs<TArgs>;
   meta: ResolverRequest;
   ctx: TContext;
   next: NextFunction;
 }) => ReturnType<typeof options.next<TNextContext>>;
 
-export class Middleware<TContext extends Context = Context, TNextContext extends Context = Context> {
-  constructor(public middlewareCallback: MiddlewareCallback<TContext, TNextContext>) {}
+export class Middleware<
+  TArgs extends ResolverArgs = ResolverArgs,
+  TContext extends Context = Context,
+  TNextContext extends Context = Context,
+> {
+  _middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext>;
+  _args: TArgs;
+
+  constructor(options: { args: TArgs; middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext> }) {
+    this._middlewareCallback = options.middlewareCallback;
+    this._args = options.args;
+  }
+
+  static createSuccessResponse({ data, ctx }: { data: unknown; ctx: object }): ResolverResponse<object> {
+    return {
+      ok: true,
+      data,
+      ctx,
+    };
+  }
+
+  static createFailureResponse({ error, ctx }: { error: HTTPError; ctx: object }): ResolverResponse<object> {
+    return {
+      ok: false,
+      error,
+      ctx,
+    };
+  }
 
   static async recursiveCall({
     ctx,
@@ -25,10 +53,16 @@ export class Middleware<TContext extends Context = Context, TNextContext extends
     ctx: any;
     meta: ResolverRequest;
     index: number;
-    middlewares: Middleware<any, any>[];
+    middlewares: Middleware<ResolverArgs, any>[];
   }): Promise<ResolverResponse<any>> {
     try {
-      return await middlewares[index].middlewareCallback({
+      const parsedInput = middlewares[index]._args.safeParse(meta.input);
+
+      if (!parsedInput.success)
+        throw new HTTPError({ code: 'BAD_REQUEST', message: 'Args validation error.', info: parsedInput.error });
+
+      return await middlewares[index]._middlewareCallback({
+        input: parsedInput.data,
         meta,
         ctx,
         next: async (nextContext): Promise<ResolverResponse<any>> => {
@@ -41,12 +75,7 @@ export class Middleware<TContext extends Context = Context, TNextContext extends
         },
       });
     } catch (error) {
-      if (HTTPError.isHttpError(error))
-        return {
-          ok: false,
-          error,
-          ctx,
-        };
+      if (HTTPError.isHttpError(error)) return Middleware.createFailureResponse({ ctx, error });
 
       // rethrow original error
       throw error;

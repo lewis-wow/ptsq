@@ -1,6 +1,6 @@
 {
   "name": "@ptsq/client",
-  "version": "0.0.12",
+  "version": "0.1.13",
   "homepage": "https://ptsq-docs.vercel.app/",
   "author": "lewis-wow",
   "license": "MIT",
@@ -12,7 +12,8 @@
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "rollup --config rollup.config.ts --bundleConfigAsCjs",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "vitest"
   },
   "publishConfig": {
     "access": "public"
@@ -38,7 +39,8 @@
   "devDependencies": {
     "@ptsq/server": "*",
     "@types/node": "^20.7.0",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "@ptsq/test-utils": "*"
   },
   "dependencies": {
     "axios": "^1.5.1",

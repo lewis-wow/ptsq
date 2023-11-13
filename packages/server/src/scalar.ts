@@ -38,43 +38,24 @@ export type ScalarSerializer<TInputSchema extends z.Schema, TOutputSchema extend
 export const scalar = <
   TSerializeSchema extends z.Schema<Serializable>,
   TParseSchema extends z.Schema,
-  TDescriptionInput extends string | undefined,
-  TDescriptionOutput extends string | undefined,
+  TDescription extends string | undefined,
 >(scalarDefinition: {
   parse: ScalarParser<TSerializeSchema, TParseSchema>;
   serialize: ScalarSerializer<TParseSchema, TSerializeSchema>;
-  description?: {
-    input?: TDescriptionInput;
-    output?: TDescriptionOutput;
-  };
+  description?: TDescription;
 }) =>
-  new Scalar<
-    TSerializeSchema,
-    TParseSchema,
-    {
-      input: TDescriptionInput;
-      output: TDescriptionOutput;
-    }
-  >(
+  new Scalar<TSerializeSchema, TParseSchema, TDescription>(
     scalarDefinition as {
       parse: ScalarParser<TSerializeSchema, TParseSchema>;
       serialize: ScalarSerializer<TParseSchema, TSerializeSchema>;
-      description: {
-        input: TDescriptionInput;
-        output: TDescriptionOutput;
-      };
+      description: TDescription;
     }
   );
 
 export class Scalar<
-  TSerializeSchema extends z.Schema<Serializable>,
-  TParseSchema extends z.Schema,
-  TDescription extends
-    | {
-        input?: string;
-        output?: string;
-      }
-    | undefined,
+  TSerializeSchema extends z.Schema<Serializable> = z.Schema<Serializable>,
+  TParseSchema extends z.Schema = z.Schema,
+  TDescription extends string | undefined = string | undefined,
 > {
   protected parse: ScalarParser<TSerializeSchema, TParseSchema>;
   protected serialize: ScalarSerializer<TParseSchema, TSerializeSchema>;
@@ -110,8 +91,6 @@ export class Scalar<
       return transformParseResult.data;
     });
 
-    if (this.description?.input) this.input.describe(this.description.input);
-
     this.output = z.preprocess((arg) => {
       const preprocessParseResult = this.parse.schema.safeParse(arg);
       if (!preprocessParseResult.success)
@@ -133,6 +112,9 @@ export class Scalar<
       }
     }, this.serialize.schema);
 
-    if (this.description?.output) this.output.describe(this.description.output);
+    if (this.description) {
+      this.input.describe(this.description);
+      this.output.describe(this.description);
+    }
   }
 }

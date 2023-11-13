@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BaseRouter",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "nodeType": { "type": "string", "enum": ["router"] },
+    "routes": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "greetings": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "title": "BaseGreetingsRoute",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": { "type": "string", "enum": ["query"] },
+            "nodeType": { "type": "string", "enum": ["route"] },
+            "args": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "allOf": [
+                    { "type": "object", "properties": { "kk": { "type": "string" } }, "required": ["kk"] },
+                    { "type": "object", "properties": { "ff": { "type": "string" } }, "required": ["ff"] }
+                  ]
+                }
+              },
+              "required": ["email"],
+              "additionalProperties": false,
+              "$schema": "http://json-schema.org/draft-07/schema#"
+            },
+            "output": { "type": "string", "$schema": "http://json-schema.org/draft-07/schema#" }
+          },
+          "required": ["type", "nodeType", "args", "output"]
+        }
+      },
+      "required": ["greetings"]
+    }
+  },
+  "required": ["nodeType", "routes"]
+}

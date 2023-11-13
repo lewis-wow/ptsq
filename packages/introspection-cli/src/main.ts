@@ -13,7 +13,7 @@ const argv = yargs
   .alias('h', 'help')
   .option('url', {
     alias: 'u',
-    describe: 'the schema url to introspectate',
+    describe: 'the ptsq url to introspectate, should be without /introspection path',
     type: 'string',
     demandOption: true,
   })
@@ -33,25 +33,30 @@ const argv = yargs
 
 const { url, out, lang } = argv.parseSync();
 
+const parsedUrl = new URL(url);
+
 axios
-  .get(url)
+  .get(`${parsedUrl.href}/introspection`)
   .then(async (response) => {
     let schema: string | null = null;
     let outFile: string | null = null;
 
-    switch (lang) {
+    switch (lang.toUpperCase()) {
       case Languages.TS:
-        schema = await compile(response.data, 'MySchema', {
-          unreachableDefinitions: true,
-        });
+        schema = await compile(response.data, 'MySchema');
 
         outFile = out ?? 'schema.generated.ts';
         break;
+      case Languages.RAW:
+        schema = JSON.stringify(response.data);
+
+        outFile = out ?? 'schema.generated.json';
+        break;
       default:
-        throw new Error('This programming language has not implement instrospection of ptsq schema');
+        throw new Error(`This programming language (${lang}) has not implement instrospection of ptsq schema`);
     }
 
-    await writeFile(outFile, schema, 'utf8');
+    await writeFile(outFile, schema!, 'utf8');
 
     console.log(`Schema generated into ${resolve(outFile)}`);
   })

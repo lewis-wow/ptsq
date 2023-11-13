@@ -4,6 +4,7 @@ import { Resolver } from './resolver';
 import { Serve } from './serve';
 import { scalar } from './scalar';
 import type { CORSOptions } from './cors';
+import { type ZodVoid, z } from 'zod';
 
 type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   ctx: TContextBuilder;
@@ -16,7 +17,7 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
  * @example
  * ```ts
  * const { resolver, router, middleware, serve, scalar } = createServer({
- *   ctx: () => {},
+ *   ctx: () => ({}),
  *   cors: {
  *     origin: ['http://localhost:3000', 'https://example.com'],
  *     introspection: '*',
@@ -32,18 +33,22 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
 
   /**
    * Creates a queries or mutations
+   *
    * resolvers can use middlewares to create like protected resolver
    *
    * @example
    * ```ts
    * resolver.query({
-   *   input: z.object({ name: z.string() }),
    *   output: z.string(),
    *   resolve: ({ input, ctx }) => `Hello, ${input.name}!`,
    * });
    * ```
    */
-  const resolver = new Resolver<RootContext>();
+  // The {} type actually describes empty object here, no non-nullish
+  const resolver = new Resolver<ZodVoid, RootContext>({
+    args: z.void(),
+    middlewares: [],
+  });
 
   const serveInternal = new Serve({ contextBuilder: ctx, cors });
 
@@ -69,10 +74,10 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    *
    * @example
    * ```ts
-   * expressAdapter(serve({ router: rootRouter }))
+   * serve({ router: rootRouter });
    * ```
    */
-  const serve = ({ router: rootRouter }: { router: Router }) => serveInternal.adapter({ router: rootRouter });
+  const serve = ({ router: rootRouter }: { router: Router }) => serveInternal.adapt({ router: rootRouter });
 
   return {
     resolver,

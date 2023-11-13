@@ -1,6 +1,7 @@
 # Middlewares
 
 Middleware function run before every route call (query, mutation) that the resolver that uses the middleware creates.
+The `next` function determines when the next middleware will start.
 
 ```ts title="server.ts"
 import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
@@ -21,21 +22,18 @@ const createContext = async ({ req, res }: ExpressAdapterContext) => {
   };
 };
 
-const { middleware, resolver, router, serve } = createServer({
+const { resolver, router, serve } = createServer({
   ctx: createContext,
 });
 
-const isAuthed = middleware(({ ctx, next }) => {
+const protectedResolver = resolver.use(({ ctx, next }) => {
   if (!ctx.user) throw new Error('Must be logged in!');
 
   return next({
-    ctx: {
-      user: ctx.user,
-    },
+    ...ctx,
+    user: ctx.user,
   });
 });
-
-const protectedResolver = resolver.use(isAuthed);
 
 resolver.query({
   resolve: async ({ ctx /* { user: User | null } */, input /* undefined */ }) => {
@@ -54,32 +52,76 @@ protectedResolver.query({
 The `next` function only returns the passed context.
 It is only for keep the context type up to date after e.g. `if` condition.
 
+## Run next function before return
+
+You can also run the next function before the return, so the next middlewares runs before the first middleware ends.
+
+It can be usefull for measuring the time for response.
+
+The last middleware that runs is the `resolve` function. It always runs as a last middleware.
+
+```ts title="server.ts"
+const measuredResolver = resolver.use(({ ctx, next }) => {
+  if (!ctx.user) throw new Error('Must be logged in!');
+
+  const timeStart = performance.now();
+
+  const resolverResult = next({
+    ...ctx,
+    user: ctx.user,
+  });
+
+  const time = performance.now() - timeStart;
+
+  console.log('Time to resolve: ', time);
+  console.log('The result of resolver is: ', resolverResult);
+
+  return resolverResult;
+});
+```
+
+As you can see, you still have to return the resolver result, it is for context type infering and for passing the result up to middlewares that runs before, as you can nest multiple middlewares and the result returns recursively.
+
+The type of the resolver result is
+
+```ts
+type ResolverResponse<TContext extends Context> =
+  | {
+      ok: true;
+      data: unknown;
+      ctx: TContext;
+    }
+  | {
+      ok: false;
+      error: HTTPError;
+      ctx: TContext;
+    };
+```
+
+so you have to determine if the `ok` property is `true` or `false` to access the `data` or `error`.
+
 ## Middleware pipes
 
 If middlewares are piped, then all the middlewares runs before the route call in piping order.
 
 ```ts title="server.ts"
-const isAuthed = middleware(({ ctx /* { user: User<any> | null } */, next }) => {
+const protectedResolver = resolver.use(({ ctx /* { user: User<any> | null } */, next }) => {
   if (!ctx.user) throw new Error('Must be logged in!');
 
   return next({
-    ctx: {
-      user: ctx.user,
-    },
+    ...ctx,
+    user: ctx.user,
   });
 });
 
-const isAdmin = isAuthed.pipe(({ ctx /* { user: User<any> } */, next }) => {
+const adminResolver = protectedResolver.use(({ ctx /* { user: User<any> } */, next }) => {
   if (ctx.user.role !== 'admin') throw new Error('Must be an admin!');
 
   return next({
-    ctx: {
-      user: ctx.user,
-    },
+    ...ctx,
+    user: ctx.user,
   });
 });
-
-const adminResolver = resolver.use(isAdmin);
 
 const deleteOrganization = adminResolver.mutation({
   //...
