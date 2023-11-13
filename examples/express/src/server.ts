@@ -49,8 +49,8 @@ const baseRouter = router({
     resolve: ({ input }) => input,
   }),
   empty: resolver.query({
-    output: z.undefined(),
-    resolve: ({ input }) => input,
+    output: z.null(),
+    resolve: ({ input }) => input ?? null,
   }),
 });
 
