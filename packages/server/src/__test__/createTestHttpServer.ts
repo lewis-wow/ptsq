@@ -33,6 +33,8 @@ export const createTestHttpServer = <TContext extends Context>({
 
     await client(`${serverRootUrl}/ptsq`);
 
-    httpServer.close(resolve);
+    httpServer.on('close', resolve);
+
+    httpServer.close();
   });
 };
