@@ -2,7 +2,6 @@ import type { Context } from './context';
 import type { CORSOptions } from './cors';
 import { HTTPError } from './httpError';
 import { requestBodySchema } from './requestBodySchema';
-import type { ResolverResponse } from './resolver';
 import type { Serve } from './serve';
 
 type AdapterIntrospectionHandler = () => object;
@@ -10,7 +9,7 @@ type AdapterIntrospectionHandler = () => object;
 type AdapterServerHandler<TAdapterServerHandlerParams> = (args: {
   body: unknown;
   params: TAdapterServerHandlerParams;
-}) => Promise<ResolverResponse<Context>>;
+}) => Promise<unknown>;
 
 type AdapterHandler<TAdapterServerHandlerParams extends Context, TAdapterHandlerReturnType> = (args: {
   handler: {
@@ -33,13 +32,7 @@ export const Adapter =
       return serve.router.getJsonSchema();
     };
 
-    const serverAdapterHandler = async ({
-      body,
-      params,
-    }: {
-      body: unknown;
-      params: object;
-    }): Promise<ResolverResponse<Context>> => {
+    const serverAdapterHandler = async ({ body, params }: { body: unknown; params: object }): Promise<unknown> => {
       if (serve.router === undefined) throw new Error('Router must be set when calling serve.');
 
       const parsedRequestBody = requestBodySchema.safeParse(body);
@@ -58,7 +51,7 @@ export const Adapter =
         params,
       });
 
-      const dataResult = await serve.router.call({
+      const response = await serve.router.call({
         route,
         meta: {
           input,
@@ -67,7 +60,9 @@ export const Adapter =
         ctx,
       });
 
-      return dataResult;
+      if (!response.ok) throw response.error;
+
+      return response.data;
     };
 
     return adapterHandler({
