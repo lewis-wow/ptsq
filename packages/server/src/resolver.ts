@@ -6,7 +6,6 @@ import { Query } from './query';
 import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
 import type { MaybePromise } from './types';
 import type { HTTPError } from './httpError';
-import { zipResolverArgs } from './zipResolverArgs';
 
 export type ResolverResponse<TContext extends Context> =
   | {
@@ -43,30 +42,31 @@ export type inferResolverOutput<TResolverOutput> = TResolverOutput extends z.Sch
   ? z.input<TResolverOutput>
   : TResolverOutput;
 
-export class Resolver<TArgs extends ResolverArgs = ResolverArgs, TContext extends Context = Context> {
+export class Resolver<TArgs, TContext extends Context = Context> {
   _middlewares: Middleware<any, any>[];
-  _args: ResolverArgs[];
+  _args: TArgs;
 
-  constructor({ args, middlewares = [] }: { args: ResolverArgs[]; middlewares: Middleware<any, any>[] }) {
-    this._args = args;
+  constructor({ args, middlewares = [] }: { args: unknown; middlewares: Middleware<any, any>[] }) {
+    this._args = args as TArgs;
     this._middlewares = middlewares;
   }
 
   use<TNextContext extends Context>(middleware: MiddlewareCallback<TArgs, TContext, TNextContext>) {
     return new Resolver<TArgs, TNextContext>({
-      args: [...this._args],
+      args: this._args,
       middlewares: [
         ...this._middlewares,
         new Middleware({
+          args: this._args as any,
           middlewareCallback: middleware,
         }),
       ],
     });
   }
 
-  args<TNextArgs extends TArgs>(args: TNextArgs) {
+  args<TNextArgs extends TArgs extends undefined ? ResolverArgs : TArgs>(nextArgs: TNextArgs) {
     return new Resolver<TNextArgs, TContext>({
-      args: [...this._args, args],
+      args: nextArgs,
       middlewares: [...this._middlewares],
     });
   }

@@ -13,7 +13,7 @@ test('Should create mutation', async () => {
   const resolveFunction = ({ input, ctx }: { input: { name: string }; ctx: { greetingsPrefix: 'Hello' } }) =>
     `${ctx.greetingsPrefix} ${input.name}`;
 
-  const argsSchema = { name: z.string() };
+  const argsSchema = z.object({ name: z.string() });
   const outputValidationSchema = z.string();
 
   const mutation = resolver.args(argsSchema).mutation({
@@ -71,27 +71,14 @@ test('Should create mutation', async () => {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
-        "args": {
-          "additionalProperties": false,
-          "properties": {
-            "name": {
-              "type": "string",
-            },
-          },
-          "required": [
-            "name",
-          ],
-          "type": "object",
-        },
+        "args": {},
         "nodeType": {
           "enum": [
             "route",
           ],
           "type": "string",
         },
-        "output": {
-          "type": "string",
-        },
+        "output": {},
         "type": {
           "enum": [
             "mutation",
@@ -118,7 +105,7 @@ test('Should create mutation without args', async () => {
     }),
   });
 
-  const resolveFunction = ({ ctx }: { input: Record<string, never>; ctx: { greetingsPrefix: 'Hello' } }) =>
+  const resolveFunction = ({ ctx }: { input: undefined; ctx: { greetingsPrefix: 'Hello' } }) =>
     `${ctx.greetingsPrefix}`;
 
   const outputValidationSchema = z.string();
@@ -131,7 +118,7 @@ test('Should create mutation without args', async () => {
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
   expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.args).toStrictEqual({});
+  expect(mutation.args).instanceOf(z.ZodUndefined);
   expect(mutation.output).toStrictEqual(outputValidationSchema);
   expect(mutation.resolveFunction).toBe(resolveFunction);
 
@@ -228,7 +215,10 @@ test('Should create mutation with twice chain', async () => {
     ctx: { greetingsPrefix: 'Hello' };
   }) => `${ctx.greetingsPrefix} ${input.firstName} ${input.lastName}`;
 
-  const mutation = resolver.args({ firstName: validationSchema }).args({ lastName: validationSchema }).mutation({
+  const firstSchemaInChain = z.object({ firstName: validationSchema });
+  const secondSchemaInChain = z.object({ firstName: validationSchema, lastName: validationSchema });
+
+  const mutation = resolver.args(firstSchemaInChain).args(secondSchemaInChain).mutation({
     output: validationSchema,
     resolve: resolveFunction,
   });
@@ -236,10 +226,7 @@ test('Should create mutation with twice chain', async () => {
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
   expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.args).toStrictEqual({
-    firstName: validationSchema,
-    lastName: validationSchema,
-  });
+  expect(mutation.args).toStrictEqual(secondSchemaInChain);
   expect(mutation.output).toStrictEqual(validationSchema);
   expect(mutation.resolveFunction).toBe(resolveFunction);
 

@@ -12,7 +12,21 @@ const { router, resolver, serve } = createServer({
   }),
 });
 
-resolver.args(z.object({}));
+resolver.args(z.undefined());
+
+const f = resolver.args(z.string());
+
+const nexttt = f.use((opts) => {
+  console.log(opts.input);
+
+  return opts.next({ ...opts.ctx, a: 1 as const });
+});
+
+resolver.use((opts) => {
+  console.log(opts.input);
+
+  return opts.next(opts.ctx);
+});
 
 const resolverWithName = resolver.args(
   z.object({
@@ -37,16 +51,6 @@ another.use((opts) => {
   console.log(opts.input);
 
   return opts.next(opts.ctx);
-});
-
-const resolverWithNameAndMiddleware = resolverWithName.use(async ({ ctx, input, next }) => {
-  console.log(input.email.kk);
-
-  const res = await next(ctx);
-
-  console.log('res', res);
-
-  return res;
 });
 
 const baseRouter = router({

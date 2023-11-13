@@ -35,14 +35,19 @@ test('Should create arguments chain json schema', () => {
   });
 
   const argsResolver = resolver
-    .args({
-      firstName: z.string(),
-    })
-    .args({
-      lastName: z.string(),
-    });
+    .args(
+      z.object({
+        firstName: z.string(),
+      })
+    )
+    .args(
+      z.object({
+        firstName: z.string(),
+        lastName: z.string(),
+      })
+    );
 
-  expect(zodToJsonSchema(z.object(argsResolver._args))).toStrictEqual({
+  expect(zodToJsonSchema(argsResolver._args)).toStrictEqual({
     type: 'object',
     additionalProperties: false,
     properties: {
@@ -63,18 +68,23 @@ test('Should create complex arguments chain json schema', () => {
   });
 
   const argsResolver = resolver
-    .args({
-      person: z.object({
-        firstName: z.string(),
-      }),
-    })
-    .args({
-      person: z.object({
-        lastName: z.string(),
-      }),
-    });
+    .args(
+      z.object({
+        person: z.object({
+          firstName: z.string(),
+        }),
+      })
+    )
+    .args(
+      z.object({
+        person: z.object({
+          firstName: z.string(),
+          lastName: z.string(),
+        }),
+      })
+    );
 
-  expect(zodToJsonSchema(z.object(argsResolver._args))).toStrictEqual({
+  expect(zodToJsonSchema(argsResolver._args)).toStrictEqual({
     type: 'object',
     additionalProperties: false,
     properties: {

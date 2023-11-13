@@ -1,4 +1,4 @@
-import type { z, ZodObject } from 'zod';
+import type { z } from 'zod';
 import type { inferResolverArgs, ResolverArgs } from './resolver';
 
 export type ResolverType = 'query' | 'mutation';
@@ -6,8 +6,6 @@ export type ResolverType = 'query' | 'mutation';
 export type NodeType = 'route' | 'router';
 
 export type MaybePromise<T> = T | Promise<T>;
-
-export type ResolverArgsValidationSchema<TResolverArgs extends ResolverArgs> = ZodObject<TResolverArgs>;
 
 export type inferResolverArgsInput<TResolverArgs extends ResolverArgs> = TResolverArgs extends Record<string, never>
   ? // make it voidable, so the input is not required

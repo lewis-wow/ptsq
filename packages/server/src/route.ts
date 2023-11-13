@@ -8,7 +8,7 @@ import { zodToJsonSchema } from '@ptsq/zod-parser';
 
 export class Route<
   TType extends ResolverType = ResolverType,
-  TArgs extends ResolverArgs[] = ResolverArgs[],
+  TArgs = unknown,
   TResolverOutput extends ResolverOutput = ResolverOutput,
   TResolveFunction extends ResolveFunction<any, any> = ResolveFunction<any, any>,
 > {
@@ -59,7 +59,7 @@ export class Route<
       middlewares: [
         ...this.middlewares,
         new Middleware<ResolverArgs>({
-          args: this.args,
+          args: this.args as any,
           middlewareCallback: async ({ ctx: finalContext, input, meta: finalMeta }) => {
             const resolverResult = await this.resolveFunction({
               input,
