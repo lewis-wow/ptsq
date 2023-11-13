@@ -1,0 +1,28 @@
+{
+  "name": "@ptsq/test-utils",
+  "version": "0.1.0",
+  "homepage": "https://ptsq-docs.vercel.app/",
+  "author": "lewis-wow",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lewis-wow/ptsq.git",
+    "directory": "packages/test-utils"
+  },
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc --build",
+    "lint": "eslint"
+  },
+  "main": "src/main.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/node": "^20.7.0",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@ptsq/server": "*"
+  }
+}

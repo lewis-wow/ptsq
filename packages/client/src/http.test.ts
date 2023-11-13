@@ -1,14 +1,13 @@
 import { z } from 'zod';
 import { expect, test } from 'vitest';
+import { createTestHttpServer } from '@ptsq/test-utils';
 import axios from 'axios';
-import { createTestExpressServer } from '../__test__/createTestExpressServer';
-import { expressAdapter } from './express';
 
 test('Should create simple http server', async () => {
-  await createTestExpressServer({
+  await createTestHttpServer({
     ctx: {},
-    server: ({ resolver, router, serve }) => {
-      const baseRouter = router({
+    server: ({ resolver, router }) => {
+      return router({
         test: resolver
           .args(
             z.object({
@@ -20,8 +19,6 @@ test('Should create simple http server', async () => {
             resolve: ({ input }) => input.name,
           }),
       });
-
-      return expressAdapter(serve({ router: baseRouter }));
     },
     client: async (serverUrl) => {
       const response = await axios.post(serverUrl, {
@@ -37,12 +34,12 @@ test('Should create simple http server', async () => {
 });
 
 test('Should create simple http server with context', async () => {
-  await createTestExpressServer({
+  await createTestHttpServer({
     ctx: {
       number: 42 as const,
     },
-    server: ({ resolver, router, serve }) => {
-      const baseRouter = router({
+    server: ({ resolver, router }) => {
+      return router({
         test: resolver
           .args(
             z.object({
@@ -60,8 +57,6 @@ test('Should create simple http server with context', async () => {
             }),
           }),
       });
-
-      return expressAdapter(serve({ router: baseRouter }));
     },
     client: async (serverUrl) => {
       const response = await axios.post(serverUrl, {
@@ -80,12 +75,12 @@ test('Should create simple http server with context', async () => {
 });
 
 test('Should create simple http server with middleware', async () => {
-  await createTestExpressServer({
+  await createTestHttpServer({
     ctx: {
       number: 42 as const,
     },
-    server: ({ resolver, router, serve }) => {
-      const baseRouter = router({
+    server: ({ resolver, router }) => {
+      return router({
         test: resolver
           .args(
             z.object({
@@ -101,8 +96,6 @@ test('Should create simple http server with middleware', async () => {
             resolve: ({ ctx }) => ctx,
           }),
       });
-
-      return expressAdapter(serve({ router: baseRouter }));
     },
     client: async (serverUrl) => {
       const response = await axios.post(serverUrl, {
@@ -128,12 +121,12 @@ test('Should create simple http server with 2 nested middlewares', async () => {
     secondEnded: false,
   };
 
-  await createTestExpressServer({
+  await createTestHttpServer({
     ctx: {
       number: 42 as const,
     },
-    server: ({ resolver, router, serve }) => {
-      const baseRouter = router({
+    server: ({ resolver, router }) => {
+      return router({
         test: resolver
           .use(async ({ ctx, next }) => {
             expect(middlewareState).toStrictEqual({
@@ -182,8 +175,6 @@ test('Should create simple http server with 2 nested middlewares', async () => {
             resolve: () => null,
           }),
       });
-
-      return expressAdapter(serve({ router: baseRouter }));
     },
     client: async (serverUrl) => {
       const response = await axios.post(serverUrl, {
@@ -195,11 +186,11 @@ test('Should create simple http server with 2 nested middlewares', async () => {
   });
 });
 
-test('Should introspectate the server with express adapter', async () => {
-  await createTestExpressServer({
+test('Should introspectate the server with http adapter', async () => {
+  await createTestHttpServer({
     ctx: {},
-    server: ({ resolver, router, serve }) => {
-      const baseRouter = router({
+    server: ({ resolver, router }) => {
+      return router({
         test: resolver
           .args(
             z.object({
@@ -211,8 +202,6 @@ test('Should introspectate the server with express adapter', async () => {
             resolve: ({ input }) => input.name,
           }),
       });
-
-      return expressAdapter(serve({ router: baseRouter }));
     },
     client: async (serverUrl) => {
       const response = await axios.get(`${serverUrl}/introspection`);
@@ -293,10 +282,10 @@ test('Should introspectate the server with express adapter', async () => {
 });
 
 test('Should create simple http server and return BAD_REQUEST response', async () => {
-  await createTestExpressServer({
+  await createTestHttpServer({
     ctx: {},
-    server: ({ resolver, router, serve }) => {
-      const baseRouter = router({
+    server: ({ resolver, router }) => {
+      return router({
         test: resolver
           .args(
             z.object({
@@ -308,8 +297,6 @@ test('Should create simple http server and return BAD_REQUEST response', async (
             resolve: ({ input }) => input.name,
           }),
       });
-
-      return expressAdapter(serve({ router: baseRouter }));
     },
     client: async (serverUrl) => {
       await expect(() =>
@@ -323,10 +310,10 @@ test('Should create simple http server and return BAD_REQUEST response', async (
 });
 
 test('Should create simple http server and return INTERNAL_SERVER_ERROR response', async () => {
-  await createTestExpressServer({
+  await createTestHttpServer({
     ctx: {},
-    server: ({ resolver, router, serve }) => {
-      const baseRouter = router({
+    server: ({ resolver, router }) => {
+      return router({
         test: resolver
           .args(
             z.object({
@@ -340,8 +327,6 @@ test('Should create simple http server and return INTERNAL_SERVER_ERROR response
             resolve: ({ input }) => input,
           }),
       });
-
-      return expressAdapter(serve({ router: baseRouter }));
     },
     client: async (serverUrl) => {
       await expect(() =>
