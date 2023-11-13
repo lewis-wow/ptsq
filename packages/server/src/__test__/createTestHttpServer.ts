@@ -20,7 +20,7 @@ export const createTestHttpServer = <TContext extends Context>({
 
     const httpServer = createServer(await server(ptsq));
 
-    httpServer.listen(4000);
+    httpServer.listen(0);
 
     const address = httpServer.address();
 

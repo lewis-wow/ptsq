@@ -23,7 +23,7 @@ export const createTestExpressServer = <TContext extends Context>({
 
     app.use(await server(ptsq));
 
-    const httpServer = app.listen(4000);
+    const httpServer = app.listen(0);
 
     const address = httpServer.address();
 
