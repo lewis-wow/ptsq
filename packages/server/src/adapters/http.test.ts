@@ -194,3 +194,100 @@ test('Should create simple http server with 2 nested middlewares', async () => {
     },
   });
 });
+
+test('Should introspectate the server with http adapter', async () => {
+  await createTestHttpServer({
+    ctx: {},
+    server: ({ resolver, router, serve }) => {
+      const baseRouter = router({
+        test: resolver
+          .args(
+            z.object({
+              name: z.string(),
+            })
+          )
+          .query({
+            output: z.string(),
+            resolve: ({ input }) => input.name,
+          }),
+      });
+
+      return httpAdapter(serve({ router: baseRouter }));
+    },
+    client: async (serverUrl) => {
+      const response = await axios.get(`${serverUrl}/introspection`);
+
+      expect(response.data).toMatchInlineSnapshot(`
+        {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "additionalProperties": false,
+          "properties": {
+            "nodeType": {
+              "enum": [
+                "router",
+              ],
+              "type": "string",
+            },
+            "routes": {
+              "$schema": "http://json-schema.org/draft-07/schema#",
+              "additionalProperties": false,
+              "properties": {
+                "test": {
+                  "$schema": "http://json-schema.org/draft-07/schema#",
+                  "additionalProperties": false,
+                  "properties": {
+                    "args": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "name",
+                      ],
+                      "type": "object",
+                    },
+                    "nodeType": {
+                      "enum": [
+                        "route",
+                      ],
+                      "type": "string",
+                    },
+                    "output": {
+                      "type": "string",
+                    },
+                    "type": {
+                      "enum": [
+                        "query",
+                      ],
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "type",
+                    "nodeType",
+                    "args",
+                    "output",
+                  ],
+                  "title": "BaseTestRoute",
+                  "type": "object",
+                },
+              },
+              "required": [
+                "test",
+              ],
+              "type": "object",
+            },
+          },
+          "required": [
+            "nodeType",
+            "routes",
+          ],
+          "title": "BaseRouter",
+          "type": "object",
+        }
+      `);
+    },
+  });
+});
