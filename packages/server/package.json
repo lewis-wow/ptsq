@@ -35,10 +35,7 @@
     "@types/node": "^20.7.0",
     "@types/pascalcase": "^1.0.1",
     "axios": "^1.5.1",
-    "typescript": "^5.2.2",
-    "vite": "^4.5.0",
-    "vite-plugin-dts": "^3.6.1",
-    "vitest": "^0.34.6"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
