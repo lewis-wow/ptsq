@@ -44,7 +44,7 @@ const { middleware, resolver, router, serve, scalar } = createServer({
 });
 
 const baseRouter = router({
-  urlQuery: resolver.args({ url: URLScalar.input }).query({
+  urlQuery: resolver.args(z.object({ url: URLScalar.input })).query({
     output: URLScalar.output,
     resolve: ({ input /* { url: URL } */ }) => new URL(`${input.url.href}/pathname`),
   }),

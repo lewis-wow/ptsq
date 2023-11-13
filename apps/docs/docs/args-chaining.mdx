@@ -3,9 +3,11 @@
 Input arguments of the `resolver` can be chained to create a complex type or to know the type before the `resolver` resolve function, for example in the `middleware`.
 
 ```ts title="server.ts"
-const personWithFirstNameResolver = resolver.args({ person: z.object({ firstName: z.string() }) });
+const personWithFirstNameResolver = resolver.args(z.object({ person: z.object({ firstName: z.string() }) }));
 
-const personResolver = personWithFirstNameResolver.args({ person: z.object({ lastName: z.string() }) });
+const personResolver = personWithFirstNameResolver.args(
+  z.object({ person: z.object({ firstName: z.string(), lastName: z.string() }) })
+);
 
 const testQuery = personResolver.query({
   output: z.string(),
@@ -22,7 +24,7 @@ The types are merged into one. It is using the `z.intersection` in the backgroun
 You can use the arguments chaining for getting validated input in the `middleware` before the `resolver` run.
 
 ```ts title="server.ts"
-const personResolver = resolver.args({ person: z.object({ firstName: z.string() }) });
+const personResolver = resolver.args(z.object({ person: z.object({ firstName: z.string() }) }));
 
 const personWithLogResolver = personResolver.use(({ input /* { person: { firstName: string } } */, ctx, next }) => {
   console.log('Persons first name: ', input.person.firstName);
@@ -33,17 +35,86 @@ const personWithLogResolver = personResolver.use(({ input /* { person: { firstNa
   });
 });
 
-const testQuery = personWithLogResolver.args({ person: z.object({ lastName: z.string() }) }).query({
-  output: z.string(),
-  resolve: ({
-    input /* { person: { firstName: string; lastName: string; } } */,
-    ctx /* { personFirstName: string } */,
-  }) /* string */ => {
-    return `Hello, ${input.person.firstName} ${input.person.lastName}`;
-  },
-});
+const testQuery = personWithLogResolver
+  .args(z.object({ person: z.object({ firstName: z.string(), lastName: z.string() }) }))
+  .query({
+    output: z.string(),
+    resolve: ({
+      input /* { person: { firstName: string; lastName: string; } } */,
+      ctx /* { personFirstName: string } */,
+    }) /* string */ => {
+      return `Hello, ${input.person.firstName} ${input.person.lastName}`;
+    },
+  });
 ```
 
 How you can see, you can safely access the `input` cause it is validated by the arguments.
 
 In the example we log the first name and pass the first name into a context, so the `query` can use the context with already assigned persons first name.
+
+The future arguments in the args chaining must extends the previous/current arguments validation schema. But that should not be any problem, because you typically want to use some part of the overall schema in the argument chain.
+
+```ts title="args chaining must extends the previous schema"
+import { personSchema } from './validation';
+
+const loggerResolver = resolver
+  .args(
+    z.object({
+      email: z.string().email(),
+    })
+  )
+  .use(({ input, ctx, next }) => {
+    console.log('Log the email: ', input.email);
+
+    return next(ctx);
+  });
+
+loggerResolver.args(personSchema).query({
+  // ...
+});
+```
+
+The `personSchema` has email in its definition.
+
+## Comparison with tRPC
+
+tRPC allow you to create input (arguments) chaining too. But in ptsq it is more strictly.
+
+tRPC doesn't care about validation schema object properties stripping.
+
+In ptsq the next arguments validation schema have to extends the schema before, like:
+
+```ts title="args chaining must extends the previous schema"
+resolver
+  .args(
+    z.object({
+      email: z.string().email(),
+    })
+  )
+  .args(
+    z.object({
+      email: z.string().email(),
+      firstName: z.string(),
+    })
+  );
+```
+
+That is not possible in ptsq
+
+```ts
+resolver
+  .args(
+    z.object({
+      email: z.string().email(),
+    })
+  )
+  .args(
+    z.object({
+      firstName: z.string(),
+    })
+  );
+```
+
+However, be careful, the check only takes place on the level type, so `@ts-ignore` can disable this check and then the results of the validation schemas can lie.
+
+tRPC can lie in the types by their input chaining design, more in [comparison with tRPC](/comparison#trpc) section.
