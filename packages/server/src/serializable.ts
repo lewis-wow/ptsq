@@ -1,19 +1,11 @@
 import { z } from 'zod';
 
 // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-export type Serializable =
-  | string
-  | number
-  | undefined
-  | null
-  | boolean
-  | Serializable[]
-  | { [key: string]: Serializable };
+export type Serializable = string | number | null | boolean | Serializable[] | { [key: string]: Serializable };
 
 export const serializableZodSchema: z.Schema<Serializable> = z.union([
   z.string(),
   z.number(),
-  z.undefined(),
   z.null(),
   z.boolean(),
   z.lazy(() => serializableZodSchema.array()),
