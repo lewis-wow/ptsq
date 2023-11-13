@@ -28,6 +28,22 @@ export class Middleware<
     this._args = options.args;
   }
 
+  static createSuccessResponse({ data, ctx }: { data: unknown; ctx: object }): ResolverResponse<object> {
+    return {
+      ok: true,
+      data,
+      ctx,
+    };
+  }
+
+  static createFailureResponse({ error, ctx }: { error: HTTPError; ctx: object }): ResolverResponse<object> {
+    return {
+      ok: false,
+      error,
+      ctx,
+    };
+  }
+
   static async recursiveCall({
     ctx,
     meta,
@@ -59,12 +75,7 @@ export class Middleware<
         },
       });
     } catch (error) {
-      if (HTTPError.isHttpError(error))
-        return {
-          ok: false,
-          error,
-          ctx,
-        };
+      if (HTTPError.isHttpError(error)) return Middleware.createFailureResponse({ ctx, error });
 
       // rethrow original error
       throw error;

@@ -291,3 +291,65 @@ test('Should introspectate the server with express adapter', async () => {
     },
   });
 });
+
+test('Should create simple http server and return BAD_REQUEST response', async () => {
+  await createTestExpressServer({
+    ctx: {},
+    server: ({ resolver, router, serve }) => {
+      const baseRouter = router({
+        test: resolver
+          .args(
+            z.object({
+              name: z.string(),
+            })
+          )
+          .query({
+            output: z.string(),
+            resolve: ({ input }) => input.name,
+          }),
+      });
+
+      return expressAdapter(serve({ router: baseRouter }));
+    },
+    client: async (serverUrl) => {
+      await expect(() =>
+        axios.post(serverUrl, {
+          route: 'test',
+          input: 'John',
+        })
+      ).rejects.toMatchInlineSnapshot('[AxiosError: Request failed with status code 400]');
+    },
+  });
+});
+
+test('Should create simple http server and return INTERNAL_SERVER_ERROR response', async () => {
+  await createTestExpressServer({
+    ctx: {},
+    server: ({ resolver, router, serve }) => {
+      const baseRouter = router({
+        test: resolver
+          .args(
+            z.object({
+              name: z.string(),
+            })
+          )
+          .query({
+            output: z.string(),
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error - just for test!
+            resolve: ({ input }) => input,
+          }),
+      });
+
+      return expressAdapter(serve({ router: baseRouter }));
+    },
+    client: async (serverUrl) => {
+      await expect(() =>
+        axios.post(serverUrl, {
+          route: 'test',
+          input: { name: 'John' },
+        })
+      ).rejects.toMatchInlineSnapshot('[AxiosError: Request failed with status code 500]');
+    },
+  });
+});

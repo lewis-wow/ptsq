@@ -76,14 +76,27 @@ export class Router<TRoutes extends Routes = Routes> {
   }): Promise<ResolverResponse<Context>> {
     const currentRoute = route.dequeue();
 
-    if (!currentRoute || !(currentRoute in this.routes))
-      throw new HTTPError({ code: 'BAD_REQUEST', message: 'The route is invalid.' });
+    if (!currentRoute)
+      throw new HTTPError({
+        code: 'BAD_REQUEST',
+        message: 'The route was terminated by query or mutate but should continue.',
+      });
+
+    if (!(currentRoute in this.routes))
+      throw new HTTPError({
+        code: 'BAD_REQUEST',
+        message: 'The route was invalid.',
+      });
 
     const nextNode = this.routes[currentRoute];
 
     if (nextNode.nodeType === 'router') return nextNode.call({ route, ctx, meta });
 
-    if (route.size !== 0) throw new HTTPError({ code: 'BAD_REQUEST', message: 'The route is invalid.' });
+    if (route.size !== 0)
+      throw new HTTPError({
+        code: 'BAD_REQUEST',
+        message: 'The route continues, but should be terminated by query or mutate.',
+      });
 
     return nextNode.call({ meta, ctx });
   }

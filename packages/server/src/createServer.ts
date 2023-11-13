@@ -77,7 +77,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * serve({ router: rootRouter });
    * ```
    */
-  const serve = ({ router: rootRouter }: { router: Router }) => serveInternal.adapter({ router: rootRouter });
+  const serve = ({ router: rootRouter }: { router: Router }) => serveInternal.adapt({ router: rootRouter });
 
   return {
     resolver,
