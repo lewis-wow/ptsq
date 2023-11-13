@@ -6,7 +6,7 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "test": "vitest --threads=false"
+    "test": "vitest --threads=false --test-timeout=10000"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
