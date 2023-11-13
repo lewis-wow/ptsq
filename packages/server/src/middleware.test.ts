@@ -38,7 +38,7 @@ test('Should create middleware with query and serverSideQuery', async () => {
   expect(validOnlyQuery.nodeType).toBe('route');
   expect(validOnlyQuery.type).toBe('query');
   expect(validOnlyQuery.middlewares.length).toBe(1);
-  expect(validOnlyQuery.middlewares[0]._args).instanceOf(z.ZodUndefined);
+  expect(validOnlyQuery.middlewares[0]._args).instanceOf(z.ZodVoid);
 
   expect(
     await query.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
@@ -144,7 +144,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
   expect(validOnlyMutation.nodeType).toBe('route');
   expect(validOnlyMutation.type).toBe('mutation');
   expect(validOnlyMutation.middlewares.length).toBe(1);
-  expect(validOnlyMutation.middlewares[0]._args).instanceOf(z.ZodUndefined);
+  expect(validOnlyMutation.middlewares[0]._args).instanceOf(z.ZodVoid);
 
   expect(
     await mutation.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
@@ -248,7 +248,7 @@ test('Should create middleware with measuring time', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares.length).toBe(1);
-  expect(query.middlewares[0]._args).instanceOf(z.ZodUndefined);
+  expect(query.middlewares[0]._args).instanceOf(z.ZodVoid);
 
   expect(middlewareWasCalled).toBe(false);
   expect(middlewareMeasuredTime).toBe(0);
@@ -324,8 +324,8 @@ test('Should create two nested middlewares', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares.length).toBe(2);
-  expect(query.middlewares[0]._args).instanceOf(z.ZodUndefined);
-  expect(query.middlewares[1]._args).instanceOf(z.ZodUndefined);
+  expect(query.middlewares[0]._args).instanceOf(z.ZodVoid);
+  expect(query.middlewares[1]._args).instanceOf(z.ZodVoid);
 
   expect(innerMiddlewareWasCalled).toBe(false);
   expect(outerMiddlewareWasCalled).toBe(false);
@@ -386,8 +386,8 @@ test('Should create nested middlewares with query', async () => {
   expect(validOnlyQuery.nodeType).toBe('route');
   expect(validOnlyQuery.type).toBe('query');
   expect(validOnlyQuery.middlewares.length).toBe(2);
-  expect(validOnlyQuery.middlewares[0]._args).instanceOf(z.ZodUndefined);
-  expect(validOnlyQuery.middlewares[1]._args).instanceOf(z.ZodUndefined);
+  expect(validOnlyQuery.middlewares[0]._args).instanceOf(z.ZodVoid);
+  expect(validOnlyQuery.middlewares[1]._args).instanceOf(z.ZodVoid);
 
   expect(
     await query.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })
@@ -470,8 +470,8 @@ test('Should create nested middlewares with mutation', async () => {
   expect(validOnlyMutation.nodeType).toBe('route');
   expect(validOnlyMutation.type).toBe('mutation');
   expect(validOnlyMutation.middlewares.length).toBe(2);
-  expect(validOnlyMutation.middlewares[0]._args).instanceOf(z.ZodUndefined);
-  expect(validOnlyMutation.middlewares[1]._args).instanceOf(z.ZodUndefined);
+  expect(validOnlyMutation.middlewares[0]._args).instanceOf(z.ZodVoid);
+  expect(validOnlyMutation.middlewares[1]._args).instanceOf(z.ZodVoid);
 
   expect(
     await mutation.call({ meta: { input: undefined, route: 'dummy.route' }, ctx: contextBuilderResult })

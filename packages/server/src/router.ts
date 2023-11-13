@@ -5,8 +5,6 @@ import type { Mutation } from './mutation';
 import type { Query } from './query';
 import type { Queue } from './queue';
 import type { ResolverRequest, ResolverResponse } from './resolver';
-import type { ServerSideMutation } from './serverSideMutation';
-import type { ServerSideQuery } from './serverSideQuery';
 
 export type Routes = {
   [Key: string]: Query | Mutation | Router;
@@ -95,8 +93,8 @@ type RouterProxyCaller<TRoutes extends Routes, TContext extends Context> = {
   [K in keyof TRoutes]: TRoutes[K] extends Router
     ? RouterProxyCaller<TRoutes[K]['routes'], TContext>
     : TRoutes[K] extends Mutation
-    ? ServerSideMutation<TRoutes[K], TContext>
+    ? ReturnType<TRoutes[K]['createServerSideMutation']>
     : TRoutes[K] extends Query
-    ? ServerSideQuery<TRoutes[K], TContext>
+    ? ReturnType<TRoutes[K]['createServerSideQuery']>
     : never;
 };

@@ -12,16 +12,6 @@ const { router, resolver, serve } = createServer({
   }),
 });
 
-resolver.args(z.undefined());
-
-const f = resolver.args(z.string());
-
-const nexttt = f.use((opts) => {
-  console.log(opts.input);
-
-  return opts.next({ ...opts.ctx, a: 1 as const });
-});
-
 resolver.use((opts) => {
   console.log(opts.input);
 
@@ -56,6 +46,10 @@ another.use((opts) => {
 const baseRouter = router({
   test: another.query({
     output: z.object({ test: z.string(), num: z.number() }),
+    resolve: ({ input }) => input,
+  }),
+  empty: resolver.query({
+    output: z.undefined(),
     resolve: ({ input }) => input,
   }),
 });

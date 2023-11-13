@@ -10,3 +10,5 @@ client.test.query({
   test: 'test',
   num: 1,
 });
+
+client.empty.query();

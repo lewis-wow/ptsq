@@ -1,4 +1,4 @@
-import type { z } from 'zod';
+import type { ZodUndefined, ZodVoid, z } from 'zod';
 import type { Context } from './context';
 import { Middleware, type MiddlewareCallback } from './middleware';
 import { Mutation } from './mutation';
@@ -27,12 +27,18 @@ export type ResolverRequest = {
 export type ResolverArgs = SerializableInputZodSchema;
 export type ResolverOutput = SerializableOutputZodSchema;
 
-export type inferResolverArgs<TResolverArgs> = TResolverArgs extends z.Schema ? z.output<TResolverArgs> : TResolverArgs;
+export type inferResolverArgs<TResolverArgs> = TResolverArgs extends z.Schema
+  ? TResolverArgs extends ZodVoid
+    ? undefined
+    : z.output<TResolverArgs>
+  : TResolverArgs;
 
 export type inferResolverArgsInput<TResolverArgs> = TResolverArgs extends
   | undefined
+  | ZodUndefined
   // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
   | void
+  | ZodVoid
   ? // make it voidable, so the input is not required
     // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
     undefined | void
@@ -42,7 +48,10 @@ export type inferResolverOutput<TResolverOutput> = TResolverOutput extends z.Sch
   ? z.input<TResolverOutput>
   : TResolverOutput;
 
-export class Resolver<TArgs, TContext extends Context = Context> {
+export class Resolver<
+  TArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
+  TContext extends Context = Context,
+> {
   _middlewares: Middleware<any, any>[];
   _args: TArgs;
 
@@ -64,7 +73,7 @@ export class Resolver<TArgs, TContext extends Context = Context> {
     });
   }
 
-  args<TNextArgs extends TArgs extends undefined ? ResolverArgs : TArgs>(nextArgs: TNextArgs) {
+  args<TNextArgs extends TArgs extends ZodVoid ? ResolverArgs : TArgs>(nextArgs: TNextArgs) {
     return new Resolver<TNextArgs, TContext>({
       args: nextArgs,
       middlewares: [...this._middlewares],

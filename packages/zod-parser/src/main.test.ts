@@ -135,3 +135,122 @@ test('Should create record json schema', () => {
     },
   });
 });
+
+test('Should create string json schema with transform', () => {
+  const schema = z.string().transform((arg) => arg.length);
+
+  expect(zodToJsonSchema(schema)).toStrictEqual({
+    type: 'string',
+  });
+});
+
+test('Should create string json schema with preprocess', () => {
+  const schema = z.preprocess((arg) => String(arg).length.toString(), z.string());
+
+  expect(zodToJsonSchema(schema)).toStrictEqual({
+    type: 'string',
+  });
+});
+
+test('Should create string and email intersection json schema', () => {
+  const schema = z.intersection(z.string(), z.string().email());
+
+  expect(zodToJsonSchema(schema)).toStrictEqual({
+    additionalProperties: false,
+    allOf: [
+      {
+        type: 'string',
+      },
+      {
+        type: 'string',
+      },
+    ],
+  });
+});
+
+test('Should create nested json schema', () => {
+  const schema = z.object({
+    nested: z.object({
+      nested: z.object({
+        nested: z.object({
+          nested: z.object({
+            nested: z.object({
+              nested: z.object({
+                test: z.string(),
+              }),
+            }),
+          }),
+        }),
+      }),
+    }),
+  });
+
+  expect(zodToJsonSchema(schema)).toMatchInlineSnapshot(`
+    {
+      "additionalProperties": false,
+      "properties": {
+        "nested": {
+          "additionalProperties": false,
+          "properties": {
+            "nested": {
+              "additionalProperties": false,
+              "properties": {
+                "nested": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "nested": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "nested": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "nested": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "test": {
+                                  "type": "string",
+                                },
+                              },
+                              "required": [
+                                "test",
+                              ],
+                              "type": "object",
+                            },
+                          },
+                          "required": [
+                            "nested",
+                          ],
+                          "type": "object",
+                        },
+                      },
+                      "required": [
+                        "nested",
+                      ],
+                      "type": "object",
+                    },
+                  },
+                  "required": [
+                    "nested",
+                  ],
+                  "type": "object",
+                },
+              },
+              "required": [
+                "nested",
+              ],
+              "type": "object",
+            },
+          },
+          "required": [
+            "nested",
+          ],
+          "type": "object",
+        },
+      },
+      "required": [
+        "nested",
+      ],
+      "type": "object",
+    }
+  `);
+});

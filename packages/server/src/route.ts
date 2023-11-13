@@ -5,10 +5,11 @@ import type { Context } from './context';
 import { Middleware } from './middleware';
 import { HTTPError } from './httpError';
 import { zodToJsonSchema } from '@ptsq/zod-parser';
+import type { ZodVoid } from 'zod';
 
 export class Route<
   TType extends ResolverType = ResolverType,
-  TArgs = unknown,
+  TArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
   TResolverOutput extends ResolverOutput = ResolverOutput,
   TResolveFunction extends ResolveFunction<any, any> = ResolveFunction<any, any>,
 > {

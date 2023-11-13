@@ -8,9 +8,10 @@ import type {
 import type { Context } from './context';
 import { Route } from './route';
 import type { Middleware } from './middleware';
+import type { ZodVoid } from 'zod';
 
 export class Mutation<
-  TArgs = ResolverArgs,
+  TArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
   TResolverOutput extends ResolverOutput = ResolverOutput,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TResolveFunction extends ResolveFunction<any, any, any> = ResolveFunction<any, any, any>,

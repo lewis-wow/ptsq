@@ -71,14 +71,27 @@ test('Should create mutation', async () => {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
-        "args": {},
+        "args": {
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+            },
+          },
+          "required": [
+            "name",
+          ],
+          "type": "object",
+        },
         "nodeType": {
           "enum": [
             "route",
           ],
           "type": "string",
         },
-        "output": {},
+        "output": {
+          "type": "string",
+        },
         "type": {
           "enum": [
             "mutation",
@@ -118,13 +131,13 @@ test('Should create mutation without args', async () => {
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
   expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.args).instanceOf(z.ZodUndefined);
+  expect(mutation.args).instanceOf(z.ZodVoid);
   expect(mutation.output).toStrictEqual(outputValidationSchema);
   expect(mutation.resolveFunction).toBe(resolveFunction);
 
   expect(
     await mutation.call({
-      meta: { input: {}, route: 'dummy.route' },
+      meta: { input: undefined, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     })
   ).toStrictEqual({
@@ -165,11 +178,7 @@ test('Should create mutation without args', async () => {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
-        "args": {
-          "additionalProperties": false,
-          "properties": {},
-          "type": "object",
-        },
+        "args": {},
         "nodeType": {
           "enum": [
             "route",

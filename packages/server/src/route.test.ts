@@ -3,13 +3,14 @@ import { z } from 'zod';
 import { Route } from './route';
 
 test('Should create query route', async () => {
-  const validationSchema = z.string();
+  const inputSchema = z.object({ name: z.string() });
+  const outputSchema = z.string();
   const resolveFunction = ({ input, ctx: _ctx }: { input: { name: string }; ctx: object }) => `${input.name}`;
 
   const query = new Route({
     type: 'query',
-    args: { name: validationSchema },
-    output: validationSchema,
+    args: inputSchema,
+    output: outputSchema,
     resolveFunction: resolveFunction,
     middlewares: [],
   });
@@ -17,9 +18,10 @@ test('Should create query route', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares).toStrictEqual([]);
-  expect(query.args).toStrictEqual({ name: validationSchema });
-  expect(query.output).toBe(validationSchema);
+  expect(query.args).toStrictEqual(inputSchema);
+  expect(query.output).toBe(outputSchema);
   expect(query.resolveFunction).toBe(resolveFunction);
+
   expect(
     await query.call({
       meta: { input: { name: 'John' }, route: 'dummy.route' },
@@ -32,6 +34,7 @@ test('Should create query route', async () => {
       greetingsPrefix: 'Hello',
     },
   });
+
   expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -78,13 +81,14 @@ test('Should create query route', async () => {
 });
 
 test('Should create mutation route', async () => {
-  const validationSchema = z.string();
+  const inputSchema = z.object({ name: z.string() });
+  const outputSchema = z.string();
   const resolveFunction = ({ input, ctx: _ctx }: { input: { name: string }; ctx: object }) => `${input.name}`;
 
   const mutation = new Route({
     type: 'mutation',
-    args: { name: validationSchema },
-    output: validationSchema,
+    args: inputSchema,
+    output: outputSchema,
     resolveFunction: resolveFunction,
     middlewares: [],
   });
@@ -92,9 +96,10 @@ test('Should create mutation route', async () => {
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
   expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.args).toStrictEqual({ name: validationSchema });
-  expect(mutation.output).toBe(validationSchema);
+  expect(mutation.args).toStrictEqual(inputSchema);
+  expect(mutation.output).toBe(outputSchema);
   expect(mutation.resolveFunction).toBe(resolveFunction);
+
   expect(
     await mutation.call({
       meta: { input: { name: 'John' }, route: 'dummy.route' },
@@ -107,6 +112,7 @@ test('Should create mutation route', async () => {
       greetingsPrefix: 'Hello',
     },
   });
+
   expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
       "$schema": "http://json-schema.org/draft-07/schema#",

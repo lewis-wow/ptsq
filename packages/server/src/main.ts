@@ -7,8 +7,6 @@ export { Resolver, type inferResolverArgsInput, type inferResolverOutput } from 
 export { Middleware } from './middleware';
 export type { Query } from './query';
 export type { Mutation } from './mutation';
-export type { ServerSideMutation } from './serverSideMutation';
-export type { ServerSideQuery } from './serverSideQuery';
 
 export type { Route } from './route';
 export type { Router } from './router';

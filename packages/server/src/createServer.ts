@@ -4,7 +4,7 @@ import { Resolver } from './resolver';
 import { Serve } from './serve';
 import { scalar } from './scalar';
 import type { CORSOptions } from './cors';
-import { z } from 'zod';
+import { type ZodVoid, z } from 'zod';
 
 type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   ctx: TContextBuilder;
@@ -45,8 +45,8 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * ```
    */
   // The {} type actually describes empty object here, no non-nullish
-  const resolver = new Resolver<undefined, RootContext>({
-    args: z.undefined(),
+  const resolver = new Resolver<ZodVoid, RootContext>({
+    args: z.void(),
     middlewares: [],
   });
 

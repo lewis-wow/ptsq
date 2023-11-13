@@ -84,34 +84,31 @@ test('Should create complex arguments chain json schema', () => {
       })
     );
 
-  expect(zodToJsonSchema(argsResolver._args)).toStrictEqual({
-    type: 'object',
-    additionalProperties: false,
-    properties: {
-      person: {
-        additionalProperties: false,
-        allOf: [
-          {
-            properties: {
-              firstName: {
-                type: 'string',
-              },
+  expect(zodToJsonSchema(argsResolver._args)).toMatchInlineSnapshot(`
+    {
+      "additionalProperties": false,
+      "properties": {
+        "person": {
+          "additionalProperties": false,
+          "properties": {
+            "firstName": {
+              "type": "string",
             },
-            required: ['firstName'],
-            type: 'object',
-          },
-          {
-            properties: {
-              lastName: {
-                type: 'string',
-              },
+            "lastName": {
+              "type": "string",
             },
-            required: ['lastName'],
-            type: 'object',
           },
-        ],
+          "required": [
+            "firstName",
+            "lastName",
+          ],
+          "type": "object",
+        },
       },
-    },
-    required: ['person'],
-  });
+      "required": [
+        "person",
+      ],
+      "type": "object",
+    }
+  `);
 });

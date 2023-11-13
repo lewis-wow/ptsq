@@ -10,7 +10,7 @@ test('Should create query', async () => {
     }),
   });
 
-  const argsSchema = { name: z.string() };
+  const argsSchema = z.object({ name: z.string() });
   const outputValidationSchema = z.string();
 
   const resolveFunction = ({ input, ctx }: { input: { name: string }; ctx: { greetingsPrefix: 'Hello' } }) =>
@@ -120,7 +120,7 @@ test('Should create query without args', async () => {
 
   const validationSchema = z.string();
 
-  const resolveFunction = ({ ctx }: { input: Record<string, never>; ctx: { greetingsPrefix: 'Hello' } }) =>
+  const resolveFunction = ({ ctx }: { input: undefined; ctx: { greetingsPrefix: 'Hello' } }) =>
     `${ctx.greetingsPrefix}`;
 
   const query = resolver.query({
@@ -131,13 +131,13 @@ test('Should create query without args', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares).toStrictEqual([]);
-  expect(query.args).toStrictEqual({});
+  expect(query.args).instanceOf(z.ZodVoid);
   expect(query.output).toStrictEqual(validationSchema);
   expect(query.resolveFunction).toBe(resolveFunction);
 
   expect(
     await query.call({
-      meta: { input: {}, route: 'dummy.route' },
+      meta: { input: undefined, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     })
   ).toStrictEqual({
@@ -176,11 +176,7 @@ test('Should create query without args', async () => {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
-        "args": {
-          "additionalProperties": false,
-          "properties": {},
-          "type": "object",
-        },
+        "args": {},
         "nodeType": {
           "enum": [
             "route",
@@ -216,7 +212,9 @@ test('Should create query with twice chain', async () => {
     }),
   });
 
-  const validationSchema = z.string();
+  const firstSchemaInArgumentChain = z.object({ firstName: z.string() });
+  const secondSchemaInArgumentChain = z.object({ firstName: z.string(), lastName: z.string() });
+  const outputSchema = z.string();
 
   const resolveFunction = ({
     input,
@@ -226,19 +224,16 @@ test('Should create query with twice chain', async () => {
     ctx: { greetingsPrefix: 'Hello' };
   }) => `${ctx.greetingsPrefix} ${input.firstName} ${input.lastName}`;
 
-  const query = resolver.args({ firstName: validationSchema }).args({ lastName: validationSchema }).query({
-    output: validationSchema,
+  const query = resolver.args(firstSchemaInArgumentChain).args(secondSchemaInArgumentChain).query({
+    output: outputSchema,
     resolve: resolveFunction,
   });
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares).toStrictEqual([]);
-  expect(query.args).toStrictEqual({
-    firstName: validationSchema,
-    lastName: validationSchema,
-  });
-  expect(query.output).toStrictEqual(validationSchema);
+  expect(query.args).toStrictEqual(secondSchemaInArgumentChain);
+  expect(query.output).toStrictEqual(outputSchema);
   expect(query.resolveFunction).toBe(resolveFunction);
 
   expect(
@@ -304,7 +299,7 @@ test('Should create query with twice chain', async () => {
               "type": "string",
             },
             "lastName": {
-              "$ref": "#/properties/firstName",
+              "type": "string",
             },
           },
           "required": [
