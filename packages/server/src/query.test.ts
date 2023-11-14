@@ -68,7 +68,6 @@ test('Should create query', async () => {
 
   expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
         "args": {
@@ -173,7 +172,6 @@ test('Should create query without args', async () => {
 
   expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
         "args": {},
@@ -289,7 +287,6 @@ test('Should create query with twice chain', async () => {
 
   expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
         "args": {

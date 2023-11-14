@@ -5,7 +5,7 @@ import axios from 'axios';
 
 test('Should create simple http server', async () => {
   await createTestHttpServer({
-    ctx: {},
+    ctx: () => ({}),
     server: ({ resolver, router }) => {
       return router({
         test: resolver
@@ -35,9 +35,9 @@ test('Should create simple http server', async () => {
 
 test('Should create simple http server with context', async () => {
   await createTestHttpServer({
-    ctx: {
+    ctx: () => ({
       number: 42 as const,
-    },
+    }),
     server: ({ resolver, router }) => {
       return router({
         test: resolver
@@ -76,9 +76,9 @@ test('Should create simple http server with context', async () => {
 
 test('Should create simple http server with middleware', async () => {
   await createTestHttpServer({
-    ctx: {
+    ctx: () => ({
       number: 42 as const,
-    },
+    }),
     server: ({ resolver, router }) => {
       return router({
         test: resolver
@@ -122,9 +122,9 @@ test('Should create simple http server with 2 nested middlewares', async () => {
   };
 
   await createTestHttpServer({
-    ctx: {
+    ctx: () => ({
       number: 42 as const,
-    },
+    }),
     server: ({ resolver, router }) => {
       return router({
         test: resolver
@@ -188,7 +188,7 @@ test('Should create simple http server with 2 nested middlewares', async () => {
 
 test('Should introspectate the server with http adapter', async () => {
   await createTestHttpServer({
-    ctx: {},
+    ctx: () => ({}),
     server: ({ resolver, router }) => {
       return router({
         test: resolver
@@ -218,11 +218,9 @@ test('Should introspectate the server with http adapter', async () => {
               "type": "string",
             },
             "routes": {
-              "$schema": "http://json-schema.org/draft-07/schema#",
               "additionalProperties": false,
               "properties": {
                 "test": {
-                  "$schema": "http://json-schema.org/draft-07/schema#",
                   "additionalProperties": false,
                   "properties": {
                     "args": {
@@ -283,7 +281,7 @@ test('Should introspectate the server with http adapter', async () => {
 
 test('Should create simple http server and return BAD_REQUEST response', async () => {
   await createTestHttpServer({
-    ctx: {},
+    ctx: () => ({}),
     server: ({ resolver, router }) => {
       return router({
         test: resolver
@@ -311,7 +309,7 @@ test('Should create simple http server and return BAD_REQUEST response', async (
 
 test('Should create simple http server and return INTERNAL_SERVER_ERROR response', async () => {
   await createTestHttpServer({
-    ctx: {},
+    ctx: () => ({}),
     server: ({ resolver, router }) => {
       return router({
         test: resolver
