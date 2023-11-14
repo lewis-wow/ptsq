@@ -6,9 +6,11 @@ const client = createProxyClient<BaseRouter>({
   url: 'http://localhost:4000/ptsq',
 });
 
-client.test.query({
-  test: 'test',
-  num: 1,
-});
-
-client.empty.query();
+client.test
+  .query({
+    test: 'test',
+    num: 1,
+  })
+  .then((response) => {
+    console.log('response', response);
+  });

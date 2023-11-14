@@ -5,7 +5,7 @@
   "main": "src/server.ts",
   "scripts": {
     "build": "tsc --build",
-    "dev": "ts-node --esm src/server.ts",
+    "server": "ts-node --esm src/server.ts",
     "client": "ts-node --esm src/client.ts",
     "introspection": "introspection-cli --url='http://localhost:4000/ptsq'",
     "introspection-raw": "introspection-cli --url='http://localhost:4000/ptsq' --lang='raw'"

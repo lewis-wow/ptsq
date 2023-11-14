@@ -3,12 +3,13 @@
 
 import pkg from './package.json';
 import typescript from '@rollup/plugin-typescript';
+import terser from '@rollup/plugin-terser';
 
 /** @type {import('rollup').RollupOptions} */
 export default {
   external: Object.keys(pkg.dependencies),
   input: 'src/main.ts',
-  plugins: [typescript()],
+  plugins: [typescript(), terser()],
   output: [
     {
       format: 'cjs',

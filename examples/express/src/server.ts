@@ -18,38 +18,24 @@ const resolverWithName = resolver.args(
   })
 );
 
-resolver.use((opts) => {
-  return opts.next(opts.ctx);
-});
-
-resolverWithName.use((opts) => {
-  console.log(opts.input.test);
-
-  return opts.next(opts.ctx);
-});
-
-const another = resolverWithName.args(
+const resolverWithNameAndNumber = resolverWithName.args(
   z.object({
     test: z.string().email(),
     num: z.number(),
   })
 );
 
-another.use((opts) => {
-  console.log(opts.input.test);
-
-  return opts.next(opts.ctx);
-});
-
 const baseRouter = router({
-  test: another.query({
-    output: z.object({ test: z.string(), num: z.number() }),
-    resolve: ({ input }) => input,
-  }),
-  empty: resolver.query({
-    output: z.null(),
-    resolve: ({ input }) => input ?? null,
-  }),
+  test: resolverWithNameAndNumber
+    .use((opts) => {
+      console.log(opts.input.test);
+
+      return opts.next(opts.ctx);
+    })
+    .query({
+      output: z.object({ test: z.string(), num: z.number() }),
+      resolve: ({ input }) => input,
+    }),
 });
 
 app.use('/ptsq', expressAdapter(serve({ router: baseRouter })));
