@@ -13,7 +13,8 @@
     "prebuild": "rm -rf dist",
     "build": "rollup --config rollup.config.ts --bundleConfigAsCjs",
     "dev": "ts-node src/main.ts",
-    "start": "node dist/main.js"
+    "start": "node dist/main.js",
+    "test": "vitest"
   },
   "bin": {
     "introspection-cli": "./dist/main.js"

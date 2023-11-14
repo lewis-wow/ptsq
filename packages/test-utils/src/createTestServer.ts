@@ -8,7 +8,7 @@ import {
 } from '@ptsq/server';
 
 export type CreateTestServerArgs<TContext extends Context, TRouter extends Router> = {
-  ctx: TContext;
+  ctx: (...params: any[]) => TContext;
   server: (ptsq: ReturnType<typeof createPtsqServer<() => TContext>>) => MaybePromise<TRouter>;
   client: (serverUrl: string, baseRouter: TRouter) => MaybePromise<void>;
 };
@@ -26,7 +26,7 @@ export const createTestServer = <TContext extends Context, TRouter extends Route
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   return new Promise(async (resolve) => {
     const ptsq = createPtsqServer({
-      ctx: () => ctx,
+      ctx: ctx,
     });
 
     const baseRouter = await server(ptsq);
