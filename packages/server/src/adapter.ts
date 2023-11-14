@@ -28,7 +28,7 @@ export const Adapter =
     const introspectionAdapterHandler = () => {
       if (serve.router === undefined) throw new Error('Router must be set when calling serve.');
 
-      return serve.router.getJsonSchema();
+      return { $schema: 'http://json-schema.org/draft-07/schema#', ...serve.router.getJsonSchema() };
     };
 
     const serverAdapterHandler = async (options: {

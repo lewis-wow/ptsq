@@ -12,20 +12,18 @@ const { router, resolver, serve } = createServer({
   }),
 });
 
-resolver.use((opts) => {
-  console.log(opts.input);
-
-  return opts.next(opts.ctx);
-});
-
 const resolverWithName = resolver.args(
   z.object({
     test: z.string(),
   })
 );
 
+resolver.use((opts) => {
+  return opts.next(opts.ctx);
+});
+
 resolverWithName.use((opts) => {
-  console.log(opts.input);
+  console.log(opts.input.test);
 
   return opts.next(opts.ctx);
 });
@@ -38,7 +36,7 @@ const another = resolverWithName.args(
 );
 
 another.use((opts) => {
-  console.log(opts.input);
+  console.log(opts.input.test);
 
   return opts.next(opts.ctx);
 });

@@ -37,7 +37,6 @@ test('Should create query route', async () => {
 
   expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
         "args": {
@@ -115,7 +114,6 @@ test('Should create mutation route', async () => {
 
   expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
         "args": {

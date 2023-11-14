@@ -68,7 +68,6 @@ test('Should create mutation', async () => {
 
   expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
         "args": {
@@ -175,7 +174,6 @@ test('Should create mutation without args', async () => {
 
   expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
         "args": {},
@@ -292,7 +290,6 @@ test('Should create mutation with twice chain', async () => {
 
   expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
         "args": {
