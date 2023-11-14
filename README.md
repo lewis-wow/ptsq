@@ -46,8 +46,8 @@ const { middleware, resolver, router, serve } = createServer({
   ctx: createContext,
 });
 
-const testQuery = resolver.query({
-  input: z.object({ name: z.string() }),
+const testQuery = resolver.args(z.object({ name: z.string() })).query({
+  output: z.string(),
   resolve: async ({ ctx /* { req: express.Request, res: express.Response } */, input /* { name: string } */ }) => {
     return `Hello, ${input.name}`;
   },
@@ -70,7 +70,20 @@ const client = createProxyClient<BaseRouter>({
   url: 'http://localhost:4000/ptsq/',
 });
 
-const result = await client.test.query({
+const result /* string */ = await client.test.query({
+  name: /* string */ 'John',
+});
+```
+
+```ts title="remote-client.ts"
+import { createProxyClient } from '@ptsq/client';
+import type { BaseRouter } from './introspected-schema';
+
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/ptsq/',
+});
+
+const result /* string */ = await client.test.query({
   name: /* string */ 'John',
 });
 ```
