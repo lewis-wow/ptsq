@@ -3,7 +3,7 @@ import type { MaybePromise } from './types';
 export type Context = object;
 
 export type ContextBuilder<TContext extends Context = Context> = (
-  ...params: any[]
+  params: any,
 ) => MaybePromise<TContext>;
 
 export type inferContextFromContextBuilder<
@@ -12,4 +12,4 @@ export type inferContextFromContextBuilder<
 
 export type inferContextParamsFromContextBuilder<
   TContextBuilder extends ContextBuilder,
-> = Parameters<TContextBuilder>;
+> = Parameters<TContextBuilder>[0];

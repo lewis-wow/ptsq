@@ -10,9 +10,9 @@ export type CreateTestServerArgs<
   TContext extends Context,
   TRouter extends Router,
 > = {
-  ctx: (...params: any[]) => TContext;
+  ctx: (params: any) => TContext;
   server: (
-    ptsq: ReturnType<typeof createPtsqServer<() => TContext>>,
+    ptsq: ReturnType<typeof createPtsqServer<(params: any) => TContext>>,
   ) => MaybePromise<TRouter>;
   client: (serverUrl: string, baseRouter: TRouter) => MaybePromise<void>;
 };
@@ -38,9 +38,12 @@ export const createTestServer = <
 
     const baseRouter = await server(ptsq);
 
-    const serverProviderResult = serverProvider(
-      ptsq.createHTTPNodeHandler({ router: baseRouter }),
-    );
+    const serverProviderResult = serverProvider((req, res) => {
+      ptsq.createHTTPNodeHandler({
+        router: baseRouter,
+        ctx: { req, res } as any,
+      })(req, res);
+    });
 
     const httpServer = serverProviderResult.listen(0);
 

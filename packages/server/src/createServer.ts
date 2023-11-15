@@ -1,6 +1,10 @@
 import { z, type ZodVoid } from 'zod';
 import { HTTPRequestListener } from './adapters/http';
-import type { ContextBuilder, inferContextFromContextBuilder } from './context';
+import type {
+  ContextBuilder,
+  inferContextFromContextBuilder,
+  inferContextParamsFromContextBuilder,
+} from './context';
 import type { CORSOptions } from './cors';
 import { Resolver } from './resolver';
 import { Router, type Routes } from './router';
@@ -33,6 +37,8 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   rootPath,
 }: CreateServerArgs<TContextBuilder>) => {
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
+  type ContextBuilderParams =
+    inferContextParamsFromContextBuilder<TContextBuilder>;
 
   /**
    * Creates a queries or mutations
@@ -86,7 +92,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
     ctx: ctxParams,
   }: {
     router: Router;
-    ctx: RootContext;
+    ctx: ContextBuilderParams;
   }) =>
     HTTPRequestListener.createRequestListenerHandler({
       serve,
