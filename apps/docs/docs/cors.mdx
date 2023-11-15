@@ -18,7 +18,7 @@ export type CORSOptions =
 ```
 
 ```ts title="server.ts"
-const { middleware, resolver, router, serve } = createServer({
+const { resolver, router, createHTTPNodeHandler } = createServer({
   ctx: createContext,
   cors: {
     origin: 'http://localhost:4000',

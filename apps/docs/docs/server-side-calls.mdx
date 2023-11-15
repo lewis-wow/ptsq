@@ -4,7 +4,7 @@ Server side calls are for calling the `route` (mutation or query) directly on th
 They also run all the middlewares registered to the resolver that creates the `mutation` or `query` unlike calling `resolve` function of the resolver only.
 
 ```ts title="server.ts"
-const { middleware, resolver, router, serve } = createServer({
+const { resolver, router } = createServer({
   ctx: createContext,
 });
 

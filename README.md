@@ -46,7 +46,7 @@ const createContext = ({ req, res }: ExpressAdapterContext) => ({
   res,
 });
 
-const { middleware, resolver, router, serve } = createServer({
+const { resolver, router, createHTTPNodeHandler } = createServer({
   ctx: createContext,
 });
 
@@ -64,7 +64,9 @@ const baseRouter = router({
   test: testQuery,
 });
 
-app.use('/ptsq', expressAdapter(serve({ router: baseRouter })));
+app.use('/ptsq', (req, res) =>
+  createHTTPNodeHandler({ router: baseRouter, ctx: { req, res } })(req, res),
+);
 
 app.listen(4000);
 ```

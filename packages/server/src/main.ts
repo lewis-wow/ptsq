@@ -42,3 +42,8 @@ export { type HttpAdapterContext } from './adapters/http';
  * adapters/koa
  */
 export { type KoaAdapterContext } from './adapters/koa';
+
+/**
+ * adapters/fastify
+ */
+export { type FastifyAdapterContext } from './adapters/fastify';

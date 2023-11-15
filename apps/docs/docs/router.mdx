@@ -9,7 +9,11 @@ Routers can be merged across files, so you can define routers somewhere and then
 It is recommended to export `type` of the `Base` router, because then you can specify your server as a `devDependency` on the client, if you are using monorepo.
 
 ```ts title="server.ts"
-import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
+import {
+  createServer,
+  expressAdapter,
+  ExpressAdapterContext,
+} from '@ptsq/server';
 import express from 'express';
 import { z } from 'zod';
 import { userRouter } from './userRouter';
@@ -21,7 +25,7 @@ const createContext = ({ req, res }: ExpressAdapterContext) => ({
   res,
 });
 
-const { middleware, resolver, router, serve, scalar } = createServer({
+const { resolver, router, createHTTPNodeHandler } = createServer({
   ctx: createContext,
 });
 
@@ -38,7 +42,9 @@ const baseRouter = router({
 
 export type BaseRouter = typeof baseRouter;
 
-app.use('/ptsq', expressAdapter(serve({ router: baseRouter })));
+app.use((req, res) =>
+  createHTTPNodeHandler({ router: baseRouter, ctx: { req, res } })(req, res),
+);
 
 app.listen(4000);
 ```

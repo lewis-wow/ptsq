@@ -4,11 +4,15 @@ Middleware function run before every route call (query, mutation) that the resol
 The `next` function determines when the next middleware will start.
 
 ```ts title="server.ts"
-import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
+import {
+  createServer,
+  expressAdapter,
+  ExpressAdapterContext,
+} from '@ptsq/server';
 import express from 'express';
 import { z } from 'zod';
-import { userRouter } from './userRouter';
 import { getUserFromJWT } from './getUserFromJWT';
+import { userRouter } from './userRouter';
 
 const app = express();
 
@@ -22,7 +26,7 @@ const createContext = async ({ req, res }: ExpressAdapterContext) => {
   };
 };
 
-const { resolver, router, serve } = createServer({
+const { resolver, router } = createServer({
   ctx: createContext,
 });
 
@@ -36,7 +40,10 @@ const protectedResolver = resolver.use(({ ctx, next }) => {
 });
 
 resolver.query({
-  resolve: async ({ ctx /* { user: User | null } */, input /* undefined */ }) => {
+  resolve: async ({
+    ctx /* { user: User | null } */,
+    input /* undefined */,
+  }) => {
     return `Hello, ${ctx.user.name}`;
     // throws Error user can be null
   },
@@ -105,23 +112,27 @@ so you have to determine if the `ok` property is `true` or `false` to access the
 If middlewares are piped, then all the middlewares runs before the route call in piping order.
 
 ```ts title="server.ts"
-const protectedResolver = resolver.use(({ ctx /* { user: User<any> | null } */, next }) => {
-  if (!ctx.user) throw new Error('Must be logged in!');
+const protectedResolver = resolver.use(
+  ({ ctx /* { user: User<any> | null } */, next }) => {
+    if (!ctx.user) throw new Error('Must be logged in!');
 
-  return next({
-    ...ctx,
-    user: ctx.user,
-  });
-});
+    return next({
+      ...ctx,
+      user: ctx.user,
+    });
+  },
+);
 
-const adminResolver = protectedResolver.use(({ ctx /* { user: User<any> } */, next }) => {
-  if (ctx.user.role !== 'admin') throw new Error('Must be an admin!');
+const adminResolver = protectedResolver.use(
+  ({ ctx /* { user: User<any> } */, next }) => {
+    if (ctx.user.role !== 'admin') throw new Error('Must be an admin!');
 
-  return next({
-    ...ctx,
-    user: ctx.user,
-  });
-});
+    return next({
+      ...ctx,
+      user: ctx.user,
+    });
+  },
+);
 
 const deleteOrganization = adminResolver.mutation({
   //...

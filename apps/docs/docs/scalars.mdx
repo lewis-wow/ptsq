@@ -28,10 +28,15 @@ export const URLScalar = scalar({
 ```
 
 ```ts title="server.ts"
-import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
+import {
+  createServer,
+  expressAdapter,
+  ExpressAdapterContext,
+} from '@ptsq/server';
 import express from 'express';
 import { z } from 'zod';
 import { URLScalar } from './URLScalar';
+
 const app = express();
 
 const createContext = ({ req, res }: ExpressAdapterContext) => ({
@@ -39,20 +44,23 @@ const createContext = ({ req, res }: ExpressAdapterContext) => ({
   res,
 });
 
-const { middleware, resolver, router, serve, scalar } = createServer({
+const { resolver, router, scalar, createHTTPNodeHandler } = createServer({
   ctx: createContext,
 });
 
 const baseRouter = router({
   urlQuery: resolver.args(z.object({ url: URLScalar.input })).query({
     output: URLScalar.output,
-    resolve: ({ input /* { url: URL } */ }) => new URL(`${input.url.href}/pathname`),
+    resolve: ({ input /* { url: URL } */ }) =>
+      new URL(`${input.url.href}/pathname`),
   }),
 });
 
 export type BaseRouter = typeof baseRouter;
 
-app.use('/ptsq', expressAdapter(serve({ router: baseRouter })));
+app.use((req, res) =>
+  createHTTPNodeHandler({ router: baseRouter, ctx: { req, res } })(req, res),
+);
 
 app.listen(4000);
 ```
