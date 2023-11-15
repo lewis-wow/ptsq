@@ -33,7 +33,6 @@ yarn add -D @ptsq/introspection-cli
 ```ts title="server.ts"
 import {
   createServer,
-  expressAdapter,
   ExpressAdapterContext,
 } from '@ptsq/server';
 import express from 'express';
@@ -64,7 +63,7 @@ const baseRouter = router({
   test: testQuery,
 });
 
-app.use('/ptsq', (req, res) =>
+app.use((req, res) =>
   createHTTPNodeHandler({ router: baseRouter, ctx: { req, res } })(req, res),
 );
 
