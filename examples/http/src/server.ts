@@ -1,11 +1,9 @@
-import { createServer, ExpressAdapterContext } from '@ptsq/server';
-import express from 'express';
+import { createServer as createHttpServer } from 'http';
+import { createServer, HttpAdapterContext } from '@ptsq/server';
 import { z } from 'zod';
 
-const app = express();
-
 const { router, resolver, createHTTPNodeHandler } = createServer({
-  ctx: async ({ req, res }: ExpressAdapterContext) => ({
+  ctx: async ({ req, res }: HttpAdapterContext) => ({
     req,
     res,
   }),
@@ -18,7 +16,7 @@ const baseRouter = router({
   }),
 });
 
-app.use((req, res) =>
+const app = createHttpServer((req, res) =>
   createHTTPNodeHandler({
     router: baseRouter,
     ctx: {

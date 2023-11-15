@@ -1,4 +1,8 @@
-import type { ResolverType, inferResolverArgsInput, inferResolverOutput } from '@ptsq/server';
+import type {
+  inferResolverArgsInput,
+  inferResolverOutput,
+  ResolverType,
+} from '@ptsq/server';
 import type { ProxyClient } from './createProxyClient';
 
 /**

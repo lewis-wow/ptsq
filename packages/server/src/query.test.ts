@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { createServer } from './createServer';
 import { z } from 'zod';
+import { createServer } from './createServer';
 import { HTTPError } from './httpError';
 
 test('Should create query', async () => {
@@ -13,8 +13,13 @@ test('Should create query', async () => {
   const argsSchema = z.object({ name: z.string() });
   const outputValidationSchema = z.string();
 
-  const resolveFunction = ({ input, ctx }: { input: { name: string }; ctx: { greetingsPrefix: 'Hello' } }) =>
-    `${ctx.greetingsPrefix} ${input.name}`;
+  const resolveFunction = ({
+    input,
+    ctx,
+  }: {
+    input: { name: string };
+    ctx: { greetingsPrefix: 'Hello' };
+  }) => `${ctx.greetingsPrefix} ${input.name}`;
 
   const query = resolver.args(argsSchema).query({
     output: outputValidationSchema,
@@ -32,7 +37,7 @@ test('Should create query', async () => {
     await query.call({
       meta: { input: { name: 'John' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
     data: 'Hello John',
     ok: true,
@@ -45,9 +50,12 @@ test('Should create query', async () => {
     await query.call({
       meta: { input: 'John', route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
-    error: new HTTPError({ code: 'BAD_REQUEST', message: 'Args validation error.' }),
+    error: new HTTPError({
+      code: 'BAD_REQUEST',
+      message: 'Args validation error.',
+    }),
     ok: false,
     ctx: {
       greetingsPrefix: 'Hello',
@@ -56,8 +64,11 @@ test('Should create query', async () => {
 
   expect(
     await query
-      .createServerSideQuery({ ctx: { greetingsPrefix: 'Hello' as const }, route: ['dummy', 'route'] })
-      .query({ name: 'John' })
+      .createServerSideQuery({
+        ctx: { greetingsPrefix: 'Hello' as const },
+        route: ['dummy', 'route'],
+      })
+      .query({ name: 'John' }),
   ).toStrictEqual({
     data: 'Hello John',
     ok: true,
@@ -119,8 +130,12 @@ test('Should create query without args', async () => {
 
   const validationSchema = z.string();
 
-  const resolveFunction = ({ ctx }: { input: undefined; ctx: { greetingsPrefix: 'Hello' } }) =>
-    `${ctx.greetingsPrefix}`;
+  const resolveFunction = ({
+    ctx,
+  }: {
+    input: undefined;
+    ctx: { greetingsPrefix: 'Hello' };
+  }) => `${ctx.greetingsPrefix}`;
 
   const query = resolver.query({
     output: validationSchema,
@@ -138,7 +153,7 @@ test('Should create query without args', async () => {
     await query.call({
       meta: { input: undefined, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
     data: 'Hello',
     ok: true,
@@ -151,9 +166,12 @@ test('Should create query without args', async () => {
     await query.call({
       meta: { input: 'John', route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
-    error: new HTTPError({ code: 'BAD_REQUEST', message: 'Args validation error.' }),
+    error: new HTTPError({
+      code: 'BAD_REQUEST',
+      message: 'Args validation error.',
+    }),
     ok: false,
     ctx: {
       greetingsPrefix: 'Hello',
@@ -161,7 +179,12 @@ test('Should create query without args', async () => {
   });
 
   expect(
-    await query.createServerSideQuery({ ctx: { greetingsPrefix: 'Hello' as const }, route: ['dummy', 'route'] }).query()
+    await query
+      .createServerSideQuery({
+        ctx: { greetingsPrefix: 'Hello' as const },
+        route: ['dummy', 'route'],
+      })
+      .query(),
   ).toStrictEqual({
     data: 'Hello',
     ok: true,
@@ -211,7 +234,10 @@ test('Should create query with twice chain', async () => {
   });
 
   const firstSchemaInArgumentChain = z.object({ firstName: z.string() });
-  const secondSchemaInArgumentChain = z.object({ firstName: z.string(), lastName: z.string() });
+  const secondSchemaInArgumentChain = z.object({
+    firstName: z.string(),
+    lastName: z.string(),
+  });
   const outputSchema = z.string();
 
   const resolveFunction = ({
@@ -222,10 +248,13 @@ test('Should create query with twice chain', async () => {
     ctx: { greetingsPrefix: 'Hello' };
   }) => `${ctx.greetingsPrefix} ${input.firstName} ${input.lastName}`;
 
-  const query = resolver.args(firstSchemaInArgumentChain).args(secondSchemaInArgumentChain).query({
-    output: outputSchema,
-    resolve: resolveFunction,
-  });
+  const query = resolver
+    .args(firstSchemaInArgumentChain)
+    .args(secondSchemaInArgumentChain)
+    .query({
+      output: outputSchema,
+      resolve: resolveFunction,
+    });
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
@@ -236,9 +265,12 @@ test('Should create query with twice chain', async () => {
 
   expect(
     await query.call({
-      meta: { input: { firstName: 'John', lastName: 'Doe' }, route: 'dummy.route' },
+      meta: {
+        input: { firstName: 'John', lastName: 'Doe' },
+        route: 'dummy.route',
+      },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
     data: 'Hello John Doe',
     ok: true,
@@ -251,9 +283,12 @@ test('Should create query with twice chain', async () => {
     await query.call({
       meta: { input: { firstName: 'John' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
-    error: new HTTPError({ code: 'BAD_REQUEST', message: 'Args validation error.' }),
+    error: new HTTPError({
+      code: 'BAD_REQUEST',
+      message: 'Args validation error.',
+    }),
     ok: false,
     ctx: {
       greetingsPrefix: 'Hello',
@@ -264,9 +299,12 @@ test('Should create query with twice chain', async () => {
     await query.call({
       meta: { input: { lastName: 'Doe' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
-    error: new HTTPError({ code: 'BAD_REQUEST', message: 'Args validation error.' }),
+    error: new HTTPError({
+      code: 'BAD_REQUEST',
+      message: 'Args validation error.',
+    }),
     ok: false,
     ctx: {
       greetingsPrefix: 'Hello',
@@ -275,8 +313,11 @@ test('Should create query with twice chain', async () => {
 
   expect(
     await query
-      .createServerSideQuery({ ctx: { greetingsPrefix: 'Hello' as const }, route: ['dummy', 'route'] })
-      .query({ firstName: 'John', lastName: 'Doe' })
+      .createServerSideQuery({
+        ctx: { greetingsPrefix: 'Hello' as const },
+        route: ['dummy', 'route'],
+      })
+      .query({ firstName: 'John', lastName: 'Doe' }),
   ).toStrictEqual({
     data: 'Hello John Doe',
     ok: true,

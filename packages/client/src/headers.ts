@@ -1,4 +1,9 @@
-type CommonRequestHeadersList = 'Accept' | 'Content-Length' | 'User-Agent' | 'Content-Encoding' | 'Authorization';
+type CommonRequestHeadersList =
+  | 'Accept'
+  | 'Content-Length'
+  | 'User-Agent'
+  | 'Content-Encoding'
+  | 'Authorization';
 
 type RawHeaderValue = string | string[] | number | boolean | null;
 

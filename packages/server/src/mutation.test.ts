@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
-import { createServer } from './createServer';
 import { z } from 'zod';
+import { createServer } from './createServer';
 import { HTTPError } from './httpError';
 
 test('Should create mutation', async () => {
@@ -10,8 +10,13 @@ test('Should create mutation', async () => {
     }),
   });
 
-  const resolveFunction = ({ input, ctx }: { input: { name: string }; ctx: { greetingsPrefix: 'Hello' } }) =>
-    `${ctx.greetingsPrefix} ${input.name}`;
+  const resolveFunction = ({
+    input,
+    ctx,
+  }: {
+    input: { name: string };
+    ctx: { greetingsPrefix: 'Hello' };
+  }) => `${ctx.greetingsPrefix} ${input.name}`;
 
   const argsSchema = z.object({ name: z.string() });
   const outputValidationSchema = z.string();
@@ -32,7 +37,7 @@ test('Should create mutation', async () => {
     await mutation.call({
       meta: { input: { name: 'John' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
     data: 'Hello John',
     ok: true,
@@ -45,9 +50,12 @@ test('Should create mutation', async () => {
     await mutation.call({
       meta: { input: 'John', route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
-    error: new HTTPError({ code: 'BAD_REQUEST', message: 'Args validation error.' }),
+    error: new HTTPError({
+      code: 'BAD_REQUEST',
+      message: 'Args validation error.',
+    }),
     ok: false,
     ctx: {
       greetingsPrefix: 'Hello',
@@ -56,8 +64,11 @@ test('Should create mutation', async () => {
 
   expect(
     await mutation
-      .createServerSideMutation({ ctx: { greetingsPrefix: 'Hello' as const }, route: ['dummy', 'route'] })
-      .mutate({ name: 'John' })
+      .createServerSideMutation({
+        ctx: { greetingsPrefix: 'Hello' as const },
+        route: ['dummy', 'route'],
+      })
+      .mutate({ name: 'John' }),
   ).toStrictEqual({
     data: 'Hello John',
     ok: true,
@@ -117,8 +128,12 @@ test('Should create mutation without args', async () => {
     }),
   });
 
-  const resolveFunction = ({ ctx }: { input: undefined; ctx: { greetingsPrefix: 'Hello' } }) =>
-    `${ctx.greetingsPrefix}`;
+  const resolveFunction = ({
+    ctx,
+  }: {
+    input: undefined;
+    ctx: { greetingsPrefix: 'Hello' };
+  }) => `${ctx.greetingsPrefix}`;
 
   const outputValidationSchema = z.string();
 
@@ -138,7 +153,7 @@ test('Should create mutation without args', async () => {
     await mutation.call({
       meta: { input: undefined, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
     data: 'Hello',
     ok: true,
@@ -151,9 +166,12 @@ test('Should create mutation without args', async () => {
     await mutation.call({
       meta: { input: 'John', route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
-    error: new HTTPError({ code: 'BAD_REQUEST', message: 'Args validation error.' }),
+    error: new HTTPError({
+      code: 'BAD_REQUEST',
+      message: 'Args validation error.',
+    }),
     ok: false,
     ctx: {
       greetingsPrefix: 'Hello',
@@ -162,8 +180,11 @@ test('Should create mutation without args', async () => {
 
   expect(
     await mutation
-      .createServerSideMutation({ ctx: { greetingsPrefix: 'Hello' as const }, route: ['dummy', 'route'] })
-      .mutate()
+      .createServerSideMutation({
+        ctx: { greetingsPrefix: 'Hello' as const },
+        route: ['dummy', 'route'],
+      })
+      .mutate(),
   ).toStrictEqual({
     data: 'Hello',
     ok: true,
@@ -223,12 +244,18 @@ test('Should create mutation with twice chain', async () => {
   }) => `${ctx.greetingsPrefix} ${input.firstName} ${input.lastName}`;
 
   const firstSchemaInChain = z.object({ firstName: validationSchema });
-  const secondSchemaInChain = z.object({ firstName: validationSchema, lastName: validationSchema });
-
-  const mutation = resolver.args(firstSchemaInChain).args(secondSchemaInChain).mutation({
-    output: validationSchema,
-    resolve: resolveFunction,
+  const secondSchemaInChain = z.object({
+    firstName: validationSchema,
+    lastName: validationSchema,
   });
+
+  const mutation = resolver
+    .args(firstSchemaInChain)
+    .args(secondSchemaInChain)
+    .mutation({
+      output: validationSchema,
+      resolve: resolveFunction,
+    });
 
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
@@ -239,9 +266,12 @@ test('Should create mutation with twice chain', async () => {
 
   expect(
     await mutation.call({
-      meta: { input: { firstName: 'John', lastName: 'Doe' }, route: 'dummy.route' },
+      meta: {
+        input: { firstName: 'John', lastName: 'Doe' },
+        route: 'dummy.route',
+      },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
     data: 'Hello John Doe',
     ok: true,
@@ -254,9 +284,12 @@ test('Should create mutation with twice chain', async () => {
     await mutation.call({
       meta: { input: { firstName: 'John' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
-    error: new HTTPError({ code: 'BAD_REQUEST', message: 'Args validation error.' }),
+    error: new HTTPError({
+      code: 'BAD_REQUEST',
+      message: 'Args validation error.',
+    }),
     ok: false,
     ctx: {
       greetingsPrefix: 'Hello',
@@ -267,9 +300,12 @@ test('Should create mutation with twice chain', async () => {
     await mutation.call({
       meta: { input: { lastName: 'Doe' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
-    error: new HTTPError({ code: 'BAD_REQUEST', message: 'Args validation error.' }),
+    error: new HTTPError({
+      code: 'BAD_REQUEST',
+      message: 'Args validation error.',
+    }),
     ok: false,
     ctx: {
       greetingsPrefix: 'Hello',
@@ -278,8 +314,11 @@ test('Should create mutation with twice chain', async () => {
 
   expect(
     await mutation
-      .createServerSideMutation({ ctx: { greetingsPrefix: 'Hello' as const }, route: ['dummy', 'route'] })
-      .mutate({ firstName: 'John', lastName: 'Doe' })
+      .createServerSideMutation({
+        ctx: { greetingsPrefix: 'Hello' as const },
+        route: ['dummy', 'route'],
+      })
+      .mutate({ firstName: 'John', lastName: 'Doe' }),
   ).toStrictEqual({
     data: 'Hello John Doe',
     ok: true,

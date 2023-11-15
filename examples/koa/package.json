@@ -1,5 +1,5 @@
 {
-  "name": "@ptsq/example-express",
+  "name": "@ptsq/example-koa",
   "version": "0.0.1",
   "private": true,
   "main": "src/server.ts",
@@ -11,16 +11,16 @@
     "introspection-raw": "introspection-cli --url='http://localhost:4000/ptsq' --lang='raw'"
   },
   "devDependencies": {
-    "@types/express": "^4.17.18",
+    "@ptsq/introspection-cli": "*",
+    "@types/koa": "^2.13.11",
     "@types/node": "^20.7.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2",
-    "@ptsq/introspection-cli": "*"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
     "@ptsq/client": "*",
     "@ptsq/server": "*",
-    "express": "^4.18.2",
+    "koa": "^2.14.2",
     "zod": "^3.22.2"
   }
 }

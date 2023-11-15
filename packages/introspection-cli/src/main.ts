@@ -1,10 +1,9 @@
 #!/usr/bin/env node
-
-import axios from 'axios';
-import yargs from 'yargs';
-import { compile } from 'json-schema-to-typescript';
 import { writeFile } from 'fs/promises';
 import { resolve } from 'path';
+import axios from 'axios';
+import { compile } from 'json-schema-to-typescript';
+import yargs from 'yargs';
 import { Languages } from './languages';
 
 const argv = yargs
@@ -13,7 +12,8 @@ const argv = yargs
   .alias('h', 'help')
   .option('url', {
     alias: 'u',
-    describe: 'the ptsq url to introspectate, should be without /introspection path',
+    describe:
+      'the ptsq url to introspectate, should be without /introspection path',
     type: 'string',
     demandOption: true,
   })
@@ -53,7 +53,9 @@ axios
         outFile = out ?? 'schema.generated.json';
         break;
       default:
-        throw new Error(`This programming language (${lang}) has not implement instrospection of ptsq schema`);
+        throw new Error(
+          `This programming language (${lang}) has not implement instrospection of ptsq schema`,
+        );
     }
 
     await writeFile(outFile, schema!, 'utf8');

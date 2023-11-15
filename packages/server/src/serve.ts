@@ -1,35 +1,34 @@
 import type { Context, ContextBuilder } from './context';
 import type { CORSOptions } from './cors';
-import type { Router } from './router';
+import { HTTPError } from './httpError';
+import { Middleware } from './middleware';
 import { Queue } from './queue';
 import { requestBodySchema } from './requestBodySchema';
-import { Middleware } from './middleware';
-import { HTTPError } from './httpError';
+import type { Router } from './router';
 
 export type ServeOptions<TContext extends Context> = {
   contextBuilder: ContextBuilder<TContext>;
   cors?: CORSOptions;
+  rootPath?: string;
 };
 
 export class Serve<TContext extends Context = Context> {
-  contextBuilder: ContextBuilder<TContext>;
-  cors?: CORSOptions;
-  router?: Router;
+  _contextBuilder: ContextBuilder<TContext>;
 
-  constructor({ contextBuilder, cors }: ServeOptions<TContext>) {
-    this.contextBuilder = contextBuilder;
-    this.cors = cors;
+  constructor({ contextBuilder }: ServeOptions<TContext>) {
+    this._contextBuilder = contextBuilder;
   }
 
-  adapt({ router }: { router: Router }) {
-    this.router = router;
-    return this;
-  }
-
-  async call<TParams>({ body, params }: { body: unknown; params: TParams }) {
-    if (!this.router) throw new Error('Router must be set by Serve.adapt before server call.');
-
-    const ctx = await this.contextBuilder(params);
+  async call<TParams>({
+    router,
+    body,
+    params,
+  }: {
+    router: Router;
+    body: unknown;
+    params: TParams;
+  }) {
+    const ctx = await this._contextBuilder(params);
 
     const parsedRequestBody = requestBodySchema.safeParse(body);
 
@@ -46,7 +45,7 @@ export class Serve<TContext extends Context = Context> {
     const routeQueue = new Queue(parsedRequestBody.data.route.split('.'));
 
     try {
-      return this.router.call({
+      return router.call({
         route: routeQueue,
         meta: {
           input: parsedRequestBody.data.input,

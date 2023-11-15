@@ -1,7 +1,7 @@
-import type { ClientRouter, Client } from './types';
-import type { RequestHeaders } from './headers';
 import type { MaybePromise } from '@ptsq/server';
 import axios from 'axios';
+import type { RequestHeaders } from './headers';
+import type { Client, ClientRouter } from './types';
 
 export type ProxyClientOptions = {
   route: string[];
@@ -37,9 +37,12 @@ export class ProxyClient {
    */
   async request<TRequestInput, TRequestOutput>(
     requestInput: TRequestInput,
-    requestOptions?: RequestOptions
+    requestOptions?: RequestOptions,
   ): Promise<TRequestOutput> {
-    const headers = typeof this.options.headers !== 'function' ? this.options.headers : await this.options.headers();
+    const headers =
+      typeof this.options.headers !== 'function'
+        ? this.options.headers
+        : await this.options.headers();
 
     /**
      * Removes the last route from path, the last one is 'mutate' | 'query'
@@ -53,7 +56,7 @@ export class ProxyClient {
         withCredentials: this.options.credentials,
         headers,
         signal: requestOptions?.signal,
-      }
+      },
     );
 
     return result.data as TRequestOutput;
@@ -73,7 +76,7 @@ export class ProxyClient {
  * ```
  */
 export const createProxyClient = <TRouter extends ClientRouter>(
-  options: ProxyClientOptions['options']
+  options: ProxyClientOptions['options'],
 ): Client<TRouter> => {
   const createRouteProxyClient = (route: string[]) => {
     /**
@@ -91,7 +94,8 @@ export const createProxyClient = <TRouter extends ClientRouter>(
     const proxyHandler: ProxyHandler<Client<TRouter>> = {
       get: (_target, key: string) => createRouteProxyClient([...route, key]),
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      apply: (_target, _thisArg, argumentsList) => client.request(argumentsList[0], argumentsList[1]),
+      apply: (_target, _thisArg, argumentsList) =>
+        client.request(argumentsList[0], argumentsList[1]),
     };
 
     /**

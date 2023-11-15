@@ -12,7 +12,12 @@ export type JsonSchema7LiteralType =
 export const parseLiteralDef = (def: ZodLiteralDef): JsonSchema7LiteralType => {
   const parsedType = typeof def.value;
 
-  if (parsedType !== 'bigint' && parsedType !== 'number' && parsedType !== 'boolean' && parsedType !== 'string') {
+  if (
+    parsedType !== 'bigint' &&
+    parsedType !== 'number' &&
+    parsedType !== 'boolean' &&
+    parsedType !== 'string'
+  ) {
     return {
       type: Array.isArray(def.value) ? 'array' : 'object',
     };

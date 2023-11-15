@@ -1,11 +1,14 @@
-import type { ZodUndefined, ZodVoid, z } from 'zod';
+import type { z, ZodUndefined, ZodVoid } from 'zod';
 import type { Context } from './context';
+import type { HTTPError } from './httpError';
 import { Middleware, type MiddlewareCallback } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
-import type { SerializableInputZodSchema, SerializableOutputZodSchema } from './serializable';
+import type {
+  SerializableInputZodSchema,
+  SerializableOutputZodSchema,
+} from './serializable';
 import type { MaybePromise } from './types';
-import type { HTTPError } from './httpError';
 
 export type ResolverResponse<TContext extends Context> =
   | {
@@ -44,9 +47,8 @@ export type inferResolverArgsInput<TResolverArgs> = TResolverArgs extends
     undefined | void
   : inferResolverArgs<TResolverArgs>;
 
-export type inferResolverOutput<TResolverOutput> = TResolverOutput extends z.Schema
-  ? z.input<TResolverOutput>
-  : TResolverOutput;
+export type inferResolverOutput<TResolverOutput> =
+  TResolverOutput extends z.Schema ? z.input<TResolverOutput> : TResolverOutput;
 
 export class Resolver<
   TArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
@@ -55,12 +57,20 @@ export class Resolver<
   _middlewares: Middleware<any, any>[];
   _args: TArgs;
 
-  constructor({ args, middlewares = [] }: { args: unknown; middlewares: Middleware<any, any>[] }) {
+  constructor({
+    args,
+    middlewares = [],
+  }: {
+    args: unknown;
+    middlewares: Middleware<any, any>[];
+  }) {
     this._args = args as TArgs;
     this._middlewares = middlewares;
   }
 
-  use<TNextContext extends Context>(middleware: MiddlewareCallback<TArgs, TContext, TNextContext>) {
+  use<TNextContext extends Context>(
+    middleware: MiddlewareCallback<TArgs, TContext, TNextContext>,
+  ) {
     return new Resolver<TArgs, TNextContext>({
       args: this._args,
       middlewares: [
@@ -73,7 +83,9 @@ export class Resolver<
     });
   }
 
-  args<TNextArgs extends TArgs extends ZodVoid ? ResolverArgs : TArgs>(nextArgs: TNextArgs) {
+  args<TNextArgs extends TArgs extends ZodVoid ? ResolverArgs : TArgs>(
+    nextArgs: TNextArgs,
+  ) {
     return new Resolver<TNextArgs, TContext>({
       args: nextArgs,
       middlewares: [...this._middlewares],
@@ -82,11 +94,19 @@ export class Resolver<
 
   mutation<TResolverOutput extends ResolverOutput>(options: {
     output: TResolverOutput;
-    resolve: ResolveFunction<inferResolverArgs<TArgs>, inferResolverOutput<TResolverOutput>, TContext>;
+    resolve: ResolveFunction<
+      inferResolverArgs<TArgs>,
+      inferResolverOutput<TResolverOutput>,
+      TContext
+    >;
   }): Mutation<
     TArgs,
     TResolverOutput,
-    ResolveFunction<inferResolverArgs<TArgs>, inferResolverOutput<TResolverOutput>, TContext>
+    ResolveFunction<
+      inferResolverArgs<TArgs>,
+      inferResolverOutput<TResolverOutput>,
+      TContext
+    >
   > {
     return new Mutation({
       args: this._args,
@@ -98,11 +118,19 @@ export class Resolver<
 
   query<TResolverOutput extends ResolverOutput>(options: {
     output: TResolverOutput;
-    resolve: ResolveFunction<inferResolverArgs<TArgs>, inferResolverOutput<TResolverOutput>, TContext>;
+    resolve: ResolveFunction<
+      inferResolverArgs<TArgs>,
+      inferResolverOutput<TResolverOutput>,
+      TContext
+    >;
   }): Query<
     TArgs,
     TResolverOutput,
-    ResolveFunction<inferResolverArgs<TArgs>, inferResolverOutput<TResolverOutput>, TContext>
+    ResolveFunction<
+      inferResolverArgs<TArgs>,
+      inferResolverOutput<TResolverOutput>,
+      TContext
+    >
   > {
     return new Query({
       args: this._args,
@@ -113,7 +141,11 @@ export class Resolver<
   }
 }
 
-export type ResolveFunction<TInput, TOutput, TContext extends Context = Context> = (options: {
+export type ResolveFunction<
+  TInput,
+  TOutput,
+  TContext extends Context = Context,
+> = (options: {
   input: TInput;
   ctx: TContext;
   meta: ResolverRequest;

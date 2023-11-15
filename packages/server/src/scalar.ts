@@ -1,13 +1,19 @@
+import { z } from 'zod';
 import { HTTPError } from './httpError';
 import type { Serializable } from './serializable';
-import { z } from 'zod';
 
-export type ScalarParser<TInputSchema extends z.Schema<Serializable>, TOutputSchema extends z.Schema> = {
+export type ScalarParser<
+  TInputSchema extends z.Schema<Serializable>,
+  TOutputSchema extends z.Schema,
+> = {
   value: (arg: z.infer<TInputSchema>) => z.infer<TOutputSchema>;
   schema: TOutputSchema;
 };
 
-export type ScalarSerializer<TInputSchema extends z.Schema, TOutputSchema extends z.Schema<Serializable>> = {
+export type ScalarSerializer<
+  TInputSchema extends z.Schema,
+  TOutputSchema extends z.Schema<Serializable>,
+> = {
   value: (arg: z.infer<TInputSchema>) => z.infer<TOutputSchema>;
   schema: TOutputSchema;
 };
@@ -49,7 +55,7 @@ export const scalar = <
       parse: ScalarParser<TSerializeSchema, TParseSchema>;
       serialize: ScalarSerializer<TParseSchema, TSerializeSchema>;
       description: TDescription;
-    }
+    },
   );
 
 export class Scalar<
@@ -61,8 +67,16 @@ export class Scalar<
   protected serialize: ScalarSerializer<TParseSchema, TSerializeSchema>;
 
   public description: TDescription;
-  public input: z.ZodEffects<TSerializeSchema, z.infer<TParseSchema>, z.input<TSerializeSchema>>;
-  public output: z.ZodEffects<TSerializeSchema, z.infer<TSerializeSchema>, z.infer<TParseSchema>>;
+  public input: z.ZodEffects<
+    TSerializeSchema,
+    z.infer<TParseSchema>,
+    z.input<TSerializeSchema>
+  >;
+  public output: z.ZodEffects<
+    TSerializeSchema,
+    z.infer<TSerializeSchema>,
+    z.infer<TParseSchema>
+  >;
 
   constructor({
     parse,
@@ -78,7 +92,9 @@ export class Scalar<
     this.description = description as TDescription;
 
     this.input = this.serialize.schema.transform((arg) => {
-      const transformParseResult = this.parse.schema.safeParse(this.parse.value(arg));
+      const transformParseResult = this.parse.schema.safeParse(
+        this.parse.value(arg),
+      );
 
       if (!transformParseResult.success)
         throw new HTTPError({

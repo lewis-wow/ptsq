@@ -1,25 +1,32 @@
-import type { Server } from 'http';
+import type { RequestListener, Server } from 'http';
 import {
-  type MaybePromise,
-  type Context,
   createServer as createPtsqServer,
+  type Context,
+  type MaybePromise,
   type Router,
-  type Serve,
 } from '@ptsq/server';
 
-export type CreateTestServerArgs<TContext extends Context, TRouter extends Router> = {
+export type CreateTestServerArgs<
+  TContext extends Context,
+  TRouter extends Router,
+> = {
   ctx: (...params: any[]) => TContext;
-  server: (ptsq: ReturnType<typeof createPtsqServer<() => TContext>>) => MaybePromise<TRouter>;
+  server: (
+    ptsq: ReturnType<typeof createPtsqServer<() => TContext>>,
+  ) => MaybePromise<TRouter>;
   client: (serverUrl: string, baseRouter: TRouter) => MaybePromise<void>;
 };
 
-export const createTestServer = <TContext extends Context, TRouter extends Router>({
+export const createTestServer = <
+  TContext extends Context,
+  TRouter extends Router,
+>({
   ctx,
   server,
   client,
   serverProvider,
 }: CreateTestServerArgs<TContext, TRouter> & {
-  serverProvider: (serve: Serve) => {
+  serverProvider: (requestListener: RequestListener) => {
     listen: (port: number, ..._args: any[]) => Server;
   };
 }) => {
@@ -31,7 +38,9 @@ export const createTestServer = <TContext extends Context, TRouter extends Route
 
     const baseRouter = await server(ptsq);
 
-    const serverProviderResult = serverProvider(ptsq.serve({ router: baseRouter }));
+    const serverProviderResult = serverProvider(
+      ptsq.createHTTPNodeHandler({ router: baseRouter }),
+    );
 
     const httpServer = serverProviderResult.listen(0);
 
@@ -42,7 +51,9 @@ export const createTestServer = <TContext extends Context, TRouter extends Route
     const serverRootUrl =
       typeof address === 'string'
         ? address
-        : `http://${address.address === '::' ? 'localhost' : address.address}:${address.port}`;
+        : `http://${address.address === '::' ? 'localhost' : address.address}:${
+            address.port
+          }`;
 
     await client(`${serverRootUrl}/ptsq`, baseRouter);
 

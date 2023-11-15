@@ -1,17 +1,26 @@
-import type { ResolverType } from './types';
-import type { ResolveFunction, ResolverArgs, ResolverRequest, ResolverResponse, ResolverOutput } from './resolver';
-import { createSchemaRoot } from './createSchemaRoot';
-import type { Context } from './context';
-import { Middleware } from './middleware';
-import { HTTPError } from './httpError';
 import { zodToJsonSchema } from '@ptsq/zod-parser';
 import type { ZodVoid } from 'zod';
+import type { Context } from './context';
+import { createSchemaRoot } from './createSchemaRoot';
+import { HTTPError } from './httpError';
+import { Middleware } from './middleware';
+import type {
+  ResolveFunction,
+  ResolverArgs,
+  ResolverOutput,
+  ResolverRequest,
+  ResolverResponse,
+} from './resolver';
+import type { ResolverType } from './types';
 
 export class Route<
   TType extends ResolverType = ResolverType,
   TArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
   TResolverOutput extends ResolverOutput = ResolverOutput,
-  TResolveFunction extends ResolveFunction<any, any> = ResolveFunction<any, any>,
+  TResolveFunction extends ResolveFunction<any, any> = ResolveFunction<
+    any,
+    any
+  >,
 > {
   type: TType;
   args: TArgs;
@@ -52,7 +61,13 @@ export class Route<
     });
   }
 
-  async call({ ctx, meta }: { ctx: Context; meta: ResolverRequest }): Promise<ResolverResponse<Context>> {
+  async call({
+    ctx,
+    meta,
+  }: {
+    ctx: Context;
+    meta: ResolverRequest;
+  }): Promise<ResolverResponse<Context>> {
     const response = await Middleware.recursiveCall({
       ctx,
       meta,
@@ -61,7 +76,11 @@ export class Route<
         ...this.middlewares,
         new Middleware<ResolverArgs>({
           args: this.args as any,
-          middlewareCallback: async ({ ctx: finalContext, input, meta: finalMeta }) => {
+          middlewareCallback: async ({
+            ctx: finalContext,
+            input,
+            meta: finalMeta,
+          }) => {
             const resolverResult = await this.resolveFunction({
               input,
               ctx: finalContext,

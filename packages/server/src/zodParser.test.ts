@@ -1,7 +1,7 @@
-import { test, expect } from 'vitest';
-import { createServer } from './createServer';
-import { z } from 'zod';
 import { zodToJsonSchema } from '@ptsq/zod-parser';
+import { expect, test } from 'vitest';
+import { z } from 'zod';
+import { createServer } from './createServer';
 
 test('Should create scalar  json schema', () => {
   const { scalar } = createServer({
@@ -38,13 +38,13 @@ test('Should create arguments chain json schema', () => {
     .args(
       z.object({
         firstName: z.string(),
-      })
+      }),
     )
     .args(
       z.object({
         firstName: z.string(),
         lastName: z.string(),
-      })
+      }),
     );
 
   expect(zodToJsonSchema(argsResolver._args)).toStrictEqual({
@@ -73,7 +73,7 @@ test('Should create complex arguments chain json schema', () => {
         person: z.object({
           firstName: z.string(),
         }),
-      })
+      }),
     )
     .args(
       z.object({
@@ -81,7 +81,7 @@ test('Should create complex arguments chain json schema', () => {
           firstName: z.string(),
           lastName: z.string(),
         }),
-      })
+      }),
     );
 
   expect(zodToJsonSchema(argsResolver._args)).toMatchInlineSnapshot(`

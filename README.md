@@ -31,7 +31,11 @@ yarn add -D @ptsq/introspection-cli
 ```
 
 ```ts title="server.ts"
-import { createServer, expressAdapter, ExpressAdapterContext } from '@ptsq/server';
+import {
+  createServer,
+  expressAdapter,
+  ExpressAdapterContext,
+} from '@ptsq/server';
 import express from 'express';
 import { z } from 'zod';
 
@@ -48,7 +52,10 @@ const { middleware, resolver, router, serve } = createServer({
 
 const testQuery = resolver.args(z.object({ name: z.string() })).query({
   output: z.string(),
-  resolve: async ({ ctx /* { req: express.Request, res: express.Response } */, input /* { name: string } */ }) => {
+  resolve: async ({
+    ctx /* { req: express.Request, res: express.Response } */,
+    input /* { name: string } */,
+  }) => {
     return `Hello, ${input.name}`;
   },
 });

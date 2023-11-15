@@ -5,7 +5,13 @@ import { Route } from './route';
 test('Should create query route', async () => {
   const inputSchema = z.object({ name: z.string() });
   const outputSchema = z.string();
-  const resolveFunction = ({ input, ctx: _ctx }: { input: { name: string }; ctx: object }) => `${input.name}`;
+  const resolveFunction = ({
+    input,
+    ctx: _ctx,
+  }: {
+    input: { name: string };
+    ctx: object;
+  }) => `${input.name}`;
 
   const query = new Route({
     type: 'query',
@@ -26,7 +32,7 @@ test('Should create query route', async () => {
     await query.call({
       meta: { input: { name: 'John' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
     data: 'John',
     ok: true,
@@ -82,7 +88,13 @@ test('Should create query route', async () => {
 test('Should create mutation route', async () => {
   const inputSchema = z.object({ name: z.string() });
   const outputSchema = z.string();
-  const resolveFunction = ({ input, ctx: _ctx }: { input: { name: string }; ctx: object }) => `${input.name}`;
+  const resolveFunction = ({
+    input,
+    ctx: _ctx,
+  }: {
+    input: { name: string };
+    ctx: object;
+  }) => `${input.name}`;
 
   const mutation = new Route({
     type: 'mutation',
@@ -103,7 +115,7 @@ test('Should create mutation route', async () => {
     await mutation.call({
       meta: { input: { name: 'John' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
-    })
+    }),
   ).toStrictEqual({
     data: 'John',
     ok: true,

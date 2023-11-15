@@ -1,11 +1,11 @@
-import { createServer, ExpressAdapterContext } from '@ptsq/server';
-import express from 'express';
+import { createServer, KoaAdapterContext } from '@ptsq/server';
+import Koa from 'koa';
 import { z } from 'zod';
 
-const app = express();
+const app = new Koa();
 
 const { router, resolver, createHTTPNodeHandler } = createServer({
-  ctx: async ({ req, res }: ExpressAdapterContext) => ({
+  ctx: async ({ req, res }: KoaAdapterContext) => ({
     req,
     res,
   }),
@@ -18,14 +18,14 @@ const baseRouter = router({
   }),
 });
 
-app.use((req, res) =>
+app.use((ctx) =>
   createHTTPNodeHandler({
     router: baseRouter,
     ctx: {
-      req,
-      res,
+      req: ctx.request,
+      res: ctx.response,
     },
-  })(req, res),
+  })(ctx.req, ctx.res),
 );
 
 app.listen(4000, () => {

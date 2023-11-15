@@ -24,7 +24,8 @@ export class HTTPError extends Error {
   /**
    * Check if the error in catch scope is HTTPError
    */
-  static isHttpError = (error: unknown): error is HTTPError => error instanceof HTTPError;
+  static isHttpError = (error: unknown): error is HTTPError =>
+    error instanceof HTTPError;
 }
 
 export const HTTPErrorCode = {
