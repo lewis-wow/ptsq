@@ -1,14 +1,20 @@
-import type { ContextBuilder, inferContextFromContextBuilder } from './context';
-import { type Routes, Router } from './router';
-import { Resolver } from './resolver';
-import { Serve } from './serve';
-import { scalar } from './scalar';
+import { z, type ZodVoid } from 'zod';
+import { HTTPRequestListener } from './adapters/http';
+import type {
+  ContextBuilder,
+  inferContextFromContextBuilder,
+  inferContextParamsFromContextBuilder,
+} from './context';
 import type { CORSOptions } from './cors';
-import { type ZodVoid, z } from 'zod';
+import { Resolver } from './resolver';
+import { Router, type Routes } from './router';
+import { scalar } from './scalar';
+import { Serve } from './serve';
 
 type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   ctx: TContextBuilder;
   cors?: CORSOptions;
+  rootPath?: string;
 };
 
 /**
@@ -28,8 +34,11 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
 export const createServer = <TContextBuilder extends ContextBuilder>({
   ctx,
   cors,
+  rootPath,
 }: CreateServerArgs<TContextBuilder>) => {
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
+  type ContextBuilderParams =
+    inferContextParamsFromContextBuilder<TContextBuilder>;
 
   /**
    * Creates a queries or mutations
@@ -50,7 +59,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
     middlewares: [],
   });
 
-  const serveInternal = new Serve({ contextBuilder: ctx, cors });
+  const serve = new Serve({ contextBuilder: ctx });
 
   /**
    * Creates a fully typed router
@@ -67,22 +76,36 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * })
    * ```
    */
-  const router = <TRoutes extends Routes>(routes: TRoutes) => new Router({ routes });
+  const router = <TRoutes extends Routes>(routes: TRoutes) =>
+    new Router({ routes });
 
   /**
    * Serve your server into some rest-api adapter like express, fastify, node:http, ...
    *
    * @example
    * ```ts
-   * serve({ router: rootRouter });
+   * createHTTPNodeHandler({ router: rootRouter });
    * ```
    */
-  const serve = ({ router: rootRouter }: { router: Router }) => serveInternal.adapt({ router: rootRouter });
+  const createHTTPNodeHandler = ({
+    router: baseRotuer,
+    ctx: ctxParams,
+  }: {
+    router: Router;
+    ctx: ContextBuilderParams;
+  }) =>
+    HTTPRequestListener.createRequestListenerHandler({
+      serve,
+      cors,
+      router: baseRotuer,
+      ctx: ctxParams,
+    });
 
   return {
     resolver,
     router,
     scalar,
-    serve,
+    createHTTPNodeHandler,
+    rootPath,
   };
 };

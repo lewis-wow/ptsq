@@ -1,5 +1,5 @@
 import { ZodTypeDef } from 'zod';
-import { basePath, $refStrategy, definitionPath } from './options';
+import { $refStrategy, basePath, definitionPath } from './options';
 import { JsonSchema7Type } from './parseDef';
 
 export type Refs = {

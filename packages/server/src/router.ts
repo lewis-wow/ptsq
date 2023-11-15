@@ -38,7 +38,9 @@ export class Router<TRoutes extends Routes = Routes> {
     });
   }
 
-  createServerSideProxyCaller<TContext extends Context>(ctx: TContext): RouterProxyCaller<TRoutes, TContext> {
+  createServerSideProxyCaller<TContext extends Context>(
+    ctx: TContext,
+  ): RouterProxyCaller<TRoutes, TContext> {
     return this._createServerSideProxyCallerInternal({ ctx, route: [] });
   }
 
@@ -54,7 +56,10 @@ export class Router<TRoutes extends Routes = Routes> {
         const node = target[key];
 
         if (node.nodeType === 'router')
-          return node._createServerSideProxyCallerInternal({ ctx, route: [...route, key] });
+          return node._createServerSideProxyCallerInternal({
+            ctx,
+            route: [...route, key],
+          });
 
         return node.type === 'mutation'
           ? node.createServerSideMutation({ ctx, route })
@@ -62,7 +67,10 @@ export class Router<TRoutes extends Routes = Routes> {
       },
     };
 
-    return new Proxy(this.routes, proxyHandler) as unknown as RouterProxyCaller<TRoutes, TContext>;
+    return new Proxy(this.routes, proxyHandler) as unknown as RouterProxyCaller<
+      TRoutes,
+      TContext
+    >;
   }
 
   call({
@@ -79,7 +87,8 @@ export class Router<TRoutes extends Routes = Routes> {
     if (!currentRoute)
       throw new HTTPError({
         code: 'BAD_REQUEST',
-        message: 'The route was terminated by query or mutate but should continue.',
+        message:
+          'The route was terminated by query or mutate but should continue.',
       });
 
     if (!(currentRoute in this.routes))
@@ -90,12 +99,14 @@ export class Router<TRoutes extends Routes = Routes> {
 
     const nextNode = this.routes[currentRoute];
 
-    if (nextNode.nodeType === 'router') return nextNode.call({ route, ctx, meta });
+    if (nextNode.nodeType === 'router')
+      return nextNode.call({ route, ctx, meta });
 
     if (route.size !== 0)
       throw new HTTPError({
         code: 'BAD_REQUEST',
-        message: 'The route continues, but should be terminated by query or mutate.',
+        message:
+          'The route continues, but should be terminated by query or mutate.',
       });
 
     return nextNode.call({ meta, ctx });

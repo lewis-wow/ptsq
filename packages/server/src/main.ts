@@ -3,7 +3,11 @@ export { HTTPError } from './httpError';
 
 export type { Scalar } from './scalar';
 
-export { Resolver, type inferResolverArgsInput, type inferResolverOutput } from './resolver';
+export {
+  Resolver,
+  type inferResolverArgsInput,
+  type inferResolverOutput,
+} from './resolver';
 export { Middleware } from './middleware';
 export type { Query } from './query';
 export type { Mutation } from './mutation';
@@ -18,14 +22,23 @@ export type {
   inferResolverValidationSchemaInput,
   inferResolverValidationSchemaOutput,
 } from './types';
-export type { SerializableInputZodSchema, SerializableOutputZodSchema, Serializable } from './serializable';
+export type {
+  SerializableInputZodSchema,
+  SerializableOutputZodSchema,
+  Serializable,
+} from './serializable';
 
 /**
  * adapters/express
  */
-export { expressAdapter, type ExpressAdapterContext } from './adapters/express';
+export { type ExpressAdapterContext } from './adapters/express';
 
 /**
  * adapters/http
  */
-export { httpAdapter, type HttpAdapterContext } from './adapters/http';
+export { type HttpAdapterContext } from './adapters/http';
+
+/**
+ * adapters/koa
+ */
+export { type KoaAdapterContext } from './adapters/koa';

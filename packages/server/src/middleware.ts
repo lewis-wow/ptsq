@@ -1,14 +1,21 @@
 import type { Context } from './context';
-import type { ResolverResponse, inferResolverArgs } from './resolver';
-import type { ResolverRequest } from './resolver';
 import { HTTPError } from './httpError';
-import type { ResolverArgs } from './resolver';
+import type {
+  inferResolverArgs,
+  ResolverArgs,
+  ResolverRequest,
+  ResolverResponse,
+} from './resolver';
 
 export type NextFunction = <TNextContext extends Context>(
-  nextContext: TNextContext
+  nextContext: TNextContext,
 ) => Promise<ResolverResponse<TNextContext>>;
 
-export type MiddlewareCallback<TArgs, TContext extends Context, TNextContext extends Context> = (options: {
+export type MiddlewareCallback<
+  TArgs,
+  TContext extends Context,
+  TNextContext extends Context,
+> = (options: {
   input: inferResolverArgs<TArgs>;
   meta: ResolverRequest;
   ctx: TContext;
@@ -23,12 +30,21 @@ export class Middleware<
   _middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext>;
   _args: TArgs;
 
-  constructor(options: { args: TArgs; middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext> }) {
+  constructor(options: {
+    args: TArgs;
+    middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext>;
+  }) {
     this._middlewareCallback = options.middlewareCallback;
     this._args = options.args;
   }
 
-  static createSuccessResponse({ data, ctx }: { data: unknown; ctx: object }): ResolverResponse<object> {
+  static createSuccessResponse({
+    data,
+    ctx,
+  }: {
+    data: unknown;
+    ctx: object;
+  }): ResolverResponse<object> {
     return {
       ok: true,
       data,
@@ -36,7 +52,13 @@ export class Middleware<
     };
   }
 
-  static createFailureResponse({ error, ctx }: { error: HTTPError; ctx: object }): ResolverResponse<object> {
+  static createFailureResponse({
+    error,
+    ctx,
+  }: {
+    error: HTTPError;
+    ctx: object;
+  }): ResolverResponse<object> {
     return {
       ok: false,
       error,
@@ -59,7 +81,11 @@ export class Middleware<
       const parsedInput = middlewares[index]._args.safeParse(meta.input);
 
       if (!parsedInput.success)
-        throw new HTTPError({ code: 'BAD_REQUEST', message: 'Args validation error.', info: parsedInput.error });
+        throw new HTTPError({
+          code: 'BAD_REQUEST',
+          message: 'Args validation error.',
+          info: parsedInput.error,
+        });
 
       return await middlewares[index]._middlewareCallback({
         input: parsedInput.data,
@@ -75,7 +101,8 @@ export class Middleware<
         },
       });
     } catch (error) {
-      if (HTTPError.isHttpError(error)) return Middleware.createFailureResponse({ ctx, error });
+      if (HTTPError.isHttpError(error))
+        return Middleware.createFailureResponse({ ctx, error });
 
       // rethrow original error
       throw error;

@@ -145,7 +145,10 @@ test('Should create string json schema with transform', () => {
 });
 
 test('Should create string json schema with preprocess', () => {
-  const schema = z.preprocess((arg) => String(arg).length.toString(), z.string());
+  const schema = z.preprocess(
+    (arg) => String(arg).length.toString(),
+    z.string(),
+  );
 
   expect(zodToJsonSchema(schema)).toStrictEqual({
     type: 'string',

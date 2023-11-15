@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { expect, test } from 'vitest';
-import axios from 'axios';
 import { createTestExpressServer } from '@ptsq/test-utils';
+import axios from 'axios';
+import { expect, test } from 'vitest';
+import { z } from 'zod';
 
 test('Should create simple http server', async () => {
   await createTestExpressServer({
@@ -12,7 +12,7 @@ test('Should create simple http server', async () => {
           .args(
             z.object({
               name: z.string(),
-            })
+            }),
           )
           .query({
             output: z.string(),
@@ -44,7 +44,7 @@ test('Should create simple http server with context', async () => {
           .args(
             z.object({
               name: z.string(),
-            })
+            }),
           )
           .query({
             output: z.object({
@@ -85,7 +85,7 @@ test('Should create simple http server with middleware', async () => {
           .args(
             z.object({
               name: z.string(),
-            })
+            }),
           )
           .use(({ input, ctx, next }) => next({ ...ctx, ...input }))
           .query({
@@ -195,7 +195,7 @@ test('Should introspectate the server with express adapter', async () => {
           .args(
             z.object({
               name: z.string(),
-            })
+            }),
           )
           .query({
             output: z.string(),
@@ -288,7 +288,7 @@ test('Should create simple http server and return BAD_REQUEST response', async (
           .args(
             z.object({
               name: z.string(),
-            })
+            }),
           )
           .query({
             output: z.string(),
@@ -301,8 +301,10 @@ test('Should create simple http server and return BAD_REQUEST response', async (
         axios.post(serverUrl, {
           route: 'test',
           input: 'John',
-        })
-      ).rejects.toMatchInlineSnapshot('[AxiosError: Request failed with status code 400]');
+        }),
+      ).rejects.toMatchInlineSnapshot(
+        '[AxiosError: Request failed with status code 400]',
+      );
     },
   });
 });
@@ -316,7 +318,7 @@ test('Should create simple http server and return INTERNAL_SERVER_ERROR response
           .args(
             z.object({
               name: z.string(),
-            })
+            }),
           )
           .query({
             output: z.string(),
@@ -331,8 +333,10 @@ test('Should create simple http server and return INTERNAL_SERVER_ERROR response
         axios.post(serverUrl, {
           route: 'test',
           input: { name: 'John' },
-        })
-      ).rejects.toMatchInlineSnapshot('[AxiosError: Request failed with status code 500]');
+        }),
+      ).rejects.toMatchInlineSnapshot(
+        '[AxiosError: Request failed with status code 500]',
+      );
     },
   });
 });

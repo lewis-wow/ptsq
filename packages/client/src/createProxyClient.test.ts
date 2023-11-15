@@ -1,8 +1,8 @@
-import { z } from 'zod';
-import { expect, test } from 'vitest';
-import { createTestHttpServer } from '@ptsq/test-utils';
-import { createProxyClient } from './createProxyClient';
 import type { HttpAdapterContext } from '@ptsq/server';
+import { createTestHttpServer } from '@ptsq/test-utils';
+import { expect, test } from 'vitest';
+import { z } from 'zod';
+import { createProxyClient } from './createProxyClient';
 
 test('Should create simple http server with proxy client', async () => {
   await createTestHttpServer({
@@ -13,7 +13,7 @@ test('Should create simple http server with proxy client', async () => {
           .args(
             z.object({
               name: z.string(),
-            })
+            }),
           )
           .query({
             output: z.string(),
@@ -44,7 +44,7 @@ test('Should create simple http server with proxy client and request bad route',
           .args(
             z.object({
               name: z.string(),
-            })
+            }),
           )
           .query({
             output: z.string(),
@@ -62,8 +62,10 @@ test('Should create simple http server with proxy client and request bad route',
         // @ts-expect-error - just for test
         client.test.test.query({
           name: 'John',
-        })
-      ).rejects.toMatchInlineSnapshot('[AxiosError: Request failed with status code 400]');
+        }),
+      ).rejects.toMatchInlineSnapshot(
+        '[AxiosError: Request failed with status code 400]',
+      );
     },
   });
 });
@@ -77,7 +79,7 @@ test('Should create simple http server with proxy client and request bad route',
           .args(
             z.object({
               name: z.string(),
-            })
+            }),
           )
           .query({
             output: z.string(),
@@ -95,8 +97,10 @@ test('Should create simple http server with proxy client and request bad route',
         // @ts-expect-error - just for test
         client.badRoute.query({
           name: 'John',
-        })
-      ).rejects.toMatchInlineSnapshot('[AxiosError: Request failed with status code 400]');
+        }),
+      ).rejects.toMatchInlineSnapshot(
+        '[AxiosError: Request failed with status code 400]',
+      );
     },
   });
 });

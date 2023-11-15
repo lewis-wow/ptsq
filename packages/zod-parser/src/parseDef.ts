@@ -3,9 +3,15 @@ import { JsonSchema7ArrayType, parseArrayDef } from './parsers/array';
 import { JsonSchema7BooleanType, parseBooleanDef } from './parsers/boolean';
 import { parseEffectsDef } from './parsers/effects';
 import { JsonSchema7EnumType, parseEnumDef } from './parsers/enum';
-import { JsonSchema7AllOfType, parseIntersectionDef } from './parsers/intersection';
+import {
+  JsonSchema7AllOfType,
+  parseIntersectionDef,
+} from './parsers/intersection';
 import { JsonSchema7LiteralType, parseLiteralDef } from './parsers/literal';
-import { JsonSchema7NativeEnumType, parseNativeEnumDef } from './parsers/nativeEnum';
+import {
+  JsonSchema7NativeEnumType,
+  parseNativeEnumDef,
+} from './parsers/nativeEnum';
 import { JsonSchema7NullType, parseNullDef } from './parsers/null';
 import { JsonSchema7NumberType, parseNumberDef } from './parsers/number';
 import { JsonSchema7ObjectType, parseObjectDef } from './parsers/object';
@@ -42,7 +48,7 @@ export type JsonSchema7Type = JsonSchema7TypeUnion & {
 export function parseDef(
   def: ZodTypeDef,
   refs: Refs,
-  forceResolution = false // Forces a new schema to be instantiated even though its def has been seen. Used for improving refs in definitions. See https://github.com/StefanTerdell/zod-to-json-schema/pull/61.
+  forceResolution = false, // Forces a new schema to be instantiated even though its def has been seen. Used for improving refs in definitions. See https://github.com/StefanTerdell/zod-to-json-schema/pull/61.
 ): JsonSchema7Type | undefined {
   const seenItem = refs.seen.get(def);
 
@@ -52,7 +58,10 @@ export function parseDef(
 
   refs.seen.set(def, newItem);
 
-  const jsonSchema = parser[(def as any).typeName as ZodFirstPartyTypeKind]?.(def, refs);
+  const jsonSchema = parser[(def as any).typeName as ZodFirstPartyTypeKind]?.(
+    def,
+    refs,
+  );
 
   jsonSchema && def.description && (jsonSchema.description = def.description);
 
@@ -62,9 +71,18 @@ export function parseDef(
 }
 
 const get$ref = (item: Seen) =>
-  item.path.length === 0 ? '' : item.path.length === 1 ? `${item.path[0]}/` : item.path.join('/');
+  item.path.length === 0
+    ? ''
+    : item.path.length === 1
+    ? `${item.path[0]}/`
+    : item.path.join('/');
 
-const parser: Partial<Record<ZodFirstPartyTypeKind, (def: any, refs: Refs) => JsonSchema7Type | undefined>> = {
+const parser: Partial<
+  Record<
+    ZodFirstPartyTypeKind,
+    (def: any, refs: Refs) => JsonSchema7Type | undefined
+  >
+> = {
   [ZodFirstPartyTypeKind.ZodString]: parseStringDef,
   [ZodFirstPartyTypeKind.ZodNumber]: parseNumberDef,
   [ZodFirstPartyTypeKind.ZodObject]: parseObjectDef,
@@ -79,6 +97,7 @@ const parser: Partial<Record<ZodFirstPartyTypeKind, (def: any, refs: Refs) => Js
   [ZodFirstPartyTypeKind.ZodLiteral]: parseLiteralDef,
   [ZodFirstPartyTypeKind.ZodEnum]: parseEnumDef,
   [ZodFirstPartyTypeKind.ZodNativeEnum]: parseNativeEnumDef,
-  [ZodFirstPartyTypeKind.ZodLazy]: (def: any, refs: Refs) => parseDef(def.getter()._def, refs),
+  [ZodFirstPartyTypeKind.ZodLazy]: (def: any, refs: Refs) =>
+    parseDef(def.getter()._def, refs),
   [ZodFirstPartyTypeKind.ZodEffects]: parseEffectsDef,
 };

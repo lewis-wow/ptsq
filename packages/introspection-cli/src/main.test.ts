@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { expect, test } from 'vitest';
 import { createTestHttpServer } from '@ptsq/test-utils';
 import axios from 'axios';
+import { expect, test } from 'vitest';
+import { z } from 'zod';
 
 test('Should instropectate simple http server', async () => {
   await createTestHttpServer({
@@ -12,7 +12,7 @@ test('Should instropectate simple http server', async () => {
           .args(
             z.object({
               name: z.string(),
-            })
+            }),
           )
           .query({
             output: z.string(),

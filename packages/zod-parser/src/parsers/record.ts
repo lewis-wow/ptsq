@@ -4,7 +4,9 @@ import { Refs } from '../Refs';
 import { JsonSchema7EnumType } from './enum';
 import { JsonSchema7StringType, parseStringDef } from './string';
 
-type JsonSchema7RecordPropertyNamesType = Omit<JsonSchema7StringType, 'type'> | Omit<JsonSchema7EnumType, 'type'>;
+type JsonSchema7RecordPropertyNamesType =
+  | Omit<JsonSchema7StringType, 'type'>
+  | Omit<JsonSchema7EnumType, 'type'>;
 
 export type JsonSchema7RecordType = {
   type: 'object';
@@ -12,7 +14,10 @@ export type JsonSchema7RecordType = {
   propertyNames?: JsonSchema7RecordPropertyNamesType;
 };
 
-export function parseRecordDef(def: ZodRecordDef<ZodTypeAny, ZodTypeAny>, refs: Refs): JsonSchema7RecordType {
+export function parseRecordDef(
+  def: ZodRecordDef<ZodTypeAny, ZodTypeAny>,
+  refs: Refs,
+): JsonSchema7RecordType {
   const schema: JsonSchema7RecordType = {
     type: 'object',
     additionalProperties:
@@ -22,10 +27,15 @@ export function parseRecordDef(def: ZodRecordDef<ZodTypeAny, ZodTypeAny>, refs: 
       }) ?? {},
   };
 
-  if (def.keyType?._def.typeName === ZodFirstPartyTypeKind.ZodString && def.keyType._def.checks?.length) {
-    const keyType: JsonSchema7RecordPropertyNamesType = Object.entries(parseStringDef()).reduce(
+  if (
+    def.keyType?._def.typeName === ZodFirstPartyTypeKind.ZodString &&
+    def.keyType._def.checks?.length
+  ) {
+    const keyType: JsonSchema7RecordPropertyNamesType = Object.entries(
+      parseStringDef(),
+    ).reduce(
       (acc, [key, value]) => (key === 'type' ? acc : { ...acc, [key]: value }),
-      {}
+      {},
     );
 
     return {
