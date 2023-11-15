@@ -14,6 +14,7 @@ const sidebars = {
     'errors',
     'cors',
     'server-side-calls',
+    'integration',
     'comparison',
   ],
 };
