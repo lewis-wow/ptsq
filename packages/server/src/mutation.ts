@@ -1,13 +1,6 @@
 import type { ZodVoid } from 'zod';
-import type { Context } from './context';
 import type { Middleware } from './middleware';
-import type {
-  inferResolverArgsInput,
-  ResolveFunction,
-  ResolverArgs,
-  ResolverOutput,
-  ResolverResponse,
-} from './resolver';
+import type { ResolveFunction, ResolverArgs, ResolverOutput } from './resolver';
 import { Route } from './route';
 
 export class Mutation<
@@ -30,23 +23,5 @@ export class Mutation<
       type: 'mutation',
       ...options,
     });
-  }
-
-  createServerSideMutation<TContext extends Context>({
-    ctx,
-    route,
-  }: {
-    ctx: TContext;
-    route: string[];
-  }) {
-    return {
-      mutate: (
-        input: inferResolverArgsInput<TArgs>,
-      ): Promise<ResolverResponse<object>> => {
-        // the condition is not unnecessary, eslint badly infer the type, the type can be void | undefined
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        return this.call({ meta: { input, route: route.join('.') }, ctx });
-      },
-    };
   }
 }

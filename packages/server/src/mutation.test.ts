@@ -62,21 +62,6 @@ test('Should create mutation', async () => {
     },
   });
 
-  expect(
-    await mutation
-      .createServerSideMutation({
-        ctx: { greetingsPrefix: 'Hello' as const },
-        route: ['dummy', 'route'],
-      })
-      .mutate({ name: 'John' }),
-  ).toStrictEqual({
-    data: 'Hello John',
-    ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
-
   expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
@@ -173,21 +158,6 @@ test('Should create mutation without args', async () => {
       message: 'Args validation error.',
     }),
     ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
-
-  expect(
-    await mutation
-      .createServerSideMutation({
-        ctx: { greetingsPrefix: 'Hello' as const },
-        route: ['dummy', 'route'],
-      })
-      .mutate(),
-  ).toStrictEqual({
-    data: 'Hello',
-    ok: true,
     ctx: {
       greetingsPrefix: 'Hello',
     },
@@ -307,21 +277,6 @@ test('Should create mutation with twice chain', async () => {
       message: 'Args validation error.',
     }),
     ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
-
-  expect(
-    await mutation
-      .createServerSideMutation({
-        ctx: { greetingsPrefix: 'Hello' as const },
-        route: ['dummy', 'route'],
-      })
-      .mutate({ firstName: 'John', lastName: 'Doe' }),
-  ).toStrictEqual({
-    data: 'Hello John Doe',
-    ok: true,
     ctx: {
       greetingsPrefix: 'Hello',
     },

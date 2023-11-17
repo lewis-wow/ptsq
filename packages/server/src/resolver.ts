@@ -1,4 +1,4 @@
-import type { z, ZodUndefined, ZodVoid } from 'zod';
+import type { z, ZodVoid } from 'zod';
 import type { Context } from './context';
 import type { HTTPError } from './httpError';
 import { Middleware, type MiddlewareCallback } from './middleware';
@@ -35,17 +35,6 @@ export type inferResolverArgs<TResolverArgs> = TResolverArgs extends z.Schema
     ? undefined
     : z.output<TResolverArgs>
   : TResolverArgs;
-
-export type inferResolverArgsInput<TResolverArgs> = TResolverArgs extends
-  | undefined
-  | ZodUndefined
-  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  | void
-  | ZodVoid
-  ? // make it voidable, so the input is not required
-    // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-    undefined | void
-  : inferResolverArgs<TResolverArgs>;
 
 export type inferResolverOutput<TResolverOutput> =
   TResolverOutput extends z.Schema ? z.input<TResolverOutput> : TResolverOutput;

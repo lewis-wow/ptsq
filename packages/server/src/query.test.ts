@@ -62,21 +62,6 @@ test('Should create query', async () => {
     },
   });
 
-  expect(
-    await query
-      .createServerSideQuery({
-        ctx: { greetingsPrefix: 'Hello' as const },
-        route: ['dummy', 'route'],
-      })
-      .query({ name: 'John' }),
-  ).toStrictEqual({
-    data: 'Hello John',
-    ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
-
   expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
@@ -173,21 +158,6 @@ test('Should create query without args', async () => {
       message: 'Args validation error.',
     }),
     ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
-
-  expect(
-    await query
-      .createServerSideQuery({
-        ctx: { greetingsPrefix: 'Hello' as const },
-        route: ['dummy', 'route'],
-      })
-      .query(),
-  ).toStrictEqual({
-    data: 'Hello',
-    ok: true,
     ctx: {
       greetingsPrefix: 'Hello',
     },
@@ -306,21 +276,6 @@ test('Should create query with twice chain', async () => {
       message: 'Args validation error.',
     }),
     ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
-
-  expect(
-    await query
-      .createServerSideQuery({
-        ctx: { greetingsPrefix: 'Hello' as const },
-        route: ['dummy', 'route'],
-      })
-      .query({ firstName: 'John', lastName: 'Doe' }),
-  ).toStrictEqual({
-    data: 'Hello John Doe',
-    ok: true,
     ctx: {
       greetingsPrefix: 'Hello',
     },

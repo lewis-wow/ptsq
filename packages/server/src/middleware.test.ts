@@ -52,36 +52,10 @@ test('Should create middleware with query and serverSideQuery', async () => {
   });
 
   expect(
-    await query
-      .createServerSideQuery({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .query(),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    data: 'invalid',
-    ok: true,
-  });
-
-  expect(
     await validOnlyQuery.call({
       meta: { input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    error: new HTTPError({ code: 'BAD_REQUEST' }),
-    ok: false,
-  });
-
-  expect(
-    await validOnlyQuery
-      .createServerSideQuery({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .query(),
   ).toStrictEqual({
     ctx: contextBuilderResult,
     error: new HTTPError({ code: 'BAD_REQUEST' }),
@@ -104,36 +78,10 @@ test('Should create middleware with query and serverSideQuery', async () => {
   });
 
   expect(
-    await query
-      .createServerSideQuery({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .query(),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    data: 'valid',
-    ok: true,
-  });
-
-  expect(
     await validOnlyQuery.call({
       meta: { input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    data: 'valid',
-    ok: true,
-  });
-
-  expect(
-    await validOnlyQuery
-      .createServerSideQuery({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .query(),
   ).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'valid',
@@ -190,36 +138,10 @@ test('Should create middleware with mutation and serverSideMutation', async () =
   });
 
   expect(
-    await mutation
-      .createServerSideMutation({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .mutate(),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    data: 'invalid',
-    ok: true,
-  });
-
-  expect(
     await validOnlyMutation.call({
       meta: { input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    error: new HTTPError({ code: 'BAD_REQUEST' }),
-    ok: false,
-  });
-
-  expect(
-    await validOnlyMutation
-      .createServerSideMutation({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .mutate(),
   ).toStrictEqual({
     ctx: contextBuilderResult,
     error: new HTTPError({ code: 'BAD_REQUEST' }),
@@ -242,36 +164,10 @@ test('Should create middleware with mutation and serverSideMutation', async () =
   });
 
   expect(
-    await mutation
-      .createServerSideMutation({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .mutate(),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    data: 'valid',
-    ok: true,
-  });
-
-  expect(
     await validOnlyMutation.call({
       meta: { input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    data: 'valid',
-    ok: true,
-  });
-
-  expect(
-    await validOnlyMutation
-      .createServerSideMutation({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .mutate(),
   ).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'valid',
@@ -666,16 +562,6 @@ test('Should create nested middlewares with query with args chaining', async () 
       meta: { input: { name: 'John', lastName: 'Doe' }, route: 'dummy.route' },
       ctx: {},
     }),
-  ).toStrictEqual({
-    ctx: { name: 'John', lastName: 'Doe' },
-    data: 'John Doe',
-    ok: true,
-  });
-
-  expect(
-    await query
-      .createServerSideQuery({ ctx: {}, route: ['dummy', 'route'] })
-      .query({ name: 'John', lastName: 'Doe' }),
   ).toStrictEqual({
     ctx: { name: 'John', lastName: 'Doe' },
     data: 'John Doe',

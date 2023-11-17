@@ -1,6 +1,6 @@
 import type {
-  inferResolverArgsInput,
-  inferResolverOutput,
+  inferClientResolverArgs,
+  inferClientResolverOutput,
   ResolverType,
 } from '@ptsq/server';
 import type { ProxyClient } from './createProxyClient';
@@ -27,15 +27,15 @@ export type ClientRouter = {
 
 type QueryClient<TClientRoute extends ClientRoute> = {
   query: typeof ProxyClient.prototype.request<
-    inferResolverArgsInput<TClientRoute['args']>,
-    inferResolverOutput<TClientRoute['output']>
+    inferClientResolverArgs<TClientRoute['args']>,
+    inferClientResolverOutput<TClientRoute['output']>
   >;
 };
 
 type MutationClient<TClientRoute extends ClientRoute> = {
   mutate: typeof ProxyClient.prototype.request<
-    inferResolverArgsInput<TClientRoute['args']>,
-    inferResolverOutput<TClientRoute['output']>
+    inferClientResolverArgs<TClientRoute['args']>,
+    inferClientResolverOutput<TClientRoute['output']>
   >;
 };
 

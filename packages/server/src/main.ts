@@ -3,11 +3,7 @@ export { HTTPError } from './httpError';
 
 export type { Scalar } from './scalar';
 
-export {
-  Resolver,
-  type inferResolverArgsInput,
-  type inferResolverOutput,
-} from './resolver';
+export { Resolver, type inferResolverOutput } from './resolver';
 export { Middleware } from './middleware';
 export type { Query } from './query';
 export type { Mutation } from './mutation';
@@ -19,8 +15,8 @@ export type { Serve } from './serve';
 export type {
   ResolverType,
   MaybePromise,
-  inferResolverValidationSchemaInput,
-  inferResolverValidationSchemaOutput,
+  inferClientResolverArgs,
+  inferClientResolverOutput,
 } from './types';
 export type {
   SerializableInputZodSchema,
