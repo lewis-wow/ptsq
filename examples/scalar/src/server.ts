@@ -12,10 +12,21 @@ const { router, resolver, createHTTPNodeHandler } = createServer({
   }),
 });
 
+interface Description<Message extends string> extends Error {
+  __: Message;
+}
+
+const withDecs = <T extends z.Schema, const D extends string>(
+  schema: T,
+  _desc: D,
+): T & { _output: T['_output'] | Description<D> } => {
+  return schema as T & { _output: T['_output'] | Description<D> };
+};
+
 const baseRouter = router({
   greetings: resolver.args(z.object({ url: URLScalar.input })).query({
-    output: URLScalar.output,
-    resolve: ({ input }) => input.url,
+    output: withDecs(z.string(), 'Port of the URL'),
+    resolve: ({ input }) => input.url.port,
   }),
 });
 

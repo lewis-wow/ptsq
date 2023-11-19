@@ -10,8 +10,8 @@ const client = createProxyClient<BaseRouter>({
 
 client.greetings
   .query({
-    url: URLScalar.serialize(new URL('http://localhost:3000/pathname')),
+    url: URLScalar.serialize(new URL('http://localhost:3000')),
   })
   .then((response) => {
-    console.log(URLScalar.parse(response));
+    console.log(response);
   });
