@@ -18,11 +18,7 @@ export const serializableZodSchema: z.Schema<Serializable> = z.union([
   z.lazy(() => z.record(z.string(), serializableZodSchema)),
 ]);
 
-export type SerializableInputZodSchema = z.Schema<
-  any,
-  z.ZodTypeDef,
-  Serializable
->;
+export type SerializableInputZodSchema = z.Schema<Serializable>;
 
 export type SerializableOutputZodSchema = z.Schema<
   Serializable,

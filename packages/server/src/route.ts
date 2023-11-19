@@ -11,6 +11,7 @@ import type {
   ResolverRequest,
   ResolverResponse,
 } from './resolver';
+import type { TransformationCallback } from './transformation';
 import type { ResolverType } from './types';
 
 export class Route<
@@ -23,24 +24,27 @@ export class Route<
   >,
 > {
   type: TType;
-  args: TArgs;
+  schemaArgs: TArgs;
   output: TResolverOutput;
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
   middlewares: Middleware<ResolverArgs, any>[];
+  transformations: TransformationCallback<any, any, any>[];
 
   constructor(options: {
     type: TType;
-    args: TArgs;
+    schemaArgs: TArgs;
     output: TResolverOutput;
     resolveFunction: TResolveFunction;
     middlewares: Middleware<ResolverArgs, any>[];
+    transformations: TransformationCallback<any, any, any>[];
   }) {
     this.type = options.type;
-    this.args = options.args;
+    this.schemaArgs = options.schemaArgs;
     this.output = options.output;
     this.resolveFunction = options.resolveFunction;
     this.middlewares = options.middlewares;
+    this.transformations = options.transformations;
   }
 
   getJsonSchema(title: string) {
@@ -55,7 +59,7 @@ export class Route<
           type: 'string',
           enum: [this.nodeType],
         },
-        args: zodToJsonSchema(this.args),
+        args: zodToJsonSchema(this.schemaArgs),
         output: zodToJsonSchema(this.output),
       },
     });
@@ -75,7 +79,8 @@ export class Route<
       middlewares: [
         ...this.middlewares,
         new Middleware<ResolverArgs>({
-          args: this.args as any,
+          schemaArgs: this.schemaArgs as any,
+          transformations: this.transformations,
           middlewareCallback: async ({
             ctx: finalContext,
             input,

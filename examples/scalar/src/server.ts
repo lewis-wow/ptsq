@@ -11,24 +11,6 @@ const { router, resolver, createHTTPNodeHandler } = createServer({
   }),
 });
 
-interface Description<Message extends string> extends Error {
-  __: Message;
-}
-
-const withDecs = <T extends z.Schema, const D extends string>(
-  schema: T,
-  _desc: D,
-): T & { _output: T['_output'] | Description<D> } => {
-  return schema as T & { _output: T['_output'] | Description<D> };
-};
-
-const test1 = z.string().transform((arg) => arg.length);
-const test2 = z.number();
-
-type Test = z.output<typeof test2> extends z.output<typeof test1>
-  ? true
-  : false;
-
 const stringResolver = resolver.args(
   z.object({
     name: z.string(),
@@ -36,20 +18,24 @@ const stringResolver = resolver.args(
   }),
 );
 
-const transformedResolver = stringResolver.transformation((input) => ({
+const transformedResolver = stringResolver.transformation(({ input }) => ({
   ...input,
   url: new URL(input.url),
 }));
 
-transformedResolver.use(({ input }) => {});
-
-transformedResolver
+resolver
+  .args(z.object({ a: z.array(z.string()) }))
+  .transformation(({ input }) => ({
+    ...input,
+    a: input.a.map((item) => item.length),
+  }))
+  .args(z.object({ a: z.array(z.string()), b: z.array(z.string()) }))
+  .transformation(({ input }) => ({ a: input.a.map((item) => item - 1) }))
+  .transformation(({ input }) => ({
+    b: input.b.map((item) => (item.endsWith('P') ? new URL('f') : null)),
+  }))
   .args(
-    z.object({
-      name: z.string(),
-      url: z.string(),
-      another: z.string(),
-    }),
+    z.object({ a: z.array(z.string()), b: z.array(z.string()), c: z.null() }),
   )
   .use(({ input }) => {});
 

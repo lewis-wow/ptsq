@@ -6,6 +6,7 @@ import type {
   ResolverRequest,
   ResolverResponse,
 } from './resolver';
+import type { TransformationCallback } from './transformation';
 
 export type NextFunction = <TNextContext extends Context>(
   nextContext: TNextContext,
@@ -28,14 +29,17 @@ export class Middleware<
   TNextContext extends Context = Context,
 > {
   _middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext>;
-  _args: TArgs;
+  _schemaArgs: TArgs;
+  _transformations: TransformationCallback<any, any, any>[];
 
   constructor(options: {
-    args: TArgs;
+    schemaArgs: TArgs;
+    transformations: TransformationCallback<any, any, any>[];
     middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext>;
   }) {
     this._middlewareCallback = options.middlewareCallback;
-    this._args = options.args;
+    this._schemaArgs = options.schemaArgs;
+    this._transformations = options.transformations;
   }
 
   static createSuccessResponse({
@@ -78,7 +82,7 @@ export class Middleware<
     middlewares: Middleware<ResolverArgs, any>[];
   }): Promise<ResolverResponse<any>> {
     try {
-      const parsedInput = middlewares[index]._args.safeParse(meta.input);
+      const parsedInput = middlewares[index]._schemaArgs.safeParse(meta.input);
 
       if (!parsedInput.success)
         throw new HTTPError({
@@ -87,8 +91,14 @@ export class Middleware<
           info: parsedInput.error,
         });
 
+      const transformedInputData = middlewares[index]._transformations.reduce(
+        (acc, currentTransformation) =>
+          currentTransformation({ input: acc, meta, ctx }),
+        parsedInput.data,
+      );
+
       return await middlewares[index]._middlewareCallback({
-        input: parsedInput.data,
+        input: transformedInputData,
         meta,
         ctx,
         next: async (nextContext): Promise<ResolverResponse<any>> => {

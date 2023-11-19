@@ -1,3 +1,4 @@
+import type { MergeDeep } from 'type-fest';
 import type { z, ZodVoid } from 'zod';
 import type { Context } from './context';
 import type { HTTPError } from './httpError';
@@ -5,7 +6,6 @@ import { Middleware, type MiddlewareCallback } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
 import type {
-  Serializable,
   SerializableInputZodSchema,
   SerializableOutputZodSchema,
 } from './serializable';
@@ -42,24 +42,24 @@ export type inferResolverOutput<TResolverOutput> =
   TResolverOutput extends z.Schema ? z.input<TResolverOutput> : TResolverOutput;
 
 export class Resolver<
-  TArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
-  TChainArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
+  TArgs,
+  TSchemaArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
   TContext extends Context = Context,
 > {
   _middlewares: Middleware<any, any>[];
-  _transformations: TransformationCallback<any, any>[];
-  _args: TArgs;
+  _transformations: TransformationCallback<any, any, any>[];
+  _schemaArgs: TSchemaArgs;
 
   constructor({
-    args,
+    schemaArgs,
     middlewares,
     transformations,
   }: {
-    args: unknown;
+    schemaArgs: TSchemaArgs;
     middlewares: Middleware<any, any>[];
-    transformations: TransformationCallback<any, any>[];
+    transformations: TransformationCallback<any, any, any>[];
   }) {
-    this._args = args as TArgs;
+    this._schemaArgs = schemaArgs;
     this._middlewares = middlewares;
     this._transformations = transformations;
   }
@@ -67,50 +67,47 @@ export class Resolver<
   use<TNextContext extends Context>(
     middleware: MiddlewareCallback<TArgs, TContext, TNextContext>,
   ) {
-    return new Resolver<TArgs, TChainArgs, TNextContext>({
-      args: this._args,
+    return new Resolver<TArgs, TSchemaArgs, TNextContext>({
+      schemaArgs: this._schemaArgs,
       transformations: [...this._transformations],
       middlewares: [
         ...this._middlewares,
         new Middleware({
-          args: this._args as any,
+          schemaArgs: this._schemaArgs as any,
+          transformations: [...this._transformations],
           middlewareCallback: middleware,
         }),
       ],
     });
   }
 
-  transformation<TTransformation extends Parameters<TArgs['transform']>[0]>(
-    transformation: TTransformation,
+  transformation<TNextArgs>(
+    transformation: TransformationCallback<TArgs, TContext, TNextArgs>,
   ) {
-    const nextArgs = this._args.transform(transformation);
-
     return new Resolver<
-      z.ZodEffects<
-        SerializableInputZodSchema,
-        ReturnType<TTransformation>,
-        Serializable
-      >,
-      TChainArgs,
+      MergeDeep<inferResolverArgs<TSchemaArgs>, TNextArgs>,
+      TSchemaArgs,
       TContext
     >({
-      args: nextArgs,
-      transformations: [...this._transformations],
+      schemaArgs: this._schemaArgs,
+      transformations: [...this._transformations, transformation],
       middlewares: [...this._middlewares],
     });
   }
 
   args<
-    TNextChainArgs extends TChainArgs extends ZodVoid
+    TNextSchemaArgs extends TSchemaArgs extends ZodVoid
       ? ResolverArgs
-      : TChainArgs,
-  >(nextArgs: TNextChainArgs) {
+      : TSchemaArgs,
+  >(nextSchemaArgs: TNextSchemaArgs) {
     return new Resolver<
-      TArgs extends ZodVoid ? TNextChainArgs : TArgs,
-      TNextChainArgs,
+      TArgs extends ZodVoid
+        ? TNextSchemaArgs
+        : MergeDeep<inferResolverArgs<TNextSchemaArgs>, TArgs>,
+      TNextSchemaArgs,
       TContext
     >({
-      args: nextArgs,
+      schemaArgs: nextSchemaArgs,
       transformations: [...this._transformations],
       middlewares: [...this._middlewares],
     });
@@ -119,21 +116,17 @@ export class Resolver<
   mutation<TResolverOutput extends ResolverOutput>(options: {
     output: TResolverOutput;
     resolve: ResolveFunction<
-      inferResolverArgs<TArgs>,
+      TArgs,
       inferResolverOutput<TResolverOutput>,
       TContext
     >;
   }): Mutation<
-    TArgs,
+    TSchemaArgs,
     TResolverOutput,
-    ResolveFunction<
-      inferResolverArgs<TArgs>,
-      inferResolverOutput<TResolverOutput>,
-      TContext
-    >
+    ResolveFunction<TArgs, inferResolverOutput<TResolverOutput>, TContext>
   > {
     return new Mutation({
-      args: this._args,
+      args: this._schemaArgs,
       output: options.output,
       resolveFunction: options.resolve,
       middlewares: this._middlewares,
@@ -143,21 +136,17 @@ export class Resolver<
   query<TResolverOutput extends ResolverOutput>(options: {
     output: TResolverOutput;
     resolve: ResolveFunction<
-      inferResolverArgs<TArgs>,
+      TArgs,
       inferResolverOutput<TResolverOutput>,
       TContext
     >;
   }): Query<
-    TArgs,
+    TSchemaArgs,
     TResolverOutput,
-    ResolveFunction<
-      inferResolverArgs<TArgs>,
-      inferResolverOutput<TResolverOutput>,
-      TContext
-    >
+    ResolveFunction<TArgs, inferResolverOutput<TResolverOutput>, TContext>
   > {
     return new Query({
-      args: this._args,
+      args: this._schemaArgs,
       output: options.output,
       resolveFunction: options.resolve,
       middlewares: this._middlewares,
