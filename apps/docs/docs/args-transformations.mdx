@@ -2,7 +2,7 @@
 
 We already know that arguments can chain. But there is much more, input arguments can be transformed by transform function to create clearer resolvers.
 
-Let's say we have simple resolver that has as args `{ url }`, so:
+Let's say we have simple resolver that has `{ url }` as args, so:
 
 ```ts title="Resolver with url argument"
 const urlResolver = resolver.args(z.object({ url: z.string().url() }));
