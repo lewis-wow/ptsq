@@ -2,12 +2,9 @@ import { zodToJsonSchema } from '@ptsq/zod-parser';
 import { expect, test } from 'vitest';
 import { z } from 'zod';
 import { createServer } from './createServer';
+import { scalar } from './scalar';
 
 test('Should create scalar  json schema', () => {
-  const { scalar } = createServer({
-    ctx: () => ({}),
-  });
-
   const URLScalar = scalar({
     parse: {
       schema: z.instanceof(URL),

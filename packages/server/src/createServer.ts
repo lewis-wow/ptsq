@@ -8,7 +8,6 @@ import type {
 import type { CORSOptions } from './cors';
 import { Resolver } from './resolver';
 import { Router, type Routes } from './router';
-import { scalar } from './scalar';
 import { Serve } from './serve';
 
 type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
@@ -104,7 +103,6 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   return {
     resolver,
     router,
-    scalar,
     createHTTPNodeHandler,
     rootPath,
   };

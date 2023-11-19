@@ -1,26 +1,15 @@
 import { createServer, ExpressAdapterContext } from '@ptsq/server';
 import express from 'express';
 import { z } from 'zod';
+import { URLScalar } from './scalars/URLScalar';
 
 const app = express();
 
-const { router, resolver, scalar, createHTTPNodeHandler } = createServer({
+const { router, resolver, createHTTPNodeHandler } = createServer({
   ctx: async ({ req, res }: ExpressAdapterContext) => ({
     req,
     res,
   }),
-});
-
-export const URLScalar = scalar({
-  parse: {
-    schema: z.instanceof(URL), // used to validate parsed value
-    value: (arg) => new URL(arg),
-  },
-  serialize: {
-    schema: z.string().url(), // used to validate requst and response
-    value: (arg) => arg.toString(),
-  },
-  description: 'String format of url', // used to describe scalar input for schema
 });
 
 const baseRouter = router({

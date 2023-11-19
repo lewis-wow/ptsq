@@ -1,7 +1,7 @@
 export { createServer } from './createServer';
 export { HTTPError } from './httpError';
 
-export type { Scalar } from './scalar';
+export { Scalar, scalar } from './scalar';
 
 export { Resolver, type inferResolverOutput } from './resolver';
 export { Middleware } from './middleware';
