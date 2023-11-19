@@ -1,7 +1,6 @@
 import { createServer, ExpressAdapterContext } from '@ptsq/server';
 import express from 'express';
 import { z } from 'zod';
-import { URLScalar } from './scalars/URLScalar';
 
 const app = express();
 
@@ -23,11 +22,57 @@ const withDecs = <T extends z.Schema, const D extends string>(
   return schema as T & { _output: T['_output'] | Description<D> };
 };
 
-const baseRouter = router({
-  greetings: resolver.args(z.object({ url: URLScalar.input })).query({
-    output: withDecs(z.string(), 'Port of the URL'),
-    resolve: ({ input }) => input.url.port,
+const test1 = z.string().transform((arg) => arg.length);
+const test2 = z.number();
+
+type Test = z.output<typeof test2> extends z.output<typeof test1>
+  ? true
+  : false;
+
+const stringResolver = resolver.args(
+  z.object({
+    name: z.string(),
+    url: z.string().url(),
   }),
+);
+
+const transformedResolver = stringResolver.transformation((input) => ({
+  ...input,
+  url: new URL(input.url),
+}));
+
+transformedResolver.use(({ input }) => {});
+
+transformedResolver
+  .args(
+    z.object({
+      name: z.string(),
+      url: z.string(),
+      another: z.string(),
+    }),
+  )
+  .use(({ input }) => {});
+
+transformedResolver.use(({ input }) => {
+  console.log(input);
+});
+
+transformedResolver.query({
+  output: z.number(),
+  resolve: ({ input }) => input,
+});
+
+const baseRouter = router({
+  greetings: resolver
+    .args(z.object({ name: z.string(), url: z.string().url() }))
+    .transformation(({ input }) => ({
+      ...input,
+      url: new URL(input.url),
+    }))
+    .query({
+      output: withDecs(z.string(), 'Port of the URL'),
+      resolve: ({ input }) => input.url.port,
+    }),
 });
 
 app.use((req, res) =>

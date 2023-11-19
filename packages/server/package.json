@@ -15,9 +15,7 @@
     "lint": "eslint",
     "test": "vitest"
   },
-  "main": "dist/main.js",
-  "module": "dist/main.mjs",
-  "typings": "dist/main.d.ts",
+  "main": "src/main.ts",
   "publishConfig": {
     "access": "public"
   },
@@ -36,6 +34,7 @@
     "@types/node": "^20.7.0",
     "@types/pascalcase": "^1.0.1",
     "axios": "^1.5.1",
+    "type-fest": "^4.8.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {

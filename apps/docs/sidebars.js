@@ -10,6 +10,7 @@ const sidebars = {
     'router',
     'middlewares',
     'args-chaining',
+    'args-transformations',
     'introspection',
     'errors',
     'cors',

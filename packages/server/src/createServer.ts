@@ -1,4 +1,4 @@
-import { z, type ZodVoid } from 'zod';
+import { z, ZodVoid, type ZodAny } from 'zod';
 import { HTTPRequestListener } from './adapters/http';
 import type {
   ContextBuilder,
@@ -53,9 +53,10 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * ```
    */
   // The {} type actually describes empty object here, no non-nullish
-  const resolver = new Resolver<ZodVoid, RootContext>({
+  const resolver = new Resolver<ZodVoid, ZodVoid, RootContext>({
     args: z.void(),
     middlewares: [],
+    transformations: [],
   });
 
   const serve = new Serve({ contextBuilder: ctx });

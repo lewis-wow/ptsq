@@ -5,9 +5,11 @@ import { Middleware, type MiddlewareCallback } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
 import type {
+  Serializable,
   SerializableInputZodSchema,
   SerializableOutputZodSchema,
 } from './serializable';
+import type { TransformationCallback } from './transformation';
 import type { MaybePromise } from './types';
 
 export type ResolverResponse<TContext extends Context> =
@@ -41,27 +43,33 @@ export type inferResolverOutput<TResolverOutput> =
 
 export class Resolver<
   TArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
+  TChainArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
   TContext extends Context = Context,
 > {
   _middlewares: Middleware<any, any>[];
+  _transformations: TransformationCallback<any, any>[];
   _args: TArgs;
 
   constructor({
     args,
-    middlewares = [],
+    middlewares,
+    transformations,
   }: {
     args: unknown;
     middlewares: Middleware<any, any>[];
+    transformations: TransformationCallback<any, any>[];
   }) {
     this._args = args as TArgs;
     this._middlewares = middlewares;
+    this._transformations = transformations;
   }
 
   use<TNextContext extends Context>(
     middleware: MiddlewareCallback<TArgs, TContext, TNextContext>,
   ) {
-    return new Resolver<TArgs, TNextContext>({
+    return new Resolver<TArgs, TChainArgs, TNextContext>({
       args: this._args,
+      transformations: [...this._transformations],
       middlewares: [
         ...this._middlewares,
         new Middleware({
@@ -72,11 +80,38 @@ export class Resolver<
     });
   }
 
-  args<TNextArgs extends TArgs extends ZodVoid ? ResolverArgs : TArgs>(
-    nextArgs: TNextArgs,
+  transformation<TTransformation extends Parameters<TArgs['transform']>[0]>(
+    transformation: TTransformation,
   ) {
-    return new Resolver<TNextArgs, TContext>({
+    const nextArgs = this._args.transform(transformation);
+
+    return new Resolver<
+      z.ZodEffects<
+        SerializableInputZodSchema,
+        ReturnType<TTransformation>,
+        Serializable
+      >,
+      TChainArgs,
+      TContext
+    >({
       args: nextArgs,
+      transformations: [...this._transformations],
+      middlewares: [...this._middlewares],
+    });
+  }
+
+  args<
+    TNextChainArgs extends TChainArgs extends ZodVoid
+      ? ResolverArgs
+      : TChainArgs,
+  >(nextArgs: TNextChainArgs) {
+    return new Resolver<
+      TArgs extends ZodVoid ? TNextChainArgs : TArgs,
+      TNextChainArgs,
+      TContext
+    >({
+      args: nextArgs,
+      transformations: [...this._transformations],
       middlewares: [...this._middlewares],
     });
   }
