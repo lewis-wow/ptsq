@@ -12,9 +12,11 @@ export type MaybePromise<T> = T | Promise<T>;
 export type inferClientResolverArgs<TResolverArgs> = TResolverArgs extends
   | undefined
   | z.ZodUndefined
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
   | void
   | z.ZodVoid
-  ? undefined | void
+  ? // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+    undefined | void
   : TResolverArgs extends z.Schema
   ? z.input<TResolverArgs>
   : TResolverArgs;
@@ -28,10 +30,18 @@ export type inferClientResolverOutput<TResolverOutput> =
     : TResolverOutput;
 
 /**
+ * @internal
+ *
  * Simplify the object structure for readability in IDE
  */
+// eslint-disable-next-line @typescript-eslint/ban-types
 export type Simplify<T> = { [K in keyof T]: T[K] } & {};
 
+/**
+ * @internal
+ *
+ * Deeply merge 2 types where the second one has priority
+ */
 export type DeepMerge<T, U> = T extends object
   ? U extends object
     ? {

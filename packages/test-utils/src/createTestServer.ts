@@ -6,6 +6,9 @@ import {
   type Router,
 } from '@ptsq/server';
 
+/**
+ * @internal
+ */
 export type CreateTestServerArgs<
   TContext extends Context,
   TRouter extends Router,
@@ -17,6 +20,9 @@ export type CreateTestServerArgs<
   client: (serverUrl: string, baseRouter: TRouter) => MaybePromise<void>;
 };
 
+/**
+ * @internal
+ */
 export const createTestServer = <
   TContext extends Context,
   TRouter extends Router,

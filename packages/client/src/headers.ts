@@ -1,3 +1,6 @@
+/**
+ * @internal
+ */
 type CommonRequestHeadersList =
   | 'Accept'
   | 'Content-Length'
@@ -5,8 +8,17 @@ type CommonRequestHeadersList =
   | 'Content-Encoding'
   | 'Authorization';
 
+/**
+ * @internal
+ */
 type RawHeaderValue = string | string[] | number | boolean | null;
 
+/**
+ * @internal
+ * common Content types
+ *
+ * `(string & {})` force IDE to hint you the options
+ */
 type ContentType =
   // eslint-disable-next-line @typescript-eslint/ban-types
   | (string & {})

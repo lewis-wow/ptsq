@@ -1,10 +1,21 @@
 export { createServer } from './createServer';
 export { HTTPError } from './httpError';
 
-export { Resolver, type inferResolverOutput } from './resolver';
+export {
+  Resolver,
+  type inferResolverOutput,
+  type inferResolverArgs,
+  type ResolveFunction,
+  type ResolverArgs,
+  type ResolverResponse,
+} from './resolver';
+
+export type { ArgsTransformationFunction } from './transformation';
+
 export { Middleware } from './middleware';
 export type { Query } from './query';
 export type { Mutation } from './mutation';
+export type { CORSOptions } from './cors';
 
 export type { Route } from './route';
 export type { Router } from './router';

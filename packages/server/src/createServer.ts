@@ -10,6 +10,9 @@ import { Resolver } from './resolver';
 import { Router, type Routes } from './router';
 import { Serve } from './serve';
 
+/**
+ * @internal
+ */
 type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   ctx: TContextBuilder;
   cors?: CORSOptions;

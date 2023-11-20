@@ -18,6 +18,8 @@ import type { ResolverType } from './types';
 /**
  * @internal
  *
+ * Mutation and query class container. Both mutation and query extends Route.
+ *
  * Creates callable route.
  */
 export class Route<
@@ -53,6 +55,9 @@ export class Route<
     this.transformations = options.transformations;
   }
 
+  /**
+   * Gets the json schema of the route for the introspection query
+   */
   getJsonSchema(title: string) {
     return createSchemaRoot({
       title: `${title} route`,
@@ -71,6 +76,9 @@ export class Route<
     });
   }
 
+  /**
+   * call the route with input and context
+   */
   async call({
     ctx,
     meta,

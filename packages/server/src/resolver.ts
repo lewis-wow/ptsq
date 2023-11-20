@@ -53,20 +53,19 @@ export class Resolver<
   _transformations: ArgsTransformationFunction<any, any, any>[];
   _schemaArgs: TSchemaArgs;
 
-  constructor({
-    schemaArgs,
-    middlewares,
-    transformations,
-  }: {
+  constructor(resolverOptions: {
     schemaArgs: TSchemaArgs;
     middlewares: AnyMiddleware[];
     transformations: ArgsTransformationFunction<any, any, any>[];
   }) {
-    this._schemaArgs = schemaArgs;
-    this._middlewares = middlewares;
-    this._transformations = transformations;
+    this._schemaArgs = resolverOptions.schemaArgs;
+    this._middlewares = resolverOptions.middlewares;
+    this._transformations = resolverOptions.transformations;
   }
 
+  /**
+   * Add a middleware to the resolver
+   */
   use<TNextContext extends Context>(
     middleware: MiddlewareFunction<TArgs, TContext, TNextContext>,
   ) {
@@ -84,6 +83,9 @@ export class Resolver<
     });
   }
 
+  /**
+   * Add a transformation for the resolver arguments
+   */
   transformation<TNextArgs>(
     transformation: ArgsTransformationFunction<TArgs, TContext, TNextArgs>,
   ) {
@@ -98,6 +100,11 @@ export class Resolver<
     });
   }
 
+  /**
+   * Add additional arguments by the validation schema to the resolver
+   *
+   * The next validation schema must extends the previous one
+   */
   args<
     TNextSchemaArgs extends TSchemaArgs extends z.ZodVoid
       ? ResolverArgs
@@ -116,6 +123,9 @@ export class Resolver<
     });
   }
 
+  /**
+   * Creates a mutation endpoint with resolver middlewares, transformation and arguments validations
+   */
   mutation<TResolverOutput extends ResolverOutput>(options: {
     output: TResolverOutput;
     resolve: ResolveFunction<
@@ -137,6 +147,9 @@ export class Resolver<
     });
   }
 
+  /**
+   * Creates a query endpoint with resolver middlewares, transformation and arguments validations
+   */
   query<TResolverOutput extends ResolverOutput>(options: {
     output: TResolverOutput;
     resolve: ResolveFunction<

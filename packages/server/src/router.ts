@@ -13,7 +13,7 @@ export type Routes = {
 /**
  * @internal
  *
- * Create router that can be nested.
+ * Creates a router that can be nested.
  */
 export class Router<TRoutes extends Routes = Routes> {
   routes: TRoutes;
@@ -23,6 +23,9 @@ export class Router<TRoutes extends Routes = Routes> {
     this.routes = routes;
   }
 
+  /**
+   * Gets the json schema of the whole router recursivelly
+   */
   getJsonSchema(title = 'base') {
     return createSchemaRoot({
       title: `${title} router`,
@@ -43,6 +46,9 @@ export class Router<TRoutes extends Routes = Routes> {
     });
   }
 
+  /**
+   * Call the router and shift a route path
+   */
   call({
     route,
     ctx,

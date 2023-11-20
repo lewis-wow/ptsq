@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-// eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+/**
+ * @internal
+ */
 export type Serializable =
   | string
   | number
@@ -23,6 +25,12 @@ export const serializableZodSchema: z.Schema<Serializable> = z.union([
   z.lazy(() => z.record(z.string(), serializableZodSchema)),
 ]);
 
+/**
+ * @internal
+ */
 export type SerializableInputZodSchema = z.Schema<Serializable>;
 
+/**
+ * @internal
+ */
 export type SerializableOutputZodSchema = z.Schema<Serializable>;

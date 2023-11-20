@@ -1,5 +1,8 @@
 import pascalcase from 'pascalcase';
 
+/**
+ * @internal
+ */
 type CreateSchemaRootArgs = {
   title?: string;
   properties: object;
@@ -26,6 +29,9 @@ export const createSchemaRoot = ({
   return schemaRoot;
 };
 
+/**
+ * @internal
+ */
 export type SchemaRoot = {
   $schema?: 'http://json-schema.org/draft-07/schema#';
   title?: string;

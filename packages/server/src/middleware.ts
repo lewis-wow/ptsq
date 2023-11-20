@@ -29,6 +29,9 @@ export type AnyMiddlewareCallback = MiddlewareFunction<
   Context
 >;
 
+/**
+ * The middleware class container
+ */
 export class Middleware<
   TArgs,
   TContext extends Context,
@@ -84,6 +87,10 @@ export class Middleware<
 
   /**
    * @internal
+   *
+   * Call all middlewares recursivelly depends on the `next` function call.
+   *
+   * The last middleware that is called is always the resolve function.
    */
   static async recursiveCall({
     ctx,

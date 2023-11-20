@@ -25,6 +25,9 @@ export type ClientRouter = {
   };
 };
 
+/**
+ * @internal
+ */
 type QueryClient<TClientRoute extends ClientRoute> = {
   query: typeof ProxyClient.prototype.request<
     inferClientResolverArgs<TClientRoute['schemaArgs']>,
@@ -32,6 +35,9 @@ type QueryClient<TClientRoute extends ClientRoute> = {
   >;
 };
 
+/**
+ * @internal
+ */
 type MutationClient<TClientRoute extends ClientRoute> = {
   mutate: typeof ProxyClient.prototype.request<
     inferClientResolverArgs<TClientRoute['schemaArgs']>,
@@ -40,6 +46,8 @@ type MutationClient<TClientRoute extends ClientRoute> = {
 };
 
 /**
+ * @internal
+ *
  * Client type for casting proxy client to correct types
  */
 export type Client<TRouter extends ClientRouter> = {

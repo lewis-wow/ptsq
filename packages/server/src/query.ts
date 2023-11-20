@@ -6,6 +6,8 @@ import type { ArgsTransformationFunction } from './transformation';
 
 /**
  * @internal
+ *
+ * Query class container
  */
 export class Query<
   TSchemaArgs extends ResolverArgs | z.ZodVoid = ResolverArgs | z.ZodVoid,
