@@ -1,4 +1,3 @@
-import type { Merge } from 'type-fest';
 import type { z } from 'zod';
 import type { Context } from './context';
 import type { HTTPError } from './httpError';
@@ -14,7 +13,7 @@ import type {
   SerializableOutputZodSchema,
 } from './serializable';
 import type { ArgsTransformationCallback } from './transformation';
-import type { MaybePromise, Simplify } from './types';
+import type { DeepMerge, MaybePromise, Simplify } from './types';
 
 export type ResolverResponse<TContext extends Context> =
   | {
@@ -89,7 +88,7 @@ export class Resolver<
     transformation: ArgsTransformationCallback<TArgs, TContext, TNextArgs>,
   ) {
     return new Resolver<
-      Simplify<Merge<inferResolverArgs<TSchemaArgs>, TNextArgs>>,
+      Simplify<DeepMerge<inferResolverArgs<TSchemaArgs>, TNextArgs>>,
       TSchemaArgs,
       TContext
     >({
@@ -107,7 +106,7 @@ export class Resolver<
     return new Resolver<
       TSchemaArgs extends z.ZodVoid
         ? inferResolverArgs<TNextSchemaArgs>
-        : Simplify<Merge<inferResolverArgs<TNextSchemaArgs>, TArgs>>,
+        : Simplify<DeepMerge<inferResolverArgs<TNextSchemaArgs>, TArgs>>,
       TNextSchemaArgs,
       TContext
     >({
