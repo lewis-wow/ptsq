@@ -12,7 +12,7 @@ import type {
   ResolverRequest,
   ResolverResponse,
 } from './resolver';
-import type { ArgsTransformationCallback } from './transformation';
+import type { ArgsTransformationFunction } from './transformation';
 import type { ResolverType } from './types';
 
 /**
@@ -35,7 +35,7 @@ export class Route<
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
   middlewares: AnyMiddleware[];
-  transformations: ArgsTransformationCallback<any, any, any>[];
+  transformations: ArgsTransformationFunction<any, any, any>[];
 
   constructor(options: {
     type: TType;
@@ -43,7 +43,7 @@ export class Route<
     schemaOutput: TSchemaOutput;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
-    transformations: ArgsTransformationCallback<any, any, any>[];
+    transformations: ArgsTransformationFunction<any, any, any>[];
   }) {
     this.type = options.type;
     this.schemaArgs = options.schemaArgs;
@@ -87,7 +87,7 @@ export class Route<
         new Middleware({
           schemaArgs: this.schemaArgs,
           transformations: this.transformations,
-          middlewareCallback: async ({
+          middlewareFunction: async ({
             ctx: finalContext,
             input,
             meta: finalMeta,

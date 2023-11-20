@@ -6,13 +6,13 @@ import type {
   ResolverRequest,
   ResolverResponse,
 } from './resolver';
-import type { ArgsTransformationCallback } from './transformation';
+import type { ArgsTransformationFunction } from './transformation';
 
 export type NextFunction = <TNextContext extends Context>(
   nextContext: TNextContext,
 ) => Promise<ResolverResponse<TNextContext>>;
 
-export type MiddlewareCallback<
+export type MiddlewareFunction<
   TArgs,
   TContext extends Context,
   TNextContext extends Context,
@@ -23,7 +23,7 @@ export type MiddlewareCallback<
   next: NextFunction;
 }) => ReturnType<typeof options.next<TNextContext>>;
 
-export type AnyMiddlewareCallback = MiddlewareCallback<
+export type AnyMiddlewareCallback = MiddlewareFunction<
   unknown,
   Context,
   Context
@@ -34,16 +34,16 @@ export class Middleware<
   TContext extends Context,
   TNextContext extends Context,
 > {
-  _middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext>;
+  _middlewareFunction: MiddlewareFunction<TArgs, TContext, TNextContext>;
   _schemaArgs: ResolverArgs | z.ZodVoid;
-  _transformations: ArgsTransformationCallback[];
+  _transformations: ArgsTransformationFunction[];
 
   constructor(options: {
     schemaArgs: ResolverArgs | z.ZodVoid;
-    transformations: ArgsTransformationCallback[];
-    middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext>;
+    transformations: ArgsTransformationFunction[];
+    middlewareFunction: MiddlewareFunction<TArgs, TContext, TNextContext>;
   }) {
-    this._middlewareCallback = options.middlewareCallback;
+    this._middlewareFunction = options.middlewareFunction;
     this._schemaArgs = options.schemaArgs;
     this._transformations = options.transformations;
   }
@@ -114,7 +114,7 @@ export class Middleware<
         Promise.resolve(parsedInput.data as unknown),
       );
 
-      return await middlewares[index]._middlewareCallback({
+      return await middlewares[index]._middlewareFunction({
         input: transformedInputData,
         meta,
         ctx,

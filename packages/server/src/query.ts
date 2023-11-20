@@ -2,7 +2,7 @@ import type { z } from 'zod';
 import type { AnyMiddleware } from './middleware';
 import type { ResolveFunction, ResolverArgs, ResolverOutput } from './resolver';
 import { Route } from './route';
-import type { ArgsTransformationCallback } from './transformation';
+import type { ArgsTransformationFunction } from './transformation';
 
 /**
  * @internal
@@ -22,7 +22,7 @@ export class Query<
     schemaOutput: TSchemaOutput;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
-    transformations: ArgsTransformationCallback<any, any, any>[];
+    transformations: ArgsTransformationFunction<any, any, any>[];
   }) {
     super({
       type: 'query',

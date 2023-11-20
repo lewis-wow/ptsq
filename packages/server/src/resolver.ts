@@ -4,7 +4,7 @@ import type { HTTPError } from './httpError';
 import {
   Middleware,
   type AnyMiddleware,
-  type MiddlewareCallback,
+  type MiddlewareFunction,
 } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
@@ -12,7 +12,7 @@ import type {
   SerializableInputZodSchema,
   SerializableOutputZodSchema,
 } from './serializable';
-import type { ArgsTransformationCallback } from './transformation';
+import type { ArgsTransformationFunction } from './transformation';
 import type { DeepMerge, MaybePromise, Simplify } from './types';
 
 export type ResolverResponse<TContext extends Context> =
@@ -50,7 +50,7 @@ export class Resolver<
   TContext extends Context = Context,
 > {
   _middlewares: AnyMiddleware[];
-  _transformations: ArgsTransformationCallback<any, any, any>[];
+  _transformations: ArgsTransformationFunction<any, any, any>[];
   _schemaArgs: TSchemaArgs;
 
   constructor({
@@ -60,7 +60,7 @@ export class Resolver<
   }: {
     schemaArgs: TSchemaArgs;
     middlewares: AnyMiddleware[];
-    transformations: ArgsTransformationCallback<any, any, any>[];
+    transformations: ArgsTransformationFunction<any, any, any>[];
   }) {
     this._schemaArgs = schemaArgs;
     this._middlewares = middlewares;
@@ -68,7 +68,7 @@ export class Resolver<
   }
 
   use<TNextContext extends Context>(
-    middleware: MiddlewareCallback<TArgs, TContext, TNextContext>,
+    middleware: MiddlewareFunction<TArgs, TContext, TNextContext>,
   ) {
     return new Resolver<TArgs, TSchemaArgs, TNextContext>({
       schemaArgs: this._schemaArgs,
@@ -78,14 +78,14 @@ export class Resolver<
         new Middleware({
           schemaArgs: this._schemaArgs,
           transformations: [...this._transformations],
-          middlewareCallback: middleware,
+          middlewareFunction: middleware,
         }),
       ] as AnyMiddleware[],
     });
   }
 
   transformation<TNextArgs>(
-    transformation: ArgsTransformationCallback<TArgs, TContext, TNextArgs>,
+    transformation: ArgsTransformationFunction<TArgs, TContext, TNextArgs>,
   ) {
     return new Resolver<
       Simplify<DeepMerge<inferResolverArgs<TSchemaArgs>, TNextArgs>>,
