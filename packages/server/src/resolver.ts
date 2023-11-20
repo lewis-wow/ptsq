@@ -1,5 +1,5 @@
 import type { Merge } from 'type-fest';
-import type { z, ZodVoid } from 'zod';
+import type { z } from 'zod';
 import type { Context } from './context';
 import type { HTTPError } from './httpError';
 import {
@@ -14,7 +14,7 @@ import type {
   SerializableOutputZodSchema,
 } from './serializable';
 import type { ArgsTransformationCallback } from './transformation';
-import type { MaybePromise } from './types';
+import type { MaybePromise, Simplify } from './types';
 
 export type ResolverResponse<TContext extends Context> =
   | {
@@ -37,7 +37,7 @@ export type ResolverArgs = SerializableInputZodSchema;
 export type ResolverOutput = SerializableOutputZodSchema;
 
 export type inferResolverArgs<TResolverArgs> = TResolverArgs extends z.Schema
-  ? TResolverArgs extends ZodVoid
+  ? TResolverArgs extends z.ZodVoid
     ? undefined
     : z.output<TResolverArgs>
   : TResolverArgs;
@@ -47,7 +47,7 @@ export type inferResolverOutput<TResolverOutput> =
 
 export class Resolver<
   TArgs,
-  TSchemaArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
+  TSchemaArgs extends ResolverArgs | z.ZodVoid = ResolverArgs | z.ZodVoid,
   TContext extends Context = Context,
 > {
   _middlewares: AnyMiddleware[];
@@ -89,7 +89,7 @@ export class Resolver<
     transformation: ArgsTransformationCallback<TArgs, TContext, TNextArgs>,
   ) {
     return new Resolver<
-      Merge<inferResolverArgs<TSchemaArgs>, TNextArgs>,
+      Simplify<Merge<inferResolverArgs<TSchemaArgs>, TNextArgs>>,
       TSchemaArgs,
       TContext
     >({
@@ -100,14 +100,14 @@ export class Resolver<
   }
 
   args<
-    TNextSchemaArgs extends TSchemaArgs extends ZodVoid
+    TNextSchemaArgs extends TSchemaArgs extends z.ZodVoid
       ? ResolverArgs
       : TSchemaArgs,
   >(nextSchemaArgs: TNextSchemaArgs) {
     return new Resolver<
-      TSchemaArgs extends ZodVoid
+      TSchemaArgs extends z.ZodVoid
         ? inferResolverArgs<TNextSchemaArgs>
-        : Merge<inferResolverArgs<TNextSchemaArgs>, TArgs>,
+        : Simplify<Merge<inferResolverArgs<TNextSchemaArgs>, TArgs>>,
       TNextSchemaArgs,
       TContext
     >({

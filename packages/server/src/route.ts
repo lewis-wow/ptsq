@@ -1,5 +1,5 @@
 import { zodToJsonSchema } from '@ptsq/zod-parser';
-import type { ZodVoid } from 'zod';
+import type { z } from 'zod';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
@@ -17,10 +17,12 @@ import type { ResolverType } from './types';
 
 /**
  * @internal
+ *
+ * Creates callable route.
  */
 export class Route<
   TType extends ResolverType = ResolverType,
-  TSchemaArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
+  TSchemaArgs extends ResolverArgs | z.ZodVoid = ResolverArgs | z.ZodVoid,
   TSchemaOutput extends ResolverOutput = ResolverOutput,
   TResolveFunction extends ResolveFunction<any, any> = ResolveFunction<
     any,

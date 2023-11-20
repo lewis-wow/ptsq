@@ -1,4 +1,4 @@
-import { z, type ZodVoid } from 'zod';
+import { z } from 'zod';
 import { HTTPRequestListener } from './adapters/http';
 import type {
   ContextBuilder,
@@ -53,7 +53,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * ```
    */
   // The {} type actually describes empty object here, no non-nullish
-  const resolver = new Resolver<undefined, ZodVoid, RootContext>({
+  const resolver = new Resolver<undefined, z.ZodVoid, RootContext>({
     schemaArgs: z.void(),
     middlewares: [],
     transformations: [],

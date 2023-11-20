@@ -10,6 +10,11 @@ export type Routes = {
   [Key: string]: Query | Mutation | Router;
 };
 
+/**
+ * @internal
+ *
+ * Create router that can be nested.
+ */
 export class Router<TRoutes extends Routes = Routes> {
   routes: TRoutes;
   nodeType: 'router' = 'router' as const;

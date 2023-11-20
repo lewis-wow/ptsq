@@ -9,6 +9,11 @@ export type Serializable =
   | Serializable[]
   | { [key: string]: Serializable };
 
+/**
+ * @internal
+ *
+ * Checks if the response is serializable.
+ */
 export const serializableZodSchema: z.Schema<Serializable> = z.union([
   z.string(),
   z.number(),
@@ -20,8 +25,4 @@ export const serializableZodSchema: z.Schema<Serializable> = z.union([
 
 export type SerializableInputZodSchema = z.Schema<Serializable>;
 
-export type SerializableOutputZodSchema = z.Schema<
-  Serializable,
-  z.ZodTypeDef,
-  any
->;
+export type SerializableOutputZodSchema = z.Schema<Serializable>;

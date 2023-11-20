@@ -1,15 +1,20 @@
 export type HTTPErrorOptions = {
   code: keyof typeof HTTPErrorCode;
   message?: string;
-  info?: any;
+  info?: unknown;
 };
 
 /**
- * Error class for throwing http response with error
+ * Error class for throwing http response with error message and error info
+ *
+ * @example
+ * ```ts
+ * throw new HTTPError({ code: 'FORBIDDEN', message: 'Only administrator can access...' })
+ * ```
  */
 export class HTTPError extends Error {
   code: keyof typeof HTTPErrorCode;
-  info: any;
+  info: unknown;
 
   constructor({ code, message, info }: HTTPErrorOptions) {
     super(message);
@@ -23,11 +28,26 @@ export class HTTPError extends Error {
 
   /**
    * Check if the error in catch scope is HTTPError
+   *
+   * @example
+   * ```ts
+   * try {
+   *  // ...
+   * } catch(error) {
+   *    if(HTTPError.isHttpError(error)) {
+   *       console.log('code: ', error.code);
+   *       // access its properties
+   *    }
+   * }
+   * ```
    */
   static isHttpError = (error: unknown): error is HTTPError =>
     error instanceof HTTPError;
 }
 
+/**
+ * @internal
+ */
 export const HTTPErrorCode = {
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,

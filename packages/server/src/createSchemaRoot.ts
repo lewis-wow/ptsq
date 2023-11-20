@@ -6,6 +6,8 @@ type CreateSchemaRootArgs = {
 };
 
 /**
+ * @internal
+ *
  * Creates schema root for json-schema introspection
  * TODO: better pascalcase title approach!
  */
