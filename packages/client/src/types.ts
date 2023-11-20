@@ -11,8 +11,8 @@ import type { ProxyClient } from './createProxyClient';
 export type ClientRoute<TType extends ResolverType = ResolverType> = {
   nodeType: 'route';
   type: TType;
-  args?: any;
-  output: any;
+  schemaArgs?: any;
+  schemaOutput: any;
 };
 
 /**
@@ -27,15 +27,15 @@ export type ClientRouter = {
 
 type QueryClient<TClientRoute extends ClientRoute> = {
   query: typeof ProxyClient.prototype.request<
-    inferClientResolverArgs<TClientRoute['args']>,
-    inferClientResolverOutput<TClientRoute['output']>
+    inferClientResolverArgs<TClientRoute['schemaArgs']>,
+    inferClientResolverOutput<TClientRoute['schemaOutput']>
   >;
 };
 
 type MutationClient<TClientRoute extends ClientRoute> = {
   mutate: typeof ProxyClient.prototype.request<
-    inferClientResolverArgs<TClientRoute['args']>,
-    inferClientResolverOutput<TClientRoute['output']>
+    inferClientResolverArgs<TClientRoute['schemaArgs']>,
+    inferClientResolverOutput<TClientRoute['schemaOutput']>
   >;
 };
 

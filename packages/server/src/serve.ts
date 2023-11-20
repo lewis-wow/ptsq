@@ -12,6 +12,9 @@ export type ServeOptions<TContext extends Context> = {
   rootPath?: string;
 };
 
+/**
+ * @internal
+ */
 export class Serve<TContext extends Context = Context> {
   _contextBuilder: ContextBuilder<TContext>;
 

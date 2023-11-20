@@ -15,17 +15,18 @@ test('Should create query route', async () => {
 
   const query = new Route({
     type: 'query',
-    args: inputSchema,
-    output: outputSchema,
+    schemaArgs: inputSchema,
+    schemaOutput: outputSchema,
     resolveFunction: resolveFunction,
     middlewares: [],
+    transformations: [],
   });
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares).toStrictEqual([]);
-  expect(query.args).toStrictEqual(inputSchema);
-  expect(query.output).toBe(outputSchema);
+  expect(query.schemaArgs).toStrictEqual(inputSchema);
+  expect(query.schemaOutput).toBe(outputSchema);
   expect(query.resolveFunction).toBe(resolveFunction);
 
   expect(
@@ -98,17 +99,18 @@ test('Should create mutation route', async () => {
 
   const mutation = new Route({
     type: 'mutation',
-    args: inputSchema,
-    output: outputSchema,
+    schemaArgs: inputSchema,
+    schemaOutput: outputSchema,
     resolveFunction: resolveFunction,
     middlewares: [],
+    transformations: [],
   });
 
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
   expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.args).toStrictEqual(inputSchema);
-  expect(mutation.output).toBe(outputSchema);
+  expect(mutation.schemaArgs).toStrictEqual(inputSchema);
+  expect(mutation.schemaOutput).toBe(outputSchema);
   expect(mutation.resolveFunction).toBe(resolveFunction);
 
   expect(

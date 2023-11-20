@@ -2,29 +2,6 @@ import { zodToJsonSchema } from '@ptsq/zod-parser';
 import { expect, test } from 'vitest';
 import { z } from 'zod';
 import { createServer } from './createServer';
-import { scalar } from './scalar';
-
-test('Should create scalar  json schema', () => {
-  const URLScalar = scalar({
-    parse: {
-      schema: z.instanceof(URL),
-      value: (arg) => new URL(arg),
-    },
-    serialize: {
-      schema: z.string().url(),
-      value: (arg) => arg.toString(),
-    },
-    description: 'String format of url',
-  });
-
-  expect(zodToJsonSchema(URLScalar.input)).toStrictEqual({
-    type: 'string',
-  });
-
-  expect(zodToJsonSchema(URLScalar.output)).toStrictEqual({
-    type: 'string',
-  });
-});
 
 test('Should create arguments chain json schema', () => {
   const { resolver } = createServer({
@@ -44,7 +21,7 @@ test('Should create arguments chain json schema', () => {
       }),
     );
 
-  expect(zodToJsonSchema(argsResolver._args)).toStrictEqual({
+  expect(zodToJsonSchema(argsResolver._schemaArgs)).toStrictEqual({
     type: 'object',
     additionalProperties: false,
     properties: {
@@ -81,7 +58,7 @@ test('Should create complex arguments chain json schema', () => {
       }),
     );
 
-  expect(zodToJsonSchema(argsResolver._args)).toMatchInlineSnapshot(`
+  expect(zodToJsonSchema(argsResolver._schemaArgs)).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {

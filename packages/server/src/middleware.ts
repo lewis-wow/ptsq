@@ -1,12 +1,12 @@
+import type { z } from 'zod';
 import type { Context } from './context';
 import { HTTPError } from './httpError';
 import type {
-  inferResolverArgs,
   ResolverArgs,
   ResolverRequest,
   ResolverResponse,
 } from './resolver';
-import type { TransformationCallback } from './transformation';
+import type { ArgsTransformationCallback } from './transformation';
 
 export type NextFunction = <TNextContext extends Context>(
   nextContext: TNextContext,
@@ -17,24 +17,30 @@ export type MiddlewareCallback<
   TContext extends Context,
   TNextContext extends Context,
 > = (options: {
-  input: inferResolverArgs<TArgs>;
+  input: TArgs;
   meta: ResolverRequest;
   ctx: TContext;
   next: NextFunction;
 }) => ReturnType<typeof options.next<TNextContext>>;
 
+export type AnyMiddlewareCallback = MiddlewareCallback<
+  unknown,
+  Context,
+  Context
+>;
+
 export class Middleware<
-  TArgs extends ResolverArgs = ResolverArgs,
-  TContext extends Context = Context,
-  TNextContext extends Context = Context,
+  TArgs,
+  TContext extends Context,
+  TNextContext extends Context,
 > {
   _middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext>;
-  _schemaArgs: TArgs;
-  _transformations: TransformationCallback<any, any, any>[];
+  _schemaArgs: ResolverArgs | z.ZodVoid;
+  _transformations: ArgsTransformationCallback[];
 
   constructor(options: {
-    schemaArgs: TArgs;
-    transformations: TransformationCallback<any, any, any>[];
+    schemaArgs: ResolverArgs | z.ZodVoid;
+    transformations: ArgsTransformationCallback[];
     middlewareCallback: MiddlewareCallback<TArgs, TContext, TNextContext>;
   }) {
     this._middlewareCallback = options.middlewareCallback;
@@ -42,6 +48,9 @@ export class Middleware<
     this._transformations = options.transformations;
   }
 
+  /**
+   * @internal
+   */
   static createSuccessResponse({
     data,
     ctx,
@@ -56,6 +65,9 @@ export class Middleware<
     };
   }
 
+  /**
+   * @internal
+   */
   static createFailureResponse({
     error,
     ctx,
@@ -70,6 +82,9 @@ export class Middleware<
     };
   }
 
+  /**
+   * @internal
+   */
   static async recursiveCall({
     ctx,
     meta,
@@ -79,7 +94,7 @@ export class Middleware<
     ctx: any;
     meta: ResolverRequest;
     index: number;
-    middlewares: Middleware<ResolverArgs, any>[];
+    middlewares: AnyMiddleware[];
   }): Promise<ResolverResponse<any>> {
     try {
       const parsedInput = middlewares[index]._schemaArgs.safeParse(meta.input);
@@ -91,10 +106,12 @@ export class Middleware<
           info: parsedInput.error,
         });
 
-      const transformedInputData = middlewares[index]._transformations.reduce(
-        (acc, currentTransformation) =>
-          currentTransformation({ input: acc, meta, ctx }),
-        parsedInput.data,
+      const transformedInputData = await middlewares[
+        index
+      ]._transformations.reduce(
+        async (acc, currentTransformation) =>
+          await currentTransformation({ input: await acc, meta, ctx }),
+        Promise.resolve(parsedInput.data as unknown),
       );
 
       return await middlewares[index]._middlewareCallback({
@@ -119,3 +136,5 @@ export class Middleware<
     }
   }
 }
+
+export type AnyMiddleware = Middleware<unknown, Context, Context>;

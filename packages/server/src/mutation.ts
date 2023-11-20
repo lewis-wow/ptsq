@@ -1,25 +1,28 @@
 import type { ZodVoid } from 'zod';
-import type { Middleware } from './middleware';
+import type { AnyMiddleware } from './middleware';
 import type { ResolveFunction, ResolverArgs, ResolverOutput } from './resolver';
 import { Route } from './route';
-import type { TransformationCallback } from './transformation';
+import type { ArgsTransformationCallback } from './transformation';
 
+/**
+ * @internal
+ */
 export class Mutation<
-  TArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
-  TResolverOutput extends ResolverOutput = ResolverOutput,
+  TSchemaArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
+  TSchemaOutput extends ResolverOutput = ResolverOutput,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TResolveFunction extends ResolveFunction<any, any, any> = ResolveFunction<
     any,
     any,
     any
   >,
-> extends Route<'mutation', TArgs, TResolverOutput, TResolveFunction> {
+> extends Route<'mutation', TSchemaArgs, TSchemaOutput, TResolveFunction> {
   constructor(options: {
-    schemaArgs: TArgs;
-    output: TResolverOutput;
+    schemaArgs: TSchemaArgs;
+    schemaOutput: TSchemaOutput;
     resolveFunction: TResolveFunction;
-    middlewares: Middleware<any, any>[];
-    transformations: TransformationCallback<any, any, any>[];
+    middlewares: AnyMiddleware[];
+    transformations: ArgsTransformationCallback<any, any, any>[];
   }) {
     super({
       type: 'mutation',

@@ -29,8 +29,8 @@ test('Should create query', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares).toStrictEqual([]);
-  expect(query.args).toStrictEqual(argsSchema);
-  expect(query.output).toStrictEqual(outputValidationSchema);
+  expect(query.schemaArgs).toStrictEqual(argsSchema);
+  expect(query.schemaOutput).toStrictEqual(outputValidationSchema);
   expect(query.resolveFunction).toBe(resolveFunction);
 
   expect(
@@ -130,8 +130,8 @@ test('Should create query without args', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares).toStrictEqual([]);
-  expect(query.args).instanceOf(z.ZodVoid);
-  expect(query.output).toStrictEqual(validationSchema);
+  expect(query.schemaArgs).instanceOf(z.ZodVoid);
+  expect(query.schemaOutput).toStrictEqual(validationSchema);
   expect(query.resolveFunction).toBe(resolveFunction);
 
   expect(
@@ -229,8 +229,8 @@ test('Should create query with twice chain', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares).toStrictEqual([]);
-  expect(query.args).toStrictEqual(secondSchemaInArgumentChain);
-  expect(query.output).toStrictEqual(outputSchema);
+  expect(query.schemaArgs).toStrictEqual(secondSchemaInArgumentChain);
+  expect(query.schemaOutput).toStrictEqual(outputSchema);
   expect(query.resolveFunction).toBe(resolveFunction);
 
   expect(

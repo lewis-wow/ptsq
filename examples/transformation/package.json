@@ -1,5 +1,5 @@
 {
-  "name": "@ptsq/example-scalars",
+  "name": "@ptsq/example-transformation",
   "version": "0.0.1",
   "private": true,
   "main": "src/server.ts",

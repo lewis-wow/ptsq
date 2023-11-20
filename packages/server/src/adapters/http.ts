@@ -11,6 +11,23 @@ import { HTTPErrorCode } from '../httpError';
 import type { Router } from '../router';
 import type { Serve } from '../serve';
 
+/**
+ * node:http adapter context type
+ *
+ * This type enforce that the node:http request and response objects are passed to the server handler.
+ *
+ * You can extends this type by using the `&` or use it as it is.
+ *
+ * @example
+ * ```ts
+ * const { resolver, router } = createServer({
+ *   ctx: ({ req: res }: HttpAdapterContext) => ({
+ *     req,
+ *     res
+ *   }),
+ * });
+ * ```
+ */
 export type HttpAdapterContext = {
   req: IncomingMessage;
   res: ServerResponse;

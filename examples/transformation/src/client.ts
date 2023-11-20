@@ -1,5 +1,4 @@
 import { createProxyClient } from '@ptsq/client';
-import { URLScalar } from './scalars/URLScalar';
 import { BaseRouter } from './server';
 
 //import { BaseRouter } from './schema.generated';
@@ -10,7 +9,7 @@ const client = createProxyClient<BaseRouter>({
 
 client.greetings
   .query({
-    url: URLScalar.serialize(new URL('http://localhost:3000')),
+    url: 'http://localhost:3000',
   })
   .then((response) => {
     console.log(response);

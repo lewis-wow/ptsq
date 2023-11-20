@@ -76,3 +76,7 @@ urlResolverWithTransformation.use(({ input /* { url: URL } */, ctx, next }) => {
   return next(ctx);
 });
 ```
+
+## Output transformation
+
+There is no output transformation yet, so the output must be already serialized, as the zod validation schema can be only serializable schema.

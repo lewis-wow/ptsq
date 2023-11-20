@@ -21,7 +21,7 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
  *
  * @example
  * ```ts
- * const { resolver, router, middleware, serve, scalar } = createServer({
+ * const { resolver, router, createHTTPNodeHandler } = createServer({
  *   ctx: () => ({}),
  *   cors: {
  *     origin: ['http://localhost:3000', 'https://example.com'],
@@ -80,7 +80,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
     new Router({ routes });
 
   /**
-   * Serve your server into some rest-api adapter like express, fastify, node:http, ...
+   * Serve your server into some rest-api adapter like Express, Fastify, node:http, ...
    *
    * @example
    * ```ts

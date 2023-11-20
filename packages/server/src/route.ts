@@ -4,6 +4,7 @@ import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
 import { Middleware } from './middleware';
+import type { AnyMiddleware } from './middleware';
 import type {
   ResolveFunction,
   ResolverArgs,
@@ -11,37 +12,40 @@ import type {
   ResolverRequest,
   ResolverResponse,
 } from './resolver';
-import type { TransformationCallback } from './transformation';
+import type { ArgsTransformationCallback } from './transformation';
 import type { ResolverType } from './types';
 
+/**
+ * @internal
+ */
 export class Route<
   TType extends ResolverType = ResolverType,
-  TArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
-  TResolverOutput extends ResolverOutput = ResolverOutput,
+  TSchemaArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
+  TSchemaOutput extends ResolverOutput = ResolverOutput,
   TResolveFunction extends ResolveFunction<any, any> = ResolveFunction<
     any,
     any
   >,
 > {
   type: TType;
-  schemaArgs: TArgs;
-  output: TResolverOutput;
+  schemaArgs: TSchemaArgs;
+  schemaOutput: TSchemaOutput;
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
-  middlewares: Middleware<ResolverArgs, any>[];
-  transformations: TransformationCallback<any, any, any>[];
+  middlewares: AnyMiddleware[];
+  transformations: ArgsTransformationCallback<any, any, any>[];
 
   constructor(options: {
     type: TType;
-    schemaArgs: TArgs;
-    output: TResolverOutput;
+    schemaArgs: TSchemaArgs;
+    schemaOutput: TSchemaOutput;
     resolveFunction: TResolveFunction;
-    middlewares: Middleware<ResolverArgs, any>[];
-    transformations: TransformationCallback<any, any, any>[];
+    middlewares: AnyMiddleware[];
+    transformations: ArgsTransformationCallback<any, any, any>[];
   }) {
     this.type = options.type;
     this.schemaArgs = options.schemaArgs;
-    this.output = options.output;
+    this.schemaOutput = options.schemaOutput;
     this.resolveFunction = options.resolveFunction;
     this.middlewares = options.middlewares;
     this.transformations = options.transformations;
@@ -60,7 +64,7 @@ export class Route<
           enum: [this.nodeType],
         },
         args: zodToJsonSchema(this.schemaArgs),
-        output: zodToJsonSchema(this.output),
+        output: zodToJsonSchema(this.schemaOutput),
       },
     });
   }
@@ -78,8 +82,8 @@ export class Route<
       index: 0,
       middlewares: [
         ...this.middlewares,
-        new Middleware<ResolverArgs>({
-          schemaArgs: this.schemaArgs as any,
+        new Middleware({
+          schemaArgs: this.schemaArgs,
           transformations: this.transformations,
           middlewareCallback: async ({
             ctx: finalContext,
@@ -92,7 +96,7 @@ export class Route<
               meta: finalMeta,
             });
 
-            const parsedOutput = this.output.safeParse(resolverResult);
+            const parsedOutput = this.schemaOutput.safeParse(resolverResult);
 
             if (!parsedOutput.success)
               throw new HTTPError({

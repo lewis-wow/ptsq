@@ -29,8 +29,8 @@ test('Should create mutation', async () => {
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
   expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.args).toStrictEqual(argsSchema);
-  expect(mutation.output).toStrictEqual(outputValidationSchema);
+  expect(mutation.schemaArgs).toStrictEqual(argsSchema);
+  expect(mutation.schemaOutput).toStrictEqual(outputValidationSchema);
   expect(mutation.resolveFunction).toBe(resolveFunction);
 
   expect(
@@ -130,8 +130,8 @@ test('Should create mutation without args', async () => {
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
   expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.args).instanceOf(z.ZodVoid);
-  expect(mutation.output).toStrictEqual(outputValidationSchema);
+  expect(mutation.schemaArgs).instanceOf(z.ZodVoid);
+  expect(mutation.schemaOutput).toStrictEqual(outputValidationSchema);
   expect(mutation.resolveFunction).toBe(resolveFunction);
 
   expect(
@@ -230,8 +230,8 @@ test('Should create mutation with twice chain', async () => {
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
   expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.args).toStrictEqual(secondSchemaInChain);
-  expect(mutation.output).toStrictEqual(validationSchema);
+  expect(mutation.schemaArgs).toStrictEqual(secondSchemaInChain);
+  expect(mutation.schemaOutput).toStrictEqual(validationSchema);
   expect(mutation.resolveFunction).toBe(resolveFunction);
 
   expect(

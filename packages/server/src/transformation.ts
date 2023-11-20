@@ -1,11 +1,11 @@
-import type { MaybePromise } from '../dist/types';
 import type { Context } from './context';
 import type { inferResolverArgs, ResolverRequest } from './resolver';
+import type { MaybePromise } from './types';
 
-export type TransformationCallback<
-  TArgs,
-  TContext extends Context,
-  TNextArgs,
+export type ArgsTransformationCallback<
+  TArgs = unknown,
+  TContext extends Context = Context,
+  TNextArgs = MaybePromise<unknown>,
 > = (options: {
   input: inferResolverArgs<TArgs>;
   meta: ResolverRequest;

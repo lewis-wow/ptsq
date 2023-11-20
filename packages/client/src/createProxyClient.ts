@@ -17,6 +17,8 @@ type RequestOptions = {
 };
 
 /**
+ * @internal
+ *
  * Request making client
  */
 export class ProxyClient {
@@ -68,7 +70,7 @@ export class ProxyClient {
  *
  * @example
  * ```ts
- * const client = createProxyClient<RootRouter>({
+ * const client = createProxyClient<BaseRouter>({
  *   url: 'http://localhost:4000/ptsq/'
  * });
  *
