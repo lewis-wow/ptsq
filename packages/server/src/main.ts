@@ -1,16 +1,21 @@
 export { createServer } from './createServer';
 export { HTTPError } from './httpError';
 
-export type { Scalar } from './scalar';
-
 export {
   Resolver,
-  type inferResolverArgsInput,
   type inferResolverOutput,
+  type inferResolverArgs,
+  type ResolveFunction,
+  type ResolverArgs,
+  type ResolverResponse,
 } from './resolver';
+
+export type { ArgsTransformationFunction } from './transformation';
+
 export { Middleware } from './middleware';
 export type { Query } from './query';
 export type { Mutation } from './mutation';
+export type { CORSOptions } from './cors';
 
 export type { Route } from './route';
 export type { Router } from './router';
@@ -19,8 +24,8 @@ export type { Serve } from './serve';
 export type {
   ResolverType,
   MaybePromise,
-  inferResolverValidationSchemaInput,
-  inferResolverValidationSchemaOutput,
+  inferClientResolverArgs,
+  inferClientResolverOutput,
 } from './types';
 export type {
   SerializableInputZodSchema,

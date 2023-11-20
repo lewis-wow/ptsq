@@ -1,4 +1,4 @@
-import { z, type ZodVoid } from 'zod';
+import { z } from 'zod';
 import { HTTPRequestListener } from './adapters/http';
 import type {
   ContextBuilder,
@@ -8,9 +8,11 @@ import type {
 import type { CORSOptions } from './cors';
 import { Resolver } from './resolver';
 import { Router, type Routes } from './router';
-import { scalar } from './scalar';
 import { Serve } from './serve';
 
+/**
+ * @internal
+ */
 type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   ctx: TContextBuilder;
   cors?: CORSOptions;
@@ -22,7 +24,7 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
  *
  * @example
  * ```ts
- * const { resolver, router, middleware, serve, scalar } = createServer({
+ * const { resolver, router, createHTTPNodeHandler } = createServer({
  *   ctx: () => ({}),
  *   cors: {
  *     origin: ['http://localhost:3000', 'https://example.com'],
@@ -54,9 +56,10 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * ```
    */
   // The {} type actually describes empty object here, no non-nullish
-  const resolver = new Resolver<ZodVoid, RootContext>({
-    args: z.void(),
+  const resolver = new Resolver<undefined, z.ZodVoid, RootContext>({
+    schemaArgs: z.void(),
     middlewares: [],
+    transformations: [],
   });
 
   const serve = new Serve({ contextBuilder: ctx });
@@ -80,7 +83,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
     new Router({ routes });
 
   /**
-   * Serve your server into some rest-api adapter like express, fastify, node:http, ...
+   * Serve your server into some rest-api adapter like Express, Fastify, node:http, ...
    *
    * @example
    * ```ts
@@ -104,7 +107,6 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   return {
     resolver,
     router,
-    scalar,
     createHTTPNodeHandler,
     rootPath,
   };

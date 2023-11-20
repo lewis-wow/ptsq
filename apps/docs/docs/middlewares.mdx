@@ -156,6 +156,6 @@ Middleware<{ user?: User | null }, { user: User | null }>;
 // the piped middleware get the result context of the first middleware and check if user is null
 Middleware<{ user: User | null }, { user: User }>;
 
-// then if you have e.g. mutation with resolver that use the piped middleware
+// the mutation with resolver that use the piped middleware
 Mutation<{ user: User }>;
 ```

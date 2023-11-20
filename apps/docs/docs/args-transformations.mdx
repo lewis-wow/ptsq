@@ -1,0 +1,82 @@
+# Arguments transformations
+
+We already know that arguments can chain. But there is much more, input arguments can be transformed by transform function to create clearer resolvers.
+
+Let's say we have simple resolver that has `{ url }` as args, so:
+
+```ts title="Resolver with url argument"
+const urlResolver = resolver.args(z.object({ url: z.string().url() }));
+```
+
+We cannot use something like `z.instanceOf(URL)` because from the frontend, we obtain some serializable value.
+
+Let's start with the transformation, make the url as the `URL`.
+
+```ts title="URL transformation"
+const urlResolverWithTransformation = urlResolver.transformation(
+  (input /* { url: string } (from validation before) */) => ({
+    ...input,
+    url: new URL(input.url),
+  }),
+);
+```
+
+We transformed the value to `URL` instance. How to use it now?
+
+```ts title="URL transformation"
+urlResolverWithTransformation.query({
+  output: z.string(),
+  resolve: ({ input /* { url: URL } */ }) => url.pathname,
+});
+```
+
+We can now use the parsed value from the transformer, the type of the value is infered from the transformation function return type.
+
+## Using transformation in argument chain
+
+The example before was too simple, what about if we want to add arguments chaining to the transformation.
+
+As we know from chapter before, next arguments schema must extends the previous/current one. But what is the schema now if we used the transformation.
+The schema stays the same.
+
+```ts title="URL transformation"
+urlResolverWithTransformation
+  .args(z.object({ url: z.string().url() /* no z.instanceOf(URL) */ }))
+  .query({
+    output: z.string(),
+    resolve: ({ input /* { url: URL } */ }) => url.pathname,
+  });
+```
+
+How you can see, the schema stays the same, even if we used the transformation before. The reason is that the schema validation runs always before the transformation.
+
+Every middleware or resolver has exactly `one` validation schema (always the last one in the chain) and `n` transformation.
+
+## Transformation chain
+
+We can chain transformations in the same way as arguments chaining.
+
+```ts title="URL transformation into pathname"
+const pathnameResolver = urlResolverWithTransformation.transformation(
+  (input /* { url: URL } */) => ({
+    ...input,
+    url: input.url.pathname,
+  }),
+);
+```
+
+## Transformation with middlewares
+
+The middleware has also transformed input, same as the resolver.
+
+```ts title="URL transformation with middlewares"
+urlResolverWithTransformation.use(({ input /* { url: URL } */, ctx, next }) => {
+  console.log(input.url.pathname);
+
+  return next(ctx);
+});
+```
+
+## Output transformation
+
+There is no output transformation yet, so the output must be already serialized, as the zod validation schema can be only serializable schema.

@@ -5,6 +5,9 @@ import {
   type CreateTestServerArgs,
 } from './createTestServer';
 
+/**
+ * @internal
+ */
 export const createTestHttpServer = <
   TContext extends Context,
   TRouter extends Router,

@@ -110,7 +110,7 @@ The way that tRPC can lie to to you in the incomming type from the server or the
 class MyClass {
   constructor(
     public x: number,
-    public y: number
+    public y: number,
   ) {}
 
   calculateDiff() {
@@ -125,7 +125,7 @@ publicProcedure.query(() => {
 
 On the client it tells you that the incomming type is `MyClass`, but that is not true, incomming type will be `{ x: number; y: number }`, because classes are not serializable.
 
-ptsq has another solution for this problem and that are [scalars](/scalars).
+ptsq has another solution for this problem and that are [arguments transformations](/args-transformations).
 
 Scalar types does not allow you to use any non-serializable type for resolver input and output.
 

@@ -10,6 +10,11 @@ export type Routes = {
   [Key: string]: Query | Mutation | Router;
 };
 
+/**
+ * @internal
+ *
+ * Creates a router that can be nested.
+ */
 export class Router<TRoutes extends Routes = Routes> {
   routes: TRoutes;
   nodeType: 'router' = 'router' as const;
@@ -18,6 +23,9 @@ export class Router<TRoutes extends Routes = Routes> {
     this.routes = routes;
   }
 
+  /**
+   * Gets the json schema of the whole router recursivelly
+   */
   getJsonSchema(title = 'base') {
     return createSchemaRoot({
       title: `${title} router`,
@@ -38,41 +46,9 @@ export class Router<TRoutes extends Routes = Routes> {
     });
   }
 
-  createServerSideProxyCaller<TContext extends Context>(
-    ctx: TContext,
-  ): RouterProxyCaller<TRoutes, TContext> {
-    return this._createServerSideProxyCallerInternal({ ctx, route: [] });
-  }
-
-  _createServerSideProxyCallerInternal<TContext extends Context>({
-    ctx,
-    route,
-  }: {
-    ctx: TContext;
-    route: string[];
-  }): RouterProxyCaller<TRoutes, TContext> {
-    const proxyHandler: ProxyHandler<TRoutes> = {
-      get: (target, key: string) => {
-        const node = target[key];
-
-        if (node.nodeType === 'router')
-          return node._createServerSideProxyCallerInternal({
-            ctx,
-            route: [...route, key],
-          });
-
-        return node.type === 'mutation'
-          ? node.createServerSideMutation({ ctx, route })
-          : node.createServerSideQuery({ ctx, route });
-      },
-    };
-
-    return new Proxy(this.routes, proxyHandler) as unknown as RouterProxyCaller<
-      TRoutes,
-      TContext
-    >;
-  }
-
+  /**
+   * Call the router and shift a route path
+   */
   call({
     route,
     ctx,
@@ -112,13 +88,3 @@ export class Router<TRoutes extends Routes = Routes> {
     return nextNode.call({ meta, ctx });
   }
 }
-
-type RouterProxyCaller<TRoutes extends Routes, TContext extends Context> = {
-  [K in keyof TRoutes]: TRoutes[K] extends Router
-    ? RouterProxyCaller<TRoutes[K]['routes'], TContext>
-    : TRoutes[K] extends Mutation
-    ? ReturnType<TRoutes[K]['createServerSideMutation']>
-    : TRoutes[K] extends Query
-    ? ReturnType<TRoutes[K]['createServerSideQuery']>
-    : never;
-};

@@ -1,12 +1,8 @@
-export class QueueNode<TValue> {
-  value: TValue;
-  next: QueueNode<TValue> | undefined = undefined;
-
-  constructor(value: TValue) {
-    this.value = value;
-  }
-}
-
+/**
+ * @internal
+ *
+ * Queue for shifting the route nodes (user.name.get.all)
+ */
 export class Queue<TValue> implements Iterable<TValue> {
   protected head: QueueNode<TValue> | undefined = undefined;
   protected tail: QueueNode<TValue> | undefined = undefined;
@@ -60,5 +56,17 @@ export class Queue<TValue> implements Iterable<TValue> {
       yield current.value;
       current = current.next;
     }
+  }
+}
+
+/**
+ * @internal
+ */
+export class QueueNode<TValue> {
+  value: TValue;
+  next: QueueNode<TValue> | undefined = undefined;
+
+  constructor(value: TValue) {
+    this.value = value;
   }
 }

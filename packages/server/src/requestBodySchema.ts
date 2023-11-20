@@ -2,7 +2,9 @@ import { z } from 'zod';
 import { serializableZodSchema } from './serializable';
 
 /**
- * validation schema for validating POST request body in format that routers work
+ * @internal
+ *
+ * validation schema for validating POST request body
  */
 export const requestBodySchema = z
   .object({

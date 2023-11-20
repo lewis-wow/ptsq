@@ -1,6 +1,6 @@
 import type {
-  inferResolverArgsInput,
-  inferResolverOutput,
+  inferClientResolverArgs,
+  inferClientResolverOutput,
   ResolverType,
 } from '@ptsq/server';
 import type { ProxyClient } from './createProxyClient';
@@ -11,8 +11,8 @@ import type { ProxyClient } from './createProxyClient';
 export type ClientRoute<TType extends ResolverType = ResolverType> = {
   nodeType: 'route';
   type: TType;
-  args?: any;
-  output: any;
+  schemaArgs?: any;
+  schemaOutput: any;
 };
 
 /**
@@ -25,21 +25,29 @@ export type ClientRouter = {
   };
 };
 
+/**
+ * @internal
+ */
 type QueryClient<TClientRoute extends ClientRoute> = {
   query: typeof ProxyClient.prototype.request<
-    inferResolverArgsInput<TClientRoute['args']>,
-    inferResolverOutput<TClientRoute['output']>
-  >;
-};
-
-type MutationClient<TClientRoute extends ClientRoute> = {
-  mutate: typeof ProxyClient.prototype.request<
-    inferResolverArgsInput<TClientRoute['args']>,
-    inferResolverOutput<TClientRoute['output']>
+    inferClientResolverArgs<TClientRoute['schemaArgs']>,
+    inferClientResolverOutput<TClientRoute['schemaOutput']>
   >;
 };
 
 /**
+ * @internal
+ */
+type MutationClient<TClientRoute extends ClientRoute> = {
+  mutate: typeof ProxyClient.prototype.request<
+    inferClientResolverArgs<TClientRoute['schemaArgs']>,
+    inferClientResolverOutput<TClientRoute['schemaOutput']>
+  >;
+};
+
+/**
+ * @internal
+ *
  * Client type for casting proxy client to correct types
  */
 export type Client<TRouter extends ClientRouter> = {

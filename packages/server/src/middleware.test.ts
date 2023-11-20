@@ -38,7 +38,7 @@ test('Should create middleware with query and serverSideQuery', async () => {
   expect(validOnlyQuery.nodeType).toBe('route');
   expect(validOnlyQuery.type).toBe('query');
   expect(validOnlyQuery.middlewares.length).toBe(1);
-  expect(validOnlyQuery.middlewares[0]._args).instanceOf(z.ZodVoid);
+  expect(validOnlyQuery.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
 
   expect(
     await query.call({
@@ -52,36 +52,10 @@ test('Should create middleware with query and serverSideQuery', async () => {
   });
 
   expect(
-    await query
-      .createServerSideQuery({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .query(),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    data: 'invalid',
-    ok: true,
-  });
-
-  expect(
     await validOnlyQuery.call({
       meta: { input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    error: new HTTPError({ code: 'BAD_REQUEST' }),
-    ok: false,
-  });
-
-  expect(
-    await validOnlyQuery
-      .createServerSideQuery({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .query(),
   ).toStrictEqual({
     ctx: contextBuilderResult,
     error: new HTTPError({ code: 'BAD_REQUEST' }),
@@ -104,36 +78,10 @@ test('Should create middleware with query and serverSideQuery', async () => {
   });
 
   expect(
-    await query
-      .createServerSideQuery({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .query(),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    data: 'valid',
-    ok: true,
-  });
-
-  expect(
     await validOnlyQuery.call({
       meta: { input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    data: 'valid',
-    ok: true,
-  });
-
-  expect(
-    await validOnlyQuery
-      .createServerSideQuery({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .query(),
   ).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'valid',
@@ -176,7 +124,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
   expect(validOnlyMutation.nodeType).toBe('route');
   expect(validOnlyMutation.type).toBe('mutation');
   expect(validOnlyMutation.middlewares.length).toBe(1);
-  expect(validOnlyMutation.middlewares[0]._args).instanceOf(z.ZodVoid);
+  expect(validOnlyMutation.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
 
   expect(
     await mutation.call({
@@ -190,36 +138,10 @@ test('Should create middleware with mutation and serverSideMutation', async () =
   });
 
   expect(
-    await mutation
-      .createServerSideMutation({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .mutate(),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    data: 'invalid',
-    ok: true,
-  });
-
-  expect(
     await validOnlyMutation.call({
       meta: { input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    error: new HTTPError({ code: 'BAD_REQUEST' }),
-    ok: false,
-  });
-
-  expect(
-    await validOnlyMutation
-      .createServerSideMutation({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .mutate(),
   ).toStrictEqual({
     ctx: contextBuilderResult,
     error: new HTTPError({ code: 'BAD_REQUEST' }),
@@ -242,36 +164,10 @@ test('Should create middleware with mutation and serverSideMutation', async () =
   });
 
   expect(
-    await mutation
-      .createServerSideMutation({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .mutate(),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    data: 'valid',
-    ok: true,
-  });
-
-  expect(
     await validOnlyMutation.call({
       meta: { input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
-  ).toStrictEqual({
-    ctx: contextBuilderResult,
-    data: 'valid',
-    ok: true,
-  });
-
-  expect(
-    await validOnlyMutation
-      .createServerSideMutation({
-        ctx: contextBuilderResult,
-        route: ['dummy', 'route'],
-      })
-      .mutate(),
   ).toStrictEqual({
     ctx: contextBuilderResult,
     data: 'valid',
@@ -312,7 +208,7 @@ test('Should create middleware with measuring time', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares.length).toBe(1);
-  expect(query.middlewares[0]._args).instanceOf(z.ZodVoid);
+  expect(query.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
 
   expect(middlewareWasCalled).toBe(false);
   expect(middlewareMeasuredTime).toBe(0);
@@ -393,8 +289,8 @@ test('Should create two nested middlewares', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares.length).toBe(2);
-  expect(query.middlewares[0]._args).instanceOf(z.ZodVoid);
-  expect(query.middlewares[1]._args).instanceOf(z.ZodVoid);
+  expect(query.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(query.middlewares[1]._schemaArgs).instanceOf(z.ZodVoid);
 
   expect(innerMiddlewareWasCalled).toBe(false);
   expect(outerMiddlewareWasCalled).toBe(false);
@@ -460,8 +356,8 @@ test('Should create nested middlewares with query', async () => {
   expect(validOnlyQuery.nodeType).toBe('route');
   expect(validOnlyQuery.type).toBe('query');
   expect(validOnlyQuery.middlewares.length).toBe(2);
-  expect(validOnlyQuery.middlewares[0]._args).instanceOf(z.ZodVoid);
-  expect(validOnlyQuery.middlewares[1]._args).instanceOf(z.ZodVoid);
+  expect(validOnlyQuery.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(validOnlyQuery.middlewares[1]._schemaArgs).instanceOf(z.ZodVoid);
 
   expect(
     await query.call({
@@ -556,8 +452,8 @@ test('Should create nested middlewares with mutation', async () => {
   expect(validOnlyMutation.nodeType).toBe('route');
   expect(validOnlyMutation.type).toBe('mutation');
   expect(validOnlyMutation.middlewares.length).toBe(2);
-  expect(validOnlyMutation.middlewares[0]._args).instanceOf(z.ZodVoid);
-  expect(validOnlyMutation.middlewares[1]._args).instanceOf(z.ZodVoid);
+  expect(validOnlyMutation.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(validOnlyMutation.middlewares[1]._schemaArgs).instanceOf(z.ZodVoid);
 
   expect(
     await mutation.call({
@@ -629,7 +525,6 @@ test('Should create nested middlewares with query with args chaining', async () 
   const resolverWithNameWithMiddleware = resolverWithName.use(
     ({ ctx, input, next }) => {
       // can log the input for example!
-
       return next({
         ...ctx,
         name: input.name,
@@ -658,24 +553,14 @@ test('Should create nested middlewares with query with args chaining', async () 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares.length).toBe(2);
-  expect(query.middlewares[0]._args).toStrictEqual(firstSchemaInChain);
-  expect(query.middlewares[1]._args).toStrictEqual(secondSchemaInChain);
+  expect(query.middlewares[0]._schemaArgs).toStrictEqual(firstSchemaInChain);
+  expect(query.middlewares[1]._schemaArgs).toStrictEqual(secondSchemaInChain);
 
   expect(
     await query.call({
       meta: { input: { name: 'John', lastName: 'Doe' }, route: 'dummy.route' },
       ctx: {},
     }),
-  ).toStrictEqual({
-    ctx: { name: 'John', lastName: 'Doe' },
-    data: 'John Doe',
-    ok: true,
-  });
-
-  expect(
-    await query
-      .createServerSideQuery({ ctx: {}, route: ['dummy', 'route'] })
-      .query({ name: 'John', lastName: 'Doe' }),
   ).toStrictEqual({
     ctx: { name: 'John', lastName: 'Doe' },
     data: 'John Doe',

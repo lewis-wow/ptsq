@@ -12,6 +12,13 @@ export type ServeOptions<TContext extends Context> = {
   rootPath?: string;
 };
 
+/**
+ * @internal
+ *
+ * Creates a caller for a whole application
+ *
+ * This is the first point of the request
+ */
 export class Serve<TContext extends Context = Context> {
   _contextBuilder: ContextBuilder<TContext>;
 
@@ -19,6 +26,9 @@ export class Serve<TContext extends Context = Context> {
     this._contextBuilder = contextBuilder;
   }
 
+  /**
+   * Validates an input and calls the route in the router.
+   */
   async call<TParams>({
     router,
     body,

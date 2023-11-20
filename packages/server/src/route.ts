@@ -1,9 +1,10 @@
 import { zodToJsonSchema } from '@ptsq/zod-parser';
-import type { ZodVoid } from 'zod';
+import type { z } from 'zod';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
 import { Middleware } from './middleware';
+import type { AnyMiddleware } from './middleware';
 import type {
   ResolveFunction,
   ResolverArgs,
@@ -11,38 +12,52 @@ import type {
   ResolverRequest,
   ResolverResponse,
 } from './resolver';
+import type { ArgsTransformationFunction } from './transformation';
 import type { ResolverType } from './types';
 
+/**
+ * @internal
+ *
+ * Mutation and query class container. Both mutation and query extends Route.
+ *
+ * Creates callable route.
+ */
 export class Route<
   TType extends ResolverType = ResolverType,
-  TArgs extends ResolverArgs | ZodVoid = ResolverArgs | ZodVoid,
-  TResolverOutput extends ResolverOutput = ResolverOutput,
+  TSchemaArgs extends ResolverArgs | z.ZodVoid = ResolverArgs | z.ZodVoid,
+  TSchemaOutput extends ResolverOutput = ResolverOutput,
   TResolveFunction extends ResolveFunction<any, any> = ResolveFunction<
     any,
     any
   >,
 > {
   type: TType;
-  args: TArgs;
-  output: TResolverOutput;
+  schemaArgs: TSchemaArgs;
+  schemaOutput: TSchemaOutput;
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
-  middlewares: Middleware<ResolverArgs, any>[];
+  middlewares: AnyMiddleware[];
+  transformations: ArgsTransformationFunction<any, any, any>[];
 
   constructor(options: {
     type: TType;
-    args: TArgs;
-    output: TResolverOutput;
+    schemaArgs: TSchemaArgs;
+    schemaOutput: TSchemaOutput;
     resolveFunction: TResolveFunction;
-    middlewares: Middleware<ResolverArgs, any>[];
+    middlewares: AnyMiddleware[];
+    transformations: ArgsTransformationFunction<any, any, any>[];
   }) {
     this.type = options.type;
-    this.args = options.args;
-    this.output = options.output;
+    this.schemaArgs = options.schemaArgs;
+    this.schemaOutput = options.schemaOutput;
     this.resolveFunction = options.resolveFunction;
     this.middlewares = options.middlewares;
+    this.transformations = options.transformations;
   }
 
+  /**
+   * Gets the json schema of the route for the introspection query
+   */
   getJsonSchema(title: string) {
     return createSchemaRoot({
       title: `${title} route`,
@@ -55,12 +70,15 @@ export class Route<
           type: 'string',
           enum: [this.nodeType],
         },
-        args: zodToJsonSchema(this.args),
-        output: zodToJsonSchema(this.output),
+        args: zodToJsonSchema(this.schemaArgs),
+        output: zodToJsonSchema(this.schemaOutput),
       },
     });
   }
 
+  /**
+   * call the route with input and context
+   */
   async call({
     ctx,
     meta,
@@ -74,9 +92,10 @@ export class Route<
       index: 0,
       middlewares: [
         ...this.middlewares,
-        new Middleware<ResolverArgs>({
-          args: this.args as any,
-          middlewareCallback: async ({
+        new Middleware({
+          schemaArgs: this.schemaArgs,
+          transformations: this.transformations,
+          middlewareFunction: async ({
             ctx: finalContext,
             input,
             meta: finalMeta,
@@ -87,7 +106,7 @@ export class Route<
               meta: finalMeta,
             });
 
-            const parsedOutput = this.output.safeParse(resolverResult);
+            const parsedOutput = this.schemaOutput.safeParse(resolverResult);
 
             if (!parsedOutput.success)
               throw new HTTPError({

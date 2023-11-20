@@ -1,5 +1,4 @@
 import type { z } from 'zod';
-import type { inferResolverArgs, ResolverArgs } from './resolver';
 
 export type ResolverType = 'query' | 'mutation';
 
@@ -7,20 +6,52 @@ export type NodeType = 'route' | 'router';
 
 export type MaybePromise<T> = T | Promise<T>;
 
-export type inferResolverArgsInput<TResolverArgs extends ResolverArgs> =
-  TResolverArgs extends Record<string, never>
-    ? // make it voidable, so the input is not required
-      // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-      undefined | void | Record<string, never>
-    : TResolverArgs extends ResolverArgs
-    ? inferResolverArgs<TResolverArgs>
-    : never;
+/**
+ * Infers the arguments type of the zod validation schema or the introspected schema
+ */
+export type inferClientResolverArgs<TResolverArgs> = TResolverArgs extends
+  | undefined
+  | z.ZodUndefined
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+  | void
+  | z.ZodVoid
+  ? // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+    undefined | void
+  : TResolverArgs extends z.Schema
+  ? z.input<TResolverArgs>
+  : TResolverArgs;
 
-export type inferResolverArgsOutput<TResolveOutput> =
-  TResolveOutput extends z.Schema ? z.input<TResolveOutput> : TResolveOutput;
+/**
+ * Infers the output type of the zod validation schema or the introspected schema
+ */
+export type inferClientResolverOutput<TResolverOutput> =
+  TResolverOutput extends z.Schema
+    ? z.output<TResolverOutput>
+    : TResolverOutput;
 
-export type inferResolverValidationSchemaInput<TResolveOutput> =
-  TResolveOutput extends z.Schema ? z.input<TResolveOutput> : TResolveOutput;
+/**
+ * @internal
+ *
+ * Simplify the object structure for readability in IDE
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type Simplify<T> = { [K in keyof T]: T[K] } & {};
 
-export type inferResolverValidationSchemaOutput<TResolveOutput> =
-  TResolveOutput extends z.Schema ? z.output<TResolveOutput> : TResolveOutput;
+/**
+ * @internal
+ *
+ * Deeply merge 2 types where the second one has priority
+ */
+export type DeepMerge<T, U> = T extends object
+  ? U extends object
+    ? {
+        [K in keyof (T & U)]: K extends keyof U
+          ? K extends keyof T
+            ? DeepMerge<T[K], U[K]>
+            : U[K]
+          : K extends keyof T
+          ? T[K]
+          : never;
+      }
+    : U
+  : U;
