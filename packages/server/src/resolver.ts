@@ -18,8 +18,8 @@ import type {
   Transformation,
 } from './transformation';
 import {
-  ArgsTransformerPicker,
   Transformer,
+  type ArgsTransformerPicker,
   type ArgsTransformerPickerOutput,
 } from './transformer';
 import type { DeepMerge, MaybePromise, Simplify } from './types';

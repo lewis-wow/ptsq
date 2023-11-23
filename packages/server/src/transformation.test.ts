@@ -2,6 +2,90 @@ import { expect, test } from 'vitest';
 import { z } from 'zod';
 import { createServer } from './createServer';
 
+test('Should parse primitive value with transformation function', async () => {
+  const { resolver } = createServer({
+    ctx: () => ({}),
+  });
+
+  const data = 'primitive value';
+
+  const schema = z.string();
+
+  expect(schema.safeParse(data)).toMatchObject({ success: true });
+
+  const testResolver = resolver
+    .args(schema)
+    .transformation(({ input }) => input.length)
+    .use(({ input, ctx, next }) => {
+      expect(input).toBeTypeOf('number');
+      expect(input).toBe(data.length);
+
+      return next(ctx);
+    });
+
+  const query = testResolver.query({
+    output: z.null(),
+    resolve: () => null,
+  });
+
+  await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
+});
+
+test('Should parse no args with transformation function', async () => {
+  const { resolver } = createServer({
+    ctx: () => ({}),
+  });
+
+  const testResolver = resolver
+    .transformation(({ input: _input }) => 'string')
+    .use(({ input, ctx, next }) => {
+      expect(input).toBeTypeOf('string');
+      expect(input).toBe('string');
+
+      return next(ctx);
+    });
+
+  const query = testResolver.query({
+    output: z.null(),
+    resolve: () => null,
+  });
+
+  await query.call({
+    ctx: {},
+    meta: { input: undefined, route: 'dummy.route' },
+  });
+});
+
+test('Should parse no args with transformation function as object', async () => {
+  const { resolver } = createServer({
+    ctx: () => ({}),
+  });
+
+  const testResolver = resolver
+    .transformation(({ input: _input }) => ({
+      a: 1,
+      b: 'string' as const,
+    }))
+    .use(({ input, ctx, next }) => {
+      expect(input).toStrictEqual({
+        a: 1,
+        b: 'string',
+      });
+
+      return next(ctx);
+    });
+
+  const query = testResolver.query({
+    output: z.null(),
+    resolve: () => null,
+  });
+
+  await query.call({
+    ctx: {},
+    meta: { input: undefined, route: 'dummy.route' },
+  });
+});
+
 test('Should parse Date with transformation function', async () => {
   const { resolver } = createServer({
     ctx: () => ({}),
@@ -85,45 +169,24 @@ test('Should parse coordinates with transformation function', async () => {
   await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
 });
 
-/*
 test('Should parse arrays with transformation function', async () => {
   const { resolver } = createServer({
     ctx: () => ({}),
   });
 
-  const data = {
-    a: {
-      b: 1,
-      c: 'string',
-      d: [1, 2],
-      e: {
-        f: 1,
-      },
-    },
-  };
+  const data = ['a', 'bb', 'c', 'ddd', 'eeeee'];
 
-  const schema = z.tuple([
-    z.number(),
-    z.tuple([z.number(), z.number(), z.number(), z.tuple([])]),
-    z.string(),
-    z.tuple([z.object({}), z.object({ a: z.number() })]),
-  ]);
+  const schema = z.array(z.string());
+  const resultSchema = z.array(z.number());
 
   expect(schema.safeParse(data)).toMatchObject({ success: true });
 
   const testResolver = resolver
     .args(schema)
-    .transformation(
-      ({ input }) =>
-        [input[0].toFixed(), input[1].length, input[2], input[3][1]] as const,
-    )
+    .transformation(({ input }) => input.map((value) => value.length))
     .use(({ input, ctx, next }) => {
-      expect(input[0]).toBeTypeOf('string');
-      expect(input[1]).toBeTypeOf('number');
-      expect(input[2]).toBeTypeOf('string');
-      expect(input[2]).toStrictEqual({
-        a: 1,
-      });
+      expect(resultSchema.safeParse(input)).toMatchObject({ success: true });
+      expect(input).toStrictEqual([1, 2, 1, 3, 5]);
 
       return next(ctx);
     });
@@ -134,7 +197,38 @@ test('Should parse arrays with transformation function', async () => {
   });
 
   await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
-});*/
+});
+
+test('Should parse arrays with transformation function chain', async () => {
+  const { resolver } = createServer({
+    ctx: () => ({}),
+  });
+
+  const data = ['a', 'bb', 'c', 'ddd', 'eeeee'];
+
+  const schema = z.array(z.string());
+  const resultSchema = z.array(z.number());
+
+  expect(schema.safeParse(data)).toMatchObject({ success: true });
+
+  const testResolver = resolver
+    .args(schema)
+    .transformation(({ input }) => input.map((value) => value.length))
+    .transformation(({ input }) => input.map((value) => value - 10))
+    .use(({ input, ctx, next }) => {
+      expect(resultSchema.safeParse(input)).toMatchObject({ success: true });
+      expect(input).toStrictEqual([1, 2, 1, 3, 5].map((value) => value - 10));
+
+      return next(ctx);
+    });
+
+  const query = testResolver.query({
+    output: z.null(),
+    resolve: () => null,
+  });
+
+  await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
+});
 
 test('Should parse tuples with transformation function', async () => {
   const { resolver } = createServer({

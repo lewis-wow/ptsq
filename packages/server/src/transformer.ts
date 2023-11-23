@@ -1,3 +1,6 @@
+/**
+ * @internal
+ */
 export type ArgsTransformerPicker<TArgs> = TArgs extends object
   ?
       | {
@@ -6,6 +9,9 @@ export type ArgsTransformerPicker<TArgs> = TArgs extends object
       | Transformer<TArgs, any>
   : Transformer<TArgs, any>;
 
+/**
+ * @internal
+ */
 export type ArgsTransformerPickerOutput<TArgsTransformerPicker> =
   TArgsTransformerPicker extends Transformer<any, any>
     ? inferTransformerResult<TArgsTransformerPicker>
@@ -19,10 +25,16 @@ export type ArgsTransformerPickerOutput<TArgsTransformerPicker> =
     ? inferTransformerResult<TArgsTransformerPicker>
     : never;
 
+/**
+ * @internal
+ */
 export type inferTransformerScopedArgs<
   TTransformer extends Transformer<any, any>,
 > = Parameters<TTransformer['parse']>[0];
 
+/**
+ * @internal
+ */
 export type inferTransformerResult<TTransformer extends Transformer<any, any>> =
   ReturnType<TTransformer['parse']>;
 
