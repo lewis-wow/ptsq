@@ -12,17 +12,13 @@ import type {
   SerializableInputZodSchema,
   SerializableOutputZodSchema,
 } from './serializable';
-import type {
-  ArgsTransformationFunction,
-  ArgsTransformationObject,
-  inferArgsTransformationNextArgs,
-  Transformation,
-} from './transformation';
 import {
-  Transformer,
-  type ArgsTransformerPicker,
-  type ArgsTransformerPickerOutput,
-} from './transformer';
+  createRecursiveTransformation,
+  type AnyTransformation,
+  type ArgsTransformationObject,
+  type inferArgsTransformationNextArgs,
+  type Transformation,
+} from './transformation';
 import type { DeepMerge, MaybePromise, Simplify } from './types';
 
 export type ResolverResponse<TContext extends Context> =
@@ -60,13 +56,13 @@ export class Resolver<
   TContext extends Context = Context,
 > {
   _middlewares: AnyMiddleware[];
-  _transformations: ArgsTransformationFunction<any, any, any>[];
+  _transformations: AnyTransformation[];
   _schemaArgs: TSchemaArgs;
 
   constructor(resolverOptions: {
     schemaArgs: TSchemaArgs;
     middlewares: AnyMiddleware[];
-    transformations: ArgsTransformationFunction<any, any, any>[];
+    transformations: AnyTransformation[];
   }) {
     this._schemaArgs = resolverOptions.schemaArgs;
     this._middlewares = resolverOptions.middlewares;
@@ -96,27 +92,22 @@ export class Resolver<
   /**
    * Add a transformation for the resolver arguments
    */
-  transformation<TTransformation extends ArgsTransformationObject<TArgs>>(
-    transformation: TTransformation,
-  ) {
-    const transformationFunction: ArgsTransformationFunction<
+  transformation<
+    TArgsTransformationObject extends ArgsTransformationObject<TArgs>,
+  >(argsTransformationObject: TArgsTransformationObject) {
+    const transformationFunction: Transformation<
       TArgs,
-      TContext,
-      inferArgsTransformationNextArgs<TArgs, TContext, TTransformation>
-    > = typeof transformation === 'function' &&
-    !(transformation instanceof Transformer)
-      ? transformation
-      : (options: {
-          input: TArgs;
-        }): ArgsTransformerPickerOutput<typeof transformation> => {
-          return Transformer.transformRecursively({
-            ...options,
-            transformerPicker: transformation as ArgsTransformerPicker<TArgs>,
-          });
-        };
+      TArgsTransformationObject
+    > = (input: TArgs) =>
+      createRecursiveTransformation({
+        input,
+        argsTransformationObject,
+      });
 
     return new Resolver<
-      Simplify<inferArgsTransformationNextArgs<TArgs, TTransformation>>,
+      Simplify<
+        inferArgsTransformationNextArgs<TArgs, TArgsTransformationObject>
+      >,
       TSchemaArgs,
       TContext
     >({

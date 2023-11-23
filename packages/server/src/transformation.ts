@@ -1,6 +1,22 @@
 import type { MaybePromise } from './types';
 
-export type Transformation<TArgs> = ArgsTransformationObject<TArgs>;
+/**
+ * @internal
+ */
+export type Transformation<
+  TArgs,
+  TArgsTransformationObject extends ArgsTransformationObject<TArgs>,
+> = (
+  input: TArgs,
+) => inferArgsTransformationNextArgs<TArgs, TArgsTransformationObject>;
+
+/**
+ * @internal
+ */
+export type AnyTransformation = Transformation<
+  any,
+  AnyArgsTransformationObject
+>;
 
 /**
  * @internal
@@ -42,6 +58,11 @@ export type ArgsTransformationObject<TArgs> = TArgs extends object
 /**
  * @internal
  */
+export type AnyArgsTransformationObject = ArgsTransformationObject<any>;
+
+/**
+ * @internal
+ */
 export type inferArgsTransformationNextArgs<TArgs, TTransformation> =
   TTransformation extends ArgsTransformationFunction<TArgs>
     ? inferArgsTransformationFunctionResult<TTransformation>
@@ -54,3 +75,31 @@ export type inferArgsTransformationNextArgs<TArgs, TTransformation> =
           : never;
       }
     : never;
+
+export const createRecursiveTransformation = async ({
+  input,
+  argsTransformationObject,
+}: {
+  input: unknown;
+  argsTransformationObject?: AnyArgsTransformationObject;
+}) => {
+  if (argsTransformationObject === undefined) return input;
+
+  if (typeof argsTransformationObject === 'function')
+    return await argsTransformationObject(input);
+
+  if (typeof input !== 'object' || input === null)
+    throw new Error(
+      `Input type must be an object when doing key transforming, typeof input is: ${typeof input}.`,
+    );
+
+  const resultObject: Record<string, any> = { ...input };
+  for (const key of Object.keys(argsTransformationObject)) {
+    resultObject[key] = await createRecursiveTransformation({
+      input: resultObject[key],
+      argsTransformationObject: argsTransformationObject[key],
+    });
+  }
+
+  return resultObject;
+};
