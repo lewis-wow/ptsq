@@ -14,6 +14,7 @@ import type {
 } from './serializable';
 import type {
   ArgsTransformationFunction,
+  ArgsTransformationObject,
   inferArgsTransformationNextArgs,
   Transformation,
 } from './transformation';
@@ -95,7 +96,7 @@ export class Resolver<
   /**
    * Add a transformation for the resolver arguments
    */
-  transformation<TTransformation extends Transformation<TArgs, TContext, any>>(
+  transformation<TTransformation extends ArgsTransformationObject<TArgs>>(
     transformation: TTransformation,
   ) {
     const transformationFunction: ArgsTransformationFunction<
@@ -115,12 +116,7 @@ export class Resolver<
         };
 
     return new Resolver<
-      Simplify<
-        DeepMerge<
-          inferResolverArgs<TSchemaArgs>,
-          inferArgsTransformationNextArgs<TArgs, TContext, TTransformation>
-        >
-      >,
+      Simplify<inferArgsTransformationNextArgs<TArgs, TTransformation>>,
       TSchemaArgs,
       TContext
     >({

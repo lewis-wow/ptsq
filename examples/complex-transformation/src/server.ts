@@ -1,4 +1,4 @@
-import { createServer, ExpressAdapterContext, Transformer } from '@ptsq/server';
+import { createServer, ExpressAdapterContext } from '@ptsq/server';
 import express from 'express';
 import { z } from 'zod';
 import { Gender } from './gender';
@@ -21,23 +21,18 @@ const personValidationSchema = z.object({
   bornAt: z.string().datetime(),
 });
 
-class DateTransformer extends Transformer<string | number, Date> {
-  parse(input: string | number): Date {
-    return new Date(input);
-  }
-}
-
 const loggingResolver = resolver
   .args(
     z.object({
       person: z.object({
+        a: z.string(),
         bornAt: z.string(),
       }),
     }),
   )
   .transformation({
     person: {
-      bornAt: new DateTransformer(),
+      bornAt: (input) => new Date(input),
     },
   })
   .use(({ input, ctx, next }) => {

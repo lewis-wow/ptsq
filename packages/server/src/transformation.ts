@@ -1,57 +1,56 @@
-import type { Context } from './context';
-import type { ResolverRequest } from './resolver';
-import type {
-  AnyTransformer,
-  inferTransformerResult,
-  Transformer,
-} from './transformer';
 import type { MaybePromise } from './types';
 
-export type Transformation<TArgs, TContext extends Context, TNextArgs> =
-  | ArgsTransformationFunction<TArgs, TContext, TNextArgs>
-  | ArgsTransformationObject<TArgs>;
+export type Transformation<TArgs> = ArgsTransformationObject<TArgs>;
 
-export type ArgsTransformationFunction<
-  TArgs = unknown,
-  TContext extends Context = Context,
-  TNextArgs = MaybePromise<unknown>,
-> = (options: {
-  input: TArgs;
-  meta: ResolverRequest;
-  ctx: TContext;
-}) => MaybePromise<TNextArgs>;
+/**
+ * @internal
+ */
+export type ArgsTransformationFunction<TArgs> = (
+  args: TArgs,
+) => MaybePromise<any>;
 
+/**
+ * @internal
+ */
+export type AnyArgsTransformationFunction = ArgsTransformationFunction<any>;
+
+/**
+ * @internal
+ */
+export type inferArgsTransformationFunctionResult<
+  TArgsTransformationFunction extends AnyArgsTransformationFunction,
+> = Awaited<ReturnType<TArgsTransformationFunction>>;
+
+/**
+ * @internal
+ */
+export type inferArgsTransformationFunctionParameters<
+  TArgsTransformationFunction extends AnyArgsTransformationFunction,
+> = Parameters<TArgsTransformationFunction>[0];
+
+/**
+ * @internal
+ */
 export type ArgsTransformationObject<TArgs> = TArgs extends object
   ?
       | {
           [K in keyof TArgs]?: ArgsTransformationObject<TArgs[K]>;
         }
-      | Transformer<(input: TArgs) => any>
-  : Transformer<(input: TArgs) => any>;
+      | ArgsTransformationFunction<TArgs>
+  : ArgsTransformationFunction<TArgs>;
 
-export type ArgsTransformerResult<
-  TArgs,
-  TArgsTransformationObject extends ArgsTransformationObject<TArgs>,
-> = TArgsTransformationObject extends AnyTransformer
-  ? inferTransformerResult<TArgsTransformationObject>
-  : TArgsTransformationObject extends object
-  ? {
-      [K in keyof TArgsTransformationObject]: K extends keyof TArgs
-        ? TArgsTransformationObject[K] extends ArgsTransformationObject<
-            TArgs[K]
-          >
-          ? ArgsTransformerResult<TArgs[K], TArgsTransformationObject[K]>
-          : never
-        : never;
-    }
-  : TArgs;
-
-export type inferArgsTransformationNextArgs<
-  TArgs,
-  TContext extends Context,
-  TTransformation extends Transformation<TArgs, TContext, any>,
-> = TTransformation extends ArgsTransformationFunction<TArgs, TContext, any>
-  ? Awaited<ReturnType<TTransformation>>
-  : TTransformation extends ArgsTransformationObject<TArgs>
-  ? ArgsTransformerResult<TArgs, TTransformation>
-  : never;
+/**
+ * @internal
+ */
+export type inferArgsTransformationNextArgs<TArgs, TTransformation> =
+  TTransformation extends ArgsTransformationFunction<TArgs>
+    ? inferArgsTransformationFunctionResult<TTransformation>
+    : TTransformation extends ArgsTransformationObject<TArgs>
+    ? {
+        [K in keyof (TTransformation & TArgs)]: K extends keyof TArgs
+          ? K extends keyof TTransformation
+            ? inferArgsTransformationNextArgs<TArgs[K], TTransformation[K]>
+            : TArgs[K]
+          : never;
+      }
+    : never;
