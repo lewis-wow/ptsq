@@ -1,5 +1,5 @@
 import type { Context } from './context';
-import type { inferResolverArgs, ResolverRequest } from './resolver';
+import type { ResolverRequest } from './resolver';
 import type { inferTransformerResult, Transformer } from './transformer';
 import type { MaybePromise } from './types';
 

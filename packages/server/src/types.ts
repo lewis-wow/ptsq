@@ -42,7 +42,9 @@ export type Simplify<T> = { [K in keyof T]: T[K] } & {};
  *
  * Deeply merge 2 types where the second one has priority
  */
-export type DeepMerge<T, U> = T extends object
+export type DeepMerge<T, U> = T extends any[]
+  ? DeepMergeArray<T, U>
+  : T extends object
   ? U extends object
     ? {
         [K in keyof (T & U)]: K extends keyof U
@@ -54,4 +56,21 @@ export type DeepMerge<T, U> = T extends object
           : never;
       }
     : U
+  : U;
+
+/**
+ * @internal
+ *
+ * Deeply merge 2 arrays where the second one has priority
+ */
+export type DeepMergeArray<T extends any[], U> = U extends any[]
+  ? T extends [any, ...any[]]
+    ? U extends [any, ...any[]]
+      ? T['length'] extends U['length']
+        ? {
+            [K in keyof T]: K extends keyof U ? DeepMerge<T[K], U[K]> : never;
+          }
+        : U
+      : DeepMerge<T[number], U[number]>[]
+    : DeepMerge<T[number], U[number]>[]
   : U;
