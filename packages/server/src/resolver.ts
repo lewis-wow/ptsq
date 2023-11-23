@@ -12,7 +12,16 @@ import type {
   SerializableInputZodSchema,
   SerializableOutputZodSchema,
 } from './serializable';
-import type { ArgsTransformationFunction } from './transformation';
+import type {
+  ArgsTransformationFunction,
+  inferArgsTransformationNextArgs,
+  Transformation,
+} from './transformation';
+import {
+  ArgsTransformerPicker,
+  Transformer,
+  type ArgsTransformerPickerOutput,
+} from './transformer';
 import type { DeepMerge, MaybePromise, Simplify } from './types';
 
 export type ResolverResponse<TContext extends Context> =
@@ -86,16 +95,37 @@ export class Resolver<
   /**
    * Add a transformation for the resolver arguments
    */
-  transformation<TNextArgs>(
-    transformation: ArgsTransformationFunction<TArgs, TContext, TNextArgs>,
+  transformation<TTransformation extends Transformation<TArgs, TContext, any>>(
+    transformation: TTransformation,
   ) {
+    const transformationFunction: ArgsTransformationFunction<
+      TArgs,
+      TContext,
+      inferArgsTransformationNextArgs<TArgs, TContext, TTransformation>
+    > = typeof transformation === 'function' &&
+    !(transformation instanceof Transformer)
+      ? transformation
+      : (options: {
+          input: TArgs;
+        }): ArgsTransformerPickerOutput<typeof transformation> => {
+          return Transformer.transformRecursively({
+            ...options,
+            transformerPicker: transformation as ArgsTransformerPicker<TArgs>,
+          });
+        };
+
     return new Resolver<
-      Simplify<DeepMerge<inferResolverArgs<TSchemaArgs>, TNextArgs>>,
+      Simplify<
+        DeepMerge<
+          inferResolverArgs<TSchemaArgs>,
+          inferArgsTransformationNextArgs<TArgs, TContext, TTransformation>
+        >
+      >,
       TSchemaArgs,
       TContext
     >({
       schemaArgs: this._schemaArgs,
-      transformations: [...this._transformations, transformation],
+      transformations: [...this._transformations, transformationFunction],
       middlewares: [...this._middlewares],
     });
   }

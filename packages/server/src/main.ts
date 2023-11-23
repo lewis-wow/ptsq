@@ -33,6 +33,8 @@ export type {
   Serializable,
 } from './serializable';
 
+export { Transformer } from './transformer';
+
 /**
  * adapters/express
  */

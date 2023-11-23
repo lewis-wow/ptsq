@@ -1,7 +1,6 @@
-import { createServer, ExpressAdapterContext } from '@ptsq/server';
+import { createServer, ExpressAdapterContext, Transformer } from '@ptsq/server';
 import express from 'express';
 import { z } from 'zod';
-import { Transformer } from '../../../packages/server/src/transformer';
 import { Gender } from './gender';
 
 const app = express();
@@ -22,20 +21,9 @@ const personValidationSchema = z.object({
   bornAt: z.string().datetime(),
 });
 
-class DateTransformer extends Transformer<string, Date> {
-  transform(input: string): Date {
+class DateTransformer extends Transformer<string | number, Date> {
+  parse(input: string | number): Date {
     return new Date(input);
-  }
-}
-
-class BornAtTransformer extends Transformer<
-  { bornAt: string },
-  { bornAt: Date }
-> {
-  transform(input: { bornAt: string }): { bornAt: Date } {
-    return {
-      bornAt: new Date(input.bornAt),
-    };
   }
 }
 
@@ -43,15 +31,15 @@ const loggingResolver = resolver
   .args(
     z.object({
       person: z.object({
-        bornAt: z.string().datetime(),
+        bornAt: z.string(),
       }),
     }),
   )
-  .transformation(
-    Transformer.scope({
-      person: new BornAtTransformer(),
-    }),
-  )
+  .transformation({
+    person: {
+      bornAt: new DateTransformer(),
+    },
+  })
   .use(({ input, ctx, next }) => {
     console.log('The person was born at: ', input.person.bornAt.toISOString());
 
