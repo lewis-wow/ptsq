@@ -6,8 +6,8 @@ export type ArgsTransformerPicker<TArgs> = TArgs extends object
       | {
           [K in keyof TArgs]?: ArgsTransformerPicker<TArgs[K]>;
         }
-      | Transformer<TArgs, any>
-  : Transformer<TArgs, any>;
+      | Transformer<string, TArgs, any>
+  : Transformer<string, TArgs, any>;
 
 /**
  * @internal
@@ -38,8 +38,14 @@ export type inferTransformerScopedArgs<
 export type inferTransformerResult<TTransformer extends Transformer<any, any>> =
   ReturnType<TTransformer['parse']>;
 
-export abstract class Transformer<TScopedArgs, TTransformerResult> {
-  abstract parse(input: TScopedArgs): TTransformerResult;
+export class Transformer<
+  TDescription extends string = '',
+  TScopedArgs = unknown,
+  TTransformerResult = unknown,
+> {
+  protected _DESCRIPTION: TDescription = '' as TDescription;
+
+  constructor(public parse: (input: TScopedArgs) => TTransformerResult) {}
 
   static transformRecursively<
     TArgs,

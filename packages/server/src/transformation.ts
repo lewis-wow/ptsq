@@ -22,13 +22,13 @@ export type ArgsTransformationObject<TArgs> = TArgs extends object
       | {
           [K in keyof TArgs]?: ArgsTransformationObject<TArgs[K]>;
         }
-      | Transformer<TArgs, any>
-  : Transformer<TArgs, any>;
+      | Transformer<string, TArgs, any>
+  : Transformer<string, TArgs, any>;
 
 export type ArgsTransformerResult<
   TArgs,
   TArgsTransformationObject extends ArgsTransformationObject<TArgs>,
-> = TArgsTransformationObject extends Transformer<TArgs, any>
+> = TArgsTransformationObject extends Transformer<string, TArgs, any>
   ? inferTransformerResult<TArgsTransformationObject>
   : TArgsTransformationObject extends object
   ? {
