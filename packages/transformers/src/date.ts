@@ -1,10 +1,10 @@
 import { Transformer } from '@ptsq/server';
 
-export type DateTransformerInput = string | number | Date;
-export type DateTransformerOutput = Date;
-
-export const dateTransformer = new Transformer<
-  'Date DOM class',
-  DateTransformerInput,
-  DateTransformerOutput
->((value) => new Date(value));
+/**
+ * Vanillajs Date object
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
+ */
+export const dateTransformer = new Transformer(
+  (value: string | number | Date) => new Date(value),
+);

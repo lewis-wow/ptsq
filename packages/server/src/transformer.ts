@@ -6,14 +6,14 @@ export type ArgsTransformerPicker<TArgs> = TArgs extends object
       | {
           [K in keyof TArgs]?: ArgsTransformerPicker<TArgs[K]>;
         }
-      | Transformer<string, TArgs, any>
-  : Transformer<string, TArgs, any>;
+      | AnyTransformer
+  : AnyTransformer;
 
 /**
  * @internal
  */
 export type ArgsTransformerPickerOutput<TArgsTransformerPicker> =
-  TArgsTransformerPicker extends Transformer<any, any>
+  TArgsTransformerPicker extends AnyTransformer
     ? inferTransformerResult<TArgsTransformerPicker>
     : TArgsTransformerPicker extends object
     ? {
@@ -21,31 +21,28 @@ export type ArgsTransformerPickerOutput<TArgsTransformerPicker> =
           TArgsTransformerPicker[K]
         >;
       }
-    : TArgsTransformerPicker extends Transformer<any, any>
+    : TArgsTransformerPicker extends AnyTransformer
     ? inferTransformerResult<TArgsTransformerPicker>
     : never;
 
 /**
  * @internal
  */
-export type inferTransformerScopedArgs<
-  TTransformer extends Transformer<any, any>,
-> = Parameters<TTransformer['parse']>[0];
+export type inferTransformerScopedArgs<TTransformer extends AnyTransformer> =
+  Parameters<TTransformer['parse']>[0];
 
 /**
  * @internal
  */
-export type inferTransformerResult<TTransformer extends Transformer<any, any>> =
+export type inferTransformerResult<TTransformer extends AnyTransformer> =
   ReturnType<TTransformer['parse']>;
 
-export class Transformer<
-  TDescription extends string = '',
-  TScopedArgs = unknown,
-  TTransformerResult = unknown,
-> {
-  protected _DESCRIPTION: TDescription = '' as TDescription;
+export type TransformerAnyParseFunction = (...args: any[]) => any;
 
-  constructor(public parse: (input: TScopedArgs) => TTransformerResult) {}
+export type AnyTransformer = Transformer<TransformerAnyParseFunction>;
+
+export class Transformer<TParseFunction extends TransformerAnyParseFunction> {
+  constructor(public parse: TParseFunction) {}
 
   static transformRecursively<
     TArgs,

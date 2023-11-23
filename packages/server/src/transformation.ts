@@ -1,6 +1,10 @@
 import type { Context } from './context';
 import type { ResolverRequest } from './resolver';
-import type { inferTransformerResult, Transformer } from './transformer';
+import type {
+  AnyTransformer,
+  inferTransformerResult,
+  Transformer,
+} from './transformer';
 import type { MaybePromise } from './types';
 
 export type Transformation<TArgs, TContext extends Context, TNextArgs> =
@@ -22,13 +26,13 @@ export type ArgsTransformationObject<TArgs> = TArgs extends object
       | {
           [K in keyof TArgs]?: ArgsTransformationObject<TArgs[K]>;
         }
-      | Transformer<string, TArgs, any>
-  : Transformer<string, TArgs, any>;
+      | Transformer<(input: TArgs) => any>
+  : Transformer<(input: TArgs) => any>;
 
 export type ArgsTransformerResult<
   TArgs,
   TArgsTransformationObject extends ArgsTransformationObject<TArgs>,
-> = TArgsTransformationObject extends Transformer<string, TArgs, any>
+> = TArgsTransformationObject extends AnyTransformer
   ? inferTransformerResult<TArgsTransformationObject>
   : TArgsTransformationObject extends object
   ? {
