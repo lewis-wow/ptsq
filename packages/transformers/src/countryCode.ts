@@ -6,5 +6,4 @@ import lookup from 'country-code-lookup';
  * @see https://en.wikipedia.org/wiki/ISO_3166
  * @see https://www.npmjs.com/package/country-code-lookup
  */
-export const countryCodeTransformer = (value: string | number) =>
-  lookup.byIso(value);
+export const countryCode = (value: string | number) => lookup.byIso(value);
