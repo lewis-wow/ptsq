@@ -6,7 +6,7 @@ import type {
   ResolverRequest,
   ResolverResponse,
 } from './resolver';
-import type { ArgsTransformationFunction } from './transformation';
+import type { AnyTransformation } from './transformation';
 
 export type NextFunction = <TNextContext extends Context>(
   nextContext: TNextContext,
@@ -39,11 +39,11 @@ export class Middleware<
 > {
   _middlewareFunction: MiddlewareFunction<TArgs, TContext, TNextContext>;
   _schemaArgs: ResolverArgs | z.ZodVoid;
-  _transformations: ArgsTransformationFunction[];
+  _transformations: AnyTransformation[];
 
   constructor(options: {
     schemaArgs: ResolverArgs | z.ZodVoid;
-    transformations: ArgsTransformationFunction[];
+    transformations: AnyTransformation[];
     middlewareFunction: MiddlewareFunction<TArgs, TContext, TNextContext>;
   }) {
     this._middlewareFunction = options.middlewareFunction;
@@ -117,7 +117,7 @@ export class Middleware<
         index
       ]._transformations.reduce(
         async (acc, currentTransformation) =>
-          await currentTransformation({ input: await acc, meta, ctx }),
+          await currentTransformation(await acc),
         Promise.resolve(parsedInput.data as unknown),
       );
 

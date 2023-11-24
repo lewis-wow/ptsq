@@ -1,4 +1,5 @@
 import { createServer, ExpressAdapterContext } from '@ptsq/server';
+import { url } from '@ptsq/transformers';
 import express from 'express';
 import { z } from 'zod';
 
@@ -14,10 +15,9 @@ const { router, resolver, createHTTPNodeHandler } = createServer({
 const baseRouter = router({
   greetings: resolver
     .args(z.object({ url: z.string().url() }))
-    .transformation((input) => ({
-      ...input,
-      url: new URL(input.url),
-    }))
+    .transformation({
+      url: url,
+    })
     .query({
       output: z.string(),
       resolve: ({ input }) => input.url.port,

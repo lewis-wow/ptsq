@@ -10,7 +10,7 @@ export {
   type ResolverResponse,
 } from './resolver';
 
-export type { ArgsTransformationFunction } from './transformation';
+export type { ArgsTransformer } from './transformer';
 
 export { Middleware } from './middleware';
 export type { Query } from './query';

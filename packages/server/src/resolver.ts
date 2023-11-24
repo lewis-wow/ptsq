@@ -12,7 +12,12 @@ import type {
   SerializableInputZodSchema,
   SerializableOutputZodSchema,
 } from './serializable';
-import type { ArgsTransformationFunction } from './transformation';
+import {
+  createRecursiveTransformation,
+  type AnyTransformation,
+  type ArgsTransformationObject,
+  type inferArgsTransformationNextArgs,
+} from './transformation';
 import type { DeepMerge, MaybePromise, Simplify } from './types';
 
 export type ResolverResponse<TContext extends Context> =
@@ -50,13 +55,13 @@ export class Resolver<
   TContext extends Context = Context,
 > {
   _middlewares: AnyMiddleware[];
-  _transformations: ArgsTransformationFunction<any, any, any>[];
+  _transformations: AnyTransformation[];
   _schemaArgs: TSchemaArgs;
 
   constructor(resolverOptions: {
     schemaArgs: TSchemaArgs;
     middlewares: AnyMiddleware[];
-    transformations: ArgsTransformationFunction<any, any, any>[];
+    transformations: AnyTransformation[];
   }) {
     this._schemaArgs = resolverOptions.schemaArgs;
     this._middlewares = resolverOptions.middlewares;
@@ -86,16 +91,22 @@ export class Resolver<
   /**
    * Add a transformation for the resolver arguments
    */
-  transformation<TNextArgs>(
-    transformation: ArgsTransformationFunction<TArgs, TContext, TNextArgs>,
-  ) {
+  transformation<
+    TArgsTransformationObject extends ArgsTransformationObject<TArgs>,
+  >(argsTransformationObject: TArgsTransformationObject) {
+    const transformationFunction = (input: TArgs) =>
+      createRecursiveTransformation({
+        input,
+        argsTransformationObject,
+      });
+
     return new Resolver<
-      Simplify<DeepMerge<inferResolverArgs<TSchemaArgs>, TNextArgs>>,
+      inferArgsTransformationNextArgs<TArgs, TArgsTransformationObject>,
       TSchemaArgs,
       TContext
     >({
       schemaArgs: this._schemaArgs,
-      transformations: [...this._transformations, transformation],
+      transformations: [...this._transformations, transformationFunction],
       middlewares: [...this._middlewares],
     });
   }

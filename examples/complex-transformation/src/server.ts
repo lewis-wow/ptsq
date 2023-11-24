@@ -25,17 +25,15 @@ const loggingResolver = resolver
   .args(
     z.object({
       person: z.object({
-        bornAt: z.string().datetime(),
+        bornAt: z.string(),
       }),
     }),
   )
-  .transformation(({ input }) => ({
-    ...input,
+  .transformation({
     person: {
-      ...input.person,
-      bornAt: new Date(input.person.bornAt),
+      bornAt: (input) => new Date(input),
     },
-  }))
+  })
   .use(({ input, ctx, next }) => {
     console.log('The person was born at: ', input.person.bornAt.toISOString());
 
@@ -49,16 +47,13 @@ const baseRouter = router({
         person: personValidationSchema,
       }),
     )
-    .transformation(({ input }) => ({
-      ...input,
+    .transformation({
       person: {
-        ...input.person,
         contact: {
-          ...input.person.contact,
-          url: new URL(input.person.contact.url),
+          url: (input) => new URL(input),
         },
       },
-    }))
+    })
     .query({
       output: z.string(),
       resolve: ({ input: _input }) => 'Look at the input type...',
