@@ -345,3 +345,35 @@ test('Should parse object into entries and then back with transformation functio
 
   await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
 });
+
+test('Should parse primitive value inside object with spawning the transformation function deep inside', async () => {
+  const { resolver } = createServer({
+    ctx: () => ({}),
+  });
+
+  const data = { primitive: 'primitive value' };
+
+  const schema = z.object({ primitive: z.string() });
+
+  expect(schema.safeParse(data)).toMatchObject({ success: true });
+
+  const testResolver = resolver
+    .args(schema)
+    .transformation({
+      primitive: (input) => input.length,
+    })
+    .use(({ input, ctx, next }) => {
+      expect(input).toStrictEqual({
+        primitive: data.primitive.length,
+      });
+
+      return next(ctx);
+    });
+
+  const query = testResolver.query({
+    output: z.null(),
+    resolve: () => null,
+  });
+
+  await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
+});

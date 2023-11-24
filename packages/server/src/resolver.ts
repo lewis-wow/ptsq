@@ -101,9 +101,7 @@ export class Resolver<
       });
 
     return new Resolver<
-      Simplify<
-        inferArgsTransformationNextArgs<TArgs, TArgsTransformationObject>
-      >,
+      inferArgsTransformationNextArgs<TArgs, TArgsTransformationObject>,
       TSchemaArgs,
       TContext
     >({

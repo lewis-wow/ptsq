@@ -6,5 +6,4 @@ import { parsePhoneNumber } from 'awesome-phonenumber';
  * @see https://en.wikipedia.org/wiki/E.164
  * @see https://www.npmjs.com/package/awesome-phonenumber
  */
-export const phoneNumberTransformer = (value: string) =>
-  parsePhoneNumber(value);
+export const phoneNumber = (value: string) => parsePhoneNumber(value);

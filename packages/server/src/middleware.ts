@@ -117,7 +117,7 @@ export class Middleware<
         index
       ]._transformations.reduce(
         async (acc, currentTransformation) =>
-          await currentTransformation({ input: await acc, meta, ctx }),
+          await currentTransformation(await acc),
         Promise.resolve(parsedInput.data as unknown),
       );
 

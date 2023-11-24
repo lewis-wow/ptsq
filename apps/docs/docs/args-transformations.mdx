@@ -32,6 +32,20 @@ urlResolverWithTransformation.query({
 
 We can now use the parsed value from the transformer, the type of the value is infered from the transformation function return type.
 
+## Transformation spawning
+
+You can spawn your transformation anywhere in the object value.
+
+```ts title="Transformation spawning"
+const urlResolverWithTransformation = urlResolver.transformation(
+  /* { url: string } */ {
+    url: (input /* string */) => new URL(input),
+  },
+);
+```
+
+When you are spawning the transformation inside the object, you do not have to copy all the values like before.
+
 ## Using transformation in argument chain
 
 The example before was too simple, what about if we want to add arguments chaining to the transformation.
@@ -75,6 +89,71 @@ urlResolverWithTransformation.use(({ input /* { url: URL } */, ctx, next }) => {
 
   return next(ctx);
 });
+```
+
+## Predefined arguments transformers
+
+There are some predefined transformers for simple transformations like Date, URL, Set, Map, coords, color and so on.
+
+You can use them as if they are your custom transformations like in examples before.
+
+```ts title="Predefined transformers"
+import { url } from '@ptsq/transformers';
+
+const urlResolverWithTransformation = urlResolver.transformation(
+  /* { url: string } */ {
+    url: url,
+  },
+);
+```
+
+## Creating custom transformers
+
+It is very simple to create your own custom transformer and extend the repository of predefined transformers, as the transfomer is only function.
+
+So for example there are two examples of code literally copied from predefined transformers `@ptsq/transformers` repository.
+
+```ts title="date transformer from @ptsq/transformers"
+export const date = (value: string | number | Date) => new Date(value);
+```
+
+Yeah, that's it, really.
+
+```ts title="url transformer from @ptsq/transformers"
+export const url = (value: string | URL) => new URL(value);
+```
+
+The transformers should not have some kind of validation, the validation should be in the `.args(...)` method, so data that comes to transformer should be fully validated.
+That is one of the reasons why transformers are so slim and easy to write.
+
+## Creating transformer with generic input
+
+Sometimes you want to create a transformer with generic input, like Set or Map. There is a way to do that of course.
+
+```ts title="set transformer from @ptsq/transformers"
+export const set = <T extends any[]>(value: T) => new Set<T[number]>(value);
+```
+
+It's more complicated than without generics, but if you are familiar with generics, its really very simple.
+
+There must be that extends the any array, because of type checking when using the transformer, but if your parser accepts and value, you can use generic without extends.
+
+```ts title="transformer with any generic"
+export const array = <T>(value: T) => [value];
+```
+
+### Using transformers with generics
+
+There is a small downside of using transfomers with generic input, because the transformer input cannot infer the input type from the `.transformation(...)` correctly, you have to use additional function.
+
+```ts title="Using transformers with generics"
+import { set } from '@ptsq/transformers';
+
+const setResolverWithTransformation = urlResolver.transformation(
+  /* { mySet: string[] } */ {
+    mySet: (input /* string[] */) => set(input),
+  },
+);
 ```
 
 ## Output transformation

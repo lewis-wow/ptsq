@@ -5,4 +5,4 @@ import parseColor from 'parse-color';
  *
  * @see https://www.npmjs.com/package/parse-color
  */
-export const colorTransformer = (value: string) => parseColor(value);
+export const color = (value: string) => parseColor(value);
