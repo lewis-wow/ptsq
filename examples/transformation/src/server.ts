@@ -14,7 +14,7 @@ const { router, resolver, createHTTPNodeHandler } = createServer({
 const baseRouter = router({
   greetings: resolver
     .args(z.object({ url: z.string().url() }))
-    .transformation(({ input }) => ({
+    .transformation((input) => ({
       ...input,
       url: new URL(input.url),
     }))
