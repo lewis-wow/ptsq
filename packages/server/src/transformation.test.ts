@@ -15,7 +15,7 @@ test('Should parse primitive value with transformation function', async () => {
 
   const testResolver = resolver
     .args(schema)
-    .transformation(({ input }) => input.length)
+    .transformation((input) => input.length)
     .use(({ input, ctx, next }) => {
       expect(input).toBeTypeOf('number');
       expect(input).toBe(data.length);
@@ -37,7 +37,7 @@ test('Should parse no args with transformation function', async () => {
   });
 
   const testResolver = resolver
-    .transformation(({ input: _input }) => 'string')
+    .transformation((_input) => 'string')
     .use(({ input, ctx, next }) => {
       expect(input).toBeTypeOf('string');
       expect(input).toBe('string');
@@ -62,7 +62,7 @@ test('Should parse no args with transformation function as object', async () => 
   });
 
   const testResolver = resolver
-    .transformation(({ input: _input }) => ({
+    .transformation((_input) => ({
       a: 1,
       b: 'string' as const,
     }))
@@ -107,7 +107,7 @@ test('Should parse Date with transformation function', async () => {
 
   const testResolver = resolver
     .args(schema)
-    .transformation(({ input }) => ({
+    .transformation((input) => ({
       ...input,
       state: {
         ...input.state,
@@ -146,7 +146,7 @@ test('Should parse coordinates with transformation function', async () => {
 
   const testResolver = resolver
     .args(schema)
-    .transformation(({ input }) => ({
+    .transformation((input) => ({
       coords: {
         lat: input.coords[0],
         lng: input.coords[1],
@@ -183,7 +183,7 @@ test('Should parse arrays with transformation function', async () => {
 
   const testResolver = resolver
     .args(schema)
-    .transformation(({ input }) => input.map((value) => value.length))
+    .transformation((input) => input.map((value) => value.length))
     .use(({ input, ctx, next }) => {
       expect(resultSchema.safeParse(input)).toMatchObject({ success: true });
       expect(input).toStrictEqual([1, 2, 1, 3, 5]);
@@ -213,8 +213,8 @@ test('Should parse arrays with transformation function chain', async () => {
 
   const testResolver = resolver
     .args(schema)
-    .transformation(({ input }) => input.map((value) => value.length))
-    .transformation(({ input }) => input.map((value) => value - 10))
+    .transformation((input) => input.map((value) => value.length))
+    .transformation((input) => input.map((value) => value - 10))
     .use(({ input, ctx, next }) => {
       expect(resultSchema.safeParse(input)).toMatchObject({ success: true });
       expect(input).toStrictEqual([1, 2, 1, 3, 5].map((value) => value - 10));
@@ -249,7 +249,7 @@ test('Should parse tuples with transformation function', async () => {
   const testResolver = resolver
     .args(schema)
     .transformation(
-      ({ input }) =>
+      (input) =>
         [input[0].toFixed(), input[1].length, input[2], input[3][1]] as const,
     )
     .use(({ input, ctx, next }) => {
@@ -307,7 +307,7 @@ test('Should parse object into entries and then back with transformation functio
 
   const testResolver = resolver
     .args(schema)
-    .transformation(({ input }) => ({
+    .transformation((input) => ({
       ...input,
       // additional key
       aKeys: Object.keys(input.a),

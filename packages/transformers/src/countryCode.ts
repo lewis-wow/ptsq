@@ -1,4 +1,3 @@
-import { Transformer } from '@ptsq/server';
 import lookup from 'country-code-lookup';
 
 /**
@@ -7,6 +6,5 @@ import lookup from 'country-code-lookup';
  * @see https://en.wikipedia.org/wiki/ISO_3166
  * @see https://www.npmjs.com/package/country-code-lookup
  */
-export const countryCodeTransformer = new Transformer(
-  (value: string | number) => lookup.byIso(value),
-);
+export const countryCodeTransformer = (value: string | number) =>
+  lookup.byIso(value);

@@ -12,7 +12,7 @@ import type {
   ResolverRequest,
   ResolverResponse,
 } from './resolver';
-import type { ArgsTransformationFunction } from './transformation';
+import type { AnyTransformation } from './transformation';
 import type { ResolverType } from './types';
 
 /**
@@ -37,7 +37,7 @@ export class Route<
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
   middlewares: AnyMiddleware[];
-  transformations: ArgsTransformationFunction<any, any, any>[];
+  transformations: AnyTransformation[];
 
   constructor(options: {
     type: TType;
@@ -45,7 +45,7 @@ export class Route<
     schemaOutput: TSchemaOutput;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
-    transformations: ArgsTransformationFunction<any, any, any>[];
+    transformations: AnyTransformation[];
   }) {
     this.type = options.type;
     this.schemaArgs = options.schemaArgs;

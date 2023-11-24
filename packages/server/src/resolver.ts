@@ -17,7 +17,6 @@ import {
   type AnyTransformation,
   type ArgsTransformationObject,
   type inferArgsTransformationNextArgs,
-  type Transformation,
 } from './transformation';
 import type { DeepMerge, MaybePromise, Simplify } from './types';
 
@@ -95,10 +94,7 @@ export class Resolver<
   transformation<
     TArgsTransformationObject extends ArgsTransformationObject<TArgs>,
   >(argsTransformationObject: TArgsTransformationObject) {
-    const transformationFunction: Transformation<
-      TArgs,
-      TArgsTransformationObject
-    > = (input: TArgs) =>
+    const transformationFunction = (input: TArgs) =>
       createRecursiveTransformation({
         input,
         argsTransformationObject,

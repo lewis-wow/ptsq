@@ -25,7 +25,6 @@ const loggingResolver = resolver
   .args(
     z.object({
       person: z.object({
-        a: z.string(),
         bornAt: z.string(),
       }),
     }),
@@ -48,16 +47,13 @@ const baseRouter = router({
         person: personValidationSchema,
       }),
     )
-    .transformation(({ input }) => ({
-      ...input,
+    .transformation({
       person: {
-        ...input.person,
         contact: {
-          ...input.person.contact,
-          url: new URL(input.person.contact.url),
+          url: (input) => new URL(input),
         },
       },
-    }))
+    })
     .query({
       output: z.string(),
       resolve: ({ input: _input }) => 'Look at the input type...',

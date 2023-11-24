@@ -1,4 +1,3 @@
-import { Transformer } from '@ptsq/server';
 import { parsePhoneNumber } from 'awesome-phonenumber';
 
 /**
@@ -7,6 +6,5 @@ import { parsePhoneNumber } from 'awesome-phonenumber';
  * @see https://en.wikipedia.org/wiki/E.164
  * @see https://www.npmjs.com/package/awesome-phonenumber
  */
-export const phoneNumberTransformer = new Transformer((value: string) =>
-  parsePhoneNumber(value),
-);
+export const phoneNumberTransformer = (value: string) =>
+  parsePhoneNumber(value);
