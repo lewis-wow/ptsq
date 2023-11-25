@@ -1,3 +1,6 @@
+/**
+ * @internal
+ */
 export type CORSOptions = {
   origin?: string[] | string;
   methods?: string[];

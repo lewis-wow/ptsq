@@ -1,8 +1,5 @@
 import { z } from 'zod';
 
-/**
- * @internal
- */
 export type Serializable =
   | string
   | number
@@ -14,7 +11,7 @@ export type Serializable =
 /**
  * @internal
  *
- * Checks if the response is serializable.
+ * Checks if the response and request is serializable.
  */
 export const serializableZodSchema: z.Schema<Serializable> = z.union([
   z.string(),

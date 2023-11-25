@@ -8,10 +8,16 @@ import type {
 } from './resolver';
 import type { AnyTransformation } from './transformation';
 
+/**
+ * @internal
+ */
 export type NextFunction = <TNextContext extends Context>(
   nextContext: TNextContext,
 ) => Promise<ResolverResponse<TNextContext>>;
 
+/**
+ * @internal
+ */
 export type MiddlewareFunction<
   TArgs,
   TContext extends Context,
@@ -117,6 +123,7 @@ export class Middleware<
         index
       ]._transformations.reduce(
         async (acc, currentTransformation) =>
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
           await currentTransformation(await acc),
         Promise.resolve(parsedInput.data as unknown),
       );

@@ -3,6 +3,8 @@ import type { Request, Response } from 'express';
 /**
  * Express adapter context type
  *
+ * @see https://expressjs.com/
+ *
  * This type enforce that the Express request and response objects are passed to the server handler.
  *
  * You can extends this type by using the `&` or use it as it is.

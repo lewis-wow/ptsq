@@ -8,11 +8,13 @@ import express, { json, urlencoded } from 'express';
 import type { Context } from '../context';
 import type { CORSOptions } from '../cors';
 import { HTTPErrorCode } from '../httpError';
-import type { Router } from '../router';
+import type { AnyRouter } from '../router';
 import type { Serve } from '../serve';
 
 /**
  * node:http adapter context type
+ *
+ * @see https://nodejs.org/api/http.html
  *
  * This type enforce that the node:http request and response objects are passed to the server handler.
  *
@@ -36,7 +38,7 @@ export type HttpAdapterContext = {
 export type HTTPRequestListenerHandlerOptions = {
   cors?: CORSOptions;
   serve: Serve;
-  router: Router;
+  router: AnyRouter;
   ctx: Context;
 };
 

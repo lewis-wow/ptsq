@@ -192,3 +192,5 @@ export type ResolveFunction<
   ctx: TContext;
   meta: ResolverRequest;
 }) => MaybePromise<TOutput>;
+
+export type AnyResolveFunction = ResolveFunction<any, any, any>;
