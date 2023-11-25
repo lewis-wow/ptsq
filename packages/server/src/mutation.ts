@@ -1,6 +1,10 @@
 import type { z } from 'zod';
 import type { AnyMiddleware } from './middleware';
-import type { ResolveFunction, ResolverArgs, ResolverOutput } from './resolver';
+import type {
+  AnyResolveFunction,
+  ResolverArgs,
+  ResolverOutput,
+} from './resolver';
 import { Route } from './route';
 import type { AnyTransformation } from './transformation';
 
@@ -10,14 +14,9 @@ import type { AnyTransformation } from './transformation';
  * Mutation class container
  */
 export class Mutation<
-  TSchemaArgs extends ResolverArgs | z.ZodVoid = ResolverArgs | z.ZodVoid,
-  TSchemaOutput extends ResolverOutput = ResolverOutput,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TResolveFunction extends ResolveFunction<any, any, any> = ResolveFunction<
-    any,
-    any,
-    any
-  >,
+  TSchemaArgs extends ResolverArgs | z.ZodVoid,
+  TSchemaOutput extends ResolverOutput,
+  TResolveFunction extends AnyResolveFunction,
 > extends Route<'mutation', TSchemaArgs, TSchemaOutput, TResolveFunction> {
   constructor(options: {
     schemaArgs: TSchemaArgs;
@@ -32,3 +31,9 @@ export class Mutation<
     });
   }
 }
+
+export type AnyMutation = Mutation<
+  ResolverArgs | z.ZodVoid,
+  ResolverOutput,
+  AnyResolveFunction
+>;

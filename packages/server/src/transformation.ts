@@ -86,14 +86,15 @@ export const createRecursiveTransformation = async ({
   if (argsTransformationObject === undefined) return input;
 
   if (typeof argsTransformationObject === 'function')
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return await argsTransformationObject(input);
 
   if (typeof input !== 'object' || input === null)
-    throw new Error(
+    throw new TypeError(
       `Input type must be an object when doing key transforming, typeof input is: ${typeof input}.`,
     );
 
-  const resultObject: Record<string, any> = { ...input };
+  const resultObject: Record<string | number | symbol, any> = { ...input };
   for (const key of Object.keys(argsTransformationObject)) {
     resultObject[key] = await createRecursiveTransformation({
       input: resultObject[key],

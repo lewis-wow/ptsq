@@ -1,3 +1,6 @@
+/**
+ * @internal
+ */
 export type HTTPErrorOptions = {
   code: keyof typeof HTTPErrorCode;
   message?: string;

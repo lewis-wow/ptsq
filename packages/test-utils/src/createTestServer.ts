@@ -1,6 +1,7 @@
 import type { RequestListener, Server } from 'http';
 import {
   createServer as createPtsqServer,
+  type AnyRouter,
   type Context,
   type MaybePromise,
   type Router,
@@ -11,7 +12,7 @@ import {
  */
 export type CreateTestServerArgs<
   TContext extends Context,
-  TRouter extends Router,
+  TRouter extends AnyRouter,
 > = {
   ctx: (params: any) => TContext;
   server: (

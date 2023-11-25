@@ -6,7 +6,7 @@ import { HTTPError } from './httpError';
 import { Middleware } from './middleware';
 import type { AnyMiddleware } from './middleware';
 import type {
-  ResolveFunction,
+  AnyResolveFunction,
   ResolverArgs,
   ResolverOutput,
   ResolverRequest,
@@ -23,13 +23,10 @@ import type { ResolverType } from './types';
  * Creates callable route.
  */
 export class Route<
-  TType extends ResolverType = ResolverType,
-  TSchemaArgs extends ResolverArgs | z.ZodVoid = ResolverArgs | z.ZodVoid,
-  TSchemaOutput extends ResolverOutput = ResolverOutput,
-  TResolveFunction extends ResolveFunction<any, any> = ResolveFunction<
-    any,
-    any
-  >,
+  TType extends ResolverType,
+  TSchemaArgs extends ResolverArgs | z.ZodVoid,
+  TSchemaOutput extends ResolverOutput,
+  TResolveFunction extends AnyResolveFunction,
 > {
   type: TType;
   schemaArgs: TSchemaArgs;
@@ -128,3 +125,10 @@ export class Route<
     return response;
   }
 }
+
+export type AnyRoute = Route<
+  ResolverType,
+  ResolverArgs | z.ZodVoid,
+  ResolverOutput,
+  AnyResolveFunction
+>;

@@ -1,13 +1,13 @@
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
-import type { Mutation } from './mutation';
-import type { Query } from './query';
+import type { AnyMutation } from './mutation';
+import type { AnyQuery } from './query';
 import type { Queue } from './queue';
 import type { ResolverRequest, ResolverResponse } from './resolver';
 
 export type Routes = {
-  [Key: string]: Query | Mutation | Router;
+  [Key: string]: AnyQuery | AnyMutation | AnyRouter;
 };
 
 /**
@@ -15,7 +15,7 @@ export type Routes = {
  *
  * Creates a router that can be nested.
  */
-export class Router<TRoutes extends Routes = Routes> {
+export class Router<TRoutes extends Routes> {
   routes: TRoutes;
   nodeType: 'router' = 'router' as const;
 
@@ -88,3 +88,5 @@ export class Router<TRoutes extends Routes = Routes> {
     return nextNode.call({ meta, ctx });
   }
 }
+
+export type AnyRouter = Router<Routes>;

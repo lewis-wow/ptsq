@@ -4,7 +4,7 @@ import { HTTPError } from './httpError';
 import { Middleware } from './middleware';
 import { Queue } from './queue';
 import { requestBodySchema } from './requestBodySchema';
-import type { Router } from './router';
+import type { AnyRouter } from './router';
 
 export type ServeOptions<TContext extends Context> = {
   contextBuilder: ContextBuilder<TContext>;
@@ -34,7 +34,7 @@ export class Serve<TContext extends Context = Context> {
     body,
     params,
   }: {
-    router: Router;
+    router: AnyRouter;
     body: unknown;
     params: TParams;
   }) {

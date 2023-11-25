@@ -3,6 +3,8 @@ import type { IncomingMessage, ServerResponse } from 'http';
 /**
  * Fastify adapter context type
  *
+ * @see https://fastify.dev/
+ *
  * This type enforce that the Fastify request and response objects are passed to the server handler.
  *
  * You can extends this type by using the `&` or use it as it is.

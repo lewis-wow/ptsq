@@ -10,15 +10,12 @@ export {
   type ResolverResponse,
 } from './resolver';
 
-export type { ArgsTransformer } from './transformer';
+export { Middleware, type AnyMiddleware } from './middleware';
+export type { Query, AnyQuery } from './query';
+export type { Mutation, AnyMutation } from './mutation';
 
-export { Middleware } from './middleware';
-export type { Query } from './query';
-export type { Mutation } from './mutation';
-export type { CORSOptions } from './cors';
-
-export type { Route } from './route';
-export type { Router } from './router';
+export type { Route, AnyRoute } from './route';
+export type { Router, AnyRouter } from './router';
 export type { Context } from './context';
 export type { Serve } from './serve';
 export type {
@@ -27,11 +24,7 @@ export type {
   inferClientResolverArgs,
   inferClientResolverOutput,
 } from './types';
-export type {
-  SerializableInputZodSchema,
-  SerializableOutputZodSchema,
-  Serializable,
-} from './serializable';
+export type { Serializable } from './serializable';
 
 /**
  * adapters/express

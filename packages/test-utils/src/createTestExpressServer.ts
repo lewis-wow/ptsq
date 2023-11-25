@@ -1,4 +1,4 @@
-import { type Context, type Router } from '@ptsq/server';
+import { type AnyRouter, type Context } from '@ptsq/server';
 import express from 'express';
 import {
   createTestServer,
@@ -10,7 +10,7 @@ import {
  */
 export const createTestExpressServer = <
   TContext extends Context,
-  TRouter extends Router,
+  TRouter extends AnyRouter,
 >(
   options: CreateTestServerArgs<TContext, TRouter>,
 ) =>

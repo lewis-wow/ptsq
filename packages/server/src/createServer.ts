@@ -7,7 +7,7 @@ import type {
 } from './context';
 import type { CORSOptions } from './cors';
 import { Resolver } from './resolver';
-import { Router, type Routes } from './router';
+import { Router, type AnyRouter, type Routes } from './router';
 import { Serve } from './serve';
 
 /**
@@ -55,7 +55,6 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * });
    * ```
    */
-  // The {} type actually describes empty object here, no non-nullish
   const resolver = new Resolver<undefined, z.ZodVoid, RootContext>({
     schemaArgs: z.void(),
     middlewares: [],
@@ -94,7 +93,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
     router: baseRotuer,
     ctx: ctxParams,
   }: {
-    router: Router;
+    router: AnyRouter;
     ctx: ContextBuilderParams;
   }) =>
     HTTPRequestListener.createRequestListenerHandler({
