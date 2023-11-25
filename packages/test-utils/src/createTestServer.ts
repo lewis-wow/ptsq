@@ -4,7 +4,6 @@ import {
   type AnyRouter,
   type Context,
   type MaybePromise,
-  type Router,
 } from '@ptsq/server';
 
 /**
@@ -26,7 +25,7 @@ export type CreateTestServerArgs<
  */
 export const createTestServer = <
   TContext extends Context,
-  TRouter extends Router,
+  TRouter extends AnyRouter,
 >({
   ctx,
   server,
