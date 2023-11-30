@@ -11,11 +11,32 @@ const { router, resolver, createHTTPNodeHandler } = createServer({
   }),
 });
 
+resolver
+  .args(z.object({ name: z.string().min(4) }))
+  .guard(
+    ({ input }) => input.name === 'ole',
+    (resolver) =>
+      resolver.query({
+        output: z.string(),
+        resolve: ({ input }) => `Hello, ${input.name}!`,
+      }),
+  )
+  .guard(
+    ({ input }) => input.name === 'fee',
+    (resolver) =>
+      resolver.query({
+        output: z.string(),
+        resolve: ({ input }) => `no, ${input.name}!`,
+      }),
+  );
+
+const greetings = resolver.args(z.object({ name: z.string().min(4) })).query({
+  output: z.string(),
+  resolve: ({ input }) => `Hello, ${input.name}!`,
+});
+
 const baseRouter = router({
-  greetings: resolver.args(z.object({ name: z.string().min(4) })).query({
-    output: z.string(),
-    resolve: ({ input }) => `Hello, ${input.name}!`,
-  }),
+  greetings: greetings,
 });
 
 app.use((req, res) =>

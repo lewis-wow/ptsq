@@ -40,7 +40,8 @@ const config = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/lewis-wow/bakalarska-prace/edit/master/apps/docs',
+          editUrl:
+            'https://github.com/lewis-wow/bakalarska-prace/edit/master/apps/docs',
           routeBasePath: '/', // Serve the blog at the site's root
           /* other blog options */
         },
@@ -66,8 +67,8 @@ const config = {
         ],
       },
       prism: {
-        theme: lightCodeTheme,
-        darkTheme: darkCodeTheme,
+        theme: require('./theme'),
+        //darkTheme: darkCodeTheme,
       },
     }),
 };

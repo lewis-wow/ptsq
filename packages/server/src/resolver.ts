@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 import type { Context } from './context';
+import { GuardFunction, GuardRouter } from './guard';
 import type { HTTPError } from './httpError';
 import {
   Middleware,
@@ -51,8 +52,8 @@ export type inferResolverOutput<TResolverOutput> =
 
 export class Resolver<
   TArgs,
-  TSchemaArgs extends ResolverArgs | z.ZodVoid = ResolverArgs | z.ZodVoid,
-  TContext extends Context = Context,
+  TSchemaArgs extends ResolverArgs,
+  TContext extends Context,
 > {
   _middlewares: AnyMiddleware[];
   _transformations: AnyTransformation[];
@@ -135,6 +136,14 @@ export class Resolver<
   }
 
   /**
+   * Creates a auth guard that route the resolver
+   */
+  guard(
+    guardFunction: GuardFunction<TArgs, TContext>,
+    guardRouter: GuardRouter<typeof this>,
+  ) {}
+
+  /**
    * Creates a mutation endpoint with resolver middlewares, transformation and arguments validations
    */
   mutation<TResolverOutput extends ResolverOutput>(options: {
@@ -182,6 +191,8 @@ export class Resolver<
     });
   }
 }
+
+export type AnyResolver = Resolver<any, any, any>;
 
 export type ResolveFunction<
   TInput,

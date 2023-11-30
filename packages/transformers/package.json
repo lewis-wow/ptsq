@@ -32,11 +32,11 @@
     "@ptsq/server": "*",
     "awesome-phonenumber": "^6.2.0",
     "country-code-lookup": "^0.1.0",
-    "parse-color": "^1.0.0"
+    "parse-color": "^1.0.0",
+    "@types/parse-color": "^1.0.3"
   },
   "devDependencies": {
     "@types/node": "^20.7.0",
-    "@types/parse-color": "^1.0.3",
     "barrelsby": "^2.8.1",
     "typescript": "^5.2.2"
   }
