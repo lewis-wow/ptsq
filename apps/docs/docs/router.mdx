@@ -1,12 +1,12 @@
 # Router
 
-Routers describes the API interface.
+Routers describe the API interface.
 
 The strength of this model lies in the nesting of routers into one `Base` router.
 
 Routers can be merged across files, so you can define routers somewhere and then merge them into one `Base` router.
 
-It is recommended to export `type` of the `Base` router, because then you can specify your server as a `devDependency` on the client, if you are using monorepo.
+It is recommended to export `type` of the `Base` router because then you can specify your server as a `devDependency` on the client if you are using monorepo project structure.
 
 ```ts title="server.ts"
 import {
@@ -64,18 +64,18 @@ const client = createProxyClient<BaseRouter>({
 
 const result = await client.a.b.c.user.current.query();
 
-// autocompletion
+// auto-completion
 const userList = await client.a. /* b.c.user.userList.query() */
 ```
 
 ## Type-level only
 
-The `BaseRouter` is Typescript type, that means the client doesn't know anything about the server in runtime.
+The `BaseRouter` is a Typescript type, which means the client doesn't know anything about the server in runtime.
 
 ```ts
 //@ts-ignore
 const result = await client.a.wrong.route.query();
 ```
 
-That means you can disable the type hinting and call wrong route.
-If wrong route is called, then the server response with `BAD_REQUEST` error.
+That means you can disable the type hinting and call the wrong route.
+If the wrong route is called, then the server responds with `BAD_REQUEST` error.
