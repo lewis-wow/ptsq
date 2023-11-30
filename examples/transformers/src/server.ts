@@ -1,4 +1,5 @@
 import { createServer, ExpressAdapterContext } from '@ptsq/server';
+import { url } from '@ptsq/transformers';
 import express from 'express';
 import { z } from 'zod';
 
@@ -17,11 +18,13 @@ const urlPortQuery = resolver
       url: z.string().url(),
     }),
   )
+  .transformation({
+    url: url,
+  })
   .query({
     output: z.string(),
     resolve: ({ input }) => {
       return input.url.port;
-      //            ^?
     },
   });
 
