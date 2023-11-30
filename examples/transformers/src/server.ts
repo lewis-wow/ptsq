@@ -17,11 +17,13 @@ const urlPortQuery = resolver
       url: z.string().url(),
     }),
   )
+  .transformation({
+    url: url,
+  })
   .query({
     output: z.string(),
     resolve: ({ input }) => {
       return input.url.port;
-      //            ^?
     },
   });
 
