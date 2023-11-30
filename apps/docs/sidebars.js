@@ -4,6 +4,7 @@
 const sidebars = {
   docsSidebar: [
     'index',
+    'installation',
     'query',
     'mutation',
     'router',
