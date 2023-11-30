@@ -6,9 +6,8 @@ The client is a Javascript `Proxy` object.
 
 ```ts title="client.ts"
 import { createProxyClient } from '@ptsq/client';
-
 /**
- * non introspected or generated file, just type of server router
+ * non-introspected or generated file, just a type of server router
  */
 import type { BaseRouter } from './server';
 
@@ -23,13 +22,12 @@ const result /* string */ = await client.test.query({
 
 ## Introspected schema
 
-Even if this is not directly the server router schema, it is introspected, the way you define client stays the same, client does not care if the server is in your repository or somewhere else.
+Even if this is not directly the server router schema, it is introspected, the way you define client stays the same, the client does not care if the server is in your repository or somewhere else.
 
 ```ts title="client.ts"
 import { createProxyClient } from '@ptsq/client';
-
 /**
- * introspected or generated file, no server exposed, ready for open api
+ * introspected or generated file, no server exposed, ready for open API
  */
 import type { RootRouter } from './schema.generated';
 
@@ -42,7 +40,7 @@ const result /* string */ = await client.test.query({
 });
 ```
 
-Introspected schema can also has comments with hints what the serialized type is actuall is. So if the response return `DateTime` as a string, then there is a way to describe the `DateTime` scalar on the server, to give hints on the client side.
+Introspected schema can also have comments with hints about what serialized type actually is. So if the response returns `DateTime` as a string, then there is a way to describe the `DateTime` scalar on the server, to give hints on the client side.
 
 ## Options
 
@@ -54,10 +52,10 @@ type CreateProxyClientArgs = {
 };
 ```
 
-The url is the url of ptsq server e.g. `https://example.com/ptsq/'.
-If credentials option is true, then credentials like cookies are sent to the server with every request.
-You can also specify headers you want to send such as `Authorization`header and so on.
-Headers can be defined as callable funciton, so for example you can get cookies like jwt token in the function that is then passed to`Authorization` header.
+The `url` is the URL of ptsq server e.g. `https://example.com/ptsq/'.
+If the credentials option is true, then credentials like cookies are sent to the server with every request.
+You can also specify headers you want to send such as the Authorization header and so on.
+Headers can be defined as callable functions, so for example, you can get cookies like JWT token in the function that is then passed to Authorization header.
 
 ```ts title="client.ts"
 import { createProxyClient } from '@ptsq/client';
@@ -82,15 +80,16 @@ const result /* string */ = await client.test.query({
 
 ## Wrong route
 
-The proxy client has `noop` function as Proxy target.
-But you cannot call that `noop` function, because `Proxy` object override the `apply` method of that `noop` function.
+The proxy client has `noop` function as the Proxy target.
+But you cannot call that `noop` function, because the `Proxy` object overrides the `apply` method of that `noop` function.
 That `apply` handler is for calling the `query` or `mutate` requests.
 There is only one requester for both `query and `mutation`, so they are called the same way.
 
 ```ts
 const proxyHandler: ProxyHandler<Client<TRouter>> = {
   get: (_target, key: string) => createProxyClientRouter([...route, key]),
-  apply: (_target, _thisArg, argumentsList) => client.request(argumentsList[0], argumentsList[1]),
+  apply: (_target, _thisArg, argumentsList) =>
+    client.request(argumentsList[0], argumentsList[1]),
 };
 
 const noop = () => {};
@@ -98,13 +97,13 @@ const noop = () => {};
 const client = new Proxy(noop, proxyHandler);
 ```
 
-How you can see, you can by for e.g. `@ts-ignore` disable bad route input, because the check is only on the type-level.
-If you `query` or `mutate` bad route it throws on the server `BAD_REQUEST` `HTTPError`.
+As you can see, you can for e.g. `@ts-ignore` disable bad route input, because the check is only on the type-level.
+If you `query` or `mutate` a wrong route it throws on the server `BAD_REQUEST` `HTTPError`.
 
 ## Request body validation
 
-On the server, the body sent from client is validated by the following schema.
-If the validation failed the server throws `BAD_REQUEST` `HTTPError`.
+On the server, the body sent from the client is validated by the following schema.
+If the validation fails the server throws `BAD_REQUEST` `HTTPError`.
 
 ```ts
 z.object({
@@ -113,5 +112,5 @@ z.object({
 }).strict();
 ```
 
-How you can see there is no validation for if the route exists and has `resolver`. The route is validated in walking the nested `routers`.
+As you can see there is no validation for if the route exists and has resolver. The route is validated by walking the nested `routers`.
 As you can expect, if the route has no `resolver`, means that the route is incomplete and should continue, so `node type` is `router` or some preceding route should be terminating, then `BAD_REQUEST` error is thrown by a server.
