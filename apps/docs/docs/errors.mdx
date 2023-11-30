@@ -2,7 +2,11 @@
 
 ```ts title="server.ts"
 const isAuthed = middleware(({ ctx, next }) => {
-  if (!ctx.user) throw new HTTPError({ code: 'UNAUTHORIZED', message: 'Must be logged in!' });
+  if (!ctx.user)
+    throw new HTTPError({
+      code: 'UNAUTHORIZED',
+      message: 'Must be logged in!',
+    });
 
   return next({
     ...ctx,
@@ -11,12 +15,16 @@ const isAuthed = middleware(({ ctx, next }) => {
 });
 ```
 
-The `HTTPError` is the only error that is catched by the `ptsq`.
-The adapter such as `Express` or `Koa` then reponse with that error code and message, if specified.
-You can also specify info, which is anything you want. It won't be displayed in the response message, it is for developers only, can be something like schema validation error or something like that.
+The `HTTPError` is the only error that is caught by the `ptsq`.
+The adapter such as `Express` or `Koa` then responds with that error code and message, if specified.
+You can also specify info, which can be something like a schema validation error.
 
 ```ts
-throw new HTTPError({ code: 'BAD_REQUEST', message: 'User already exists.', info: databaseInsert.error });
+throw new HTTPError({
+  code: 'BAD_REQUEST',
+  message: 'User already exists.',
+  info: databaseInsert.error,
+});
 ```
 
 ## Error codes
@@ -37,4 +45,4 @@ throw new HTTPError({ code: 'BAD_REQUEST', message: 'User already exists.', info
 | CLIENT_CLOSED_REQUEST | 499         |
 | INTERNAL_SERVER_ERROR | 500         |
 
-Any other thrown exception that is not a `HTTPError`, throws as normal, so it can stops the running server.
+Any other thrown exception that is not the `HTTPError`, throws as normal, so it can stop the running server.
