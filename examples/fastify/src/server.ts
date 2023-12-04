@@ -21,13 +21,13 @@ const baseRouter = router({
 
 app.register(fastifyExpress).then(() => {
   app.use((req, res) =>
-    createHTTPNodeHandler({
+    createHTTPNodeHandler(req, res, {
       router: baseRouter,
       ctx: {
         req,
         res,
       },
-    })(req, res),
+    }),
   );
 
   app.listen({ port: 4000 }, () => {

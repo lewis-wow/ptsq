@@ -33,13 +33,13 @@ const baseRouter = router({
 });
 
 app.use((req, res) =>
-  createHTTPNodeHandler({
+  createHTTPNodeHandler(req, res, {
     router: baseRouter,
     ctx: {
       req,
       res,
     },
-  })(req, res),
+  }),
 );
 
 app.listen(4000, () => {

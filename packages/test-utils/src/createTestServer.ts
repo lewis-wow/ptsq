@@ -3,6 +3,7 @@ import {
   createServer as createPtsqServer,
   type AnyRouter,
   type Context,
+  type CORSOptions,
   type MaybePromise,
 } from '@ptsq/server';
 
@@ -14,6 +15,7 @@ export type CreateTestServerArgs<
   TRouter extends AnyRouter,
 > = {
   ctx: (params: any) => TContext;
+  cors?: CORSOptions;
   server: (
     ptsq: ReturnType<typeof createPtsqServer<(params: any) => TContext>>,
   ) => MaybePromise<TRouter>;
@@ -28,6 +30,7 @@ export const createTestServer = <
   TRouter extends AnyRouter,
 >({
   ctx,
+  cors,
   server,
   client,
   serverProvider,
@@ -40,15 +43,16 @@ export const createTestServer = <
   return new Promise(async (resolve) => {
     const ptsq = createPtsqServer({
       ctx: ctx,
+      cors,
     });
 
     const baseRouter = await server(ptsq);
 
     const serverProviderResult = serverProvider((req, res) => {
-      ptsq.createHTTPNodeHandler({
+      ptsq.createHTTPNodeHandler(req, res, {
         router: baseRouter,
         ctx: { req, res } as any,
-      })(req, res);
+      });
     });
 
     const httpServer = serverProviderResult.listen(0);

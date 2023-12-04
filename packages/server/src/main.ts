@@ -26,6 +26,8 @@ export type {
 } from './types';
 export type { Serializable } from './serializable';
 
+export type { CORSOptions } from './cors';
+
 /**
  * adapters/express
  */

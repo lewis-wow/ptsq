@@ -17,13 +17,13 @@ const baseRouter = router({
 });
 
 const app = createHttpServer((req, res) =>
-  createHTTPNodeHandler({
+  createHTTPNodeHandler(req, res, {
     router: baseRouter,
     ctx: {
       req,
       res,
     },
-  })(req, res),
+  }),
 );
 
 app.listen(4000, () => {

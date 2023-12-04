@@ -1,3 +1,4 @@
+import type { IncomingMessage, ServerResponse } from 'http';
 import { HTTPRequestListener } from './adapters/http';
 import type {
   ContextBuilder,
@@ -88,14 +89,18 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * createHTTPNodeHandler({ router: rootRouter });
    * ```
    */
-  const createHTTPNodeHandler = ({
-    router: baseRotuer,
-    ctx: ctxParams,
-  }: {
-    router: AnyRouter;
-    ctx: ContextBuilderParams;
-  }) =>
-    HTTPRequestListener.createRequestListenerHandler({
+  const createHTTPNodeHandler = (
+    req: IncomingMessage,
+    res: ServerResponse,
+    {
+      router: baseRotuer,
+      ctx: ctxParams,
+    }: {
+      router: AnyRouter;
+      ctx: ContextBuilderParams;
+    },
+  ) =>
+    HTTPRequestListener.createRequestListenerHandler(req, res, {
       serve,
       cors,
       router: baseRotuer,

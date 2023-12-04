@@ -19,13 +19,13 @@ const baseRouter = router({
 });
 
 app.use((ctx) =>
-  createHTTPNodeHandler({
+  createHTTPNodeHandler(ctx.req, ctx.res, {
     router: baseRouter,
     ctx: {
       req: ctx.request,
       res: ctx.response,
     },
-  })(ctx.req, ctx.res),
+  }),
 );
 
 app.listen(4000, () => {

@@ -43,12 +43,11 @@ export type HTTPRequestListenerHandlerOptions = {
 };
 
 export const HTTPRequestListener = {
-  createRequestListenerHandler({
-    cors,
-    serve,
-    router,
-    ctx,
-  }: HTTPRequestListenerHandlerOptions): RequestListener {
+  createRequestListenerHandler(
+    incommingMessage: IncomingMessage,
+    serverResponse: ServerResponse,
+    { cors, serve, router, ctx }: HTTPRequestListenerHandlerOptions,
+  ): RequestListener {
     const app = express();
 
     app.post(
@@ -88,8 +87,6 @@ export const HTTPRequestListener = {
       },
     );
 
-    return (req: IncomingMessage, res: ServerResponse) => {
-      app(req, res);
-    };
+    return app(incommingMessage, serverResponse) as RequestListener;
   },
 };
