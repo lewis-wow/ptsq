@@ -38,7 +38,7 @@ test('Should create middleware with query and serverSideQuery', async () => {
   expect(validOnlyQuery.nodeType).toBe('route');
   expect(validOnlyQuery.type).toBe('query');
   expect(validOnlyQuery.middlewares.length).toBe(1);
-  expect(validOnlyQuery.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(validOnlyQuery.middlewares[0]._schemaArgs).toBe(undefined);
 
   expect(
     await query.call({
@@ -124,7 +124,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
   expect(validOnlyMutation.nodeType).toBe('route');
   expect(validOnlyMutation.type).toBe('mutation');
   expect(validOnlyMutation.middlewares.length).toBe(1);
-  expect(validOnlyMutation.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(validOnlyMutation.middlewares[0]._schemaArgs).toBe(undefined);
 
   expect(
     await mutation.call({
@@ -208,7 +208,7 @@ test('Should create middleware with measuring time', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares.length).toBe(1);
-  expect(query.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(query.middlewares[0]._schemaArgs).toBe(undefined);
 
   expect(middlewareWasCalled).toBe(false);
   expect(middlewareMeasuredTime).toBe(0);
@@ -289,8 +289,8 @@ test('Should create two nested middlewares', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares.length).toBe(2);
-  expect(query.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
-  expect(query.middlewares[1]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(query.middlewares[0]._schemaArgs).toBe(undefined);
+  expect(query.middlewares[1]._schemaArgs).toBe(undefined);
 
   expect(innerMiddlewareWasCalled).toBe(false);
   expect(outerMiddlewareWasCalled).toBe(false);
@@ -356,8 +356,8 @@ test('Should create nested middlewares with query', async () => {
   expect(validOnlyQuery.nodeType).toBe('route');
   expect(validOnlyQuery.type).toBe('query');
   expect(validOnlyQuery.middlewares.length).toBe(2);
-  expect(validOnlyQuery.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
-  expect(validOnlyQuery.middlewares[1]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(validOnlyQuery.middlewares[0]._schemaArgs).toBe(undefined);
+  expect(validOnlyQuery.middlewares[1]._schemaArgs).toBe(undefined);
 
   expect(
     await query.call({
@@ -452,8 +452,8 @@ test('Should create nested middlewares with mutation', async () => {
   expect(validOnlyMutation.nodeType).toBe('route');
   expect(validOnlyMutation.type).toBe('mutation');
   expect(validOnlyMutation.middlewares.length).toBe(2);
-  expect(validOnlyMutation.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
-  expect(validOnlyMutation.middlewares[1]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(validOnlyMutation.middlewares[0]._schemaArgs).toBe(undefined);
+  expect(validOnlyMutation.middlewares[1]._schemaArgs).toBe(undefined);
 
   expect(
     await mutation.call({

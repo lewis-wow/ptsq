@@ -16,6 +16,7 @@ import { JsonSchema7NullType, parseNullDef } from './parsers/null';
 import { JsonSchema7NullableType, parseNullableDef } from './parsers/nullable';
 import { JsonSchema7NumberType, parseNumberDef } from './parsers/number';
 import { JsonSchema7ObjectType, parseObjectDef } from './parsers/object';
+import { parseOptionalDef } from './parsers/optional';
 import { JsonSchema7RecordType, parseRecordDef } from './parsers/record';
 import { JsonSchema7StringType, parseStringDef } from './parsers/string';
 import { JsonSchema7TupleType, parseTupleDef } from './parsers/tuple';
@@ -110,4 +111,5 @@ const parser: Partial<
   [ZodFirstPartyTypeKind.ZodNullable]: (def: any, refs: Refs) =>
     parseNullableDef(def, refs),
   [ZodFirstPartyTypeKind.ZodUndefined]: parseUndefinedDef,
+  [ZodFirstPartyTypeKind.ZodOptional]: parseOptionalDef,
 };

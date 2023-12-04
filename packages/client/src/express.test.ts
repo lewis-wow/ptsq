@@ -223,7 +223,13 @@ test('Should introspectate the server with express adapter', async () => {
                 "test": {
                   "additionalProperties": false,
                   "properties": {
-                    "args": {
+                    "nodeType": {
+                      "enum": [
+                        "route",
+                      ],
+                      "type": "string",
+                    },
+                    "schemaArgs": {
                       "additionalProperties": false,
                       "properties": {
                         "name": {
@@ -235,13 +241,7 @@ test('Should introspectate the server with express adapter', async () => {
                       ],
                       "type": "object",
                     },
-                    "nodeType": {
-                      "enum": [
-                        "route",
-                      ],
-                      "type": "string",
-                    },
-                    "output": {
+                    "schemaOutput": {
                       "type": "string",
                     },
                     "type": {
@@ -254,8 +254,8 @@ test('Should introspectate the server with express adapter', async () => {
                   "required": [
                     "type",
                     "nodeType",
-                    "args",
-                    "output",
+                    "schemaArgs",
+                    "schemaOutput",
                   ],
                   "title": "BaseTestRoute",
                   "type": "object",
