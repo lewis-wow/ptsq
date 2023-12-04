@@ -13,11 +13,16 @@ import {
   parseNativeEnumDef,
 } from './parsers/nativeEnum';
 import { JsonSchema7NullType, parseNullDef } from './parsers/null';
+import { JsonSchema7NullableType, parseNullableDef } from './parsers/nullable';
 import { JsonSchema7NumberType, parseNumberDef } from './parsers/number';
 import { JsonSchema7ObjectType, parseObjectDef } from './parsers/object';
 import { JsonSchema7RecordType, parseRecordDef } from './parsers/record';
 import { JsonSchema7StringType, parseStringDef } from './parsers/string';
 import { JsonSchema7TupleType, parseTupleDef } from './parsers/tuple';
+import {
+  JsonSchema7UndefinedType,
+  parseUndefinedDef,
+} from './parsers/undefined';
 import { JsonSchema7UnionType, parseUnionDef } from './parsers/union';
 import { Refs, Seen } from './Refs';
 
@@ -39,6 +44,8 @@ export type JsonSchema7TypeUnion =
   | JsonSchema7UnionType
   | JsonSchema7RefType
   | JsonSchema7AllOfType
+  | JsonSchema7NullableType
+  | JsonSchema7UndefinedType
   | Record<string, never>;
 
 export type JsonSchema7Type = JsonSchema7TypeUnion & {
@@ -100,4 +107,7 @@ const parser: Partial<
   [ZodFirstPartyTypeKind.ZodLazy]: (def: any, refs: Refs) =>
     parseDef(def.getter()._def, refs),
   [ZodFirstPartyTypeKind.ZodEffects]: parseEffectsDef,
+  [ZodFirstPartyTypeKind.ZodNullable]: (def: any, refs: Refs) =>
+    parseNullableDef(def, refs),
+  [ZodFirstPartyTypeKind.ZodUndefined]: parseUndefinedDef,
 };

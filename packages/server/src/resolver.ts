@@ -51,7 +51,7 @@ export type inferResolverOutput<TResolverOutput> =
 
 export class Resolver<
   TArgs,
-  TSchemaArgs extends ResolverArgs | z.ZodVoid = ResolverArgs | z.ZodVoid,
+  TSchemaArgs extends ResolverArgs | undefined = ResolverArgs | undefined,
   TContext extends Context = Context,
 > {
   _middlewares: AnyMiddleware[];
@@ -117,12 +117,12 @@ export class Resolver<
    * The next validation schema must extends the previous one
    */
   args<
-    TNextSchemaArgs extends TSchemaArgs extends z.ZodVoid
+    TNextSchemaArgs extends TSchemaArgs extends undefined
       ? ResolverArgs
       : TSchemaArgs,
   >(nextSchemaArgs: TNextSchemaArgs) {
     return new Resolver<
-      TSchemaArgs extends z.ZodVoid
+      TSchemaArgs extends undefined
         ? inferResolverArgs<TNextSchemaArgs>
         : Simplify<DeepMerge<inferResolverArgs<TNextSchemaArgs>, TArgs>>,
       TNextSchemaArgs,

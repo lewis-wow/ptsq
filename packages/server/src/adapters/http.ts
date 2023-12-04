@@ -65,14 +65,13 @@ export const HTTPRequestListener = {
       urlencoded({ extended: false }),
       json(),
       (req, res) => {
-        serve.call({ router, body: req.body, params: ctx }).then((response) => {
-          if (!response.ok)
-            return res.status(HTTPErrorCode[response.error.code]).json({
-              message: response.error.message,
-              info: response.error.info,
-            });
-          return res.json(response.data);
-        });
+        serve
+          .call({ router, body: req.body, params: ctx })
+          .then((response) =>
+            res
+              .status(response.ok ? 200 : HTTPErrorCode[response.error.code])
+              .json(response.ok ? response.data : response.error),
+          );
       },
     );
 

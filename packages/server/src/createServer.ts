@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { HTTPRequestListener } from './adapters/http';
 import type {
   ContextBuilder,
@@ -55,8 +54,8 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * });
    * ```
    */
-  const resolver = new Resolver<undefined, z.ZodVoid, RootContext>({
-    schemaArgs: z.void(),
+  const resolver = new Resolver<undefined, undefined, RootContext>({
+    schemaArgs: undefined,
     middlewares: [],
     transformations: [],
   });

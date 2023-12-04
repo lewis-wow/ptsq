@@ -1,4 +1,3 @@
-import type { z } from 'zod';
 import type { Context } from './context';
 import { HTTPError } from './httpError';
 import type {
@@ -44,11 +43,11 @@ export class Middleware<
   TNextContext extends Context,
 > {
   _middlewareFunction: MiddlewareFunction<TArgs, TContext, TNextContext>;
-  _schemaArgs: ResolverArgs | z.ZodVoid;
+  _schemaArgs: ResolverArgs | undefined;
   _transformations: AnyTransformation[];
 
   constructor(options: {
-    schemaArgs: ResolverArgs | z.ZodVoid;
+    schemaArgs: ResolverArgs | undefined;
     transformations: AnyTransformation[];
     middlewareFunction: MiddlewareFunction<TArgs, TContext, TNextContext>;
   }) {
@@ -59,35 +58,33 @@ export class Middleware<
 
   /**
    * @internal
+   *
+   * Creates a success response
    */
-  static createSuccessResponse({
-    data,
-    ctx,
-  }: {
+  static createSuccessResponse(options: {
     data: unknown;
     ctx: object;
   }): ResolverResponse<object> {
     return {
       ok: true,
-      data,
-      ctx,
+      data: options.data,
+      ctx: options.ctx,
     };
   }
 
   /**
    * @internal
+   *
+   * Create a failure response
    */
-  static createFailureResponse({
-    error,
-    ctx,
-  }: {
+  static createFailureResponse(options: {
     error: HTTPError;
     ctx: object;
   }): ResolverResponse<object> {
     return {
       ok: false,
-      error,
-      ctx,
+      error: options.error,
+      ctx: options.ctx,
     };
   }
 
@@ -98,55 +95,56 @@ export class Middleware<
    *
    * The last middleware that is called is always the resolve function.
    */
-  static async recursiveCall({
-    ctx,
-    meta,
-    index,
-    middlewares,
-  }: {
-    ctx: any;
+  static async recursiveCall(options: {
+    ctx: Context;
     meta: ResolverRequest;
     index: number;
     middlewares: AnyMiddleware[];
   }): Promise<ResolverResponse<any>> {
     try {
-      const parsedInput = middlewares[index]._schemaArgs.safeParse(meta.input);
+      const parsedInput = options.middlewares[
+        options.index
+      ]._schemaArgs?.safeParse(options.meta.input);
 
-      if (!parsedInput.success)
+      if (parsedInput !== undefined && !parsedInput.success)
         throw new HTTPError({
           code: 'BAD_REQUEST',
           message: 'Args validation error.',
           info: parsedInput.error,
         });
 
-      const transformedInputData = await middlewares[
-        index
+      const transformedInputData = await options.middlewares[
+        options.index
       ]._transformations.reduce(
         async (acc, currentTransformation) =>
           // eslint-disable-next-line @typescript-eslint/no-unsafe-return
           await currentTransformation(await acc),
-        Promise.resolve(parsedInput.data as unknown),
+        Promise.resolve(parsedInput?.data),
       );
 
-      return await middlewares[index]._middlewareFunction({
+      return await options.middlewares[options.index]._middlewareFunction({
         input: transformedInputData,
-        meta,
-        ctx,
+        meta: options.meta,
+        ctx: options.ctx,
         next: async (nextContext): Promise<ResolverResponse<any>> => {
           return await Middleware.recursiveCall({
             ctx: nextContext,
-            meta,
-            index: index + 1,
-            middlewares,
+            meta: options.meta,
+            index: options.index + 1,
+            middlewares: options.middlewares,
           });
         },
       });
     } catch (error) {
-      if (HTTPError.isHttpError(error))
-        return Middleware.createFailureResponse({ ctx, error });
-
-      // rethrow original error
-      throw error;
+      return Middleware.createFailureResponse({
+        ctx: options.ctx,
+        error: HTTPError.isHttpError(error)
+          ? error
+          : new HTTPError({
+              code: 'INTERNAL_SERVER_ERROR',
+              info: error,
+            }),
+      });
     }
   }
 }

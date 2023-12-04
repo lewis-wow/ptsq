@@ -24,6 +24,8 @@ export class Router<TRoutes extends Routes> {
   }
 
   /**
+   * @internal
+   *
    * Gets the json schema of the whole router recursivelly
    */
   getJsonSchema(title = 'base') {
@@ -47,18 +49,16 @@ export class Router<TRoutes extends Routes> {
   }
 
   /**
+   * @internal
+   *
    * Call the router and shift a route path
    */
-  call({
-    route,
-    ctx,
-    meta,
-  }: {
+  call(options: {
     route: Queue<string>;
     ctx: Context;
     meta: ResolverRequest;
   }): Promise<ResolverResponse<Context>> {
-    const currentRoute = route.dequeue();
+    const currentRoute = options.route.dequeue();
 
     if (!currentRoute)
       throw new HTTPError({
@@ -75,17 +75,16 @@ export class Router<TRoutes extends Routes> {
 
     const nextNode = this.routes[currentRoute];
 
-    if (nextNode.nodeType === 'router')
-      return nextNode.call({ route, ctx, meta });
+    if (nextNode.nodeType === 'router') return nextNode.call(options);
 
-    if (route.size !== 0)
+    if (options.route.size !== 0)
       throw new HTTPError({
         code: 'BAD_REQUEST',
         message:
           'The route continues, but should be terminated by query or mutate.',
       });
 
-    return nextNode.call({ meta, ctx });
+    return nextNode.call(options);
   }
 }
 

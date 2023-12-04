@@ -1,4 +1,3 @@
-import type { z } from 'zod';
 import type { AnyMiddleware } from './middleware';
 import type {
   AnyResolveFunction,
@@ -14,7 +13,7 @@ import type { AnyTransformation } from './transformation';
  * Mutation class container
  */
 export class Mutation<
-  TSchemaArgs extends ResolverArgs | z.ZodVoid,
+  TSchemaArgs extends ResolverArgs | undefined,
   TSchemaOutput extends ResolverOutput,
   TResolveFunction extends AnyResolveFunction,
 > extends Route<'mutation', TSchemaArgs, TSchemaOutput, TResolveFunction> {
@@ -33,7 +32,7 @@ export class Mutation<
 }
 
 export type AnyMutation = Mutation<
-  ResolverArgs | z.ZodVoid,
+  ResolverArgs | undefined,
   ResolverOutput,
   AnyResolveFunction
 >;

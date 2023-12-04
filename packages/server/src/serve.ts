@@ -27,35 +27,33 @@ export class Serve<TContext extends Context = Context> {
   }
 
   /**
+   * @internal
+   *
    * Validates an input and calls the route in the router.
    */
-  async call<TParams>({
-    router,
-    body,
-    params,
-  }: {
+  async call<TParams>(options: {
     router: AnyRouter;
     body: unknown;
     params: TParams;
   }) {
-    const ctx = await this._contextBuilder(params);
-
-    const parsedRequestBody = requestBodySchema.safeParse(body);
-
-    if (!parsedRequestBody.success)
-      return Middleware.createFailureResponse({
-        ctx,
-        error: new HTTPError({
-          code: 'BAD_REQUEST',
-          message: 'Parsing request body failed.',
-          info: parsedRequestBody.error,
-        }),
-      });
-
-    const routeQueue = new Queue(parsedRequestBody.data.route.split('.'));
-
     try {
-      return router.call({
+      const ctx = await this._contextBuilder(options.params);
+
+      const parsedRequestBody = requestBodySchema.safeParse(options.body);
+
+      if (!parsedRequestBody.success)
+        return Middleware.createFailureResponse({
+          ctx,
+          error: new HTTPError({
+            code: 'BAD_REQUEST',
+            message: 'Parsing request body failed.',
+            info: parsedRequestBody.error,
+          }),
+        });
+
+      const routeQueue = new Queue(parsedRequestBody.data.route.split('.'));
+
+      return options.router.call({
         route: routeQueue,
         meta: {
           input: parsedRequestBody.data.input,
@@ -64,14 +62,15 @@ export class Serve<TContext extends Context = Context> {
         ctx,
       });
     } catch (error) {
-      if (HTTPError.isHttpError(error))
-        return Middleware.createFailureResponse({
-          ctx,
-          error,
-        });
-
-      // rethrow the error
-      throw error;
+      return Middleware.createFailureResponse({
+        ctx: {},
+        error: HTTPError.isHttpError(error)
+          ? error
+          : new HTTPError({
+              code: 'INTERNAL_SERVER_ERROR',
+              info: error,
+            }),
+      });
     }
   }
 }

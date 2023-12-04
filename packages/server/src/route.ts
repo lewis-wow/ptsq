@@ -1,5 +1,5 @@
 import { zodToJsonSchema } from '@ptsq/zod-parser';
-import type { z } from 'zod';
+import { z } from 'zod';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
@@ -24,7 +24,7 @@ import type { ResolverType } from './types';
  */
 export class Route<
   TType extends ResolverType,
-  TSchemaArgs extends ResolverArgs | z.ZodVoid,
+  TSchemaArgs extends ResolverArgs | undefined,
   TSchemaOutput extends ResolverOutput,
   TResolveFunction extends AnyResolveFunction,
 > {
@@ -53,6 +53,8 @@ export class Route<
   }
 
   /**
+   * @internal
+   *
    * Gets the json schema of the route for the introspection query
    */
   getJsonSchema(title: string) {
@@ -67,13 +69,15 @@ export class Route<
           type: 'string',
           enum: [this.nodeType],
         },
-        args: zodToJsonSchema(this.schemaArgs),
-        output: zodToJsonSchema(this.schemaOutput),
+        schemaArgs: zodToJsonSchema(this.schemaArgs ?? z.undefined()),
+        schemaOutput: zodToJsonSchema(this.schemaOutput),
       },
     });
   }
 
   /**
+   * @internal
+   *
    * call the route with input and context
    */
   async call({
@@ -128,7 +132,7 @@ export class Route<
 
 export type AnyRoute = Route<
   ResolverType,
-  ResolverArgs | z.ZodVoid,
+  ResolverArgs | undefined,
   ResolverOutput,
   AnyResolveFunction
 >;
