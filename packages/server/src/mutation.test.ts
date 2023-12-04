@@ -452,7 +452,25 @@ test('Should create mutation with optional args chain', async () => {
           ],
           "type": "string",
         },
-        "schemaArgs": {},
+        "schemaArgs": {
+          "anyOf": [
+            {
+              "not": {},
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "firstName": {
+                  "type": "string",
+                },
+                "lastName": {
+                  "type": "string",
+                },
+              },
+              "type": "object",
+            },
+          ],
+        },
         "schemaOutput": {
           "type": "string",
         },

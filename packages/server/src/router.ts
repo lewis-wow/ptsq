@@ -1,5 +1,5 @@
 import type { Context } from './context';
-import { createSchemaRoot } from './createSchemaRoot';
+import { createSchemaRoot, type SchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
 import type { AnyMutation } from './mutation';
 import type { AnyQuery } from './query';
@@ -37,9 +37,9 @@ export class Router<TRoutes extends Routes> {
           enum: [this.nodeType],
         },
         routes: createSchemaRoot({
-          properties: Object.entries(this.routes).reduce((acc, [key, node]) => {
-            //@ts-expect-error acc don't have type right now
-            // TODO: fix the acc type!
+          properties: Object.entries(this.routes).reduce<
+            Record<string, SchemaRoot>
+          >((acc, [key, node]) => {
             acc[key] = node.getJsonSchema(`${title} ${key}`);
             return acc;
           }, {}),
