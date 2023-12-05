@@ -1,5 +1,5 @@
-import type { IncomingMessage, ServerResponse } from 'http';
-import { HTTPRequestListener } from './adapters/http';
+import { useCookies } from '@whatwg-node/server-plugin-cookies';
+import { createRouter, Response, useCORS } from 'fets';
 import type {
   ContextBuilder,
   inferContextFromContextBuilder,
@@ -8,7 +8,7 @@ import type {
 import type { CORSOptions } from './cors';
 import { Resolver } from './resolver';
 import { Router, type AnyRouter, type Routes } from './router';
-import { Serve } from './serve';
+import { serve as _serve } from './serve';
 
 /**
  * @internal
@@ -36,7 +36,6 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
 export const createServer = <TContextBuilder extends ContextBuilder>({
   ctx,
   cors,
-  rootPath,
 }: CreateServerArgs<TContextBuilder>) => {
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
   type ContextBuilderParams =
@@ -61,8 +60,6 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
     transformations: [],
   });
 
-  const serve = new Serve({ contextBuilder: ctx });
-
   /**
    * Creates a fully typed router
    * routers can be merged as you want, they creates sdk-like structure
@@ -81,36 +78,47 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   const router = <TRoutes extends Routes>(routes: TRoutes) =>
     new Router({ routes });
 
-  /**
-   * Serve your server into some rest-api adapter like Express, Fastify, node:http, ...
-   *
-   * @example
-   * ```ts
-   * createHTTPNodeHandler({ router: rootRouter });
-   * ```
-   */
-  const createHTTPNodeHandler = (
-    req: IncomingMessage,
-    res: ServerResponse,
-    {
-      router: baseRotuer,
-      ctx: ctxParams,
-    }: {
-      router: AnyRouter;
-      ctx: ContextBuilderParams;
-    },
-  ) =>
-    HTTPRequestListener.createRequestListenerHandler(req, res, {
-      serve,
-      cors,
-      router: baseRotuer,
-      ctx: ctxParams,
-    });
+  const serve = (options: { router: AnyRouter; ctx: ContextBuilderParams }) => {
+    return createRouter({
+      plugins: [useCORS(cors), useCookies()],
+    })
+      .route({
+        path: '/ptsq',
+        method: 'POST',
+        handler: async (req) => {
+          const requestBody = await req.json();
+
+          const serverResponse = await _serve({
+            router: options.router,
+            body: requestBody,
+            contextBuilder: ctx,
+            params: options.ctx,
+          });
+
+          return Response.json(serverResponse);
+        },
+      })
+      .route({
+        path: '/ptsq/introspection',
+        method: 'GET',
+        handler: async (req) => {
+          const requestBody = await req.json();
+
+          const serverResponse = await _serve({
+            router: options.router,
+            body: requestBody,
+            contextBuilder: ctx,
+            params: options.ctx,
+          });
+
+          return Response.json(serverResponse);
+        },
+      });
+  };
 
   return {
     resolver,
     router,
-    createHTTPNodeHandler,
-    rootPath,
+    serve,
   };
 };

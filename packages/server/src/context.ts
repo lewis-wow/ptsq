@@ -2,6 +2,10 @@ import type { MaybePromise } from './types';
 
 export type Context = object;
 
+export type InitialContext = {
+  request: Request;
+};
+
 /**
  * @internal
  */

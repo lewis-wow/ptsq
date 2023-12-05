@@ -29,6 +29,23 @@ export class HTTPError extends Error {
     Object.setPrototypeOf(this, HTTPError.prototype);
   }
 
+  toJSON() {
+    return {
+      code: this.code,
+      name: this.name,
+      message: this.message,
+      info: this.info,
+    };
+  }
+
+  toString() {
+    return JSON.stringify(this.toJSON());
+  }
+
+  getHTTPErrorCode() {
+    return HTTPErrorCode[this.code];
+  }
+
   /**
    * Check if the error in catch scope is HTTPError
    *

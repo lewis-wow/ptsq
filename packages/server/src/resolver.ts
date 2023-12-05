@@ -1,10 +1,10 @@
 import type { z } from 'zod';
 import type { Context } from './context';
-import type { HTTPError } from './httpError';
 import {
   Middleware,
   type AnyMiddleware,
   type MiddlewareFunction,
+  type MiddlewareMeta,
 } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
@@ -19,23 +19,6 @@ import {
   type inferArgsTransformationNextArgs,
 } from './transformation';
 import type { DeepMerge, MaybePromise, Simplify } from './types';
-
-export type ResolverResponse<TContext extends Context> =
-  | {
-      ok: true;
-      data: unknown;
-      ctx: TContext;
-    }
-  | {
-      ok: false;
-      error: HTTPError;
-      ctx: TContext;
-    };
-
-export type ResolverRequest = {
-  input: unknown;
-  route: string;
-};
 
 export type ResolverArgs = SerializableInputZodSchema;
 export type ResolverOutput = SerializableOutputZodSchema;
@@ -190,7 +173,7 @@ export type ResolveFunction<
 > = (options: {
   input: TInput;
   ctx: TContext;
-  meta: ResolverRequest;
+  meta: MiddlewareMeta;
 }) => MaybePromise<TOutput>;
 
 export type AnyResolveFunction = ResolveFunction<any, any, any>;

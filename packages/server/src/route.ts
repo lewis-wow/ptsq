@@ -3,14 +3,16 @@ import { z } from 'zod';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
-import { Middleware } from './middleware';
-import type { AnyMiddleware } from './middleware';
+import {
+  Middleware,
+  MiddlewareResponse,
+  type MiddlewareMeta,
+} from './middleware';
+import type { AnyMiddleware, AnyRawMiddlewareReponse } from './middleware';
 import type {
   AnyResolveFunction,
   ResolverArgs,
   ResolverOutput,
-  ResolverRequest,
-  ResolverResponse,
 } from './resolver';
 import type { AnyTransformation } from './transformation';
 import type { ResolverType } from './types';
@@ -85,8 +87,8 @@ export class Route<
     meta,
   }: {
     ctx: Context;
-    meta: ResolverRequest;
-  }): Promise<ResolverResponse<Context>> {
+    meta: MiddlewareMeta;
+  }): Promise<AnyRawMiddlewareReponse> {
     const response = await Middleware.recursiveCall({
       ctx,
       meta,
@@ -116,11 +118,10 @@ export class Route<
                 info: parsedOutput.error,
               });
 
-            return {
-              ok: true,
+            return MiddlewareResponse.createRawSuccessResponse({
               data: parsedOutput.data,
               ctx: finalContext,
-            };
+            });
           },
         }),
       ],

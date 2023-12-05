@@ -1,10 +1,13 @@
 import type { Context } from './context';
 import { createSchemaRoot, type SchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
+import {
+  type AnyRawMiddlewareReponse,
+  type MiddlewareMeta,
+} from './middleware';
 import type { AnyMutation } from './mutation';
 import type { AnyQuery } from './query';
 import type { Queue } from './queue';
-import type { ResolverRequest, ResolverResponse } from './resolver';
 
 export type Routes = {
   [Key: string]: AnyQuery | AnyMutation | AnyRouter;
@@ -56,8 +59,8 @@ export class Router<TRoutes extends Routes> {
   call(options: {
     route: Queue<string>;
     ctx: Context;
-    meta: ResolverRequest;
-  }): Promise<ResolverResponse<Context>> {
+    meta: MiddlewareMeta;
+  }): Promise<AnyRawMiddlewareReponse> {
     const currentRoute = options.route.dequeue();
 
     if (!currentRoute)

@@ -40,8 +40,11 @@
   },
   "dependencies": {
     "@ptsq/zod-parser": "*",
+    "@whatwg-node/server": "^0.9.18",
+    "@whatwg-node/server-plugin-cookies": "^1.0.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
+    "fets": "^0.6.6",
     "pascalcase": "^0.1.1",
     "zod": "^3.22.2"
   }

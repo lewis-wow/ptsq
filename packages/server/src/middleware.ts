@@ -1,10 +1,6 @@
 import type { Context } from './context';
 import { HTTPError } from './httpError';
-import type {
-  ResolverArgs,
-  ResolverRequest,
-  ResolverResponse,
-} from './resolver';
+import type { ResolverArgs } from './resolver';
 import type { AnyTransformation } from './transformation';
 
 /**
@@ -12,7 +8,7 @@ import type { AnyTransformation } from './transformation';
  */
 export type NextFunction = <TNextContext extends Context>(
   nextContext: TNextContext,
-) => Promise<ResolverResponse<TNextContext>>;
+) => Promise<RawMiddlewareReponse<TNextContext>>;
 
 /**
  * @internal
@@ -23,7 +19,7 @@ export type MiddlewareFunction<
   TNextContext extends Context,
 > = (options: {
   input: TArgs;
-  meta: ResolverRequest;
+  meta: MiddlewareMeta;
   ctx: TContext;
   next: NextFunction;
 }) => ReturnType<typeof options.next<TNextContext>>;
@@ -33,6 +29,11 @@ export type AnyMiddlewareCallback = MiddlewareFunction<
   Context,
   Context
 >;
+
+export type MiddlewareMeta = {
+  input: unknown;
+  route: string;
+};
 
 /**
  * The middleware class container
@@ -59,48 +60,16 @@ export class Middleware<
   /**
    * @internal
    *
-   * Creates a success response
-   */
-  static createSuccessResponse(options: {
-    data: unknown;
-    ctx: object;
-  }): ResolverResponse<object> {
-    return {
-      ok: true,
-      data: options.data,
-      ctx: options.ctx,
-    };
-  }
-
-  /**
-   * @internal
-   *
-   * Create a failure response
-   */
-  static createFailureResponse(options: {
-    error: HTTPError;
-    ctx: object;
-  }): ResolverResponse<object> {
-    return {
-      ok: false,
-      error: options.error,
-      ctx: options.ctx,
-    };
-  }
-
-  /**
-   * @internal
-   *
    * Call all middlewares recursivelly depends on the `next` function call.
    *
    * The last middleware that is called is always the resolve function.
    */
   static async recursiveCall(options: {
     ctx: Context;
-    meta: ResolverRequest;
+    meta: MiddlewareMeta;
     index: number;
     middlewares: AnyMiddleware[];
-  }): Promise<ResolverResponse<any>> {
+  }): Promise<AnyRawMiddlewareReponse> {
     try {
       const parsedInput = options.middlewares[
         options.index
@@ -126,8 +95,8 @@ export class Middleware<
         input: transformedInputData,
         meta: options.meta,
         ctx: options.ctx,
-        next: async (nextContext): Promise<ResolverResponse<any>> => {
-          return await Middleware.recursiveCall({
+        next: (nextContext): Promise<AnyRawMiddlewareReponse> => {
+          return Middleware.recursiveCall({
             ctx: nextContext,
             meta: options.meta,
             index: options.index + 1,
@@ -136,7 +105,7 @@ export class Middleware<
         },
       });
     } catch (error) {
-      return Middleware.createFailureResponse({
+      return MiddlewareResponse.createRawFailureResponse({
         ctx: options.ctx,
         error: HTTPError.isHttpError(error)
           ? error
@@ -150,3 +119,58 @@ export class Middleware<
 }
 
 export type AnyMiddleware = Middleware<unknown, Context, Context>;
+
+export type RawMiddlewareReponse<TContext extends Context> =
+  | { ok: true; data: unknown; ctx: TContext }
+  | { ok: false; error: HTTPError; ctx: TContext };
+
+export type AnyRawMiddlewareReponse = RawMiddlewareReponse<Context>;
+
+export class MiddlewareResponse<TContext extends Context> {
+  constructor(public response: RawMiddlewareReponse<TContext>) {}
+
+  toJSON() {
+    if (this.response.ok)
+      return {
+        data: this.response.data,
+      };
+
+    return {
+      error: this.response.error.toJSON(),
+    };
+  }
+
+  toString() {
+    return JSON.stringify(this.toJSON());
+  }
+
+  toResponse(): Response {
+    return new Response(this.toString(), {
+      status: this.response.ok ? 200 : this.response.error.getHTTPErrorCode(),
+    });
+  }
+
+  static createRawFailureResponse(options: {
+    error: HTTPError;
+    ctx: Context;
+  }): AnyRawMiddlewareReponse {
+    return {
+      ok: false,
+      error: options.error,
+      ctx: options.ctx,
+    };
+  }
+
+  static createRawSuccessResponse(options: {
+    data: unknown;
+    ctx: Context;
+  }): AnyRawMiddlewareReponse {
+    return {
+      ok: true,
+      data: options.data,
+      ctx: options.ctx,
+    };
+  }
+}
+
+export type AnyMiddlewareResponse = MiddlewareResponse<Context>;
