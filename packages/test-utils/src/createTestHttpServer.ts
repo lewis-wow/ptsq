@@ -59,7 +59,7 @@ export const createTestHttpServer = <
             address.port
           }`;
 
-    client(`${serverRootUrl}/ptsq`, baseRouter);
+    await client(`${serverRootUrl}/ptsq`, baseRouter);
 
     httpServer.on('close', resolve);
 
