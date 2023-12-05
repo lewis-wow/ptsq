@@ -2,7 +2,7 @@ import { createServer as createHttpServer } from 'http';
 import { createServer, HttpAdapterContext } from '@ptsq/server';
 import { z } from 'zod';
 
-const { router, resolver, createHTTPNodeHandler } = createServer({
+const { router, resolver, serve } = createServer({
   ctx: async ({ req, res }: HttpAdapterContext) => ({
     req,
     res,
@@ -17,13 +17,7 @@ const baseRouter = router({
 });
 
 const app = createHttpServer((req, res) =>
-  createHTTPNodeHandler(req, res, {
-    router: baseRouter,
-    ctx: {
-      req,
-      res,
-    },
-  }),
+  serve(baseRouter, { req, res }).handleNodeRequest(req),
 );
 
 app.listen(4000, () => {

@@ -49,10 +49,7 @@ export const createTestServer = <
     const baseRouter = await server(ptsq);
 
     const serverProviderResult = serverProvider((req, res) => {
-      ptsq.createHTTPNodeHandler(req, res, {
-        router: baseRouter,
-        ctx: { req, res } as any,
-      });
+      ptsq.serve(baseRouter, { req, res }).handleNodeRequest(req);
     });
 
     const httpServer = serverProviderResult.listen(0);

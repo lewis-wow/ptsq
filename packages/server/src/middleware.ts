@@ -95,7 +95,7 @@ export class Middleware<
         input: transformedInputData,
         meta: options.meta,
         ctx: options.ctx,
-        next: (nextContext): Promise<AnyRawMiddlewareReponse> => {
+        next: (nextContext): Promise<RawMiddlewareReponse<any>> => {
           return Middleware.recursiveCall({
             ctx: nextContext,
             meta: options.meta,

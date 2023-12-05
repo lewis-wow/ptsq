@@ -1,8 +1,13 @@
-import type { HttpAdapterContext } from '@ptsq/server';
+import type { IncomingMessage, ServerResponse } from 'http';
 import { createTestHttpServer } from '@ptsq/test-utils';
 import { expect, test } from 'vitest';
 import { z } from 'zod';
 import { createProxyClient } from './createProxyClient';
+
+type HttpAdapterContext = {
+  req: IncomingMessage;
+  res: ServerResponse;
+};
 
 test('Should create simple http server with proxy client', async () => {
   await createTestHttpServer({

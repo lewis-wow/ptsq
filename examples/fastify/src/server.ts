@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 const app = Fastify();
 
-const { router, resolver, createHTTPNodeHandler } = createServer({
+const { router, resolver, serve } = createServer({
   ctx: async ({ req, res }: FastifyAdapterContext) => ({
     req,
     res,
@@ -20,15 +20,7 @@ const baseRouter = router({
 });
 
 app.register(fastifyExpress).then(() => {
-  app.use((req, res) =>
-    createHTTPNodeHandler(req, res, {
-      router: baseRouter,
-      ctx: {
-        req,
-        res,
-      },
-    }),
-  );
+  app.use((req, res) => serve(baseRouter, { req, res }).handleNodeRequest(req));
 
   app.listen({ port: 4000 }, () => {
     console.log('Listening on: http://localhost:4000/ptsq');

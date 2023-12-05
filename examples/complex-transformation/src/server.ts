@@ -5,7 +5,7 @@ import { Gender } from './gender';
 
 const app = express();
 
-const { router, resolver, createHTTPNodeHandler } = createServer({
+const { router, resolver, serve } = createServer({
   ctx: async ({ req, res }: ExpressAdapterContext) => ({
     req,
     res,
@@ -60,15 +60,7 @@ const baseRouter = router({
     }),
 });
 
-app.use((req, res) =>
-  createHTTPNodeHandler(req, res, {
-    router: baseRouter,
-    ctx: {
-      req,
-      res,
-    },
-  }),
-);
+app.use((req, res) => serve(baseRouter, { req, res }).handleNodeRequest(req));
 
 app.listen(4000, () => {
   console.log('Listening on: http://localhost:4000/ptsq');

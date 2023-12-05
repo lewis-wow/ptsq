@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 const app = new Koa();
 
-const { router, resolver, createHTTPNodeHandler } = createServer({
+const { router, resolver, serve } = createServer({
   ctx: async ({ req, res }: KoaAdapterContext) => ({
     req,
     res,
@@ -19,13 +19,9 @@ const baseRouter = router({
 });
 
 app.use((ctx) =>
-  createHTTPNodeHandler(ctx.req, ctx.res, {
-    router: baseRouter,
-    ctx: {
-      req: ctx.request,
-      res: ctx.response,
-    },
-  }),
+  serve(baseRouter, { req: ctx.request, res: ctx.response }).handleNodeRequest(
+    ctx.req,
+  ),
 );
 
 app.listen(4000, () => {

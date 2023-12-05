@@ -9,6 +9,6 @@ const createContext = ({ req, res }: ExpressAdapterContext) => {
   };
 };
 
-export const { router, resolver, createHTTPNodeHandler } = createServer({
+export const { router, resolver, serve } = createServer({
   ctx: createContext,
 });

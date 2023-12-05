@@ -78,7 +78,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   const router = <TRoutes extends Routes>(routes: TRoutes) =>
     new Router({ routes });
 
-  const serve = (options: { router: AnyRouter; ctx: ContextBuilderParams }) => {
+  const serve = (baseRouter: AnyRouter, ctxParams: ContextBuilderParams) => {
     return createRouter({
       plugins: [useCORS(cors), useCookies()],
     })
@@ -89,10 +89,10 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
           const requestBody = await req.json();
 
           const serverResponse = await _serve({
-            router: options.router,
+            router: baseRouter,
             body: requestBody,
             contextBuilder: ctx,
-            params: options.ctx,
+            params: ctxParams,
           });
 
           return Response.json(serverResponse);
@@ -101,18 +101,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
       .route({
         path: '/ptsq/introspection',
         method: 'GET',
-        handler: async (req) => {
-          const requestBody = await req.json();
-
-          const serverResponse = await _serve({
-            router: options.router,
-            body: requestBody,
-            contextBuilder: ctx,
-            params: options.ctx,
-          });
-
-          return Response.json(serverResponse);
-        },
+        handler: () => Response.json(baseRouter.getJsonSchema('base')),
       });
   };
 
