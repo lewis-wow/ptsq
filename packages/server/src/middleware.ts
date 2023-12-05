@@ -130,14 +130,7 @@ export class MiddlewareResponse<TContext extends Context> {
   constructor(public response: RawMiddlewareReponse<TContext>) {}
 
   toJSON() {
-    if (this.response.ok)
-      return {
-        data: this.response.data,
-      };
-
-    return {
-      error: this.response.error.toJSON(),
-    };
+    return this.response.ok ? this.response.data : this.response.error.toJSON();
   }
 
   toString() {
