@@ -49,9 +49,7 @@ export const createTestServer = <
     const baseRouter = await server(ptsq);
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    const serverProviderResult = serverProvider((req, res) =>
-      ptsq.serve(baseRouter)(req, res, { req, res }),
-    );
+    const serverProviderResult = serverProvider(ptsq.serve(baseRouter));
 
     const httpServer = serverProviderResult.listen(0);
 

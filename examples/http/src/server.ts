@@ -1,12 +1,19 @@
-import { createServer as createHttpServer } from 'http';
-import { createServer, HttpAdapterContext } from '@ptsq/server';
+import {
+  createServer as createHttpServer,
+  IncomingMessage,
+  ServerResponse,
+} from 'http';
+import { createServer } from '@ptsq/server';
 import { z } from 'zod';
 
 const { router, resolver, serve } = createServer({
-  ctx: async ({ req, res }: HttpAdapterContext) => ({
-    req,
-    res,
-  }),
+  ctx: ({ req, res }: { req: IncomingMessage; res: ServerResponse }) => {
+    console.log(req, res);
+    return {
+      req,
+      res,
+    };
+  },
 });
 
 const baseRouter = router({
@@ -17,7 +24,10 @@ const baseRouter = router({
 });
 
 const app = createHttpServer((req, res) =>
-  serve(baseRouter, { req, res }).handleNodeRequest(req),
+  serve(baseRouter)(req, res, {
+    req,
+    res,
+  }),
 );
 
 app.listen(4000, () => {

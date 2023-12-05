@@ -81,6 +81,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   const serve = (baseRouter: AnyRouter) => {
     return createRouter<ContextBuilderParams>({
       plugins: [useCORS(cors), useCookies()],
+      landingPage: false,
     })
       .route({
         path: '/ptsq',
@@ -95,7 +96,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
             params: ctxParams,
           });
 
-          return Response.json(serverResponse);
+          return Response.json(serverResponse.toJSON());
         },
       })
       .route({
