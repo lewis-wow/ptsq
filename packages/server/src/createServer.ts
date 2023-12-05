@@ -78,14 +78,14 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   const router = <TRoutes extends Routes>(routes: TRoutes) =>
     new Router({ routes });
 
-  const serve = (baseRouter: AnyRouter, ctxParams: ContextBuilderParams) => {
-    return createRouter({
+  const serve = (baseRouter: AnyRouter) => {
+    return createRouter<ContextBuilderParams>({
       plugins: [useCORS(cors), useCookies()],
     })
       .route({
         path: '/ptsq',
         method: 'POST',
-        handler: async (req) => {
+        handler: async (req, ctxParams) => {
           const requestBody = await req.json();
 
           const serverResponse = await _serve({

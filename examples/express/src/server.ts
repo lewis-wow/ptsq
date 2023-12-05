@@ -1,14 +1,16 @@
-import { createServer, ExpressAdapterContext } from '@ptsq/server';
-import express from 'express';
+import { createServer } from '@ptsq/server';
+import express, { Request, Response } from 'express';
 import { z } from 'zod';
 
 const app = express();
 
+const createContext = ({ req, res }: { req: Request; res: Response }) => ({
+  req,
+  res,
+});
+
 const { router, resolver, serve } = createServer({
-  ctx: async ({ req, res }: ExpressAdapterContext) => ({
-    req,
-    res,
-  }),
+  ctx: createContext,
 });
 
 const baseRouter = router({
@@ -18,7 +20,7 @@ const baseRouter = router({
   }),
 });
 
-app.use((req, res) => serve(baseRouter, { req, res }).handleNodeRequest(req));
+app.use((req, res) => serve(baseRouter).handleNodeRequest(req, { req, res }));
 
 app.listen(4000, () => {
   console.log('Listening on: http://localhost:4000/ptsq');

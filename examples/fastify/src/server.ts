@@ -1,15 +1,24 @@
+import type { IncomingMessage, ServerResponse } from 'http';
 import fastifyExpress from '@fastify/express';
-import { createServer, FastifyAdapterContext } from '@ptsq/server';
+import { createServer } from '@ptsq/server';
 import Fastify from 'fastify';
 import { z } from 'zod';
 
 const app = Fastify();
 
+const createContext = ({
+  req,
+  res,
+}: {
+  req: IncomingMessage;
+  res: ServerResponse;
+}) => ({
+  req,
+  res,
+});
+
 const { router, resolver, serve } = createServer({
-  ctx: async ({ req, res }: FastifyAdapterContext) => ({
-    req,
-    res,
-  }),
+  ctx: createContext,
 });
 
 const baseRouter = router({
@@ -20,7 +29,7 @@ const baseRouter = router({
 });
 
 app.register(fastifyExpress).then(() => {
-  app.use((req, res) => serve(baseRouter, { req, res }).handleNodeRequest(req));
+  app.use((req, res) => serve(baseRouter).handleNodeRequest(req, { req, res }));
 
   app.listen({ port: 4000 }, () => {
     console.log('Listening on: http://localhost:4000/ptsq');
