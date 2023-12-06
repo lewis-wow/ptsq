@@ -1,3 +1,4 @@
+import type { FetchAPI } from '@whatwg-node/server';
 import { useCookies } from '@whatwg-node/server-plugin-cookies';
 import { createRouter, Response, useCORS } from 'fets';
 import type {
@@ -16,7 +17,9 @@ import { serve as _serve } from './serve';
 type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   ctx: TContextBuilder;
   cors?: CORSOptions;
-  rootPath?: string;
+  fetchAPI?: FetchAPI;
+  root?: string;
+  endpoint?: string;
 };
 
 /**
@@ -36,10 +39,15 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
 export const createServer = <TContextBuilder extends ContextBuilder>({
   ctx,
   cors,
+  fetchAPI,
+  root = '',
+  endpoint = '/ptsq',
 }: CreateServerArgs<TContextBuilder>) => {
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
   type ContextBuilderParams =
     inferContextParamsFromContextBuilder<TContextBuilder>;
+
+  const path = `${root.replace(/\/$/, '')}/${endpoint.replace(/^\/|\/$/g, '')}`;
 
   /**
    * Creates a queries or mutations
@@ -89,9 +97,10 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
     return createRouter<ContextBuilderParams>({
       plugins: [useCORS(cors), useCookies()],
       landingPage: false,
+      fetchAPI: fetchAPI,
     })
       .route({
-        path: '/ptsq',
+        path: path,
         method: 'POST',
         handler: async (req, ctxParams) => {
           const requestBody = await req.json();
@@ -111,7 +120,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
         },
       })
       .route({
-        path: '/ptsq/introspection',
+        path: `${path}/introspection`,
         method: 'GET',
         handler: () => Response.json(baseRouter.getJsonSchema('base')),
       });
