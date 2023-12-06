@@ -1,5 +1,5 @@
 {
-  "name": "sveltekit",
+  "name": "@ptsq/example-sveltekit",
   "version": "0.0.1",
   "private": true,
   "scripts": {
