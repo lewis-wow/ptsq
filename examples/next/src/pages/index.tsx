@@ -1,11 +1,13 @@
 import { client } from '@/client';
 import { TextField } from '@/components/TextField';
 import { createUserSchema } from '@/server/validation';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Formik } from 'formik';
 import { toFormikValidate } from 'zod-formik-adapter';
 
 export default function Index() {
+  const queryClient = useQueryClient();
+
   const createUserMutation = useMutation<
     Awaited<ReturnType<typeof client.user.create.mutate>>,
     Error,
@@ -13,23 +15,40 @@ export default function Index() {
   >({
     mutationKey: ['users'],
     mutationFn: (params) => client.user.create.mutate(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+
+  const deleteUserMutation = useMutation<
+    Awaited<ReturnType<typeof client.user.delete.mutate>>,
+    Error,
+    Parameters<typeof client.user.delete.mutate>[0]
+  >({
+    mutationKey: ['users'],
+    mutationFn: (params) => client.user.delete.mutate(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
   });
 
   const usersQuery = useQuery({
     queryKey: ['users'],
-    queryFn: (params) => client.user.create.mutate(params),
+    queryFn: () => client.user.list.query({}),
   });
 
   return (
     <main>
       <h2>Vytvořit uživatele</h2>
       <Formik
+        validateOnMount
+        enableReinitialization
         initialValues={{
           name: '',
           email: '',
         }}
         validate={toFormikValidate(createUserSchema)}
-        onSubmit={(values) => {
+        onSubmit={async (values) => {
           createUserMutation.mutate(values);
         }}
       >
@@ -44,6 +63,19 @@ export default function Index() {
           </form>
         )}
       </Formik>
+
+      <ul>
+        {usersQuery.data?.map((user) => (
+          <li key={user.id}>
+            <span>
+              {user.name} - {user.email}
+            </span>
+            <button onClick={() => deleteUserMutation.mutate({ id: user.id })}>
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
     </main>
   );
 }
