@@ -46,7 +46,13 @@ test('Should create query route', async () => {
     {
       "additionalProperties": false,
       "properties": {
-        "args": {
+        "nodeType": {
+          "enum": [
+            "route",
+          ],
+          "type": "string",
+        },
+        "schemaArgs": {
           "additionalProperties": false,
           "properties": {
             "name": {
@@ -58,13 +64,7 @@ test('Should create query route', async () => {
           ],
           "type": "object",
         },
-        "nodeType": {
-          "enum": [
-            "route",
-          ],
-          "type": "string",
-        },
-        "output": {
+        "schemaOutput": {
           "type": "string",
         },
         "type": {
@@ -77,8 +77,8 @@ test('Should create query route', async () => {
       "required": [
         "type",
         "nodeType",
-        "args",
-        "output",
+        "schemaArgs",
+        "schemaOutput",
       ],
       "title": "TestRoute",
       "type": "object",
@@ -130,7 +130,13 @@ test('Should create mutation route', async () => {
     {
       "additionalProperties": false,
       "properties": {
-        "args": {
+        "nodeType": {
+          "enum": [
+            "route",
+          ],
+          "type": "string",
+        },
+        "schemaArgs": {
           "additionalProperties": false,
           "properties": {
             "name": {
@@ -142,13 +148,7 @@ test('Should create mutation route', async () => {
           ],
           "type": "object",
         },
-        "nodeType": {
-          "enum": [
-            "route",
-          ],
-          "type": "string",
-        },
-        "output": {
+        "schemaOutput": {
           "type": "string",
         },
         "type": {
@@ -161,8 +161,8 @@ test('Should create mutation route', async () => {
       "required": [
         "type",
         "nodeType",
-        "args",
-        "output",
+        "schemaArgs",
+        "schemaOutput",
       ],
       "title": "TestRoute",
       "type": "object",

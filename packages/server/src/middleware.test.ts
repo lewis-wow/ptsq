@@ -21,15 +21,11 @@ test('Should create middleware with query and serverSideQuery', async () => {
     });
   });
 
-  const query = resolver.query({
-    output: z.string(),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const query = resolver.output(z.string()).query(({ ctx }) => ctx.state);
 
-  const validOnlyQuery = validResolver.query({
-    output: z.string(),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const validOnlyQuery = validResolver
+    .output(z.string())
+    .query(({ ctx }) => ctx.state);
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
@@ -38,7 +34,7 @@ test('Should create middleware with query and serverSideQuery', async () => {
   expect(validOnlyQuery.nodeType).toBe('route');
   expect(validOnlyQuery.type).toBe('query');
   expect(validOnlyQuery.middlewares.length).toBe(1);
-  expect(validOnlyQuery.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(validOnlyQuery.middlewares[0]._schemaArgs).toBe(undefined);
 
   expect(
     await query.call({
@@ -107,15 +103,11 @@ test('Should create middleware with mutation and serverSideMutation', async () =
     });
   });
 
-  const mutation = resolver.mutation({
-    output: z.string(),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const mutation = resolver.output(z.string()).mutation(({ ctx }) => ctx.state);
 
-  const validOnlyMutation = validResolver.mutation({
-    output: z.string(),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const validOnlyMutation = validResolver
+    .output(z.string())
+    .mutation(({ ctx }) => ctx.state);
 
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
@@ -124,7 +116,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
   expect(validOnlyMutation.nodeType).toBe('route');
   expect(validOnlyMutation.type).toBe('mutation');
   expect(validOnlyMutation.middlewares.length).toBe(1);
-  expect(validOnlyMutation.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(validOnlyMutation.middlewares[0]._schemaArgs).toBe(undefined);
 
   expect(
     await mutation.call({
@@ -194,21 +186,19 @@ test('Should create middleware with measuring time', async () => {
     return result;
   });
 
-  const query = measuredResolver.query({
-    output: z.string(),
-    resolve: async () => {
-      await new Promise((resolve) => {
-        setTimeout(resolve, resolverDelay);
-      });
+  const query = measuredResolver.output(z.string()).query(async () => {
+    await new Promise((resolve) => {
+      // + 100 = small correction
+      setTimeout(resolve, resolverDelay + 100);
+    });
 
-      return 'Hello';
-    },
+    return 'Hello';
   });
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares.length).toBe(1);
-  expect(query.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(query.middlewares[0]._schemaArgs).toBe(undefined);
 
   expect(middlewareWasCalled).toBe(false);
   expect(middlewareMeasuredTime).toBe(0);
@@ -275,22 +265,19 @@ test('Should create two nested middlewares', async () => {
     return result;
   });
 
-  const query = resolver2.query({
-    output: z.string(),
-    resolve: async () => {
-      await new Promise((resolve) => {
-        setTimeout(resolve, resolverDelay);
-      });
+  const query = resolver2.output(z.string()).query(async () => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, resolverDelay);
+    });
 
-      return 'Hello';
-    },
+    return 'Hello';
   });
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares.length).toBe(2);
-  expect(query.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
-  expect(query.middlewares[1]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(query.middlewares[0]._schemaArgs).toBe(undefined);
+  expect(query.middlewares[1]._schemaArgs).toBe(undefined);
 
   expect(innerMiddlewareWasCalled).toBe(false);
   expect(outerMiddlewareWasCalled).toBe(false);
@@ -339,15 +326,13 @@ test('Should create nested middlewares with query', async () => {
     });
   });
 
-  const query = resolver.query({
-    output: z.union([z.string(), z.null()]),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const query = resolver
+    .output(z.union([z.string(), z.null()]))
+    .query(({ ctx }) => ctx.state);
 
-  const validOnlyQuery = validResolver.query({
-    output: z.string(),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const validOnlyQuery = validResolver
+    .output(z.string())
+    .query(({ ctx }) => ctx.state);
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
@@ -356,8 +341,8 @@ test('Should create nested middlewares with query', async () => {
   expect(validOnlyQuery.nodeType).toBe('route');
   expect(validOnlyQuery.type).toBe('query');
   expect(validOnlyQuery.middlewares.length).toBe(2);
-  expect(validOnlyQuery.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
-  expect(validOnlyQuery.middlewares[1]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(validOnlyQuery.middlewares[0]._schemaArgs).toBe(undefined);
+  expect(validOnlyQuery.middlewares[1]._schemaArgs).toBe(undefined);
 
   expect(
     await query.call({
@@ -435,15 +420,13 @@ test('Should create nested middlewares with mutation', async () => {
     });
   });
 
-  const mutation = resolver.mutation({
-    output: z.union([z.string(), z.null()]),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const mutation = resolver
+    .output(z.union([z.string(), z.null()]))
+    .mutation(({ ctx }) => ctx.state);
 
-  const validOnlyMutation = validResolver.mutation({
-    output: z.string(),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const validOnlyMutation = validResolver
+    .output(z.string())
+    .mutation(({ ctx }) => ctx.state);
 
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
@@ -452,8 +435,8 @@ test('Should create nested middlewares with mutation', async () => {
   expect(validOnlyMutation.nodeType).toBe('route');
   expect(validOnlyMutation.type).toBe('mutation');
   expect(validOnlyMutation.middlewares.length).toBe(2);
-  expect(validOnlyMutation.middlewares[0]._schemaArgs).instanceOf(z.ZodVoid);
-  expect(validOnlyMutation.middlewares[1]._schemaArgs).instanceOf(z.ZodVoid);
+  expect(validOnlyMutation.middlewares[0]._schemaArgs).toBe(undefined);
+  expect(validOnlyMutation.middlewares[1]._schemaArgs).toBe(undefined);
 
   expect(
     await mutation.call({
@@ -545,10 +528,9 @@ test('Should create nested middlewares with query with args chaining', async () 
       });
     });
 
-  const query = resolverWithNameChainAndLastNameWithMiddleware.query({
-    output: z.string(),
-    resolve: ({ ctx }) => `${ctx.name} ${ctx.lastName}`,
-  });
+  const query = resolverWithNameChainAndLastNameWithMiddleware
+    .output(z.string())
+    .query(({ ctx }) => `${ctx.name} ${ctx.lastName}`);
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');

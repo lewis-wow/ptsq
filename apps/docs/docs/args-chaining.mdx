@@ -3,18 +3,23 @@
 Input arguments of the `resolver` can be chained to create a complex type or to know the type before the `resolver` resolve function, for example in the `middleware`.
 
 ```ts title="server.ts"
-const personWithFirstNameResolver = resolver.args(z.object({ person: z.object({ firstName: z.string() }) }));
-
-const personResolver = personWithFirstNameResolver.args(
-  z.object({ person: z.object({ firstName: z.string(), lastName: z.string() }) })
+const personWithFirstNameResolver = resolver.args(
+  z.object({ person: z.object({ firstName: z.string() }) }),
 );
 
-const testQuery = personResolver.query({
-  output: z.string(),
-  resolve: ({ input /* { person: { firstName: string; lastName: string; } } */ }) /* string */ => {
-    return `Hello, ${input.person.firstName} ${input.person.lastName}`;
-  },
-});
+const personResolver = personWithFirstNameResolver.args(
+  z.object({
+    person: z.object({ firstName: z.string(), lastName: z.string() }),
+  }),
+);
+
+const testQuery = personResolver
+  .output(z.string())
+  .query(
+    ({ input /* { person: { firstName: string; lastName: string; } } */ }) => {
+      return `Hello, ${input.person.firstName} ${input.person.lastName}`;
+    },
+  );
 ```
 
 The types are merged into one. It is using the `z.intersection` in the background.
@@ -24,28 +29,36 @@ The types are merged into one. It is using the `z.intersection` in the backgroun
 You can use the arguments chaining for getting validated input in the `middleware` before the `resolver` run.
 
 ```ts title="server.ts"
-const personResolver = resolver.args(z.object({ person: z.object({ firstName: z.string() }) }));
+const personResolver = resolver.args(
+  z.object({ person: z.object({ firstName: z.string() }) }),
+);
 
-const personWithLogResolver = personResolver.use(({ input /* { person: { firstName: string } } */, ctx, next }) => {
-  console.log('Persons first name: ', input.person.firstName);
+const personWithLogResolver = personResolver.use(
+  ({ input /* { person: { firstName: string } } */, ctx, next }) => {
+    console.log('Persons first name: ', input.person.firstName);
 
-  return next({
-    ...ctx,
-    personFirstName: input.person.firstName,
-  });
-});
+    return next({
+      ...ctx,
+      personFirstName: input.person.firstName,
+    });
+  },
+);
 
 const testQuery = personWithLogResolver
-  .args(z.object({ person: z.object({ firstName: z.string(), lastName: z.string() }) }))
-  .query({
-    output: z.string(),
-    resolve: ({
+  .args(
+    z.object({
+      person: z.object({ firstName: z.string(), lastName: z.string() }),
+    }),
+  )
+  .output(z.string())
+  .query(
+    ({
       input /* { person: { firstName: string; lastName: string; } } */,
       ctx /* { personFirstName: string } */,
     }) /* string */ => {
       return `Hello, ${input.person.firstName} ${input.person.lastName}`;
     },
-  });
+  );
 ```
 
 How you can see, you can safely access the `input` cause it is validated by the arguments.
@@ -61,7 +74,7 @@ const loggerResolver = resolver
   .args(
     z.object({
       email: z.string().email(),
-    })
+    }),
   )
   .use(({ input, ctx, next }) => {
     console.log('Log the email: ', input.email);
@@ -89,13 +102,13 @@ resolver
   .args(
     z.object({
       email: z.string().email(),
-    })
+    }),
   )
   .args(
     z.object({
       email: z.string().email(),
       firstName: z.string(),
-    })
+    }),
   );
 ```
 
@@ -104,12 +117,12 @@ resolver
   .args(
     z.object({
       email: z.string().email(),
-    })
+    }),
   )
   .args(
     z.object({
       firstName: z.string(),
-    })
+    }),
   );
 ```
 

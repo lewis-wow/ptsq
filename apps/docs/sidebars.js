@@ -10,6 +10,7 @@ const sidebars = {
     'router',
     'middlewares',
     'args-chaining',
+    'output-chaining',
     'args-transformations',
     'introspection',
     'errors',

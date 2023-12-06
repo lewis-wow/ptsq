@@ -14,10 +14,8 @@ test('Should create simple http server', async () => {
               name: z.string(),
             }),
           )
-          .query({
-            output: z.string(),
-            resolve: ({ input }) => input.name,
-          }),
+          .output(z.string())
+          .query(({ input }) => input.name),
       });
     },
     client: async (serverUrl) => {
@@ -46,16 +44,16 @@ test('Should create simple http server with context', async () => {
               name: z.string(),
             }),
           )
-          .query({
-            output: z.object({
+          .output(
+            z.object({
               name: z.string(),
               number: z.literal(42),
             }),
-            resolve: ({ input, ctx }) => ({
-              ...input,
-              ...ctx,
-            }),
-          }),
+          )
+          .query(({ input, ctx }) => ({
+            ...input,
+            ...ctx,
+          })),
       });
     },
     client: async (serverUrl) => {
@@ -88,13 +86,13 @@ test('Should create simple http server with middleware', async () => {
             }),
           )
           .use(({ input, ctx, next }) => next({ ...ctx, ...input }))
-          .query({
-            output: z.object({
+          .output(
+            z.object({
               name: z.string(),
               number: z.literal(42),
             }),
-            resolve: ({ ctx }) => ctx,
-          }),
+          )
+          .query(({ ctx }) => ctx),
       });
     },
     client: async (serverUrl) => {
@@ -170,10 +168,8 @@ test('Should create simple http server with 2 nested middlewares', async () => {
 
             return result;
           })
-          .query({
-            output: z.null(),
-            resolve: () => null,
-          }),
+          .output(z.null())
+          .query(() => null),
       });
     },
     client: async (serverUrl) => {
@@ -197,10 +193,8 @@ test('Should introspectate the server with http adapter', async () => {
               name: z.string(),
             }),
           )
-          .query({
-            output: z.string(),
-            resolve: ({ input }) => input.name,
-          }),
+          .output(z.string())
+          .query(({ input }) => input.name),
       });
     },
     client: async (serverUrl) => {
@@ -208,7 +202,6 @@ test('Should introspectate the server with http adapter', async () => {
 
       expect(response.data).toMatchInlineSnapshot(`
         {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "nodeType": {
@@ -223,7 +216,13 @@ test('Should introspectate the server with http adapter', async () => {
                 "test": {
                   "additionalProperties": false,
                   "properties": {
-                    "args": {
+                    "nodeType": {
+                      "enum": [
+                        "route",
+                      ],
+                      "type": "string",
+                    },
+                    "schemaArgs": {
                       "additionalProperties": false,
                       "properties": {
                         "name": {
@@ -235,13 +234,7 @@ test('Should introspectate the server with http adapter', async () => {
                       ],
                       "type": "object",
                     },
-                    "nodeType": {
-                      "enum": [
-                        "route",
-                      ],
-                      "type": "string",
-                    },
-                    "output": {
+                    "schemaOutput": {
                       "type": "string",
                     },
                     "type": {
@@ -254,8 +247,8 @@ test('Should introspectate the server with http adapter', async () => {
                   "required": [
                     "type",
                     "nodeType",
-                    "args",
-                    "output",
+                    "schemaArgs",
+                    "schemaOutput",
                   ],
                   "title": "BaseTestRoute",
                   "type": "object",
@@ -290,10 +283,8 @@ test('Should create simple http server and return BAD_REQUEST response', async (
               name: z.string(),
             }),
           )
-          .query({
-            output: z.string(),
-            resolve: ({ input }) => input.name,
-          }),
+          .output(z.string())
+          .query(({ input }) => input.name),
       });
     },
     client: async (serverUrl) => {
@@ -320,12 +311,12 @@ test('Should create simple http server and return INTERNAL_SERVER_ERROR response
               name: z.string(),
             }),
           )
-          .query({
-            output: z.string(),
+          .output(z.string())
+          .query(
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error - just for test!
-            resolve: ({ input }) => input,
-          }),
+            ({ input }) => input,
+          ),
       });
     },
     client: async (serverUrl) => {

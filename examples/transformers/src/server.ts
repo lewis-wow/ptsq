@@ -1,12 +1,18 @@
-import { createServer, ExpressAdapterContext } from '@ptsq/server';
+import { createServer } from '@ptsq/server';
 import { url } from '@ptsq/transformers';
 import express from 'express';
 import { z } from 'zod';
 
 const app = express();
 
-const { router, resolver, createHTTPNodeHandler } = createServer({
-  ctx: async ({ req, res }: ExpressAdapterContext) => ({
+const { router, resolver, serve } = createServer({
+  ctx: async ({
+    req,
+    res,
+  }: {
+    req: express.Request;
+    res: express.Response;
+  }) => ({
     req,
     res,
   }),
@@ -21,26 +27,16 @@ const urlPortQuery = resolver
   .transformation({
     url: url,
   })
-  .query({
-    output: z.string(),
-    resolve: ({ input }) => {
-      return input.url.port;
-    },
+  .output(z.string())
+  .query(({ input }) => {
+    return input.url.port;
   });
 
 const baseRouter = router({
   urlPortQuery: urlPortQuery,
 });
 
-app.use((req, res) =>
-  createHTTPNodeHandler({
-    router: baseRouter,
-    ctx: {
-      req,
-      res,
-    },
-  })(req, res),
-);
+app.use((req, res) => serve(baseRouter).handleNodeRequest(req, { req, res }));
 
 app.listen(4000, () => {
   console.log('Listening on: http://localhost:4000/ptsq');

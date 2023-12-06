@@ -1,17 +1,20 @@
 import { zodToJsonSchema } from '@ptsq/zod-parser';
-import type { z } from 'zod';
+import { z } from 'zod';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
-import { Middleware } from './middleware';
-import type { AnyMiddleware } from './middleware';
+import {
+  Middleware,
+  MiddlewareResponse,
+  type MiddlewareMeta,
+} from './middleware';
+import type { AnyMiddleware, AnyRawMiddlewareReponse } from './middleware';
 import type {
   AnyResolveFunction,
-  ResolverArgs,
-  ResolverOutput,
-  ResolverRequest,
-  ResolverResponse,
+  ResolverSchemaArgs,
+  ResolverSchemaOutput,
 } from './resolver';
+import type {} from './serializable';
 import type { AnyTransformation } from './transformation';
 import type { ResolverType } from './types';
 
@@ -24,8 +27,8 @@ import type { ResolverType } from './types';
  */
 export class Route<
   TType extends ResolverType,
-  TSchemaArgs extends ResolverArgs | z.ZodVoid,
-  TSchemaOutput extends ResolverOutput,
+  TSchemaArgs extends ResolverSchemaArgs | undefined,
+  TSchemaOutput extends ResolverSchemaOutput,
   TResolveFunction extends AnyResolveFunction,
 > {
   type: TType;
@@ -53,6 +56,8 @@ export class Route<
   }
 
   /**
+   * @internal
+   *
    * Gets the json schema of the route for the introspection query
    */
   getJsonSchema(title: string) {
@@ -67,13 +72,15 @@ export class Route<
           type: 'string',
           enum: [this.nodeType],
         },
-        args: zodToJsonSchema(this.schemaArgs),
-        output: zodToJsonSchema(this.schemaOutput),
+        schemaArgs: zodToJsonSchema(this.schemaArgs ?? z.undefined()),
+        schemaOutput: zodToJsonSchema(this.schemaOutput),
       },
     });
   }
 
   /**
+   * @internal
+   *
    * call the route with input and context
    */
   async call({
@@ -81,8 +88,8 @@ export class Route<
     meta,
   }: {
     ctx: Context;
-    meta: ResolverRequest;
-  }): Promise<ResolverResponse<Context>> {
+    meta: MiddlewareMeta;
+  }): Promise<AnyRawMiddlewareReponse> {
     const response = await Middleware.recursiveCall({
       ctx,
       meta,
@@ -112,11 +119,10 @@ export class Route<
                 info: parsedOutput.error,
               });
 
-            return {
-              ok: true,
+            return MiddlewareResponse.createRawSuccessResponse({
               data: parsedOutput.data,
               ctx: finalContext,
-            };
+            });
           },
         }),
       ],
@@ -128,7 +134,7 @@ export class Route<
 
 export type AnyRoute = Route<
   ResolverType,
-  ResolverArgs | z.ZodVoid,
-  ResolverOutput,
+  ResolverSchemaArgs | undefined,
+  ResolverSchemaOutput,
   AnyResolveFunction
 >;

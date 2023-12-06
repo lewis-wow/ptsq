@@ -1,6 +1,6 @@
 {
   "name": "@ptsq/client",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "homepage": "https://ptsq-docs.vercel.app/",
   "author": "lewis-wow",
   "license": "MIT",
@@ -40,10 +40,10 @@
     "@ptsq/server": "*",
     "@types/node": "^20.7.0",
     "typescript": "^5.2.2",
-    "@ptsq/test-utils": "*"
+    "@ptsq/test-utils": "*",
+    "zod": "^3.22.2"
   },
   "dependencies": {
-    "axios": "^1.5.1",
-    "zod": "^3.22.2"
+    "axios": "^1.5.1"
   }
 }

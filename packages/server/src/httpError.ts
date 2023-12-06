@@ -29,6 +29,23 @@ export class HTTPError extends Error {
     Object.setPrototypeOf(this, HTTPError.prototype);
   }
 
+  toJSON() {
+    return {
+      code: this.code,
+      name: this.name,
+      message: this.message,
+      info: this.info,
+    };
+  }
+
+  toString() {
+    return JSON.stringify(this.toJSON());
+  }
+
+  getHTTPErrorCode() {
+    return HTTPErrorCode[this.code];
+  }
+
   /**
    * Check if the error in catch scope is HTTPError
    *
@@ -63,6 +80,5 @@ export const HTTPErrorCode = {
   PAYLOAD_TOO_LARGE: 413,
   UNPROCESSABLE_CONTENT: 422,
   TOO_MANY_REQUESTS: 429,
-  CLIENT_CLOSED_REQUEST: 499,
   INTERNAL_SERVER_ERROR: 500,
 } as const;

@@ -24,10 +24,7 @@ test('Should parse primitive value with countryCode transformer', async () => {
       return next(ctx);
     });
 
-  const query = testResolver.query({
-    output: z.null(),
-    resolve: () => null,
-  });
+  const query = testResolver.output(z.null()).query(() => null);
 
   await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
 });
@@ -54,10 +51,7 @@ test('Should parse countryCode value deeply in object with countryCode transform
       return next(ctx);
     });
 
-  const query = testResolver.query({
-    output: z.null(),
-    resolve: () => null,
-  });
+  const query = testResolver.output(z.null()).query(() => null);
 
   await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
 });

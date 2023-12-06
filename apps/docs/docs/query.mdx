@@ -30,12 +30,12 @@ const { middleware, resolver, router, createHTTPNodeHandler } = createServer({
   ctx: createContext,
 });
 
-const testQuery = resolver.args(z.object({ name: z.string() })).query({
-  output: z.string(),
-  resolve: ({ input /* { name: string } */ }) /* string */ => {
+const testQuery = resolver
+  .args(z.object({ name: z.string() }))
+  .output(z.string())
+  .query(({ input /* { name: string } */ }) /* string */ => {
     return `Hello, ${input.name}`;
-  },
-});
+  });
 
 const baseRouter = router({
   test: testQuery,

@@ -31,12 +31,12 @@ const { middleware, resolver, router, createHTTPNodeHandler } = createServer({
   ctx: createContext,
 });
 
-const testMutation = resolver.args(z.object({ name: z.string() })).mutation({
-  output: z.string(),
-  resolve: async ({ input /* { name: string } */ }) /* string */ => {
+const testMutation = resolver
+  .args(z.object({ name: z.string() }))
+  .output(z.string())
+  .mutation(async ({ input /* { name: string } */ }) /* string */ => {
     return `Hello, ${input.name}`;
-  },
-});
+  });
 
 const baseRouter = router({
   test: testMutation,

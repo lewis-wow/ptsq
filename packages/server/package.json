@@ -1,6 +1,6 @@
 {
   "name": "@ptsq/server",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "homepage": "https://ptsq-docs.vercel.app/",
   "author": "lewis-wow",
   "license": "MIT",
@@ -30,9 +30,6 @@
     "!**/*.test.*"
   ],
   "devDependencies": {
-    "@types/cors": "^2.8.14",
-    "@types/express": "^4.17.18",
-    "@types/koa": "^2.13.11",
     "@types/node": "^20.7.0",
     "@types/pascalcase": "^1.0.1",
     "axios": "^1.5.1",
@@ -40,8 +37,9 @@
   },
   "dependencies": {
     "@ptsq/zod-parser": "*",
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
+    "@whatwg-node/server": "^0.9.18",
+    "@whatwg-node/server-plugin-cookies": "^1.0.2",
+    "fets": "^0.6.6",
     "pascalcase": "^0.1.1",
     "zod": "^3.22.2"
   }

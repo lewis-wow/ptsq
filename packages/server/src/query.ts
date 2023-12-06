@@ -1,9 +1,8 @@
-import type { z } from 'zod';
 import type { AnyMiddleware } from './middleware';
 import type {
   AnyResolveFunction,
-  ResolverArgs,
-  ResolverOutput,
+  ResolverSchemaArgs,
+  ResolverSchemaOutput,
 } from './resolver';
 import { Route } from './route';
 import type { AnyTransformation } from './transformation';
@@ -14,8 +13,8 @@ import type { AnyTransformation } from './transformation';
  * Query class container
  */
 export class Query<
-  TSchemaArgs extends ResolverArgs | z.ZodVoid,
-  TSchemaOutput extends ResolverOutput,
+  TSchemaArgs extends ResolverSchemaArgs | undefined,
+  TSchemaOutput extends ResolverSchemaOutput,
   TResolveFunction extends AnyResolveFunction,
 > extends Route<'query', TSchemaArgs, TSchemaOutput, TResolveFunction> {
   constructor(options: {
@@ -33,7 +32,7 @@ export class Query<
 }
 
 export type AnyQuery = Query<
-  ResolverArgs | z.ZodVoid,
-  ResolverOutput,
+  ResolverSchemaArgs | undefined,
+  ResolverSchemaOutput,
   AnyResolveFunction
 >;

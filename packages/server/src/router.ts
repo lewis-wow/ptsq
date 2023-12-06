@@ -1,10 +1,13 @@
 import type { Context } from './context';
-import { createSchemaRoot } from './createSchemaRoot';
+import { createSchemaRoot, type SchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
+import {
+  type AnyRawMiddlewareReponse,
+  type MiddlewareMeta,
+} from './middleware';
 import type { AnyMutation } from './mutation';
 import type { AnyQuery } from './query';
 import type { Queue } from './queue';
-import type { ResolverRequest, ResolverResponse } from './resolver';
 
 export type Routes = {
   [Key: string]: AnyQuery | AnyMutation | AnyRouter;
@@ -24,6 +27,8 @@ export class Router<TRoutes extends Routes> {
   }
 
   /**
+   * @internal
+   *
    * Gets the json schema of the whole router recursivelly
    */
   getJsonSchema(title = 'base') {
@@ -35,9 +40,9 @@ export class Router<TRoutes extends Routes> {
           enum: [this.nodeType],
         },
         routes: createSchemaRoot({
-          properties: Object.entries(this.routes).reduce((acc, [key, node]) => {
-            //@ts-expect-error acc don't have type right now
-            // TODO: fix the acc type!
+          properties: Object.entries(this.routes).reduce<
+            Record<string, SchemaRoot>
+          >((acc, [key, node]) => {
             acc[key] = node.getJsonSchema(`${title} ${key}`);
             return acc;
           }, {}),
@@ -47,18 +52,16 @@ export class Router<TRoutes extends Routes> {
   }
 
   /**
+   * @internal
+   *
    * Call the router and shift a route path
    */
-  call({
-    route,
-    ctx,
-    meta,
-  }: {
+  call(options: {
     route: Queue<string>;
     ctx: Context;
-    meta: ResolverRequest;
-  }): Promise<ResolverResponse<Context>> {
-    const currentRoute = route.dequeue();
+    meta: MiddlewareMeta;
+  }): Promise<AnyRawMiddlewareReponse> {
+    const currentRoute = options.route.dequeue();
 
     if (!currentRoute)
       throw new HTTPError({
@@ -75,17 +78,16 @@ export class Router<TRoutes extends Routes> {
 
     const nextNode = this.routes[currentRoute];
 
-    if (nextNode.nodeType === 'router')
-      return nextNode.call({ route, ctx, meta });
+    if (nextNode.nodeType === 'router') return nextNode.call(options);
 
-    if (route.size !== 0)
+    if (options.route.size !== 0)
       throw new HTTPError({
         code: 'BAD_REQUEST',
         message:
           'The route continues, but should be terminated by query or mutate.',
       });
 
-    return nextNode.call({ meta, ctx });
+    return nextNode.call(options);
   }
 }
 

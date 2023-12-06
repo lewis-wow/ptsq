@@ -14,10 +14,8 @@ test('Should instropectate simple http server', async () => {
               name: z.string(),
             }),
           )
-          .query({
-            output: z.string(),
-            resolve: ({ input }) => input.name,
-          }),
+          .output(z.string())
+          .query(({ input }) => input.name),
       });
     },
     client: async (serverUrl) => {
@@ -25,7 +23,6 @@ test('Should instropectate simple http server', async () => {
 
       expect(response.data).toMatchInlineSnapshot(`
         {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "nodeType": {
@@ -40,7 +37,13 @@ test('Should instropectate simple http server', async () => {
                 "test": {
                   "additionalProperties": false,
                   "properties": {
-                    "args": {
+                    "nodeType": {
+                      "enum": [
+                        "route",
+                      ],
+                      "type": "string",
+                    },
+                    "schemaArgs": {
                       "additionalProperties": false,
                       "properties": {
                         "name": {
@@ -52,13 +55,7 @@ test('Should instropectate simple http server', async () => {
                       ],
                       "type": "object",
                     },
-                    "nodeType": {
-                      "enum": [
-                        "route",
-                      ],
-                      "type": "string",
-                    },
-                    "output": {
+                    "schemaOutput": {
                       "type": "string",
                     },
                     "type": {
@@ -71,8 +68,8 @@ test('Should instropectate simple http server', async () => {
                   "required": [
                     "type",
                     "nodeType",
-                    "args",
-                    "output",
+                    "schemaArgs",
+                    "schemaOutput",
                   ],
                   "title": "BaseTestRoute",
                   "type": "object",
@@ -101,10 +98,7 @@ test('Should instropectate simple http server with empty query', async () => {
     ctx: () => ({}),
     server: ({ resolver, router }) => {
       return router({
-        test: resolver.query({
-          output: z.null(),
-          resolve: () => null,
-        }),
+        test: resolver.output(z.null()).query(() => null),
       });
     },
     client: async (serverUrl) => {
@@ -112,7 +106,6 @@ test('Should instropectate simple http server with empty query', async () => {
 
       expect(response.data).toMatchInlineSnapshot(`
         {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "nodeType": {
@@ -127,14 +120,16 @@ test('Should instropectate simple http server with empty query', async () => {
                 "test": {
                   "additionalProperties": false,
                   "properties": {
-                    "args": {},
                     "nodeType": {
                       "enum": [
                         "route",
                       ],
                       "type": "string",
                     },
-                    "output": {
+                    "schemaArgs": {
+                      "not": {},
+                    },
+                    "schemaOutput": {
                       "type": "null",
                     },
                     "type": {
@@ -147,8 +142,8 @@ test('Should instropectate simple http server with empty query', async () => {
                   "required": [
                     "type",
                     "nodeType",
-                    "args",
-                    "output",
+                    "schemaArgs",
+                    "schemaOutput",
                   ],
                   "title": "BaseTestRoute",
                   "type": "object",
@@ -183,10 +178,7 @@ test('Should instropectate simple http server with nested routers', async () => 
               test: router({
                 test: router({
                   test: router({
-                    test: resolver.query({
-                      output: z.null(),
-                      resolve: () => null,
-                    }),
+                    test: resolver.output(z.null()).query(() => null),
                   }),
                 }),
               }),
@@ -200,7 +192,6 @@ test('Should instropectate simple http server with nested routers', async () => 
 
       expect(response.data).toMatchInlineSnapshot(`
         {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "nodeType": {
@@ -287,14 +278,16 @@ test('Should instropectate simple http server with nested routers', async () => 
                                                                 "test": {
                                                                   "additionalProperties": false,
                                                                   "properties": {
-                                                                    "args": {},
                                                                     "nodeType": {
                                                                       "enum": [
                                                                         "route",
                                                                       ],
                                                                       "type": "string",
                                                                     },
-                                                                    "output": {
+                                                                    "schemaArgs": {
+                                                                      "not": {},
+                                                                    },
+                                                                    "schemaOutput": {
                                                                       "type": "null",
                                                                     },
                                                                     "type": {
@@ -307,8 +300,8 @@ test('Should instropectate simple http server with nested routers', async () => 
                                                                   "required": [
                                                                     "type",
                                                                     "nodeType",
-                                                                    "args",
-                                                                    "output",
+                                                                    "schemaArgs",
+                                                                    "schemaOutput",
                                                                   ],
                                                                   "title": "BaseTestTestTestTestTestTestTestRoute",
                                                                   "type": "object",

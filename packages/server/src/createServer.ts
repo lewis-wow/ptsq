@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { HTTPRequestListener } from './adapters/http';
+import { useCookies } from '@whatwg-node/server-plugin-cookies';
+import { createRouter, Response, useCORS } from 'fets';
 import type {
   ContextBuilder,
   inferContextFromContextBuilder,
@@ -8,7 +8,7 @@ import type {
 import type { CORSOptions } from './cors';
 import { Resolver } from './resolver';
 import { Router, type AnyRouter, type Routes } from './router';
-import { Serve } from './serve';
+import { serve as _serve } from './serve';
 
 /**
  * @internal
@@ -36,7 +36,6 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
 export const createServer = <TContextBuilder extends ContextBuilder>({
   ctx,
   cors,
-  rootPath,
 }: CreateServerArgs<TContextBuilder>) => {
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
   type ContextBuilderParams =
@@ -55,13 +54,18 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * });
    * ```
    */
-  const resolver = new Resolver<undefined, z.ZodVoid, RootContext>({
-    schemaArgs: z.void(),
+  const resolver = new Resolver<
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    RootContext
+  >({
+    schemaArgs: undefined,
+    schemaOutput: undefined,
     middlewares: [],
     transformations: [],
   });
-
-  const serve = new Serve({ contextBuilder: ctx });
 
   /**
    * Creates a fully typed router
@@ -81,32 +85,41 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   const router = <TRoutes extends Routes>(routes: TRoutes) =>
     new Router({ routes });
 
-  /**
-   * Serve your server into some rest-api adapter like Express, Fastify, node:http, ...
-   *
-   * @example
-   * ```ts
-   * createHTTPNodeHandler({ router: rootRouter });
-   * ```
-   */
-  const createHTTPNodeHandler = ({
-    router: baseRotuer,
-    ctx: ctxParams,
-  }: {
-    router: AnyRouter;
-    ctx: ContextBuilderParams;
-  }) =>
-    HTTPRequestListener.createRequestListenerHandler({
-      serve,
-      cors,
-      router: baseRotuer,
-      ctx: ctxParams,
-    });
+  const serve = (baseRouter: AnyRouter) => {
+    return createRouter<ContextBuilderParams>({
+      plugins: [useCORS(cors), useCookies()],
+      landingPage: false,
+    })
+      .route({
+        path: '/ptsq',
+        method: 'POST',
+        handler: async (req, ctxParams) => {
+          const requestBody = await req.json();
+
+          const serverResponse = await _serve({
+            router: baseRouter,
+            body: requestBody,
+            contextBuilder: ctx,
+            params: ctxParams,
+          });
+
+          return Response.json(serverResponse.toJSON(), {
+            status: serverResponse.response.ok
+              ? 200
+              : serverResponse.response.error.getHTTPErrorCode(),
+          });
+        },
+      })
+      .route({
+        path: '/ptsq/introspection',
+        method: 'GET',
+        handler: () => Response.json(baseRouter.getJsonSchema('base')),
+      });
+  };
 
   return {
     resolver,
     router,
-    createHTTPNodeHandler,
-    rootPath,
+    serve,
   };
 };

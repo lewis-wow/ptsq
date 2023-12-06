@@ -1,38 +1,57 @@
-import fastifyExpress from '@fastify/express';
-import { createServer, FastifyAdapterContext } from '@ptsq/server';
-import Fastify from 'fastify';
+import { createServer } from '@ptsq/server';
+import fastify, { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 
-const app = Fastify();
+const app = fastify();
 
-const { router, resolver, createHTTPNodeHandler } = createServer({
-  ctx: async ({ req, res }: FastifyAdapterContext) => ({
-    req,
-    res,
-  }),
+const createContext = ({
+  req,
+  reply,
+}: {
+  req: FastifyRequest;
+  reply: FastifyReply;
+}) => ({
+  req,
+  reply,
+});
+
+const { router, resolver, serve } = createServer({
+  ctx: createContext,
 });
 
 const baseRouter = router({
-  greetings: resolver.args(z.object({ name: z.string().min(4) })).query({
-    output: z.string(),
-    resolve: ({ input }) => `Hello, ${input.name}!`,
-  }),
+  greetings: resolver
+    .args(z.object({ name: z.string().min(4) }))
+    .output(z.string())
+    .query(({ input }) => `Hello, ${input.name}!`),
 });
 
-app.register(fastifyExpress).then(() => {
-  app.use((req, res) =>
-    createHTTPNodeHandler({
-      router: baseRouter,
-      ctx: {
-        req,
-        res,
-      },
-    })(req, res),
-  );
+app.route({
+  method: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  url: '/*',
+  async handler(req, reply) {
+    const response = await serve(baseRouter).handleNodeRequest(req, {
+      req,
+      reply,
+    });
 
-  app.listen({ port: 4000 }, () => {
-    console.log('Listening on: http://localhost:4000/ptsq');
-  });
+    if (response === undefined) {
+      reply.status(404).send('Not found.');
+      return reply;
+    }
+
+    response.headers.forEach((value, key) => {
+      reply.header(key, value);
+    });
+
+    reply.status(response.status);
+
+    reply.send(response.body);
+  },
+});
+
+app.listen(4000, () => {
+  console.log('Listening on: http://localhost:4000/ptsq');
 });
 
 export type BaseRouter = typeof baseRouter;

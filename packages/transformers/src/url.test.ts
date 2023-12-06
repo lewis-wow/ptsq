@@ -24,10 +24,7 @@ test('Should parse primitive value with url transformer', async () => {
       return next(ctx);
     });
 
-  const query = testResolver.query({
-    output: z.null(),
-    resolve: () => null,
-  });
+  const query = testResolver.output(z.null()).query(() => null);
 
   await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
 });
@@ -55,10 +52,7 @@ test('Should parse url value deeply in object with url transformer', async () =>
       return next(ctx);
     });
 
-  const query = testResolver.query({
-    output: z.null(),
-    resolve: () => null,
-  });
+  const query = testResolver.output(z.null()).query(() => null);
 
   await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
 });

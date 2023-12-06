@@ -1,30 +1,29 @@
-import { createServer as createHttpServer } from 'http';
-import { createServer, HttpAdapterContext } from '@ptsq/server';
+import {
+  createServer as createHttpServer,
+  IncomingMessage,
+  ServerResponse,
+} from 'http';
+import { createServer } from '@ptsq/server';
 import { z } from 'zod';
 
-const { router, resolver, createHTTPNodeHandler } = createServer({
-  ctx: async ({ req, res }: HttpAdapterContext) => ({
-    req,
-    res,
-  }),
+const { router, resolver, serve } = createServer({
+  ctx: ({ req, res }: { req: IncomingMessage; res: ServerResponse }) => {
+    console.log(req, res);
+    return {
+      req,
+      res,
+    };
+  },
 });
 
 const baseRouter = router({
-  greetings: resolver.args(z.object({ name: z.string().min(4) })).query({
-    output: z.string(),
-    resolve: ({ input }) => `Hello, ${input.name}!`,
-  }),
+  greetings: resolver
+    .args(z.object({ name: z.string().min(4) }))
+    .output(z.string())
+    .query(({ input }) => `Hello, ${input.name}!`),
 });
 
-const app = createHttpServer((req, res) =>
-  createHTTPNodeHandler({
-    router: baseRouter,
-    ctx: {
-      req,
-      res,
-    },
-  })(req, res),
-);
+const app = createHttpServer(serve(baseRouter));
 
 app.listen(4000, () => {
   console.log('Listening on: http://localhost:4000/ptsq');

@@ -1,15 +1,17 @@
-import { createServer, ExpressAdapterContext } from '@ptsq/server';
-import express from 'express';
+import { createServer } from '@ptsq/server';
+import express, { Request, Response } from 'express';
 import { z } from 'zod';
 import { Gender } from './gender';
 
 const app = express();
 
-const { router, resolver, createHTTPNodeHandler } = createServer({
-  ctx: async ({ req, res }: ExpressAdapterContext) => ({
-    req,
-    res,
-  }),
+const createContext = ({ req, res }: { req: Request; res: Response }) => ({
+  req,
+  res,
+});
+
+const { router, resolver, serve } = createServer({
+  ctx: createContext,
 });
 
 const personValidationSchema = z.object({
@@ -54,21 +56,11 @@ const baseRouter = router({
         },
       },
     })
-    .query({
-      output: z.string(),
-      resolve: ({ input: _input }) => 'Look at the input type...',
-    }),
+    .output(z.string())
+    .query(({ input: _input }) => 'Look at the input type...'),
 });
 
-app.use((req, res) =>
-  createHTTPNodeHandler({
-    router: baseRouter,
-    ctx: {
-      req,
-      res,
-    },
-  })(req, res),
-);
+app.use((req, res) => serve(baseRouter).handleNodeRequest(req, { req, res }));
 
 app.listen(4000, () => {
   console.log('Listening on: http://localhost:4000/ptsq');
