@@ -1,10 +1,11 @@
 import type { AnyMiddleware } from './middleware';
 import type {
   AnyResolveFunction,
-  ResolverArgs,
-  ResolverOutput,
+  ResolverSchemaArgs,
+  ResolverSchemaOutput,
 } from './resolver';
 import { Route } from './route';
+import type { AnySerialization } from './serializable';
 import type { AnyTransformation } from './transformation';
 
 /**
@@ -13,16 +14,24 @@ import type { AnyTransformation } from './transformation';
  * Query class container
  */
 export class Query<
-  TSchemaArgs extends ResolverArgs | undefined,
-  TSchemaOutput extends ResolverOutput,
+  TSchemaArgs extends ResolverSchemaArgs | undefined,
+  TSchemaOutput extends ResolverSchemaOutput,
+  TSerializations extends readonly AnySerialization[],
   TResolveFunction extends AnyResolveFunction,
-> extends Route<'query', TSchemaArgs, TSchemaOutput, TResolveFunction> {
+> extends Route<
+  'query',
+  TSchemaArgs,
+  TSchemaOutput,
+  TSerializations,
+  TResolveFunction
+> {
   constructor(options: {
     schemaArgs: TSchemaArgs;
     schemaOutput: TSchemaOutput;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];
+    serializations: TSerializations;
   }) {
     super({
       type: 'query',
@@ -32,7 +41,8 @@ export class Query<
 }
 
 export type AnyQuery = Query<
-  ResolverArgs | undefined,
-  ResolverOutput,
+  ResolverSchemaArgs | undefined,
+  ResolverSchemaOutput,
+  readonly AnySerialization[],
   AnyResolveFunction
 >;

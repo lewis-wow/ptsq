@@ -13,11 +13,14 @@ const { router, resolver, serve } = createServer({
   ctx: createContext,
 });
 
+const serializableResolver = resolver.serialization(
+  z.date().transform((arg) => arg.toISOString()),
+);
+
+const q = serializableResolver.output(z.date()).query((_) => new Date());
+
 const baseRouter = router({
-  greetings: resolver.args(z.object({ name: z.string().min(4) })).query({
-    output: z.string(),
-    resolve: ({ input }) => `Hello, ${input.name}!`,
-  }),
+  greetings: q,
 });
 
 app.use((req, res) => serve(baseRouter).handleNodeRequest(req, { req, res }));

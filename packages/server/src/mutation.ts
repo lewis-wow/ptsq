@@ -1,10 +1,11 @@
 import type { AnyMiddleware } from './middleware';
 import type {
   AnyResolveFunction,
-  ResolverArgs,
-  ResolverOutput,
+  ResolverSchemaArgs,
+  ResolverSchemaOutput,
 } from './resolver';
 import { Route } from './route';
+import type { AnySerialization } from './serializable';
 import type { AnyTransformation } from './transformation';
 
 /**
@@ -13,16 +14,24 @@ import type { AnyTransformation } from './transformation';
  * Mutation class container
  */
 export class Mutation<
-  TSchemaArgs extends ResolverArgs | undefined,
-  TSchemaOutput extends ResolverOutput,
+  TSchemaArgs extends ResolverSchemaArgs | undefined,
+  TSchemaOutput extends ResolverSchemaOutput,
+  TSerializations extends readonly AnySerialization[],
   TResolveFunction extends AnyResolveFunction,
-> extends Route<'mutation', TSchemaArgs, TSchemaOutput, TResolveFunction> {
+> extends Route<
+  'mutation',
+  TSchemaArgs,
+  TSchemaOutput,
+  TSerializations,
+  TResolveFunction
+> {
   constructor(options: {
     schemaArgs: TSchemaArgs;
     schemaOutput: TSchemaOutput;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];
+    serializations: TSerializations;
   }) {
     super({
       type: 'mutation',
@@ -32,7 +41,8 @@ export class Mutation<
 }
 
 export type AnyMutation = Mutation<
-  ResolverArgs | undefined,
-  ResolverOutput,
+  ResolverSchemaArgs | undefined,
+  ResolverSchemaOutput,
+  readonly AnySerialization[],
   AnyResolveFunction
 >;

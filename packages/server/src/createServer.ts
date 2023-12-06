@@ -54,10 +54,19 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * });
    * ```
    */
-  const resolver = new Resolver<undefined, undefined, RootContext>({
+  const resolver = new Resolver<
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    [],
+    RootContext
+  >({
     schemaArgs: undefined,
+    schemaOutput: undefined,
     middlewares: [],
     transformations: [],
+    serializations: [],
   });
 
   /**

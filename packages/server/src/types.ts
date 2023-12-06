@@ -31,6 +31,11 @@ export type inferClientResolverOutput<TResolverOutput> =
 
 /**
  * @internal
+ */
+export type ErrorMessage<TMessage extends string> = TMessage & TypeError;
+
+/**
+ * @internal
  *
  * Simplify the object structure for readability in IDE
  */
