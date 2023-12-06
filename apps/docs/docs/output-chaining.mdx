@@ -1,0 +1,11 @@
+# Output chaining
+
+Output validation schemas can chain the same as the arguments schemas.
+
+```ts title="server.ts"
+resolver
+  .output(z.object({ firstName: z.string() }))
+  .output(z.object({ firstName: z.string(), lastName: z.string() }));
+```
+
+Again, the next output validation schema must extend the previous one.

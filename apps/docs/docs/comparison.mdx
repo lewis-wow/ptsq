@@ -70,12 +70,12 @@ queryField('user', {
 There is no output validation, which means that only types must match, but the runtime types can be different.
 
 ```ts title="ptsq query resolver"
-resolver.args(z.object({ name: z.string() })).query({
-  output: UserSchema, // can be generated zod schema from database ORM like Prisma
-  resolve: () => {
+resolver
+  .args(z.object({ name: z.string() }))
+  .output(UserSchema)
+  .query(() => {
     // ...
-  },
-});
+  });
 ```
 
 In `ptsq` you don't duplicate the input and output schemas, the open API schema for introspection is inferred from validation schemas that are defined for input and output.

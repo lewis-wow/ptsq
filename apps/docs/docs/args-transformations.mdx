@@ -24,10 +24,9 @@ const urlResolverWithTransformation = urlResolver.transformation(
 We transformed the value to `URL` instance. How to use it now?
 
 ```ts title="URL transformation"
-urlResolverWithTransformation.query({
-  output: z.string(),
-  resolve: ({ input /* { url: URL } */ }) => url.pathname,
-});
+urlResolverWithTransformation
+  .output(z.string())
+  .query(({ input /* { url: URL } */ }) => url.pathname);
 ```
 
 We can now use the parsed value from the transformer, the type of the value is infered from the transformation function return type.
@@ -56,10 +55,8 @@ The schema stays the same.
 ```ts title="URL transformation"
 urlResolverWithTransformation
   .args(z.object({ url: z.string().url() /* no z.instanceOf(URL) */ }))
-  .query({
-    output: z.string(),
-    resolve: ({ input /* { url: URL } */ }) => url.pathname,
-  });
+  .output(z.string())
+  .query(({ input /* { url: URL } */ }) => url.pathname);
 ```
 
 How you can see, the schema stays the same, even if we used the transformation before. The reason is that the schema validation runs always before the transformation.

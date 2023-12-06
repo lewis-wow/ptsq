@@ -18,7 +18,7 @@ export type CORSOptions =
 ```
 
 ```ts title="server.ts"
-const { resolver, router, createHTTPNodeHandler } = createServer({
+const { resolver, router, serve } = createServer({
   ctx: createContext,
   cors: {
     origin: 'http://localhost:4000',
@@ -33,11 +33,11 @@ const { resolver, router, createHTTPNodeHandler } = createServer({
 
 ```ts
 cors: {
-    origin: 'http://localhost:4000',
-    credentials: true,
-    allowedHeaders: ['X-Custom-Header'],
-    methods: ['POST']
-  }
+  origin: 'http://localhost:4000',
+  credentials: true,
+  allowedHeaders: ['X-Custom-Header'],
+  methods: ['POST']
+}
 ```
 
 This will return the following headers:
