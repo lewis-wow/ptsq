@@ -18,4 +18,5 @@ const createContext = ({
 
 export const { router, resolver, serve } = createServer({
   ctx: createContext,
+  root: '/api',
 });
