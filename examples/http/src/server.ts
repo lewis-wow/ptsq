@@ -17,10 +17,10 @@ const { router, resolver, serve } = createServer({
 });
 
 const baseRouter = router({
-  greetings: resolver.args(z.object({ name: z.string().min(4) })).query({
-    output: z.string(),
-    resolve: ({ input }) => `Hello, ${input.name}!`,
-  }),
+  greetings: resolver
+    .args(z.object({ name: z.string().min(4) }))
+    .output(z.string())
+    .query(({ input }) => `Hello, ${input.name}!`),
 });
 
 const app = createHttpServer((req, res) =>

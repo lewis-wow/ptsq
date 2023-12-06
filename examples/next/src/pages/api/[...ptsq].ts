@@ -1,13 +1,16 @@
-import { createHTTPNodeHandler } from '@/server/ptsq';
+import { serve } from '@/server/ptsq';
 import { baseRouter } from '@/server/routes/root';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-  return createHTTPNodeHandler(req, res, {
-    router: baseRouter,
-    ctx: {
-      req,
-      res,
-    },
+  return serve(baseRouter)(req, res, {
+    req,
+    res,
   });
 }

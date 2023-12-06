@@ -56,10 +56,8 @@ const baseRouter = router({
         },
       },
     })
-    .query({
-      output: z.string(),
-      resolve: ({ input: _input }) => 'Look at the input type...',
-    }),
+    .output(z.string())
+    .query(({ input: _input }) => 'Look at the input type...'),
 });
 
 app.use((req, res) => serve(baseRouter).handleNodeRequest(req, { req, res }));

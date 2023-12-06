@@ -16,6 +16,6 @@ const createContext = ({
   };
 };
 
-export const { router, resolver, createHTTPNodeHandler } = createServer({
+export const { router, resolver, serve } = createServer({
   ctx: createContext,
 });
