@@ -12,9 +12,12 @@
     "@prisma/client": "^5.7.0",
     "@ptsq/client": "*",
     "@ptsq/server": "*",
+    "@tanstack/react-query": "^5.12.2",
+    "formik": "^2.4.5",
     "next": "14.0.3",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "zod-formik-adapter": "^1.2.0"
   },
   "devDependencies": {
     "@types/node": "^20",
