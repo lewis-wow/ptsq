@@ -91,7 +91,7 @@ test('Should create simple http server with proxy client and request bad route',
         url: serverUrl,
       });
 
-      /* eslint-disable */
+      // eslint-disable
       await expect(() =>
         // @ts-expect-error - just for test
         client.badRoute.query({

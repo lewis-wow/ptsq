@@ -103,7 +103,11 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
             params: ctxParams,
           });
 
-          return Response.json(serverResponse.toJSON());
+          return Response.json(serverResponse.toJSON(), {
+            status: serverResponse.response.ok
+              ? 200
+              : serverResponse.response.error.getHTTPErrorCode(),
+          });
         },
       })
       .route({

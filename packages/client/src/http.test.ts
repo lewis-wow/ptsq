@@ -202,7 +202,6 @@ test('Should introspectate the server with http adapter', async () => {
 
       expect(response.data).toMatchInlineSnapshot(`
         {
-          "$schema": "http://json-schema.org/draft-07/schema#",
           "additionalProperties": false,
           "properties": {
             "nodeType": {

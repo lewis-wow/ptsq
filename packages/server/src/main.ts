@@ -6,7 +6,6 @@ export {
   type inferResolverOutput,
   type inferResolverArgs,
   type ResolveFunction,
-  type ResolverArgs,
 } from './resolver';
 
 export { Middleware, type AnyMiddleware } from './middleware';

@@ -1,6 +1,6 @@
 import type { Context } from './context';
 import { HTTPError } from './httpError';
-import type { ResolverArgs } from './resolver';
+import type { ResolverSchemaArgs } from './resolver';
 import type { AnyTransformation } from './transformation';
 
 /**
@@ -44,11 +44,11 @@ export class Middleware<
   TNextContext extends Context,
 > {
   _middlewareFunction: MiddlewareFunction<TArgs, TContext, TNextContext>;
-  _schemaArgs: ResolverArgs | undefined;
+  _schemaArgs: ResolverSchemaArgs | undefined;
   _transformations: AnyTransformation[];
 
   constructor(options: {
-    schemaArgs: ResolverArgs | undefined;
+    schemaArgs: ResolverSchemaArgs | undefined;
     transformations: AnyTransformation[];
     middlewareFunction: MiddlewareFunction<TArgs, TContext, TNextContext>;
   }) {

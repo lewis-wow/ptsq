@@ -188,7 +188,8 @@ test('Should create middleware with measuring time', async () => {
 
   const query = measuredResolver.output(z.string()).query(async () => {
     await new Promise((resolve) => {
-      setTimeout(resolve, resolverDelay);
+      // + 100 = small correction
+      setTimeout(resolve, resolverDelay + 100);
     });
 
     return 'Hello';
