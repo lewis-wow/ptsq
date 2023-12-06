@@ -20,10 +20,8 @@ test('Should create simple http server with proxy client', async () => {
               name: z.string(),
             }),
           )
-          .query({
-            output: z.string(),
-            resolve: ({ input }) => input.name,
-          }),
+          .output(z.string())
+          .query(({ input }) => input.name),
       });
     },
     client: async (serverUrl, router) => {
@@ -51,10 +49,8 @@ test('Should create simple http server with proxy client and request bad route',
               name: z.string(),
             }),
           )
-          .query({
-            output: z.string(),
-            resolve: ({ input }) => input.name,
-          }),
+          .output(z.string())
+          .query(({ input }) => input.name),
       });
     },
     client: async (serverUrl, router) => {
@@ -86,10 +82,8 @@ test('Should create simple http server with proxy client and request bad route',
               name: z.string(),
             }),
           )
-          .query({
-            output: z.string(),
-            resolve: ({ input }) => input.name,
-          }),
+          .output(z.string())
+          .query(({ input }) => input.name),
       });
     },
     client: async (serverUrl, router) => {
@@ -115,10 +109,7 @@ test('Should create simple http server with proxy client without query input', a
     ctx: () => ({}),
     server: ({ resolver, router }) => {
       return router({
-        test: resolver.query({
-          output: z.string(),
-          resolve: () => 'Hello world!',
-        }),
+        test: resolver.output(z.string()).query(() => 'Hello world!'),
       });
     },
     client: async (serverUrl, router) => {
@@ -138,10 +129,7 @@ test('Should create simple http server with proxy client without mutation input'
     ctx: () => ({}),
     server: ({ resolver, router }) => {
       return router({
-        test: resolver.mutation({
-          output: z.string(),
-          resolve: () => 'Hello world!',
-        }),
+        test: resolver.output(z.string()).mutation(() => 'Hello world!'),
       });
     },
     client: async (serverUrl, router) => {
@@ -163,10 +151,9 @@ test('Should create simple http server with Authorization header', async () => {
     }),
     server: ({ resolver, router }) => {
       return router({
-        test: resolver.query({
-          output: z.string(),
-          resolve: ({ ctx }) => `Hello ${ctx.auth ?? '!NOPE!'}!`,
-        }),
+        test: resolver
+          .output(z.string())
+          .query(({ ctx }) => `Hello ${ctx.auth ?? '!NOPE!'}!`),
       });
     },
     client: async (serverUrl, router) => {

@@ -8,13 +8,7 @@ import {
 } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
-import {
-  Serialization,
-  type AnySerialization,
-  type ApplyMultipleSerializations,
-  type Serializable,
-  type SerializationOptions,
-} from './serializable';
+import type { Serializable } from './serializable';
 import {
   createRecursiveTransformation,
   type AnyTransformation,
@@ -24,7 +18,7 @@ import {
 import type { DeepMerge, ErrorMessage, MaybePromise, Simplify } from './types';
 
 export type ResolverSchemaArgs = z.Schema<Serializable>;
-export type ResolverSchemaOutput = z.Schema;
+export type ResolverSchemaOutput = z.Schema<Serializable, z.ZodTypeDef, any>;
 
 export type inferResolverArgs<TResolverArgs> = TResolverArgs extends z.Schema
   ? TResolverArgs extends z.ZodVoid
@@ -40,27 +34,23 @@ export class Resolver<
   TSchemaArgs extends ResolverSchemaArgs | undefined,
   TOutput,
   TSchemaOutput extends ResolverSchemaOutput | undefined,
-  TSerializations extends readonly AnySerialization[],
   TContext extends Context,
 > {
   _middlewares: AnyMiddleware[];
   _transformations: AnyTransformation[];
   _schemaArgs: TSchemaArgs;
   _schemaOutput: TSchemaOutput;
-  _serializations: TSerializations;
 
   constructor(resolverOptions: {
     schemaArgs: TSchemaArgs;
     schemaOutput: TSchemaOutput;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];
-    serializations: TSerializations;
   }) {
     this._schemaArgs = resolverOptions.schemaArgs;
     this._middlewares = resolverOptions.middlewares;
     this._transformations = resolverOptions.transformations;
     this._schemaOutput = resolverOptions.schemaOutput;
-    this._serializations = resolverOptions.serializations;
   }
 
   /**
@@ -74,13 +64,11 @@ export class Resolver<
       TSchemaArgs,
       TOutput,
       TSchemaOutput,
-      TSerializations,
       TNextContext
     >({
       schemaArgs: this._schemaArgs,
       schemaOutput: this._schemaOutput,
       transformations: [...this._transformations],
-      serializations: this._serializations,
       middlewares: [
         ...this._middlewares,
         new Middleware({
@@ -109,39 +97,12 @@ export class Resolver<
       TSchemaArgs,
       TOutput,
       TSchemaOutput,
-      TSerializations,
       TContext
     >({
       schemaArgs: this._schemaArgs,
       schemaOutput: this._schemaOutput,
       transformations: [...this._transformations, transformationFunction],
-      serializations: this._serializations,
       middlewares: [...this._middlewares],
-    });
-  }
-
-  serialization<TParsedValue, TSerializedValue extends Serializable>(
-    serializationDefinition: SerializationOptions<
-      TParsedValue,
-      TSerializedValue
-    >,
-  ) {
-    return new Resolver<
-      TArgs,
-      TSchemaArgs,
-      TOutput,
-      TSchemaOutput,
-      [...TSerializations, Serialization<TParsedValue, TSerializedValue>],
-      TContext
-    >({
-      schemaArgs: this._schemaArgs,
-      schemaOutput: this._schemaOutput,
-      transformations: this._transformations,
-      serializations: [
-        ...this._serializations,
-        new Serialization(serializationDefinition),
-      ],
-      middlewares: this._middlewares,
     });
   }
 
@@ -162,13 +123,11 @@ export class Resolver<
       TNextSchemaArgs,
       TOutput,
       TSchemaOutput,
-      TSerializations,
       TContext
     >({
       schemaArgs: nextSchemaArgs,
       schemaOutput: this._schemaOutput,
       transformations: [...this._transformations],
-      serializations: this._serializations,
       middlewares: [...this._middlewares],
     });
   }
@@ -183,14 +142,12 @@ export class Resolver<
       TSchemaArgs,
       z.output<TNextSchemaOutput>,
       TNextSchemaOutput,
-      TSerializations,
       TContext
     >({
       schemaArgs: this._schemaArgs,
       schemaOutput: nextSchemaOutput,
       middlewares: this._middlewares,
       transformations: [...this._transformations],
-      serializations: this._serializations,
     });
   }
 
@@ -203,14 +160,13 @@ export class Resolver<
       inferResolverOutput<TSchemaOutput>,
       TContext
     >,
-  ): ApplyMultipleSerializations<TOutput, TSerializations> extends Serializable
-    ? Mutation<
+  ): TSchemaOutput extends undefined
+    ? ErrorMessage<'Output schema cannot be undefined when creating mutation.'>
+    : Mutation<
         TSchemaArgs,
         TSchemaOutput extends undefined ? never : TSchemaOutput,
-        TSerializations,
         ResolveFunction<TArgs, inferResolverOutput<TSchemaOutput>, TContext>
-      >
-    : ErrorMessage<'The output of the query was not serialized.'> {
+      > {
     if (this._schemaOutput === undefined)
       throw new TypeError(
         'Output schema cannot be undefined when creating mutation.',
@@ -222,15 +178,7 @@ export class Resolver<
       resolveFunction: resolve,
       middlewares: this._middlewares,
       transformations: this._transformations,
-      serializations: this._serializations,
-    }) as TOutput extends Serializable
-      ? Mutation<
-          TSchemaArgs,
-          TSchemaOutput extends undefined ? never : TSchemaOutput,
-          TSerializations,
-          ResolveFunction<TArgs, inferResolverOutput<TSchemaOutput>, TContext>
-        >
-      : ErrorMessage<'The output of the query was not serialized.'>;
+    });
   }
 
   /**
@@ -242,14 +190,13 @@ export class Resolver<
       inferResolverOutput<TSchemaOutput>,
       TContext
     >,
-  ): ApplyMultipleSerializations<TOutput, TSerializations> extends Serializable
-    ? Query<
+  ): TSchemaOutput extends undefined
+    ? ErrorMessage<'Output schema cannot be undefined when creating query.'>
+    : Query<
         TSchemaArgs,
         TSchemaOutput extends undefined ? never : TSchemaOutput,
-        TSerializations,
         ResolveFunction<TArgs, inferResolverOutput<TSchemaOutput>, TContext>
-      >
-    : ErrorMessage<'The output of the query was not serialized.'> {
+      > {
     if (this._schemaOutput === undefined)
       throw new TypeError(
         'Output schema cannot be undefined when creating query.',
@@ -261,15 +208,7 @@ export class Resolver<
       resolveFunction: resolve,
       middlewares: this._middlewares,
       transformations: this._transformations,
-      serializations: this._serializations,
-    }) as TOutput extends Serializable
-      ? Query<
-          TSchemaArgs,
-          TSchemaOutput extends undefined ? never : TSchemaOutput,
-          TSerializations,
-          ResolveFunction<TArgs, inferResolverOutput<TSchemaOutput>, TContext>
-        >
-      : ErrorMessage<'The output of the query was not serialized.'>;
+    });
   }
 }
 

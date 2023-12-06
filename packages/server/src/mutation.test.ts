@@ -21,10 +21,10 @@ test('Should create mutation', async () => {
   const argsSchema = z.object({ name: z.string() });
   const outputValidationSchema = z.string();
 
-  const mutation = resolver.args(argsSchema).mutation({
-    output: outputValidationSchema,
-    resolve: resolveFunction,
-  });
+  const mutation = resolver
+    .args(argsSchema)
+    .output(outputValidationSchema)
+    .mutation(resolveFunction);
 
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
@@ -122,10 +122,9 @@ test('Should create mutation without args', async () => {
 
   const outputValidationSchema = z.string();
 
-  const mutation = resolver.mutation({
-    output: outputValidationSchema,
-    resolve: resolveFunction,
-  });
+  const mutation = resolver
+    .output(outputValidationSchema)
+    .mutation(resolveFunction);
 
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
@@ -221,10 +220,8 @@ test('Should create mutation with twice chain', async () => {
   const mutation = resolver
     .args(firstSchemaInChain)
     .args(secondSchemaInChain)
-    .mutation({
-      output: validationSchema,
-      resolve: resolveFunction,
-    });
+    .output(validationSchema)
+    .mutation(resolveFunction);
 
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
@@ -362,10 +359,8 @@ test('Should create mutation with optional args chain', async () => {
   const mutation = resolver
     .args(firstSchemaInArgumentChain)
     .args(secondSchemaInArgumentChain)
-    .mutation({
-      output: outputSchema,
-      resolve: resolveFunction,
-    });
+    .output(outputSchema)
+    .mutation(resolveFunction);
 
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');

@@ -14,7 +14,7 @@ import type {
   ResolverSchemaArgs,
   ResolverSchemaOutput,
 } from './resolver';
-import type { AnySerialization } from './serializable';
+import type {} from './serializable';
 import type { AnyTransformation } from './transformation';
 import type { ResolverType } from './types';
 
@@ -29,7 +29,6 @@ export class Route<
   TType extends ResolverType,
   TSchemaArgs extends ResolverSchemaArgs | undefined,
   TSchemaOutput extends ResolverSchemaOutput,
-  TSerializations extends readonly AnySerialization[],
   TResolveFunction extends AnyResolveFunction,
 > {
   type: TType;
@@ -39,7 +38,6 @@ export class Route<
   nodeType: 'route' = 'route' as const;
   middlewares: AnyMiddleware[];
   transformations: AnyTransformation[];
-  serializations: TSerializations;
 
   constructor(options: {
     type: TType;
@@ -48,7 +46,6 @@ export class Route<
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];
-    serializations: TSerializations;
   }) {
     this.type = options.type;
     this.schemaArgs = options.schemaArgs;
@@ -56,7 +53,6 @@ export class Route<
     this.resolveFunction = options.resolveFunction;
     this.middlewares = options.middlewares;
     this.transformations = options.transformations;
-    this.serializations = options.serializations;
   }
 
   /**
@@ -123,13 +119,8 @@ export class Route<
                 info: parsedOutput.error,
               });
 
-            const serializedOutput = this.serializations.reduce(
-              (acc, serialization) => serialization.applySerialization(acc),
-              parsedOutput.data,
-            );
-
             return MiddlewareResponse.createRawSuccessResponse({
-              data: serializedOutput,
+              data: parsedOutput.data,
               ctx: finalContext,
             });
           },
@@ -145,6 +136,5 @@ export type AnyRoute = Route<
   ResolverType,
   ResolverSchemaArgs | undefined,
   ResolverSchemaOutput,
-  readonly AnySerialization[],
   AnyResolveFunction
 >;

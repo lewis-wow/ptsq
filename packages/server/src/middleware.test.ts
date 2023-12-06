@@ -21,15 +21,11 @@ test('Should create middleware with query and serverSideQuery', async () => {
     });
   });
 
-  const query = resolver.query({
-    output: z.string(),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const query = resolver.output(z.string()).query(({ ctx }) => ctx.state);
 
-  const validOnlyQuery = validResolver.query({
-    output: z.string(),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const validOnlyQuery = validResolver
+    .output(z.string())
+    .query(({ ctx }) => ctx.state);
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
@@ -107,15 +103,11 @@ test('Should create middleware with mutation and serverSideMutation', async () =
     });
   });
 
-  const mutation = resolver.mutation({
-    output: z.string(),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const mutation = resolver.output(z.string()).mutation(({ ctx }) => ctx.state);
 
-  const validOnlyMutation = validResolver.mutation({
-    output: z.string(),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const validOnlyMutation = validResolver
+    .output(z.string())
+    .mutation(({ ctx }) => ctx.state);
 
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
@@ -194,15 +186,12 @@ test('Should create middleware with measuring time', async () => {
     return result;
   });
 
-  const query = measuredResolver.query({
-    output: z.string(),
-    resolve: async () => {
-      await new Promise((resolve) => {
-        setTimeout(resolve, resolverDelay);
-      });
+  const query = measuredResolver.output(z.string()).query(async () => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, resolverDelay);
+    });
 
-      return 'Hello';
-    },
+    return 'Hello';
   });
 
   expect(query.nodeType).toBe('route');
@@ -275,15 +264,12 @@ test('Should create two nested middlewares', async () => {
     return result;
   });
 
-  const query = resolver2.query({
-    output: z.string(),
-    resolve: async () => {
-      await new Promise((resolve) => {
-        setTimeout(resolve, resolverDelay);
-      });
+  const query = resolver2.output(z.string()).query(async () => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, resolverDelay);
+    });
 
-      return 'Hello';
-    },
+    return 'Hello';
   });
 
   expect(query.nodeType).toBe('route');
@@ -339,15 +325,13 @@ test('Should create nested middlewares with query', async () => {
     });
   });
 
-  const query = resolver.query({
-    output: z.union([z.string(), z.null()]),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const query = resolver
+    .output(z.union([z.string(), z.null()]))
+    .query(({ ctx }) => ctx.state);
 
-  const validOnlyQuery = validResolver.query({
-    output: z.string(),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const validOnlyQuery = validResolver
+    .output(z.string())
+    .query(({ ctx }) => ctx.state);
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
@@ -435,15 +419,13 @@ test('Should create nested middlewares with mutation', async () => {
     });
   });
 
-  const mutation = resolver.mutation({
-    output: z.union([z.string(), z.null()]),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const mutation = resolver
+    .output(z.union([z.string(), z.null()]))
+    .mutation(({ ctx }) => ctx.state);
 
-  const validOnlyMutation = validResolver.mutation({
-    output: z.string(),
-    resolve: ({ ctx }) => ctx.state,
-  });
+  const validOnlyMutation = validResolver
+    .output(z.string())
+    .mutation(({ ctx }) => ctx.state);
 
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
@@ -545,10 +527,9 @@ test('Should create nested middlewares with query with args chaining', async () 
       });
     });
 
-  const query = resolverWithNameChainAndLastNameWithMiddleware.query({
-    output: z.string(),
-    resolve: ({ ctx }) => `${ctx.name} ${ctx.lastName}`,
-  });
+  const query = resolverWithNameChainAndLastNameWithMiddleware
+    .output(z.string())
+    .query(({ ctx }) => `${ctx.name} ${ctx.lastName}`);
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');

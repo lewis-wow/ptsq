@@ -13,11 +13,9 @@ const { router, resolver, serve } = createServer({
   ctx: createContext,
 });
 
-const serializableResolver = resolver.serialization(
-  z.date().transform((arg) => arg.toISOString()),
-);
-
-const q = serializableResolver.output(z.date()).query((_) => new Date());
+const q = resolver
+  .output(z.date().transform((date) => date.toISOString()))
+  .query((_) => new Date());
 
 const baseRouter = router({
   greetings: q,

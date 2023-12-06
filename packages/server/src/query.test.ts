@@ -21,10 +21,10 @@ test('Should create query', async () => {
     ctx: { greetingsPrefix: 'Hello' };
   }) => `${ctx.greetingsPrefix} ${input.name}`;
 
-  const query = resolver.args(argsSchema).query({
-    output: outputValidationSchema,
-    resolve: resolveFunction,
-  });
+  const query = resolver
+    .args(argsSchema)
+    .output(outputValidationSchema)
+    .query(resolveFunction);
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
@@ -122,10 +122,7 @@ test('Should create query without args', async () => {
     ctx: { greetingsPrefix: 'Hello' };
   }) => `${ctx.greetingsPrefix}`;
 
-  const query = resolver.query({
-    output: validationSchema,
-    resolve: resolveFunction,
-  });
+  const query = resolver.output(validationSchema).query(resolveFunction);
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
@@ -220,10 +217,8 @@ test('Should create query with twice chain', async () => {
   const query = resolver
     .args(firstSchemaInArgumentChain)
     .args(secondSchemaInArgumentChain)
-    .query({
-      output: outputSchema,
-      resolve: resolveFunction,
-    });
+    .output(outputSchema)
+    .query(resolveFunction);
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
@@ -361,10 +356,8 @@ test('Should create query with optional args chain', async () => {
   const query = resolver
     .args(firstSchemaInArgumentChain)
     .args(secondSchemaInArgumentChain)
-    .query({
-      output: outputSchema,
-      resolve: resolveFunction,
-    });
+    .output(outputSchema)
+    .query(resolveFunction);
 
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');

@@ -59,14 +59,12 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
     undefined,
     undefined,
     undefined,
-    [],
     RootContext
   >({
     schemaArgs: undefined,
     schemaOutput: undefined,
     middlewares: [],
     transformations: [],
-    serializations: [],
   });
 
   /**
