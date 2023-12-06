@@ -23,12 +23,7 @@ const baseRouter = router({
     .query(({ input }) => `Hello, ${input.name}!`),
 });
 
-const app = createHttpServer((req, res) =>
-  serve(baseRouter)(req, res, {
-    req,
-    res,
-  }),
-);
+const app = createHttpServer(serve(baseRouter));
 
 app.listen(4000, () => {
   console.log('Listening on: http://localhost:4000/ptsq');

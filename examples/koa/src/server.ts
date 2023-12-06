@@ -17,7 +17,19 @@ const baseRouter = router({
     .query(({ input }) => `Hello, ${input.name}!`),
 });
 
-app.use((ctx) => serve(baseRouter).handleNodeRequest(ctx.req, { koa: ctx }));
+app.use(async (ctx) => {
+  const response = await serve(baseRouter).handleNodeRequest(ctx.req);
+
+  // Set status code
+  ctx.status = response.status;
+
+  // Set headers
+  response.headers.forEach((value, key) => {
+    ctx.append(key, value);
+  });
+
+  ctx.body = response.body;
+});
 
 app.listen(4000, () => {
   console.log('Listening on: http://localhost:4000/ptsq');

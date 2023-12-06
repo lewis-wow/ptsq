@@ -15,13 +15,18 @@ const { router, resolver, serve } = createServer({
 
 const q = resolver
   .output(z.date().transform((date) => date.toISOString()))
+  .use(({ ctx, next }) => {
+    console.log(ctx);
+
+    return next(ctx);
+  })
   .query((_) => new Date());
 
 const baseRouter = router({
   greetings: q,
 });
 
-app.use((req, res) => serve(baseRouter).handleNodeRequest(req, { req, res }));
+app.use((req, res) => serve(baseRouter)(req, res));
 
 app.listen(4000, () => {
   console.log('Listening on: http://localhost:4000/ptsq');
