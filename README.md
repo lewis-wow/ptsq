@@ -31,10 +31,7 @@ yarn add -D @ptsq/introspection-cli
 ```
 
 ```ts title="server.ts"
-import {
-  createServer,
-  ExpressAdapterContext,
-} from '@ptsq/server';
+import { createServer, ExpressAdapterContext } from '@ptsq/server';
 import express from 'express';
 import { z } from 'zod';
 
@@ -45,27 +42,27 @@ const createContext = ({ req, res }: ExpressAdapterContext) => ({
   res,
 });
 
-const { resolver, router, createHTTPNodeHandler } = createServer({
+const { resolver, router, serve } = createServer({
   ctx: createContext,
 });
 
-const testQuery = resolver.args(z.object({ name: z.string() })).query({
-  output: z.string(),
-  resolve: async ({
-    ctx /* { req: express.Request, res: express.Response } */,
-    input /* { name: string } */,
-  }) => {
-    return `Hello, ${input.name}`;
-  },
-});
+const testQuery = resolver
+  .args(z.object({ name: z.string() }))
+  .output(z.string())
+  .query(
+    async ({
+      ctx /* { req: express.Request, res: express.Response } */,
+      input /* { name: string } */,
+    }) => {
+      return `Hello, ${input.name}`;
+    },
+  );
 
 const baseRouter = router({
   test: testQuery,
 });
 
-app.use((req, res) =>
-  createHTTPNodeHandler({ router: baseRouter, ctx: { req, res } })(req, res),
-);
+app.use((req, res) => serve(baseRouter)(req, res));
 
 app.listen(4000);
 ```
