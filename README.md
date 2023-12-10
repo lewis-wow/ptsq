@@ -31,13 +31,13 @@ yarn add -D @ptsq/introspection-cli
 ```
 
 ```ts title="server.ts"
-import { createServer, ExpressAdapterContext } from '@ptsq/server';
-import express from 'express';
+import { createServer } from '@ptsq/server';
+import express, { Request, Response } from 'express';
 import { z } from 'zod';
 
 const app = express();
 
-const createContext = ({ req, res }: ExpressAdapterContext) => ({
+const createContext = ({ req, res }: { req: Request; res: Response }) => ({
   req,
   res,
 });
