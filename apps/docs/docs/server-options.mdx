@@ -1,0 +1,80 @@
+# Server options
+
+There are a few `createServer` options and this chapter describes them.
+
+## Context and CORS
+
+Both [context](/context) and [CORS](/cors) are described in other chapters.
+
+## Root
+
+Root and endpoint server options are for serving the `ptsq` application in the right endpoint.
+
+If you are using for example Next.js, typically you have your API in the `/api` directory in pages.
+
+You have to mount `ptsq` application by using the `root` option, so the server knows its root path.
+
+```ts
+const { resolver, router, serve } = createServer({
+  //...,
+  root: '/api',
+});
+```
+
+## Endpoint
+
+If you want to customize the `ptsq` path, you can use the endpoint option.
+
+```ts
+const { resolver, router, serve } = createServer({
+  //...,
+  endpoint: '/my-ptsq-server',
+});
+```
+
+You can also use the combination of root and endpoint options of course.
+
+```ts
+const { resolver, router, serve } = createServer({
+  //...,
+  root: '/api',
+  endpoint: '/my-ptsq-server',
+});
+```
+
+All trailing slashes are removed, so you don't have to care about them.
+
+```ts
+const { resolver, router, serve } = createServer({
+  //...,
+  root: '/api/',
+  endpoint: '/my-ptsq-server/',
+});
+```
+
+## fetchAPI
+
+The fetchAPI option is for defining which API you will use for the request and response.
+
+```ts
+const { resolver, router, serve } = createServer({
+  //...,
+  fetchAPI: {
+    Request: Request,
+    Response: Response,
+  },
+});
+```
+
+It's very useful if you are using some integration that has its own request or response object.
+
+### Sveltekit example
+
+```ts title="Sveltekit example of using fetchAPI"
+const { resolver, router, serve } = createServer({
+  //...,
+
+  // now ptsq knows, that you are using those fetch request and response objects
+  fetchAPI: globalThis,
+});
+```
