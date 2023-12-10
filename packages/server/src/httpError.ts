@@ -20,6 +20,9 @@ export class HTTPError extends Error {
   info: unknown;
 
   constructor({ code, message, info }: HTTPErrorOptions) {
+    if (typeof code === 'number' && code >= 200 && code <= 299)
+      throw new TypeError('HTTPError code cannot be 2xx.');
+
     super(message);
 
     this.code = code;

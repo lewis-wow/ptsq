@@ -45,3 +45,25 @@ throw new HTTPError({
 | INTERNAL_SERVER_ERROR | 500         |
 
 Any other thrown exception that is not the `HTTPError`, throws as normal, so it can stop the running server.
+
+## Another error codes
+
+You can also throw any non-predefined error code in number format.
+
+```ts
+throw new HTTPError({ code: 404 });
+```
+
+is equivalent to
+
+```ts
+throw new HTTPError({ code: 'NOT_FOUND' });
+```
+
+But be careful when using the number code version, because then Typescript cannot force you to throw the Error code.
+
+```ts
+throw new HTTPError({ code: 200 });
+```
+
+This is valid in the Typescript type level, but not in the runtime. In runtime, it throws `TypeError`.
