@@ -26,7 +26,6 @@
     "src",
     "README.md",
     "package.json",
-    "adapters",
     "!**/*.test.*"
   ],
   "devDependencies": {
@@ -37,7 +36,6 @@
   },
   "dependencies": {
     "@ptsq/zod-parser": "*",
-    "@whatwg-node/server": "^0.9.18",
     "@whatwg-node/server-plugin-cookies": "^1.0.2",
     "fets": "^0.6.6",
     "pascalcase": "^0.1.1",
