@@ -24,12 +24,14 @@
     "rollup": "^4.1.5",
     "tsconfig": "*",
     "turbo": "latest",
-    "vitest": "^0.34.5"
+    "vitest": "1.0.2",
+    "terser": "5.26.0"
   },
   "packageManager": "yarn@1.22.19",
   "workspaces": [
     "packages/*",
     "apps/*",
     "examples/*"
-  ]
+  ],
+  "dependencies": {}
 }
