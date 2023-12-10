@@ -29,6 +29,9 @@ export type inferResolverArgs<TResolverArgs> = TResolverArgs extends z.Schema
 export type inferResolverOutput<TResolverOutput> =
   TResolverOutput extends z.Schema ? z.input<TResolverOutput> : TResolverOutput;
 
+/**
+ * Resolver allows you to create queries, mutations and middlewares
+ */
 export class Resolver<
   TArgs,
   TSchemaArgs extends ResolverSchemaArgs | undefined,
@@ -55,6 +58,20 @@ export class Resolver<
 
   /**
    * Add a middleware to the resolver
+   *
+   * @example
+   * ```ts
+   * .use(({ ctx, next }) => {
+   *    if(!ctx.user) throw new HTTPError({ code: 'UNAUTHORIZED' });
+   *
+   *    return next({
+   *      ...ctx,
+   *      user: ctx.user
+   *    });
+   * })
+   * .output(...)
+   * .query(...)
+   * ```
    */
   use<TNextContext extends Context>(
     middleware: MiddlewareFunction<TArgs, TContext, TNextContext>,
@@ -82,6 +99,18 @@ export class Resolver<
 
   /**
    * Add a transformation for the resolver arguments
+   *
+   * Allows you to access parsed value of serialized arguments
+   *
+   * @example
+   * ```ts
+   * .args(z.object({ url: z.string().url() }))
+   * .transformation({
+   *    url: (input) => new URL(input)
+   * })
+   * .output(...)
+   * .query(...)
+   * ```
    */
   transformation<
     TArgsTransformationObject extends ArgsTransformationObject<TArgs>,
@@ -110,6 +139,15 @@ export class Resolver<
    * Add additional arguments by the validation schema to the resolver
    *
    * The next validation schema must extends the previous one
+   *
+   * @example
+   * ```ts
+   * .args(z.object({ firstName: z.string() }))
+   * // ...
+   * .args(z.object({ firstName: z.string(), lastName: z.string() }))
+   * .output(...)
+   * .query(...)
+   * ```
    */
   args<
     TNextSchemaArgs extends TSchemaArgs extends undefined
@@ -132,6 +170,19 @@ export class Resolver<
     });
   }
 
+  /**
+   * Add output validation schema
+   *
+   * The next output validation schema must extends the previous one
+   *
+   * @example
+   * ```ts
+   * .output(z.object({ firstName: z.string() }))
+   * // ...
+   * .output(z.object({ firstName: z.string(), lastName: z.string() }))
+   * .query(...)
+   * ```
+   */
   output<
     TNextSchemaOutput extends TSchemaOutput extends undefined
       ? z.Schema
@@ -153,6 +204,8 @@ export class Resolver<
 
   /**
    * Creates a mutation endpoint with resolver middlewares, transformation and arguments validations
+   *
+   * The output must be specified before using mutation
    */
   mutation(
     resolve: ResolveFunction<
@@ -178,11 +231,19 @@ export class Resolver<
       resolveFunction: resolve,
       middlewares: this._middlewares,
       transformations: this._transformations,
-    });
+    }) as TSchemaOutput extends undefined
+      ? ErrorMessage<'Output schema cannot be undefined when creating mutation.'>
+      : Mutation<
+          TSchemaArgs,
+          TSchemaOutput extends undefined ? never : TSchemaOutput,
+          ResolveFunction<TArgs, inferResolverOutput<TSchemaOutput>, TContext>
+        >;
   }
 
   /**
    * Creates a query endpoint with resolver middlewares, transformation and arguments validations
+   *
+   * The output must be specified before using query
    */
   query(
     resolve: ResolveFunction<
@@ -208,7 +269,13 @@ export class Resolver<
       resolveFunction: resolve,
       middlewares: this._middlewares,
       transformations: this._transformations,
-    });
+    }) as TSchemaOutput extends undefined
+      ? ErrorMessage<'Output schema cannot be undefined when creating query.'>
+      : Query<
+          TSchemaArgs,
+          TSchemaOutput extends undefined ? never : TSchemaOutput,
+          ResolveFunction<TArgs, inferResolverOutput<TSchemaOutput>, TContext>
+        >;
   }
 }
 
