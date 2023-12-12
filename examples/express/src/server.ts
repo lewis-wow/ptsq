@@ -13,7 +13,9 @@ const { router, resolver, serve } = createServer({
   ctx: createContext,
 });
 
-const q = resolver
+const tr = resolver.description('Description of my resolver');
+
+const q = tr
   .output(z.date().transform((date) => date.toISOString()))
   .use(({ ctx, next }) => {
     console.log(ctx);

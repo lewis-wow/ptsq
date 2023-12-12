@@ -30,6 +30,7 @@ export class Route<
   TSchemaArgs extends ResolverSchemaArgs | undefined,
   TSchemaOutput extends ResolverSchemaOutput,
   TResolveFunction extends AnyResolveFunction,
+  TDescription extends string | undefined,
 > {
   type: TType;
   schemaArgs: TSchemaArgs;
@@ -38,6 +39,7 @@ export class Route<
   nodeType: 'route' = 'route' as const;
   middlewares: AnyMiddleware[];
   transformations: AnyTransformation[];
+  description: TDescription;
 
   constructor(options: {
     type: TType;
@@ -46,6 +48,7 @@ export class Route<
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];
+    description: TDescription;
   }) {
     this.type = options.type;
     this.schemaArgs = options.schemaArgs;
@@ -53,6 +56,7 @@ export class Route<
     this.resolveFunction = options.resolveFunction;
     this.middlewares = options.middlewares;
     this.transformations = options.transformations;
+    this.description = options.description;
   }
 
   /**
@@ -136,5 +140,6 @@ export type AnyRoute = Route<
   ResolverType,
   ResolverSchemaArgs | undefined,
   ResolverSchemaOutput,
-  AnyResolveFunction
+  AnyResolveFunction,
+  string | undefined
 >;

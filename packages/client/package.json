@@ -18,9 +18,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "main": "dist/main.js",
-  "module": "dist/main.mjs",
-  "typings": "dist/main.d.ts",
+  "main": "src/main.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {

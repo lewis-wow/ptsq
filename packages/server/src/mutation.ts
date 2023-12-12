@@ -16,13 +16,21 @@ export class Mutation<
   TSchemaArgs extends ResolverSchemaArgs | undefined,
   TSchemaOutput extends ResolverSchemaOutput,
   TResolveFunction extends AnyResolveFunction,
-> extends Route<'mutation', TSchemaArgs, TSchemaOutput, TResolveFunction> {
+  TDescription extends string | undefined,
+> extends Route<
+  'mutation',
+  TSchemaArgs,
+  TSchemaOutput,
+  TResolveFunction,
+  TDescription
+> {
   constructor(options: {
     schemaArgs: TSchemaArgs;
     schemaOutput: TSchemaOutput;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];
+    description: TDescription;
   }) {
     super({
       type: 'mutation',
@@ -34,5 +42,6 @@ export class Mutation<
 export type AnyMutation = Mutation<
   ResolverSchemaArgs | undefined,
   ResolverSchemaOutput,
-  AnyResolveFunction
+  AnyResolveFunction,
+  string | undefined
 >;

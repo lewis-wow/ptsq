@@ -1,6 +1,4 @@
-import type { MaybePromise } from '@ptsq/server';
-import axios from 'axios';
-import type { RequestHeaders } from './headers';
+import { ClientRoute, type ClientRouteOptions } from './clientRoute';
 import type { Client, ClientRouter } from './types';
 
 /**
@@ -16,7 +14,7 @@ import type { Client, ClientRouter } from './types';
  * ```
  */
 export const createProxyClient = <TRouter extends ClientRouter>(
-  options: ProxyClientOptions['options'],
+  options: ClientRouteOptions['options'],
 ): Client<TRouter> => {
   const createRouteProxyClient = (route: string[]) => {
     /**
@@ -29,13 +27,13 @@ export const createProxyClient = <TRouter extends ClientRouter>(
      * await userClient.getCurrent.query();
      * ```
      */
-    const client = new ProxyClient({ route, options });
+    const client = new ClientRoute({ route, options });
 
     const proxyHandler: ProxyHandler<Client<TRouter>> = {
       get: (_target, key: string) => createRouteProxyClient([...route, key]),
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       apply: (_target, _thisArg, argumentsList) =>
-        client.request(argumentsList[0], argumentsList[1]),
+        client.fetch(argumentsList[0], argumentsList[1]),
     };
 
     /**
@@ -47,68 +45,6 @@ export const createProxyClient = <TRouter extends ClientRouter>(
 
   return createRouteProxyClient([]);
 };
-
-export type ProxyClientOptions = {
-  route: string[];
-  options: {
-    url: string;
-    credentials?: boolean;
-    headers?: RequestHeaders | (() => MaybePromise<RequestHeaders>);
-  };
-};
-
-export type RequestOptions = {
-  signal?: AbortSignal;
-};
-
-/**
- * @internal
- *
- * Request making client
- */
-export class ProxyClient {
-  route: string[];
-  options: {
-    url: string;
-    credentials?: boolean;
-    headers?: RequestHeaders | (() => MaybePromise<RequestHeaders>);
-  };
-
-  constructor({ route, options }: ProxyClientOptions) {
-    this.route = route;
-    this.options = options;
-  }
-
-  /**
-   * Creates a request to the server with generic input and output types from schema
-   */
-  async request<TRequestInput, TRequestOutput>(
-    requestInput: TRequestInput,
-    requestOptions?: RequestOptions,
-  ): Promise<TRequestOutput> {
-    const headers =
-      typeof this.options.headers !== 'function'
-        ? this.options.headers
-        : await this.options.headers();
-
-    /**
-     * Removes the last route from path, the last one is 'mutate' | 'query'
-     */
-    this.route.pop();
-
-    const result = await axios.post<string>(
-      this.options.url,
-      { route: this.route.join('.'), input: requestInput },
-      {
-        withCredentials: this.options.credentials,
-        headers,
-        signal: requestOptions?.signal,
-      },
-    );
-
-    return result.data as TRequestOutput;
-  }
-}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};

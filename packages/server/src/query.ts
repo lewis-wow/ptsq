@@ -16,13 +16,21 @@ export class Query<
   TSchemaArgs extends ResolverSchemaArgs | undefined,
   TSchemaOutput extends ResolverSchemaOutput,
   TResolveFunction extends AnyResolveFunction,
-> extends Route<'query', TSchemaArgs, TSchemaOutput, TResolveFunction> {
+  TDescription extends string | undefined,
+> extends Route<
+  'query',
+  TSchemaArgs,
+  TSchemaOutput,
+  TResolveFunction,
+  TDescription
+> {
   constructor(options: {
     schemaArgs: TSchemaArgs;
     schemaOutput: TSchemaOutput;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];
+    description: TDescription;
   }) {
     super({
       type: 'query',
@@ -34,5 +42,6 @@ export class Query<
 export type AnyQuery = Query<
   ResolverSchemaArgs | undefined,
   ResolverSchemaOutput,
-  AnyResolveFunction
+  AnyResolveFunction,
+  string | undefined
 >;
