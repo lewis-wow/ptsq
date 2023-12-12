@@ -15,6 +15,8 @@ const { router, resolver, serve } = createServer({
 
 const tr = resolver.description('Description of my resolver');
 
+tr.append(resolver);
+
 const q = tr
   .output(z.date().transform((date) => date.toISOString()))
   .use(({ ctx, next }) => {

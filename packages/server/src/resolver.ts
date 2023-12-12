@@ -78,6 +78,49 @@ export class Resolver<
     });
   }
 
+  prepend<TResolver extends AnyResolver>(resolver: TResolver) {
+    return new Resolver<
+      TArgs,
+      TSchemaArgs,
+      TOutput,
+      TSchemaOutput,
+      TContext,
+      TDescription
+    >({
+      schemaArgs: this._schemaArgs,
+      schemaOutput: this._schemaOutput,
+      transformations: [...resolver._transformations, ...this._transformations],
+      middlewares: [...resolver._middlewares, ...this._middlewares],
+      description: this._description,
+    });
+  }
+
+  append<
+    TResolver extends Resolver<
+      TArgs | undefined,
+      TSchemaArgs | undefined,
+      TOutput | undefined,
+      TSchemaOutput | undefined,
+      TContext,
+      string | undefined
+    >,
+  >(resolver: TResolver) {
+    return new Resolver<
+      TArgs,
+      TSchemaArgs,
+      TOutput,
+      TSchemaOutput,
+      TContext,
+      TDescription
+    >({
+      schemaArgs: this._schemaArgs,
+      schemaOutput: this._schemaOutput,
+      transformations: [...this._transformations, ...resolver._transformations],
+      middlewares: [...this._middlewares, ...resolver._middlewares],
+      description: this._description,
+    });
+  }
+
   /**
    * Add a middleware to the resolver
    *
@@ -310,6 +353,15 @@ export class Resolver<
         >;
   }
 }
+
+export type AnyResolver = Resolver<
+  any,
+  ResolverSchemaArgs | undefined,
+  any,
+  ResolverSchemaOutput | undefined,
+  any,
+  string | undefined
+>;
 
 export type ResolveFunction<
   TInput,
