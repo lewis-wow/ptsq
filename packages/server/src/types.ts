@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 
-export type ResolverType = 'query' | 'mutation';
+export type ResolverType = 'query' | 'mutation' | 'attachment';
 
 export type NodeType = 'route' | 'router';
 
@@ -49,17 +49,19 @@ export type Simplify<T> = { [K in keyof T]: T[K] } & {};
  */
 export type DeepMerge<T, U> = T extends any[]
   ? DeepMergeArray<T, U>
-  : T extends object
-  ? U extends object
-    ? {
-        [K in keyof (T & U)]: K extends keyof U
-          ? K extends keyof T
-            ? DeepMerge<T[K], U[K]>
-            : U[K]
-          : K extends keyof T
-          ? T[K]
-          : never;
-      }
+  : T extends Record<string | number | symbol, any>
+  ? U extends Record<string | number | symbol, any>
+    ? T extends U
+      ? U
+      : {
+          [K in keyof (T & U)]: K extends keyof U
+            ? K extends keyof T
+              ? DeepMerge<T[K], U[K]>
+              : U[K]
+            : K extends keyof T
+            ? T[K]
+            : never;
+        }
     : U
   : U;
 

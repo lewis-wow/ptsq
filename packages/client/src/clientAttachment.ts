@@ -1,15 +1,16 @@
 import { ClientRoute, type RequestOptions } from './clientRoute';
 
-export abstract class ClientQuery<
+export abstract class ClientAttachment<
   TDescription extends string | undefined,
   TDefinition extends {
     args?: any;
     output: any;
   },
 > extends ClientRoute {
-  abstract description: TDescription;
+  abstract descriptions: TDescription;
 
-  abstract query(
+  abstract attach(
+    files: File | Blob | FileList,
     requestInput: TDefinition['args'],
     requestOptions?: RequestOptions,
   ): Promise<TDefinition['output']>;

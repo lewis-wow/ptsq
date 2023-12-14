@@ -1,31 +1,49 @@
-import { createServer } from '@ptsq/server';
+import { createServer, HTTPError } from '@ptsq/server';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
 
 const app = express();
 
-const createContext = ({ req, res }: { req: Request; res: Response }) => ({
-  req,
-  res,
-});
+const createContext = ({ req, res }: { req: Request; res: Response }) => {
+  const user = 'user' as 'user' | 'admin' | undefined;
+
+  return {
+    req,
+    res,
+    user,
+  };
+};
 
 const { router, resolver, serve } = createServer({
   ctx: createContext,
 });
 
-const tr = resolver.description('Description of my resolver');
+const authedResolver = resolver.use(({ ctx, next }) => {
+  if (!ctx.user) throw new HTTPError({ code: 'UNAUTHORIZED' });
 
-const q = tr
-  .output(z.date().transform((date) => date.toISOString()))
-  .use(({ ctx, next }) => {
-    console.log(ctx);
+  return next({
+    ...ctx,
+    user: ctx.user,
+  });
+});
 
-    return next(ctx);
-  })
-  .query((_) => new Date());
+const adminResolver = authedResolver.use(({ ctx, next }) => {
+  if (ctx.user !== 'admin') throw new HTTPError({ code: 'UNAUTHORIZED' });
+
+  return next({
+    ...ctx,
+    user: ctx.user,
+  });
+});
+
+const greetingsQuery = adminResolver
+  .description('Uploads a file to CDN.')
+  .output(z.string())
+  .attachment(({ input }) => '');
+//^?
 
 const baseRouter = router({
-  greetings: q,
+  greetings: greetingsQuery,
 });
 
 app.use((req, res) => serve(baseRouter)(req, res));

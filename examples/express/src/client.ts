@@ -7,6 +7,4 @@ const client = createProxyClient<BaseRouter>({
   url: 'http://localhost:4000/ptsq',
 });
 
-client.greetings.query().then((response) => {
-  console.log(response);
-});
+client.greetings.attach(new File(['Hello, world!'], 'test.txt'));

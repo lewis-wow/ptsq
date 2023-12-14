@@ -1,3 +1,4 @@
+import type { AnyAttachment } from './attachment';
 import type { Context } from './context';
 import { createSchemaRoot, type SchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
@@ -10,7 +11,7 @@ import type { AnyQuery } from './query';
 import type { Queue } from './queue';
 
 export type Routes = {
-  [Key: string]: AnyQuery | AnyMutation | AnyRouter;
+  [Key: string]: AnyQuery | AnyMutation | AnyAttachment | AnyRouter;
 };
 
 /**

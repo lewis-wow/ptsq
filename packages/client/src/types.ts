@@ -3,6 +3,7 @@ import type {
   inferClientResolverOutput,
   ResolverType,
 } from '@ptsq/server';
+import type { ClientAttachment } from './clientAttachment';
 import type { ClientMutation } from './clientMutation';
 import type { ClientQuery } from './clientQuery';
 
@@ -38,16 +39,34 @@ export type Client<TRouter extends ClientRouter> = {
   [K in keyof TRouter['routes']]: TRouter['routes'][K] extends ClientRouter
     ? Client<TRouter['routes'][K]>
     : TRouter['routes'][K] extends ClientRoute<'query'>
-    ? ClientQuery<{
-        description: TRouter['routes'][K]['description'];
-        args: inferClientResolverArgs<TRouter['routes'][K]['schemaArgs']>;
-        output: inferClientResolverOutput<TRouter['routes'][K]['schemaOutput']>;
-      }>
+    ? ClientQuery<
+        TRouter['routes'][K]['description'],
+        {
+          args: inferClientResolverArgs<TRouter['routes'][K]['schemaArgs']>;
+          output: inferClientResolverOutput<
+            TRouter['routes'][K]['schemaOutput']
+          >;
+        }
+      >
     : TRouter['routes'][K] extends ClientRoute<'mutation'>
-    ? ClientMutation<{
-        description: TRouter['routes'][K]['description'];
-        args: inferClientResolverArgs<TRouter['routes'][K]['schemaArgs']>;
-        output: inferClientResolverOutput<TRouter['routes'][K]['schemaOutput']>;
-      }>
+    ? ClientMutation<
+        TRouter['routes'][K]['description'],
+        {
+          args: inferClientResolverArgs<TRouter['routes'][K]['schemaArgs']>;
+          output: inferClientResolverOutput<
+            TRouter['routes'][K]['schemaOutput']
+          >;
+        }
+      >
+    : TRouter['routes'][K] extends ClientRoute<'attachment'>
+    ? ClientAttachment<
+        TRouter['routes'][K]['description'],
+        {
+          args: inferClientResolverArgs<TRouter['routes'][K]['schemaArgs']>;
+          output: inferClientResolverOutput<
+            TRouter['routes'][K]['schemaOutput']
+          >;
+        }
+      >
     : never;
 };

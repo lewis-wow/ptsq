@@ -1,3 +1,5 @@
+import type { Context } from './context';
+import type { MiddlewareMeta } from './middleware';
 import type { MaybePromise } from './types';
 
 /**
@@ -5,15 +7,23 @@ import type { MaybePromise } from './types';
  */
 export type Transformation<
   TArgs,
-  TArgsTransformationObject extends ArgsTransformationObject<TArgs>,
-> = (
-  input: TArgs,
-) => inferArgsTransformationNextArgs<TArgs, TArgsTransformationObject>;
+  TContext extends Context,
+  TArgsTransformationObject extends ArgsTransformationObject<TArgs, TContext>,
+> = (options: {
+  input: TArgs;
+  ctx: TContext;
+  meta: MiddlewareMeta;
+}) => inferArgsTransformationNextArgs<
+  TArgs,
+  TContext,
+  TArgsTransformationObject
+>;
 
 /**
  * @internal
  */
 export type AnyTransformation = Transformation<
+  any,
   any,
   AnyArgsTransformationObject
 >;
@@ -21,14 +31,22 @@ export type AnyTransformation = Transformation<
 /**
  * @internal
  */
-export type ArgsTransformationFunction<TArgs> = (
-  args: TArgs,
-) => MaybePromise<any>;
+export type ArgsTransformationFunction<
+  TArgs,
+  TContext extends Context,
+> = (options: {
+  input: TArgs;
+  ctx: TContext;
+  meta: MiddlewareMeta;
+}) => MaybePromise<any>;
 
 /**
  * @internal
  */
-export type AnyArgsTransformationFunction = ArgsTransformationFunction<any>;
+export type AnyArgsTransformationFunction = ArgsTransformationFunction<
+  any,
+  any
+>;
 
 /**
  * @internal
@@ -47,47 +65,63 @@ export type inferArgsTransformationFunctionParameters<
 /**
  * @internal
  */
-export type ArgsTransformationObject<TArgs> = TArgs extends object
+export type ArgsTransformationObject<
+  TArgs,
+  TContext extends Context,
+> = TArgs extends object
   ?
       | {
-          [K in keyof TArgs]?: ArgsTransformationObject<TArgs[K]>;
+          [K in keyof TArgs]?: ArgsTransformationObject<TArgs[K], TContext>;
         }
-      | ArgsTransformationFunction<TArgs>
-  : ArgsTransformationFunction<TArgs>;
+      | ArgsTransformationFunction<TArgs, TContext>
+  : ArgsTransformationFunction<TArgs, TContext>;
 
 /**
  * @internal
  */
-export type AnyArgsTransformationObject = ArgsTransformationObject<any>;
+export type AnyArgsTransformationObject = ArgsTransformationObject<any, any>;
 
 /**
  * @internal
  */
-export type inferArgsTransformationNextArgs<TArgs, TTransformation> =
-  TTransformation extends ArgsTransformationFunction<TArgs>
-    ? inferArgsTransformationFunctionResult<TTransformation>
-    : TTransformation extends ArgsTransformationObject<TArgs>
-    ? {
-        [K in keyof (TTransformation & TArgs)]: K extends keyof TArgs
-          ? K extends keyof TTransformation
-            ? inferArgsTransformationNextArgs<TArgs[K], TTransformation[K]>
-            : TArgs[K]
-          : never;
-      }
-    : never;
+export type inferArgsTransformationNextArgs<
+  TArgs,
+  TContext extends Context,
+  TTransformation,
+> = TTransformation extends ArgsTransformationFunction<TArgs, TContext>
+  ? inferArgsTransformationFunctionResult<TTransformation>
+  : TTransformation extends ArgsTransformationObject<TArgs, TContext>
+  ? {
+      [K in keyof (TTransformation & TArgs)]: K extends keyof TArgs
+        ? K extends keyof TTransformation
+          ? inferArgsTransformationNextArgs<
+              TArgs[K],
+              TContext,
+              TTransformation[K]
+            >
+          : TArgs[K]
+        : never;
+    }
+  : never;
 
 export const createRecursiveTransformation = async ({
-  input,
+  options,
   argsTransformationObject,
 }: {
-  input: unknown;
+  options: {
+    input: unknown;
+    ctx: object;
+    meta: MiddlewareMeta;
+  };
   argsTransformationObject?: AnyArgsTransformationObject;
 }) => {
+  const input = options.input;
+
   if (argsTransformationObject === undefined) return input;
 
   if (typeof argsTransformationObject === 'function')
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return await argsTransformationObject(input);
+    return await argsTransformationObject(options);
 
   if (typeof input !== 'object' || input === null)
     throw new TypeError(
@@ -97,7 +131,10 @@ export const createRecursiveTransformation = async ({
   const resultObject: Record<string | number | symbol, any> = { ...input };
   for (const key of Object.keys(argsTransformationObject)) {
     resultObject[key] = await createRecursiveTransformation({
-      input: resultObject[key],
+      options: {
+        ...options,
+        input: resultObject[key],
+      },
       argsTransformationObject: argsTransformationObject[key],
     });
   }

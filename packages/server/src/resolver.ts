@@ -1,4 +1,5 @@
 import type { z } from 'zod';
+import { Attachment } from './attachment';
 import type { Context } from './context';
 import {
   Middleware,
@@ -136,16 +137,24 @@ export class Resolver<
    * ```
    */
   transformation<
-    TArgsTransformationObject extends ArgsTransformationObject<TArgs>,
+    TArgsTransformationObject extends ArgsTransformationObject<TArgs, TContext>,
   >(argsTransformationObject: TArgsTransformationObject) {
-    const transformationFunction = (input: TArgs) =>
+    const transformationFunction = (options: {
+      input: TArgs;
+      ctx: TContext;
+      meta: MiddlewareMeta;
+    }) =>
       createRecursiveTransformation({
-        input,
+        options,
         argsTransformationObject,
       });
 
     return new Resolver<
-      inferArgsTransformationNextArgs<TArgs, TArgsTransformationObject>,
+      inferArgsTransformationNextArgs<
+        TArgs,
+        TContext,
+        TArgsTransformationObject
+      >,
       TSchemaArgs,
       TOutput,
       TSchemaOutput,
@@ -306,6 +315,64 @@ export class Resolver<
           TSchemaArgs,
           TSchemaOutput extends undefined ? never : TSchemaOutput,
           ResolveFunction<TArgs, inferResolverOutput<TSchemaOutput>, TContext>,
+          TDescription
+        >;
+  }
+
+  /**
+   * Creates an attachment endpoint with resolver middlewares, transformation and arguments validations
+   *
+   * The output must be specified before using query
+   */
+  attachment(
+    resolve: ResolveFunction<
+      {
+        files: File | Blob | FileList;
+        data: TArgs;
+      },
+      inferResolverOutput<TSchemaOutput>,
+      TContext
+    >,
+  ): TSchemaOutput extends undefined
+    ? ErrorMessage<'Output schema cannot be undefined when creating attachment.'>
+    : Attachment<
+        TSchemaArgs,
+        TSchemaOutput extends undefined ? never : TSchemaOutput,
+        ResolveFunction<
+          {
+            files: File | Blob | FileList;
+            data: TArgs;
+          },
+          inferResolverOutput<TSchemaOutput>,
+          TContext
+        >,
+        TDescription
+      > {
+    if (this._schemaOutput === undefined)
+      throw new TypeError(
+        'Output schema cannot be undefined when creating attachment.',
+      );
+
+    return new Attachment({
+      schemaArgs: this._schemaArgs,
+      schemaOutput: this._schemaOutput,
+      resolveFunction: resolve,
+      middlewares: this._middlewares,
+      transformations: this._transformations,
+      description: this._description,
+    }) as TSchemaOutput extends undefined
+      ? ErrorMessage<'Output schema cannot be undefined when creating attachment.'>
+      : Attachment<
+          TSchemaArgs,
+          TSchemaOutput extends undefined ? never : TSchemaOutput,
+          ResolveFunction<
+            {
+              files: File | Blob | FileList;
+              data: TArgs;
+            },
+            inferResolverOutput<TSchemaOutput>,
+            TContext
+          >,
           TDescription
         >;
   }
