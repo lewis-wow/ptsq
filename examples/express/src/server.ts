@@ -15,10 +15,12 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => {
   };
 };
 
-const f = middleware()(({ next }) => {
-  return next({
-    a: 1,
-  });
+const loggingMiddleware = middleware<{
+  ctx: any;
+}>()(({ ctx, next, meta }) => {
+  console.log(ctx.a);
+
+  return next();
 });
 
 const isDev = true;
@@ -28,7 +30,7 @@ const { router, resolver, serve } = createServer({
   errorFormatter: (error) => (isDev ? error.toJSON() : null),
 });
 
-resolver.use(f);
+resolver.use(loggingMiddleware).query;
 
 const authedResolver = resolver.use(({ ctx, next }) => {
   if (!ctx.user) throw new HTTPError({ code: 'UNAUTHORIZED' });

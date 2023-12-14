@@ -7,7 +7,7 @@ import type { AnyTransformation } from './transformation';
  * @internal
  */
 export type NextFunction = <TNextContext extends Context>(
-  nextContext: TNextContext,
+  nextContext?: TNextContext,
 ) => Promise<RawMiddlewareReponse<TNextContext>>;
 
 /**
@@ -101,7 +101,7 @@ export class Middleware<
         ctx: options.ctx,
         next: (nextContext): Promise<RawMiddlewareReponse<any>> => {
           return Middleware.recursiveCall({
-            ctx: nextContext,
+            ctx: nextContext ?? options.ctx,
             meta: options.meta,
             index: options.index + 1,
             middlewares: options.middlewares,
@@ -139,18 +139,13 @@ export const middleware =
       input: unknown;
     }>,
   >() =>
-  <TNextContext extends Context>(
-    middlewareFunction: MiddlewareFunction<
-      TMiddlewareDefinition['input'] extends undefined
-        ? unknown
-        : TMiddlewareDefinition['input'],
-      TMiddlewareDefinition['ctx'] extends undefined
-        ? Context
-        : TMiddlewareDefinition['ctx'] extends object
-        ? TMiddlewareDefinition['ctx']
-        : Context,
-      TNextContext
-    >,
+  (
+    middlewareFunction: <TNextContext extends Context>(options: {
+      input: TMiddlewareDefinition['input'];
+      meta: MiddlewareMeta;
+      ctx: TMiddlewareDefinition['ctx'];
+      next: NextFunction;
+    }) => ReturnType<typeof options.next<TNextContext>>,
   ) =>
     middlewareFunction;
 
