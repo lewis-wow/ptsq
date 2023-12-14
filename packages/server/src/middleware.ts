@@ -87,7 +87,11 @@ export class Middleware<
       ]._transformations.reduce(
         async (acc, currentTransformation) =>
           // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-          await currentTransformation(await acc),
+          await currentTransformation({
+            input: await acc,
+            ctx: options.ctx,
+            meta: options.meta,
+          }),
         Promise.resolve(parsedInput?.data),
       );
 
@@ -117,6 +121,38 @@ export class Middleware<
     }
   }
 }
+
+export type MiddlewareFunctionWithoutNext<
+  TArgs,
+  TContext extends Context,
+> = (options: {
+  input: TArgs;
+  meta: MiddlewareMeta;
+  ctx: TContext;
+  next: NextFunction;
+}) => ReturnType<typeof options.next>;
+
+export const middleware =
+  <
+    TMiddlewareDefinition extends Partial<{
+      ctx: Context;
+      input: unknown;
+    }>,
+  >() =>
+  <TNextContext extends Context>(
+    middlewareFunction: MiddlewareFunction<
+      TMiddlewareDefinition['input'] extends undefined
+        ? unknown
+        : TMiddlewareDefinition['input'],
+      TMiddlewareDefinition['ctx'] extends undefined
+        ? Context
+        : TMiddlewareDefinition['ctx'] extends object
+        ? TMiddlewareDefinition['ctx']
+        : Context,
+      TNextContext
+    >,
+  ) =>
+    middlewareFunction;
 
 export type AnyMiddleware = Middleware<unknown, Context, Context>;
 

@@ -114,7 +114,7 @@ export const createRecursiveTransformation = async ({
     meta: MiddlewareMeta;
   };
   argsTransformationObject?: AnyArgsTransformationObject;
-}) => {
+}): Promise<unknown> => {
   const input = options.input;
 
   if (argsTransformationObject === undefined) return input;

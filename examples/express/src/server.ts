@@ -1,4 +1,5 @@
 import { createServer, HTTPError } from '@ptsq/server';
+import { middleware } from '@ptsq/server/src/middleware';
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
 
@@ -14,12 +15,20 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => {
   };
 };
 
+const f = middleware()(({ next }) => {
+  return next({
+    a: 1,
+  });
+});
+
 const isDev = true;
 
 const { router, resolver, serve } = createServer({
   ctx: createContext,
   errorFormatter: (error) => (isDev ? error.toJSON() : null),
 });
+
+resolver.use(f);
 
 const authedResolver = resolver.use(({ ctx, next }) => {
   if (!ctx.user) throw new HTTPError({ code: 'UNAUTHORIZED' });
