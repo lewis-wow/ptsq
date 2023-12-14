@@ -324,7 +324,11 @@ export class Resolver<
    *
    * The output must be specified before using query
    */
-  attachment(
+  attachment(resolveOptions: {
+    fileSize?: number;
+    files?: number;
+    fieldSize?: number;
+    headerSize?: number;
     resolve: ResolveFunction<
       {
         files: File | Blob | FileList;
@@ -332,8 +336,8 @@ export class Resolver<
       },
       inferResolverOutput<TSchemaOutput>,
       TContext
-    >,
-  ): TSchemaOutput extends undefined
+    >;
+  }): TSchemaOutput extends undefined
     ? ErrorMessage<'Output schema cannot be undefined when creating attachment.'>
     : Attachment<
         TSchemaArgs,
@@ -356,7 +360,7 @@ export class Resolver<
     return new Attachment({
       schemaArgs: this._schemaArgs,
       schemaOutput: this._schemaOutput,
-      resolveFunction: resolve,
+      resolveOptions: resolveOptions,
       middlewares: this._middlewares,
       transformations: this._transformations,
       description: this._description,

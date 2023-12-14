@@ -14,8 +14,11 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => {
   };
 };
 
+const isDev = true;
+
 const { router, resolver, serve } = createServer({
   ctx: createContext,
+  errorFormatter: (error) => (isDev ? error.toJSON() : null),
 });
 
 const authedResolver = resolver.use(({ ctx, next }) => {
@@ -39,8 +42,12 @@ const adminResolver = authedResolver.use(({ ctx, next }) => {
 const greetingsQuery = adminResolver
   .description('Uploads a file to CDN.')
   .output(z.string())
-  .attachment(({ input }) => '');
-//^?
+  .attachment({
+    fileSize: 1000000,
+    files: 10,
+    fieldSize: 1000000,
+    resolve: () => '',
+  });
 
 const baseRouter = router({
   greetings: greetingsQuery,

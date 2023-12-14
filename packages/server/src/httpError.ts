@@ -34,7 +34,6 @@ export class HTTPError extends Error {
 
   toJSON() {
     return {
-      code: this.code,
       name: this.name,
       message: this.message,
       info: this.info,

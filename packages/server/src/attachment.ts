@@ -7,6 +7,16 @@ import type {
 import { Route } from './route';
 import type { AnyTransformation } from './transformation';
 
+export type AttachmentResolveOptions<
+  TResolveFunction extends AnyResolveFunction,
+> = {
+  fileSize?: number;
+  files?: number;
+  fieldSize?: number;
+  headerSize?: number;
+  resolve: TResolveFunction;
+};
+
 /**
  * @internal
  *
@@ -27,13 +37,16 @@ export class Attachment<
   constructor(options: {
     schemaArgs: TSchemaArgs;
     schemaOutput: TSchemaOutput;
-    resolveFunction: TResolveFunction;
+    resolveOptions: AttachmentResolveOptions<TResolveFunction>;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];
     description: TDescription;
   }) {
+    // TODO: CREATE VALIDATION FOR RESOLVE FUNCTION BASED ON OPTIONS!!!!
+
     super({
       type: 'attachment',
+      resolveFunction: options.resolveOptions.resolve,
       ...options,
     });
   }

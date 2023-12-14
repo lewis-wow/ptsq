@@ -7,6 +7,7 @@ import type {
   inferContextParamsFromContextBuilder,
 } from './context';
 import type { CORSOptions } from './cors';
+import type { ErrorFormatter } from './errorFormatter';
 import { Resolver } from './resolver';
 import { Router, type AnyRouter, type Routes } from './router';
 import { serve as _serve } from './serve';
@@ -20,6 +21,7 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   fetchAPI?: FetchAPI;
   root?: string;
   endpoint?: string;
+  errorFormatter?: ErrorFormatter;
 };
 
 /**
@@ -42,6 +44,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   fetchAPI,
   root = '',
   endpoint = '/ptsq',
+  errorFormatter = (error) => error.toJSON(),
 }: CreateServerArgs<TContextBuilder>) => {
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
   type ContextBuilderParams =
@@ -113,7 +116,11 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
             params: ctxParams,
           });
 
-          return Response.json(serverResponse.toJSON(), {
+          const response = serverResponse.response.ok
+            ? serverResponse.toJSON()
+            : errorFormatter(serverResponse.response.error);
+
+          return Response.json(response, {
             status: serverResponse.response.ok
               ? 200
               : serverResponse.response.error.getHTTPErrorCode(),
