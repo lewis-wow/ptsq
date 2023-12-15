@@ -37,9 +37,11 @@ export const serve = async (options: {
 
     const rawResponse = await options.router.call({
       route: routeQueue,
+      type: parsedRequestBody.data.type,
       meta: {
         input: parsedRequestBody.data.input,
         route: parsedRequestBody.data.route,
+        type: parsedRequestBody.data.type,
       },
       ctx,
     });

@@ -14,6 +14,7 @@ test('Should parse valid request body', () => {
       ],
       key: 'value',
     },
+    type: 'query',
   });
 
   expect(parseResult.success).toBe(true);
@@ -22,6 +23,7 @@ test('Should parse valid request body', () => {
 test('Should parse valid request body without input', () => {
   const parseResult = requestBodySchema.safeParse({
     route: 'a.b.c.d',
+    type: 'query',
   });
 
   expect(parseResult.success).toBe(true);
@@ -39,6 +41,7 @@ test('Should parse invalid request body without route', () => {
       ],
       key: 'value',
     },
+    type: 'query',
   });
 
   expect(parseResult.success).toBe(false);
@@ -57,6 +60,7 @@ test('Should parse invalid request body with bad formated route', () => {
       ],
       key: 'value',
     },
+    type: 'query',
   });
 
   expect(parseResult.success).toBe(false);
@@ -75,6 +79,7 @@ test('Should parse invalid request body with bad formated route', () => {
       ],
       key: 'value',
     },
+    type: 'query',
   });
 
   expect(parseResult.success).toBe(false);
@@ -93,7 +98,26 @@ test('Should parse valid request body with only one route without dot', () => {
       ],
       key: 'value',
     },
+    type: 'mutation',
   });
 
   expect(parseResult.success).toBe(true);
+});
+
+test('Should not parse invalid request body without route type', () => {
+  const parseResult = requestBodySchema.safeParse({
+    route: 'abcdc',
+    input: {
+      array: [
+        1,
+        2,
+        {
+          test: 'test',
+        },
+      ],
+      key: 'value',
+    },
+  });
+
+  expect(parseResult.success).toBe(false);
 });

@@ -35,7 +35,7 @@ test('Should create query', async () => {
 
   expect(
     await query.call({
-      meta: { input: { name: 'John' }, route: 'dummy.route' },
+      meta: { type: 'query', input: { name: 'John' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -48,7 +48,7 @@ test('Should create query', async () => {
 
   expect(
     await query.call({
-      meta: { input: 'John', route: 'dummy.route' },
+      meta: { type: 'query', input: 'John', route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -133,7 +133,7 @@ test('Should create query without args', async () => {
 
   expect(
     await query.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -146,7 +146,7 @@ test('Should create query without args', async () => {
 
   expect(
     await query.call({
-      meta: { input: 'John', route: 'dummy.route' },
+      meta: { type: 'query', input: 'John', route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -230,6 +230,7 @@ test('Should create query with twice chain', async () => {
   expect(
     await query.call({
       meta: {
+        type: 'query',
         input: { firstName: 'John', lastName: 'Doe' },
         route: 'dummy.route',
       },
@@ -245,7 +246,11 @@ test('Should create query with twice chain', async () => {
 
   expect(
     await query.call({
-      meta: { input: { firstName: 'John' }, route: 'dummy.route' },
+      meta: {
+        type: 'query',
+        input: { firstName: 'John' },
+        route: 'dummy.route',
+      },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -261,7 +266,7 @@ test('Should create query with twice chain', async () => {
 
   expect(
     await query.call({
-      meta: { input: { lastName: 'Doe' }, route: 'dummy.route' },
+      meta: { type: 'query', input: { lastName: 'Doe' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -369,6 +374,7 @@ test('Should create query with optional args chain', async () => {
   expect(
     await query.call({
       meta: {
+        type: 'query',
         input: { firstName: 'John', lastName: 'Doe' },
         route: 'dummy.route',
       },
@@ -384,7 +390,11 @@ test('Should create query with optional args chain', async () => {
 
   expect(
     await query.call({
-      meta: { input: { firstName: 'John' }, route: 'dummy.route' },
+      meta: {
+        type: 'query',
+        input: { firstName: 'John' },
+        route: 'dummy.route',
+      },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -397,7 +407,7 @@ test('Should create query with optional args chain', async () => {
 
   expect(
     await query.call({
-      meta: { input: { lastName: 'Doe' }, route: 'dummy.route' },
+      meta: { type: 'query', input: { lastName: 'Doe' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -410,7 +420,7 @@ test('Should create query with optional args chain', async () => {
 
   expect(
     await query.call({
-      meta: { input: {}, route: 'dummy.route' },
+      meta: { type: 'query', input: {}, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -423,7 +433,7 @@ test('Should create query with optional args chain', async () => {
 
   expect(
     await query.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({

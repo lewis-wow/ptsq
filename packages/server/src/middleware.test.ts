@@ -38,7 +38,7 @@ test('Should create middleware with query and serverSideQuery', async () => {
 
   expect(
     await query.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -49,7 +49,7 @@ test('Should create middleware with query and serverSideQuery', async () => {
 
   expect(
     await validOnlyQuery.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -64,7 +64,7 @@ test('Should create middleware with query and serverSideQuery', async () => {
 
   expect(
     await query.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -75,7 +75,7 @@ test('Should create middleware with query and serverSideQuery', async () => {
 
   expect(
     await validOnlyQuery.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -120,7 +120,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
 
   expect(
     await mutation.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'mutation', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -131,7 +131,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
 
   expect(
     await validOnlyMutation.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'mutation', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -146,7 +146,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
 
   expect(
     await mutation.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'mutation', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -157,7 +157,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
 
   expect(
     await validOnlyMutation.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'mutation', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -205,7 +205,7 @@ test('Should create middleware with measuring time', async () => {
 
   expect(
     await query.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
       ctx: {},
     }),
   ).toStrictEqual({
@@ -285,7 +285,7 @@ test('Should create two nested middlewares', async () => {
 
   expect(
     await query.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
       ctx: {},
     }),
   ).toStrictEqual({
@@ -346,7 +346,7 @@ test('Should create nested middlewares with query', async () => {
 
   expect(
     await query.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -357,7 +357,7 @@ test('Should create nested middlewares with query', async () => {
 
   expect(
     await validOnlyQuery.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -372,7 +372,7 @@ test('Should create nested middlewares with query', async () => {
 
   expect(
     await query.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -383,7 +383,7 @@ test('Should create nested middlewares with query', async () => {
 
   expect(
     await validOnlyQuery.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -440,7 +440,7 @@ test('Should create nested middlewares with mutation', async () => {
 
   expect(
     await mutation.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'mutation', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -451,7 +451,7 @@ test('Should create nested middlewares with mutation', async () => {
 
   expect(
     await validOnlyMutation.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'mutation', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -466,7 +466,7 @@ test('Should create nested middlewares with mutation', async () => {
 
   expect(
     await mutation.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'mutation', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -477,7 +477,7 @@ test('Should create nested middlewares with mutation', async () => {
 
   expect(
     await validOnlyMutation.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'mutation', input: undefined, route: 'dummy.route' },
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
@@ -540,7 +540,11 @@ test('Should create nested middlewares with query with args chaining', async () 
 
   expect(
     await query.call({
-      meta: { input: { name: 'John', lastName: 'Doe' }, route: 'dummy.route' },
+      meta: {
+        type: 'query',
+        input: { name: 'John', lastName: 'Doe' },
+        route: 'dummy.route',
+      },
       ctx: {},
     }),
   ).toStrictEqual({

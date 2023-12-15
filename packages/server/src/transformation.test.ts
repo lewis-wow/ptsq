@@ -25,7 +25,10 @@ test('Should parse primitive value with transformation function', async () => {
 
   const query = testResolver.output(z.null()).query(() => null);
 
-  await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
+  await query.call({
+    ctx: {},
+    meta: { type: 'query', input: data, route: 'dummy.route' },
+  });
 });
 
 test('Should parse no args with transformation function', async () => {
@@ -46,7 +49,7 @@ test('Should parse no args with transformation function', async () => {
 
   await query.call({
     ctx: {},
-    meta: { input: undefined, route: 'dummy.route' },
+    meta: { type: 'query', input: undefined, route: 'dummy.route' },
   });
 });
 
@@ -73,7 +76,7 @@ test('Should parse no args with transformation function as object', async () => 
 
   await query.call({
     ctx: {},
-    meta: { input: undefined, route: 'dummy.route' },
+    meta: { type: 'query', input: undefined, route: 'dummy.route' },
   });
 });
 
@@ -114,7 +117,10 @@ test('Should parse Date with transformation function', async () => {
 
   const query = testResolver.output(z.null()).query(() => null);
 
-  await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
+  await query.call({
+    ctx: {},
+    meta: { type: 'query', input: data, route: 'dummy.route' },
+  });
 });
 
 test('Should parse coordinates with transformation function', async () => {
@@ -151,7 +157,10 @@ test('Should parse coordinates with transformation function', async () => {
 
   const query = testResolver.output(z.null()).query(() => null);
 
-  await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
+  await query.call({
+    ctx: {},
+    meta: { type: 'query', input: data, route: 'dummy.route' },
+  });
 });
 
 test('Should parse arrays with transformation function', async () => {
@@ -178,7 +187,10 @@ test('Should parse arrays with transformation function', async () => {
 
   const query = testResolver.output(z.null()).query(() => null);
 
-  await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
+  await query.call({
+    ctx: {},
+    meta: { type: 'query', input: data, route: 'dummy.route' },
+  });
 });
 
 test('Should parse arrays with transformation function chain', async () => {
@@ -206,7 +218,10 @@ test('Should parse arrays with transformation function chain', async () => {
 
   const query = testResolver.output(z.null()).query(() => null);
 
-  await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
+  await query.call({
+    ctx: {},
+    meta: { type: 'query', input: data, route: 'dummy.route' },
+  });
 });
 
 test('Should parse tuples with transformation function', async () => {
@@ -244,7 +259,10 @@ test('Should parse tuples with transformation function', async () => {
 
   const query = testResolver.output(z.null()).query(() => null);
 
-  await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
+  await query.call({
+    ctx: {},
+    meta: { type: 'query', input: data, route: 'dummy.route' },
+  });
 });
 
 test('Should parse object into entries and then back with transformation function', async () => {
@@ -316,7 +334,10 @@ test('Should parse object into entries and then back with transformation functio
 
   const query = testResolver.output(z.null()).query(() => null);
 
-  await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
+  await query.call({
+    ctx: {},
+    meta: { type: 'query', input: data, route: 'dummy.route' },
+  });
 });
 
 test('Should parse primitive value inside object with spawning the transformation function deep inside', async () => {
@@ -345,5 +366,8 @@ test('Should parse primitive value inside object with spawning the transformatio
 
   const query = testResolver.output(z.null()).query(() => null);
 
-  await query.call({ ctx: {}, meta: { input: data, route: 'dummy.route' } });
+  await query.call({
+    ctx: {},
+    meta: { type: 'query', input: data, route: 'dummy.route' },
+  });
 });

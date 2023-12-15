@@ -23,6 +23,7 @@ test('Should create server with error formatter and return empty object on error
       await axios
         .post(address, {
           route: 'test',
+          type: 'query',
         })
         .catch((error) => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -50,6 +51,7 @@ test('Should create server with error formatter to response with null', async ()
       await axios
         .post(address, {
           route: 'test',
+          type: 'query',
         })
         .catch((error) => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -77,6 +79,7 @@ test('Should create server with error formatter and keep the original error', as
       await axios
         .post(address, {
           route: 'test',
+          type: 'query',
         })
         .catch((error) => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -111,6 +114,7 @@ test('Should create server with error formatter and change the http error', asyn
       await axios
         .post(address, {
           route: 'test',
+          type: 'query',
         })
         .catch((error) => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -146,6 +150,7 @@ test('Should create server with error formatter and keep the original error with
       await axios
         .post(address, {
           route: 'test',
+          type: 'query',
         })
         .catch((error) => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

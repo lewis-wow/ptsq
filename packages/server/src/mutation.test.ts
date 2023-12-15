@@ -35,7 +35,7 @@ test('Should create mutation', async () => {
 
   expect(
     await mutation.call({
-      meta: { input: { name: 'John' }, route: 'dummy.route' },
+      meta: { type: 'mutation', input: { name: 'John' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -48,7 +48,7 @@ test('Should create mutation', async () => {
 
   expect(
     await mutation.call({
-      meta: { input: 'John', route: 'dummy.route' },
+      meta: { type: 'mutation', input: 'John', route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -135,7 +135,7 @@ test('Should create mutation without args', async () => {
 
   expect(
     await mutation.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'mutation', input: undefined, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -148,7 +148,7 @@ test('Should create mutation without args', async () => {
 
   expect(
     await mutation.call({
-      meta: { input: 'John', route: 'dummy.route' },
+      meta: { type: 'mutation', input: 'John', route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -233,6 +233,7 @@ test('Should create mutation with twice chain', async () => {
   expect(
     await mutation.call({
       meta: {
+        type: 'mutation',
         input: { firstName: 'John', lastName: 'Doe' },
         route: 'dummy.route',
       },
@@ -248,7 +249,11 @@ test('Should create mutation with twice chain', async () => {
 
   expect(
     await mutation.call({
-      meta: { input: { firstName: 'John' }, route: 'dummy.route' },
+      meta: {
+        type: 'mutation',
+        input: { firstName: 'John' },
+        route: 'dummy.route',
+      },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -264,7 +269,11 @@ test('Should create mutation with twice chain', async () => {
 
   expect(
     await mutation.call({
-      meta: { input: { lastName: 'Doe' }, route: 'dummy.route' },
+      meta: {
+        type: 'mutation',
+        input: { lastName: 'Doe' },
+        route: 'dummy.route',
+      },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -372,6 +381,7 @@ test('Should create mutation with optional args chain', async () => {
   expect(
     await mutation.call({
       meta: {
+        type: 'mutation',
         input: { firstName: 'John', lastName: 'Doe' },
         route: 'dummy.route',
       },
@@ -387,7 +397,11 @@ test('Should create mutation with optional args chain', async () => {
 
   expect(
     await mutation.call({
-      meta: { input: { firstName: 'John' }, route: 'dummy.route' },
+      meta: {
+        type: 'mutation',
+        input: { firstName: 'John' },
+        route: 'dummy.route',
+      },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -400,7 +414,11 @@ test('Should create mutation with optional args chain', async () => {
 
   expect(
     await mutation.call({
-      meta: { input: { lastName: 'Doe' }, route: 'dummy.route' },
+      meta: {
+        type: 'mutation',
+        input: { lastName: 'Doe' },
+        route: 'dummy.route',
+      },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -413,7 +431,7 @@ test('Should create mutation with optional args chain', async () => {
 
   expect(
     await mutation.call({
-      meta: { input: {}, route: 'dummy.route' },
+      meta: { type: 'mutation', input: {}, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -426,7 +444,7 @@ test('Should create mutation with optional args chain', async () => {
 
   expect(
     await mutation.call({
-      meta: { input: undefined, route: 'dummy.route' },
+      meta: { type: 'mutation', input: undefined, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
