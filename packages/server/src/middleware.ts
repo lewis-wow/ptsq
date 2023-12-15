@@ -4,6 +4,7 @@ import type { ErrorFormatter } from './errorFormatter';
 import { HTTPError } from './httpError';
 import type { ResolverSchemaArgs } from './resolver';
 import type { AnyTransformation } from './transformation';
+import type { ResolverType } from './types';
 
 /**
  * @internal
@@ -35,6 +36,7 @@ export type AnyMiddlewareCallback = MiddlewareFunction<
 export type MiddlewareMeta = {
   input: unknown;
   route: string;
+  type: ResolverType;
 };
 
 /**

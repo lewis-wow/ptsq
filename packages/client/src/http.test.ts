@@ -21,6 +21,7 @@ test('Should create simple http server', async () => {
     client: async (serverUrl) => {
       const response = await axios.post(serverUrl, {
         route: 'test',
+        type: 'query',
         input: {
           name: 'John',
         },
@@ -59,6 +60,7 @@ test('Should create simple http server with context', async () => {
     client: async (serverUrl) => {
       const response = await axios.post(serverUrl, {
         route: 'test',
+        type: 'query',
         input: {
           name: 'John',
         },
@@ -98,6 +100,7 @@ test('Should create simple http server with middleware', async () => {
     client: async (serverUrl) => {
       const response = await axios.post(serverUrl, {
         route: 'test',
+        type: 'query',
         input: {
           name: 'John',
         },
@@ -175,6 +178,7 @@ test('Should create simple http server with 2 nested middlewares', async () => {
     client: async (serverUrl) => {
       const response = await axios.post(serverUrl, {
         route: 'test',
+        type: 'query',
       });
 
       expect(response.data).toBe(null);
@@ -292,6 +296,7 @@ test('Should create simple http server and return BAD_REQUEST response', async (
         axios.post(serverUrl, {
           route: 'test',
           input: 'John',
+          type: 'query',
         }),
       ).rejects.toMatchInlineSnapshot(
         '[AxiosError: Request failed with status code 400]',
@@ -324,6 +329,7 @@ test('Should create simple http server and return INTERNAL_SERVER_ERROR response
         axios.post(serverUrl, {
           route: 'test',
           input: { name: 'John' },
+          type: 'query',
         }),
       ).rejects.toMatchInlineSnapshot(
         '[AxiosError: Request failed with status code 500]',

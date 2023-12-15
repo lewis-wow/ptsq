@@ -1,18 +1,16 @@
 import { ClientRoute, type RequestOptions } from './clientRoute';
 
-export class ClientQuery<
+export abstract class ClientQuery<
+  TDescription extends string | undefined,
   TDefinition extends {
-    description: string | undefined;
     args?: any;
     output: any;
   },
 > extends ClientRoute {
-  query(
+  abstract description: TDescription;
+
+  abstract query(
     requestInput: TDefinition['args'],
     requestOptions?: RequestOptions,
-  ): Promise<TDefinition['output']> {
-    return this.fetch(requestInput, requestOptions) as Promise<
-      TDefinition['output']
-    >;
-  }
+  ): Promise<TDefinition['output']>;
 }

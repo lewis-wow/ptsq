@@ -1,5 +1,6 @@
 import type { MaybePromise } from '@ptsq/server';
 import axios from 'axios';
+import { actionsMapper, isAction } from './actions';
 import type { RequestHeaders } from './headers';
 
 export type ClientRouteOptions = {
@@ -40,11 +41,20 @@ export class ClientRoute {
     /**
      * Removes the last route from path, the last one is 'mutate' | 'query'
      */
-    this.route.pop();
+    const actionType = this.route.pop();
+
+    if (!isAction(actionType))
+      throw new TypeError(
+        `Action type must be mutate or query, it is ${actionType}`,
+      );
 
     const result = await axios.post<string>(
       this.options.url,
-      { route: this.route.join('.'), input: requestInput },
+      {
+        type: actionsMapper[actionType],
+        route: this.route.join('.'),
+        input: requestInput,
+      },
       {
         withCredentials: this.options.credentials,
         headers,

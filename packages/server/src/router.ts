@@ -8,6 +8,7 @@ import {
 import type { AnyMutation } from './mutation';
 import type { AnyQuery } from './query';
 import type { Queue } from './queue';
+import type { ResolverType } from './types';
 
 export type Routes = {
   [Key: string]: AnyQuery | AnyMutation | AnyRouter;
@@ -59,6 +60,7 @@ export class Router<TRoutes extends Routes> {
   call(options: {
     route: Queue<string>;
     ctx: Context;
+    type: ResolverType;
     meta: MiddlewareMeta;
   }): Promise<AnyRawMiddlewareReponse> {
     const currentRoute = options.route.dequeue();
@@ -85,6 +87,12 @@ export class Router<TRoutes extends Routes> {
         code: 'BAD_REQUEST',
         message:
           'The route continues, but should be terminated by query or mutate.',
+      });
+
+    if (nextNode.type !== options.type)
+      throw new HTTPError({
+        code: 'BAD_REQUEST',
+        message: `The route type is invalid, it should be ${nextNode.type} and it is ${options.type}.`,
       });
 
     return nextNode.call(options);

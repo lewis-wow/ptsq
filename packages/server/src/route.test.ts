@@ -32,7 +32,7 @@ test('Should create query route', async () => {
 
   expect(
     await query.call({
-      meta: { input: { name: 'John' }, route: 'dummy.route' },
+      meta: { type: 'query', input: { name: 'John' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -117,7 +117,7 @@ test('Should create mutation route', async () => {
 
   expect(
     await mutation.call({
-      meta: { input: { name: 'John' }, route: 'dummy.route' },
+      meta: { type: 'query', input: { name: 'John' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
