@@ -1,4 +1,6 @@
+import { Response } from 'fets';
 import type { Context } from './context';
+import type { ErrorFormatter } from './errorFormatter';
 import { HTTPError } from './httpError';
 import type { ResolverSchemaArgs } from './resolver';
 import type { AnyTransformation } from './transformation';
@@ -129,16 +131,20 @@ export type AnyRawMiddlewareReponse = RawMiddlewareReponse<Context>;
 export class MiddlewareResponse<TContext extends Context> {
   constructor(public response: RawMiddlewareReponse<TContext>) {}
 
-  toJSON() {
-    return this.response.ok ? this.response.data : this.response.error.toJSON();
+  toJSON(errorFormatter?: ErrorFormatter) {
+    return this.response.ok
+      ? this.response.data
+      : errorFormatter
+      ? errorFormatter(this.response.error)
+      : this.response.error.toJSON();
   }
 
-  toString() {
-    return JSON.stringify(this.toJSON());
+  toString(errorFormatter?: ErrorFormatter) {
+    return JSON.stringify(this.toJSON(errorFormatter));
   }
 
-  toResponse(): Response {
-    return new Response(this.toString(), {
+  toResponse(errorFormatter?: ErrorFormatter): Response {
+    return Response.json(this.toJSON(errorFormatter), {
       status: this.response.ok ? 200 : this.response.error.getHTTPErrorCode(),
     });
   }
