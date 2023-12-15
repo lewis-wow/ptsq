@@ -1,5 +1,5 @@
-import { zodToJsonSchema } from '@ptsq/zod-parser';
 import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
@@ -75,8 +75,12 @@ export class Route<
           type: 'string',
           enum: [this.nodeType],
         },
-        schemaArgs: zodToJsonSchema(this.schemaArgs ?? z.undefined()),
-        schemaOutput: zodToJsonSchema(this.schemaOutput),
+        schemaArgs: zodToJsonSchema(this.schemaArgs ?? z.undefined(), {
+          $refStrategy: 'seen',
+        }),
+        schemaOutput: zodToJsonSchema(this.schemaOutput, {
+          $refStrategy: 'root',
+        }),
       },
     });
   }

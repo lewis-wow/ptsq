@@ -1,5 +1,5 @@
 {
-  "name": "@ptsq/server",
+  "name": "@ptsq/args",
   "version": "0.2.3",
   "homepage": "https://ptsq-docs.vercel.app/",
   "author": "lewis-wow",
@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lewis-wow/ptsq.git",
-    "directory": "packages/server"
+    "directory": "packages/args"
   },
   "scripts": {
     "prebuild": "rm -rf dist",
