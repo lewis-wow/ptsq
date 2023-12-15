@@ -37,6 +37,12 @@ test('Should instropectate simple http server', async () => {
                 "test": {
                   "additionalProperties": false,
                   "properties": {
+                    "description": {
+                      "enum": [
+                        null,
+                      ],
+                      "type": "string",
+                    },
                     "nodeType": {
                       "enum": [
                         "route",
@@ -70,6 +76,7 @@ test('Should instropectate simple http server', async () => {
                     "nodeType",
                     "schemaArgs",
                     "schemaOutput",
+                    "description",
                   ],
                   "title": "BaseTestRoute",
                   "type": "object",
@@ -120,6 +127,12 @@ test('Should instropectate simple http server with empty query', async () => {
                 "test": {
                   "additionalProperties": false,
                   "properties": {
+                    "description": {
+                      "enum": [
+                        null,
+                      ],
+                      "type": "string",
+                    },
                     "nodeType": {
                       "enum": [
                         "route",
@@ -144,6 +157,7 @@ test('Should instropectate simple http server with empty query', async () => {
                     "nodeType",
                     "schemaArgs",
                     "schemaOutput",
+                    "description",
                   ],
                   "title": "BaseTestRoute",
                   "type": "object",
@@ -278,6 +292,12 @@ test('Should instropectate simple http server with nested routers', async () => 
                                                                 "test": {
                                                                   "additionalProperties": false,
                                                                   "properties": {
+                                                                    "description": {
+                                                                      "enum": [
+                                                                        null,
+                                                                      ],
+                                                                      "type": "string",
+                                                                    },
                                                                     "nodeType": {
                                                                       "enum": [
                                                                         "route",
@@ -302,6 +322,7 @@ test('Should instropectate simple http server with nested routers', async () => 
                                                                     "nodeType",
                                                                     "schemaArgs",
                                                                     "schemaOutput",
+                                                                    "description",
                                                                   ],
                                                                   "title": "BaseTestTestTestTestTestTestTestRoute",
                                                                   "type": "object",

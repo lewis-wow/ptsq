@@ -66,6 +66,12 @@ test('Should create query', async () => {
     {
       "additionalProperties": false,
       "properties": {
+        "description": {
+          "enum": [
+            undefined,
+          ],
+          "type": "string",
+        },
         "nodeType": {
           "enum": [
             "route",
@@ -99,6 +105,7 @@ test('Should create query', async () => {
         "nodeType",
         "schemaArgs",
         "schemaOutput",
+        "description",
       ],
       "title": "TestRoute",
       "type": "object",
@@ -161,6 +168,12 @@ test('Should create query without args', async () => {
     {
       "additionalProperties": false,
       "properties": {
+        "description": {
+          "enum": [
+            undefined,
+          ],
+          "type": "string",
+        },
         "nodeType": {
           "enum": [
             "route",
@@ -185,6 +198,7 @@ test('Should create query without args', async () => {
         "nodeType",
         "schemaArgs",
         "schemaOutput",
+        "description",
       ],
       "title": "TestRoute",
       "type": "object",
@@ -284,6 +298,12 @@ test('Should create query with twice chain', async () => {
     {
       "additionalProperties": false,
       "properties": {
+        "description": {
+          "enum": [
+            undefined,
+          ],
+          "type": "string",
+        },
         "nodeType": {
           "enum": [
             "route",
@@ -321,6 +341,7 @@ test('Should create query with twice chain', async () => {
         "nodeType",
         "schemaArgs",
         "schemaOutput",
+        "description",
       ],
       "title": "TestRoute",
       "type": "object",
@@ -448,6 +469,12 @@ test('Should create query with optional args chain', async () => {
     {
       "additionalProperties": false,
       "properties": {
+        "description": {
+          "enum": [
+            undefined,
+          ],
+          "type": "string",
+        },
         "nodeType": {
           "enum": [
             "route",
@@ -488,6 +515,7 @@ test('Should create query with optional args chain', async () => {
         "nodeType",
         "schemaArgs",
         "schemaOutput",
+        "description",
       ],
       "title": "TestRoute",
       "type": "object",

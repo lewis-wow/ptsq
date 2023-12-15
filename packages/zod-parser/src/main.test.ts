@@ -257,3 +257,33 @@ test('Should create nested json schema', () => {
     }
   `);
 });
+
+test('Should create recursive json schema', () => {
+  type SchemaType = {
+    a: number;
+    b?: SchemaType;
+  };
+
+  const schema: z.Schema<SchemaType> = z.object({
+    a: z.number(),
+    b: z.lazy(() => schema.optional()),
+  });
+
+  expect(zodToJsonSchema(schema)).toMatchInlineSnapshot(`
+    {
+      "additionalProperties": false,
+      "properties": {
+        "a": {
+          "type": "number",
+        },
+        "b": {
+          "$ref": "#/",
+        },
+      },
+      "required": [
+        "a",
+      ],
+      "type": "object",
+    }
+  `);
+});

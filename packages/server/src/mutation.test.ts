@@ -66,6 +66,12 @@ test('Should create mutation', async () => {
     {
       "additionalProperties": false,
       "properties": {
+        "description": {
+          "enum": [
+            undefined,
+          ],
+          "type": "string",
+        },
         "nodeType": {
           "enum": [
             "route",
@@ -99,6 +105,7 @@ test('Should create mutation', async () => {
         "nodeType",
         "schemaArgs",
         "schemaOutput",
+        "description",
       ],
       "title": "TestRoute",
       "type": "object",
@@ -163,6 +170,12 @@ test('Should create mutation without args', async () => {
     {
       "additionalProperties": false,
       "properties": {
+        "description": {
+          "enum": [
+            undefined,
+          ],
+          "type": "string",
+        },
         "nodeType": {
           "enum": [
             "route",
@@ -187,6 +200,7 @@ test('Should create mutation without args', async () => {
         "nodeType",
         "schemaArgs",
         "schemaOutput",
+        "description",
       ],
       "title": "TestRoute",
       "type": "object",
@@ -291,6 +305,12 @@ test('Should create mutation with twice chain', async () => {
     {
       "additionalProperties": false,
       "properties": {
+        "description": {
+          "enum": [
+            undefined,
+          ],
+          "type": "string",
+        },
         "nodeType": {
           "enum": [
             "route",
@@ -328,6 +348,7 @@ test('Should create mutation with twice chain', async () => {
         "nodeType",
         "schemaArgs",
         "schemaOutput",
+        "description",
       ],
       "title": "TestRoute",
       "type": "object",
@@ -459,6 +480,12 @@ test('Should create mutation with optional args chain', async () => {
     {
       "additionalProperties": false,
       "properties": {
+        "description": {
+          "enum": [
+            undefined,
+          ],
+          "type": "string",
+        },
         "nodeType": {
           "enum": [
             "route",
@@ -499,6 +526,7 @@ test('Should create mutation with optional args chain', async () => {
         "nodeType",
         "schemaArgs",
         "schemaOutput",
+        "description",
       ],
       "title": "TestRoute",
       "type": "object",

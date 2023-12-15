@@ -43,7 +43,7 @@ axios
 
     switch (lang.toUpperCase()) {
       case Languages.TS:
-        schema = await compile(response.data, 'MySchema');
+        schema = await compile(response.data, 'Introspection');
 
         outFile = out ?? 'schema.generated.ts';
         break;
@@ -62,4 +62,7 @@ axios
 
     console.log(`Schema generated into ${resolve(outFile)}`);
   })
-  .catch((error) => console.error('Error fetching schema:', error.message));
+  .catch((error) => {
+    console.log(error);
+    console.error('Error fetching schema:', error.message);
+  });

@@ -220,6 +220,12 @@ test('Should introspectate the server with http adapter', async () => {
                 "test": {
                   "additionalProperties": false,
                   "properties": {
+                    "description": {
+                      "enum": [
+                        null,
+                      ],
+                      "type": "string",
+                    },
                     "nodeType": {
                       "enum": [
                         "route",
@@ -253,6 +259,7 @@ test('Should introspectate the server with http adapter', async () => {
                     "nodeType",
                     "schemaArgs",
                     "schemaOutput",
+                    "description",
                   ],
                   "title": "BaseTestRoute",
                   "type": "object",

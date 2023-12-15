@@ -1,5 +1,4 @@
 import { zodToJsonSchema } from '@ptsq/zod-parser';
-import { z } from 'zod';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
@@ -63,9 +62,8 @@ export class Route<
    *
    * Gets the json schema of the route for the introspection query
    */
-  getJsonSchema(title: string) {
+  getJsonSchema() {
     return createSchemaRoot({
-      title: `${title} route`,
       properties: {
         type: {
           type: 'string',
@@ -75,8 +73,16 @@ export class Route<
           type: 'string',
           enum: [this.nodeType],
         },
-        schemaArgs: zodToJsonSchema(this.schemaArgs ?? z.undefined()),
+        schemaArgs: this.schemaArgs
+          ? zodToJsonSchema(this.schemaArgs)
+          : undefined,
         schemaOutput: zodToJsonSchema(this.schemaOutput),
+        description: this.description
+          ? {
+              type: 'string',
+              enum: [this.description],
+            }
+          : undefined,
       },
     });
   }

@@ -10,6 +10,19 @@ import { getRefs } from './Refs';
 const zodToJsonSchema = (schema: ZodSchema<any>): JsonSchema7Type => {
   const refs = getRefs();
 
+  const main =
+    parseDef(
+      schema._def, refs
+      false,
+    );
+
+  const combined = definitions
+    ? {
+        ...main,
+        [refs.definitionPath]: definitions,
+      }
+    : main;
+
   return parseDef(schema._def, refs, false) ?? {};
 };
 

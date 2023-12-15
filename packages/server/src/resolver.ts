@@ -18,7 +18,7 @@ import {
 import type { DeepMerge, ErrorMessage, MaybePromise, Simplify } from './types';
 
 export type ResolverSchemaArgs = z.Schema<Serializable>;
-export type ResolverSchemaOutput = z.Schema<Serializable, z.ZodTypeDef, any>;
+export type ResolverSchemaOutput = z.Schema<Serializable>;
 
 export type inferResolverArgs<TResolverArgs> = TResolverArgs extends z.Schema
   ? TResolverArgs extends z.ZodVoid
@@ -210,7 +210,7 @@ export class Resolver<
    */
   output<
     TNextSchemaOutput extends TSchemaOutput extends undefined
-      ? z.Schema
+      ? ResolverSchemaOutput
       : TSchemaOutput,
   >(nextSchemaOutput: TNextSchemaOutput) {
     return new Resolver<

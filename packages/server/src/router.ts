@@ -32,9 +32,9 @@ export class Router<TRoutes extends Routes> {
    *
    * Gets the json schema of the whole router recursivelly
    */
-  getJsonSchema(title = 'base') {
+  getJsonSchema(title?: string) {
     return createSchemaRoot({
-      title: `${title} router`,
+      title,
       properties: {
         nodeType: {
           type: 'string',
@@ -44,7 +44,7 @@ export class Router<TRoutes extends Routes> {
           properties: Object.entries(this.routes).reduce<
             Record<string, SchemaRoot>
           >((acc, [key, node]) => {
-            acc[key] = node.getJsonSchema(`${title} ${key}`);
+            acc[key] = node.getJsonSchema();
             return acc;
           }, {}),
         }),

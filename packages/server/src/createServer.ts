@@ -122,7 +122,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
       .route({
         path: `${path}/introspection`,
         method: 'GET',
-        handler: () => Response.json(baseRouter.getJsonSchema('base')),
+        handler: () => Response.json(baseRouter.getJsonSchema('BaseRouter')),
       });
   };
 
