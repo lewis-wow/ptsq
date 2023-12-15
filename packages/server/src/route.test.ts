@@ -20,6 +20,7 @@ test('Should create query route', async () => {
     resolveFunction: resolveFunction,
     middlewares: [],
     transformations: [],
+    description: undefined,
   });
 
   expect(query.nodeType).toBe('route');
@@ -104,6 +105,7 @@ test('Should create mutation route', async () => {
     resolveFunction: resolveFunction,
     middlewares: [],
     transformations: [],
+    description: undefined,
   });
 
   expect(mutation.nodeType).toBe('route');

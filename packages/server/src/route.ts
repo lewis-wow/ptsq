@@ -14,7 +14,6 @@ import type {
   ResolverSchemaArgs,
   ResolverSchemaOutput,
 } from './resolver';
-import type {} from './serializable';
 import type { AnyTransformation } from './transformation';
 import type { ResolverType } from './types';
 
