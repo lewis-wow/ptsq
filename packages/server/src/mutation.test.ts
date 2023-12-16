@@ -1,5 +1,5 @@
+import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { z } from 'zod';
 import { createServer } from './createServer';
 import { HTTPError } from './httpError';
 
@@ -18,8 +18,8 @@ test('Should create mutation', async () => {
     ctx: { greetingsPrefix: 'Hello' };
   }) => `${ctx.greetingsPrefix} ${input.name}`;
 
-  const argsSchema = z.object({ name: z.string() });
-  const outputValidationSchema = z.string();
+  const argsSchema = Type.Object({ name: Type.String() });
+  const outputValidationSchema = Type.String();
 
   const mutation = resolver
     .args(argsSchema)
@@ -73,7 +73,6 @@ test('Should create mutation', async () => {
           "type": "string",
         },
         "schemaArgs": {
-          "additionalProperties": false,
           "properties": {
             "name": {
               "type": "string",
@@ -120,7 +119,7 @@ test('Should create mutation without args', async () => {
     ctx: { greetingsPrefix: 'Hello' };
   }) => `${ctx.greetingsPrefix}`;
 
-  const outputValidationSchema = z.string();
+  const outputValidationSchema = Type.String();
 
   const mutation = resolver
     .output(outputValidationSchema)
@@ -169,9 +168,7 @@ test('Should create mutation without args', async () => {
           ],
           "type": "string",
         },
-        "schemaArgs": {
-          "not": {},
-        },
+        "schemaArgs": undefined,
         "schemaOutput": {
           "type": "string",
         },
@@ -201,7 +198,7 @@ test('Should create mutation with twice chain', async () => {
     }),
   });
 
-  const validationSchema = z.string();
+  const validationSchema = Type.String();
 
   const resolveFunction = ({
     input,
@@ -211,8 +208,8 @@ test('Should create mutation with twice chain', async () => {
     ctx: { greetingsPrefix: 'Hello' };
   }) => `${ctx.greetingsPrefix} ${input.firstName} ${input.lastName}`;
 
-  const firstSchemaInChain = z.object({ firstName: validationSchema });
-  const secondSchemaInChain = z.object({
+  const firstSchemaInChain = Type.Object({ firstName: validationSchema });
+  const secondSchemaInChain = Type.Object({
     firstName: validationSchema,
     lastName: validationSchema,
   });
@@ -342,17 +339,20 @@ test('Should create mutation with optional args chain', async () => {
     }),
   });
 
-  const firstSchemaInArgumentChain = z
-    .object({ firstName: z.string().optional() })
-    .optional();
-  const secondSchemaInArgumentChain = z
-    .object({
-      firstName: z.string().optional(),
-      lastName: z.string().optional(),
-    })
-    .optional();
+  const firstSchemaInArgumentChain = Type.Optional(
+    Type.Object({
+      firstName: Type.Optional(Type.String()),
+    }),
+  );
 
-  const outputSchema = z.string();
+  const secondSchemaInArgumentChain = Type.Optional(
+    Type.Object({
+      firstName: Type.Optional(Type.String()),
+      lastName: Type.Optional(Type.String()),
+    }),
+  );
+
+  const outputSchema = Type.String();
 
   const resolveFunction = ({
     input,

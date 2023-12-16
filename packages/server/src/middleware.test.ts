@@ -1,5 +1,5 @@
+import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { z } from 'zod';
 import { createServer } from './createServer';
 import { HTTPError } from './httpError';
 
@@ -21,10 +21,10 @@ test('Should create middleware with query and serverSideQuery', async () => {
     });
   });
 
-  const query = resolver.output(z.string()).query(({ ctx }) => ctx.state);
+  const query = resolver.output(Type.String()).query(({ ctx }) => ctx.state);
 
   const validOnlyQuery = validResolver
-    .output(z.string())
+    .output(Type.String())
     .query(({ ctx }) => ctx.state);
 
   expect(query.nodeType).toBe('route');
@@ -103,10 +103,12 @@ test('Should create middleware with mutation and serverSideMutation', async () =
     });
   });
 
-  const mutation = resolver.output(z.string()).mutation(({ ctx }) => ctx.state);
+  const mutation = resolver
+    .output(Type.String())
+    .mutation(({ ctx }) => ctx.state);
 
   const validOnlyMutation = validResolver
-    .output(z.string())
+    .output(Type.String())
     .mutation(({ ctx }) => ctx.state);
 
   expect(mutation.nodeType).toBe('route');
@@ -186,7 +188,7 @@ test('Should create middleware with measuring time', async () => {
     return result;
   });
 
-  const query = measuredResolver.output(z.string()).query(async () => {
+  const query = measuredResolver.output(Type.String()).query(async () => {
     await new Promise((resolve) => {
       // + 100 = small correction
       setTimeout(resolve, resolverDelay + 100);
@@ -265,7 +267,7 @@ test('Should create two nested middlewares', async () => {
     return result;
   });
 
-  const query = resolver2.output(z.string()).query(async () => {
+  const query = resolver2.output(Type.String()).query(async () => {
     await new Promise((resolve) => {
       setTimeout(resolve, resolverDelay);
     });
@@ -327,11 +329,11 @@ test('Should create nested middlewares with query', async () => {
   });
 
   const query = resolver
-    .output(z.union([z.string(), z.null()]))
+    .output(Type.Union([Type.String(), Type.Null()]))
     .query(({ ctx }) => ctx.state);
 
   const validOnlyQuery = validResolver
-    .output(z.string())
+    .output(Type.String())
     .query(({ ctx }) => ctx.state);
 
   expect(query.nodeType).toBe('route');
@@ -421,11 +423,11 @@ test('Should create nested middlewares with mutation', async () => {
   });
 
   const mutation = resolver
-    .output(z.union([z.string(), z.null()]))
+    .output(Type.Union([Type.String(), Type.Null()]))
     .mutation(({ ctx }) => ctx.state);
 
   const validOnlyMutation = validResolver
-    .output(z.string())
+    .output(Type.String())
     .mutation(({ ctx }) => ctx.state);
 
   expect(mutation.nodeType).toBe('route');
@@ -492,13 +494,13 @@ test('Should create nested middlewares with query with args chaining', async () 
     ctx: () => ({}),
   });
 
-  const stringSchema = z.string();
+  const stringSchema = Type.String();
 
-  const firstSchemaInChain = z.object({
+  const firstSchemaInChain = Type.Object({
     name: stringSchema,
   });
 
-  const secondSchemaInChain = z.object({
+  const secondSchemaInChain = Type.Object({
     name: stringSchema,
     lastName: stringSchema,
   });
@@ -529,7 +531,7 @@ test('Should create nested middlewares with query with args chaining', async () 
     });
 
   const query = resolverWithNameChainAndLastNameWithMiddleware
-    .output(z.string())
+    .output(Type.String())
     .query(({ ctx }) => `${ctx.name} ${ctx.lastName}`);
 
   expect(query.nodeType).toBe('route');

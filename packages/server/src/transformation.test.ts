@@ -1,5 +1,6 @@
+import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { z } from 'zod';
+import { safeParseArgs } from './args';
 import { createServer } from './createServer';
 
 test('Should parse primitive value with transformation function', async () => {
@@ -9,9 +10,9 @@ test('Should parse primitive value with transformation function', async () => {
 
   const data = 'primitive value';
 
-  const schema = z.string();
+  const schema = Type.String();
 
-  expect(schema.safeParse(data)).toMatchObject({ success: true });
+  expect(safeParseArgs({ schema, value: data })).toMatchObject({ ok: true });
 
   const testResolver = resolver
     .args(schema)
@@ -23,7 +24,7 @@ test('Should parse primitive value with transformation function', async () => {
       return next(ctx);
     });
 
-  const query = testResolver.output(z.null()).query(() => null);
+  const query = testResolver.output(Type.Null()).query(() => null);
 
   await query.call({
     ctx: {},
@@ -45,7 +46,7 @@ test('Should parse no args with transformation function', async () => {
       return next(ctx);
     });
 
-  const query = testResolver.output(z.null()).query(() => null);
+  const query = testResolver.output(Type.Null()).query(() => null);
 
   await query.call({
     ctx: {},
@@ -72,7 +73,7 @@ test('Should parse no args with transformation function as object', async () => 
       return next(ctx);
     });
 
-  const query = testResolver.output(z.null()).query(() => null);
+  const query = testResolver.output(Type.Null()).query(() => null);
 
   await query.call({
     ctx: {},
@@ -91,13 +92,15 @@ test('Should parse Date with transformation function', async () => {
     },
   };
 
-  const schema = z.object({
-    state: z.object({
-      createdAt: z.string().datetime(),
+  const schema = Type.Object({
+    state: Type.Object({
+      createdAt: Type.String({
+        format: 'date-time',
+      }),
     }),
   });
 
-  expect(schema.safeParse(data)).toMatchObject({ success: true });
+  expect(safeParseArgs({ schema, value: data })).toMatchObject({ ok: true });
 
   const testResolver = resolver
     .args(schema)
@@ -115,7 +118,7 @@ test('Should parse Date with transformation function', async () => {
       return next(ctx);
     });
 
-  const query = testResolver.output(z.null()).query(() => null);
+  const query = testResolver.output(Type.Null()).query(() => null);
 
   await query.call({
     ctx: {},
@@ -132,11 +135,11 @@ test('Should parse coordinates with transformation function', async () => {
     coords: [1, 2] as const,
   };
 
-  const schema = z.object({
-    coords: z.tuple([z.number(), z.number()]),
+  const schema = Type.Object({
+    coords: Type.Tuple([Type.Number(), Type.Number()]),
   });
 
-  expect(schema.safeParse(data)).toMatchObject({ success: true });
+  expect(safeParseArgs({ schema, value: data })).toMatchObject({ ok: true });
 
   const testResolver = resolver
     .args(schema)
@@ -155,7 +158,7 @@ test('Should parse coordinates with transformation function', async () => {
       return next(ctx);
     });
 
-  const query = testResolver.output(z.null()).query(() => null);
+  const query = testResolver.output(Type.Null()).query(() => null);
 
   await query.call({
     ctx: {},
@@ -170,22 +173,24 @@ test('Should parse arrays with transformation function', async () => {
 
   const data = ['a', 'bb', 'c', 'ddd', 'eeeee'];
 
-  const schema = z.array(z.string());
-  const resultSchema = z.array(z.number());
+  const schema = Type.Array(Type.String());
+  const resultSchema = Type.Array(Type.Number());
 
-  expect(schema.safeParse(data)).toMatchObject({ success: true });
+  expect(safeParseArgs({ schema, value: data })).toMatchObject({ ok: true });
 
   const testResolver = resolver
     .args(schema)
     .transformation((input) => input.map((value) => value.length))
     .use(({ input, ctx, next }) => {
-      expect(resultSchema.safeParse(input)).toMatchObject({ success: true });
+      expect(
+        safeParseArgs({ schema: resultSchema, value: input }),
+      ).toMatchObject({ ok: true });
       expect(input).toStrictEqual([1, 2, 1, 3, 5]);
 
       return next(ctx);
     });
 
-  const query = testResolver.output(z.null()).query(() => null);
+  const query = testResolver.output(Type.Null()).query(() => null);
 
   await query.call({
     ctx: {},
@@ -200,23 +205,25 @@ test('Should parse arrays with transformation function chain', async () => {
 
   const data = ['a', 'bb', 'c', 'ddd', 'eeeee'];
 
-  const schema = z.array(z.string());
-  const resultSchema = z.array(z.number());
+  const schema = Type.Array(Type.String());
+  const resultSchema = Type.Array(Type.Number());
 
-  expect(schema.safeParse(data)).toMatchObject({ success: true });
+  expect(safeParseArgs({ schema, value: data })).toMatchObject({ ok: true });
 
   const testResolver = resolver
     .args(schema)
     .transformation((input) => input.map((value) => value.length))
     .transformation((input) => input.map((value) => value - 10))
     .use(({ input, ctx, next }) => {
-      expect(resultSchema.safeParse(input)).toMatchObject({ success: true });
+      expect(
+        safeParseArgs({ schema: resultSchema, value: input }),
+      ).toMatchObject({ ok: true });
       expect(input).toStrictEqual([1, 2, 1, 3, 5].map((value) => value - 10));
 
       return next(ctx);
     });
 
-  const query = testResolver.output(z.null()).query(() => null);
+  const query = testResolver.output(Type.Null()).query(() => null);
 
   await query.call({
     ctx: {},
@@ -231,14 +238,14 @@ test('Should parse tuples with transformation function', async () => {
 
   const data = [1, [5, 6, 7, []], 'string', [{}, { a: 1 }]] as const;
 
-  const schema = z.tuple([
-    z.number(),
-    z.tuple([z.number(), z.number(), z.number(), z.tuple([])]),
-    z.string(),
-    z.tuple([z.object({}), z.object({ a: z.number() })]),
+  const schema = Type.Tuple([
+    Type.Number(),
+    Type.Tuple([Type.Number(), Type.Number(), Type.Number(), Type.Tuple([])]),
+    Type.String(),
+    Type.Tuple([Type.Object({}), Type.Object({ a: Type.Number() })]),
   ]);
 
-  expect(schema.safeParse(data)).toMatchObject({ success: true });
+  expect(safeParseArgs({ schema, value: data })).toMatchObject({ ok: true });
 
   const testResolver = resolver
     .args(schema)
@@ -257,7 +264,7 @@ test('Should parse tuples with transformation function', async () => {
       return next(ctx);
     });
 
-  const query = testResolver.output(z.null()).query(() => null);
+  const query = testResolver.output(Type.Null()).query(() => null);
 
   await query.call({
     ctx: {},
@@ -281,23 +288,23 @@ test('Should parse object into entries and then back with transformation functio
     h: ['s', 't', 'r', 'i', 'n', 'g', 1, 2, 3, 4, 5],
   };
 
-  const schema = z.object({
-    a: z.object({
-      b: z.object({
-        c: z.string(),
+  const schema = Type.Object({
+    a: Type.Object({
+      b: Type.Object({
+        c: Type.String(),
       }),
     }),
-    d: z.number(),
-    e: z.tuple([
-      z.string(),
-      z.number(),
-      z.object({ f: z.object({ g: z.string() }) }),
-      z.array(z.string()),
+    d: Type.Number(),
+    e: Type.Tuple([
+      Type.String(),
+      Type.Number(),
+      Type.Object({ f: Type.Object({ g: Type.String() }) }),
+      Type.Array(Type.String()),
     ]),
-    h: z.array(z.union([z.string(), z.number()])),
+    h: Type.Array(Type.Union([Type.String(), Type.Number()])),
   });
 
-  expect(schema.safeParse(data)).toMatchObject({ success: true });
+  expect(safeParseArgs({ schema, value: data })).toMatchObject({ ok: true });
 
   const testResolver = resolver
     .args(schema)
@@ -332,7 +339,7 @@ test('Should parse object into entries and then back with transformation functio
       return next(ctx);
     });
 
-  const query = testResolver.output(z.null()).query(() => null);
+  const query = testResolver.output(Type.Null()).query(() => null);
 
   await query.call({
     ctx: {},
@@ -347,9 +354,11 @@ test('Should parse primitive value inside object with spawning the transformatio
 
   const data = { primitive: 'primitive value' };
 
-  const schema = z.object({ primitive: z.string() });
+  const schema = Type.Object({ primitive: Type.String() });
 
-  expect(schema.safeParse(data)).toMatchObject({ success: true });
+  expect(safeParseArgs({ schema, value: data })).toMatchObject({
+    ok: true,
+  });
 
   const testResolver = resolver
     .args(schema)
@@ -364,7 +373,7 @@ test('Should parse primitive value inside object with spawning the transformatio
       return next(ctx);
     });
 
-  const query = testResolver.output(z.null()).query(() => null);
+  const query = testResolver.output(Type.Null()).query(() => null);
 
   await query.call({
     ctx: {},

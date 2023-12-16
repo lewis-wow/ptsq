@@ -1,10 +1,10 @@
+import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { z } from 'zod';
 import { Route } from './route';
 
 test('Should create query route', async () => {
-  const inputSchema = z.object({ name: z.string() });
-  const outputSchema = z.string();
+  const inputSchema = Type.Object({ name: Type.String() });
+  const outputSchema = Type.String();
   const resolveFunction = ({
     input,
     ctx: _ctx,
@@ -54,7 +54,6 @@ test('Should create query route', async () => {
           "type": "string",
         },
         "schemaArgs": {
-          "additionalProperties": false,
           "properties": {
             "name": {
               "type": "string",
@@ -88,8 +87,8 @@ test('Should create query route', async () => {
 });
 
 test('Should create mutation route', async () => {
-  const inputSchema = z.object({ name: z.string() });
-  const outputSchema = z.string();
+  const inputSchema = Type.Object({ name: Type.String() });
+  const outputSchema = Type.String();
   const resolveFunction = ({
     input,
     ctx: _ctx,
@@ -139,7 +138,6 @@ test('Should create mutation route', async () => {
           "type": "string",
         },
         "schemaArgs": {
-          "additionalProperties": false,
           "properties": {
             "name": {
               "type": "string",

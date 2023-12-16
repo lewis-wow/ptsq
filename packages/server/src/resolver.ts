@@ -1,4 +1,10 @@
-import { Type, type Static, type TAnySchema } from '@sinclair/typebox';
+import {
+  Type,
+  type Static,
+  type TAnySchema,
+  type TIntersect,
+  type TSchema,
+} from '@sinclair/typebox';
 import type { Context } from './context';
 import {
   Middleware,
@@ -175,14 +181,21 @@ export class Resolver<
   args<TNextSchemaArgs extends ResolverSchemaArgs>(
     nextSchemaArgs: TNextSchemaArgs,
   ) {
-    const nextSchema =
+    type NextSchemaArgs = TSchemaArgs extends TSchema
+      ? TIntersect<[TSchemaArgs, TNextSchemaArgs]>
+      : TNextSchemaArgs;
+
+    const nextSchema = (
       this._schemaArgs === undefined
         ? nextSchemaArgs
-        : Type.Intersect([this._schemaArgs, nextSchemaArgs]);
+        : Type.Intersect([this._schemaArgs, nextSchemaArgs])
+    ) as NextSchemaArgs;
+
+    type NextArgs = (typeof nextSchema)['static'];
 
     return new Resolver<
-      Static<typeof nextSchema>,
-      typeof nextSchema,
+      Static<,
+      NextSchemaArgs,
       TOutput,
       TSchemaOutput,
       TContext,

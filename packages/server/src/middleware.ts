@@ -1,5 +1,5 @@
-import { Value } from '@sinclair/typebox/value';
 import { Response } from 'fets';
+import { safeParseArgs } from './args';
 import type { Context } from './context';
 import type { ErrorFormatter } from './errorFormatter';
 import { HTTPError } from './httpError';
@@ -76,18 +76,16 @@ export class Middleware<
     middlewares: AnyMiddleware[];
   }): Promise<AnyRawMiddlewareReponse> {
     try {
-      const argSchema = options.middlewares[options.index]._schemaArgs;
+      const parseResult = safeParseArgs({
+        schema: options.middlewares[options.index]._schemaArgs,
+        value: options.meta.input,
+      });
 
-      const parsedInputErrors =
-        argSchema !== undefined
-          ? [...Value.Errors(argSchema, options.meta.input)]
-          : [];
-
-      if (parsedInputErrors.length)
+      if (!parseResult.ok)
         throw new HTTPError({
           code: 'BAD_REQUEST',
           message: 'Args validation error.',
-          info: parsedInputErrors,
+          info: parseResult.errors,
         });
 
       const transformedInputData = await options.middlewares[
@@ -96,7 +94,7 @@ export class Middleware<
         async (acc, currentTransformation) =>
           // eslint-disable-next-line @typescript-eslint/no-unsafe-return
           await currentTransformation(await acc),
-        Promise.resolve(options.meta.input),
+        Promise.resolve(parseResult.data),
       );
 
       return await options.middlewares[options.index]._middlewareFunction({

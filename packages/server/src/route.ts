@@ -1,4 +1,5 @@
-import { Value } from '@sinclair/typebox/value';
+import { Type } from '@sinclair/typebox';
+import { safeParseArgs } from './args';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
@@ -74,8 +75,11 @@ export class Route<
           type: 'string',
           enum: [this.nodeType],
         },
-        schemaArgs: this.schemaArgs,
-        schemaOutput: this.schemaOutput,
+        schemaArgs:
+          this.schemaArgs === undefined
+            ? undefined
+            : Type.Strict(this.schemaArgs),
+        schemaOutput: Type.Strict(this.schemaOutput),
       },
     });
   }
@@ -112,19 +116,20 @@ export class Route<
               meta: finalMeta,
             });
 
-            const parsedOutputErrors = [
-              ...Value.Errors(this.schemaOutput, resolverResult),
-            ];
+            const parseResult = safeParseArgs({
+              schema: this.schemaOutput,
+              value: resolverResult,
+            });
 
-            if (parsedOutputErrors.length)
+            if (!parseResult.ok)
               throw new HTTPError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: 'Output validation error',
-                info: parsedOutputErrors,
+                info: parseResult.errors,
               });
 
             return MiddlewareResponse.createRawSuccessResponse({
-              data: resolverResult,
+              data: parseResult.data,
               ctx: finalContext,
             });
           },

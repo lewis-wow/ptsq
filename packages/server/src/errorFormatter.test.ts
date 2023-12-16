@@ -1,7 +1,7 @@
 import { createHTTPTest } from './__test__/createHTTPTest';
+import { Type } from '@sinclair/typebox';
 import axios from 'axios';
 import { expect, test } from 'vitest';
-import { z } from 'zod';
 import { createServer } from './createServer';
 import { HTTPError } from './httpError';
 
@@ -12,7 +12,7 @@ test('Should create server with error formatter and return empty object on error
   });
 
   const baseRouter = router({
-    test: resolver.output(z.null()).query(() => {
+    test: resolver.output(Type.Null()).query(() => {
       throw new HTTPError({ code: 'BAD_REQUEST', message: 'message...' });
     }),
   });
@@ -40,7 +40,7 @@ test('Should create server with error formatter to response with null', async ()
   });
 
   const baseRouter = router({
-    test: resolver.output(z.null()).query(() => {
+    test: resolver.output(Type.Null()).query(() => {
       throw new HTTPError({ code: 'BAD_REQUEST', message: 'message...' });
     }),
   });
@@ -68,7 +68,7 @@ test('Should create server with error formatter and keep the original error', as
   });
 
   const baseRouter = router({
-    test: resolver.output(z.null()).query(() => {
+    test: resolver.output(Type.Null()).query(() => {
       throw new HTTPError({ code: 'BAD_REQUEST', message: 'message...' });
     }),
   });
@@ -103,7 +103,7 @@ test('Should create server with error formatter and change the http error', asyn
   });
 
   const baseRouter = router({
-    test: resolver.output(z.null()).query(() => {
+    test: resolver.output(Type.Null()).query(() => {
       throw new HTTPError({ code: 'BAD_REQUEST', message: 'message...' });
     }),
   });
@@ -139,7 +139,7 @@ test('Should create server with error formatter and keep the original error with
   });
 
   const baseRouter = router({
-    test: resolver.output(z.null()).query(() => {
+    test: resolver.output(Type.Null()).query(() => {
       throw new HTTPError({ code: 'BAD_REQUEST', message: 'message...' });
     }),
   });

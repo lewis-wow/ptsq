@@ -1,5 +1,5 @@
+import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { z } from 'zod';
 import { createServer } from './createServer';
 import { HTTPError } from './httpError';
 
@@ -10,8 +10,8 @@ test('Should create query', async () => {
     }),
   });
 
-  const argsSchema = z.object({ name: z.string() });
-  const outputValidationSchema = z.string();
+  const argsSchema = Type.Object({ name: Type.String() });
+  const outputValidationSchema = Type.String();
 
   const resolveFunction = ({
     input,
@@ -73,7 +73,6 @@ test('Should create query', async () => {
           "type": "string",
         },
         "schemaArgs": {
-          "additionalProperties": false,
           "properties": {
             "name": {
               "type": "string",
@@ -113,7 +112,7 @@ test('Should create query without args', async () => {
     }),
   });
 
-  const validationSchema = z.string();
+  const validationSchema = Type.String();
 
   const resolveFunction = ({
     ctx,
@@ -167,9 +166,7 @@ test('Should create query without args', async () => {
           ],
           "type": "string",
         },
-        "schemaArgs": {
-          "not": {},
-        },
+        "schemaArgs": undefined,
         "schemaOutput": {
           "type": "string",
         },
@@ -199,12 +196,10 @@ test('Should create query with twice chain', async () => {
     }),
   });
 
-  const firstSchemaInArgumentChain = z.object({ firstName: z.string() });
-  const secondSchemaInArgumentChain = z.object({
-    firstName: z.string(),
-    lastName: z.string(),
-  });
-  const outputSchema = z.string();
+  const firstSchemaInArgumentChain = Type.Object({ firstName: Type.String() });
+  const secondSchemaInArgumentChain = Type.Object({ lastName: Type.String() });
+
+  const outputSchema = Type.String();
 
   const resolveFunction = ({
     input,
@@ -223,7 +218,9 @@ test('Should create query with twice chain', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares).toStrictEqual([]);
-  expect(query.schemaArgs).toStrictEqual(secondSchemaInArgumentChain);
+  expect(query.schemaArgs).toStrictEqual(
+    Type.Intersect([firstSchemaInArgumentChain, secondSchemaInArgumentChain]),
+  );
   expect(query.schemaOutput).toStrictEqual(outputSchema);
   expect(query.resolveFunction).toBe(resolveFunction);
 
@@ -291,18 +288,29 @@ test('Should create query with twice chain', async () => {
           "type": "string",
         },
         "schemaArgs": {
-          "additionalProperties": false,
-          "properties": {
-            "firstName": {
-              "type": "string",
+          "allOf": [
+            {
+              "properties": {
+                "firstName": {
+                  "type": "string",
+                },
+              },
+              "required": [
+                "firstName",
+              ],
+              "type": "object",
             },
-            "lastName": {
-              "type": "string",
+            {
+              "properties": {
+                "lastName": {
+                  "type": "string",
+                },
+              },
+              "required": [
+                "lastName",
+              ],
+              "type": "object",
             },
-          },
-          "required": [
-            "firstName",
-            "lastName",
           ],
           "type": "object",
         },
@@ -335,17 +343,21 @@ test('Should create query with optional args chain', async () => {
     }),
   });
 
-  const firstSchemaInArgumentChain = z
-    .object({ firstName: z.string().optional() })
-    .optional();
-  const secondSchemaInArgumentChain = z
-    .object({
-      firstName: z.string().optional(),
-      lastName: z.string().optional(),
-    })
-    .optional();
+  const firstSchemaInArgumentChain = Type.Union([
+    Type.Object({
+      firstName: Type.Optional(Type.String()),
+    }),
+    Type.Undefined(),
+  ]);
 
-  const outputSchema = z.string();
+  const secondSchemaInArgumentChain = Type.Union([
+    Type.Object({
+      lastName: Type.Optional(Type.String()),
+    }),
+    Type.Undefined(),
+  ]);
+
+  const outputSchema = Type.String();
 
   const resolveFunction = ({
     input,
@@ -367,7 +379,9 @@ test('Should create query with optional args chain', async () => {
   expect(query.nodeType).toBe('route');
   expect(query.type).toBe('query');
   expect(query.middlewares).toStrictEqual([]);
-  expect(query.schemaArgs).toStrictEqual(secondSchemaInArgumentChain);
+  expect(query.schemaArgs).toStrictEqual(
+    Type.Intersect([firstSchemaInArgumentChain, secondSchemaInArgumentChain]),
+  );
   expect(query.schemaOutput).toStrictEqual(outputSchema);
   expect(query.resolveFunction).toBe(resolveFunction);
 
@@ -455,21 +469,36 @@ test('Should create query with optional args chain', async () => {
           "type": "string",
         },
         "schemaArgs": {
-          "anyOf": [
+          "allOf": [
             {
-              "not": {},
+              "anyOf": [
+                {
+                  "properties": {
+                    "firstName": {
+                      "type": "string",
+                    },
+                  },
+                  "type": "object",
+                },
+                {
+                  "type": "undefined",
+                },
+              ],
             },
             {
-              "additionalProperties": false,
-              "properties": {
-                "firstName": {
-                  "type": "string",
+              "anyOf": [
+                {
+                  "properties": {
+                    "lastName": {
+                      "type": "string",
+                    },
+                  },
+                  "type": "object",
                 },
-                "lastName": {
-                  "type": "string",
+                {
+                  "type": "undefined",
                 },
-              },
-              "type": "object",
+              ],
             },
           ],
         },
