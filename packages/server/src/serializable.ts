@@ -23,3 +23,9 @@ export const serializableZodSchema: z.Schema<Serializable> = z.union([
   z.lazy(() => serializableZodSchema.array()),
   z.lazy(() => z.record(z.string(), serializableZodSchema)),
 ]);
+
+export type IsZodInputAndOutputSame<TSchema extends z.Schema> =
+  z.input<TSchema> extends z.output<TSchema> ? true : false;
+
+export type ForceZodInputAndOutputSame<TSchema extends z.Schema> =
+  z.input<TSchema> extends z.output<TSchema> ? TSchema : never;

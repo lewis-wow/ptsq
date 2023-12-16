@@ -16,13 +16,32 @@ const { router, resolver, serve } = createServer({
 const tr = resolver.description('Description of my resolver');
 
 const q = tr
-  .output(z.date().transform((date) => date.toISOString()))
+  .args(
+    z.object({
+      lastName: z.string().transform((arg) => arg),
+    }),
+  )
+  .transformation({
+    lastName: (input) => input.length,
+  })
+  .args(
+    z.object({
+      lastName: z.string().transform((arg) => arg),
+    }),
+  )
+  .args(
+    z.object({
+      lastName: z.string(),
+      firstName: z.string(),
+    }),
+  )
+  .output(z.string().transform((date) => date))
   .use(({ ctx, next }) => {
     console.log(ctx);
 
     return next(ctx);
   })
-  .query((_) => new Date());
+  .query(({ input }) => input.firstName);
 
 const baseRouter = router({
   greetings: q,

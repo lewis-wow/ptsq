@@ -1,4 +1,4 @@
-import type { z } from 'zod';
+import { z } from 'zod';
 import type { Context } from './context';
 import {
   Middleware,
@@ -8,17 +8,17 @@ import {
 } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
-import type { Serializable } from './serializable';
+import type { ForceZodInputAndOutputSame, Serializable } from './serializable';
 import {
   createRecursiveTransformation,
   type AnyTransformation,
   type ArgsTransformationObject,
   type inferArgsTransformationNextArgs,
 } from './transformation';
-import type { DeepMerge, ErrorMessage, MaybePromise, Simplify } from './types';
+import type { DeepMerge, ErrorMessage, MaybePromise } from './types';
 
 export type ResolverSchemaArgs = z.Schema<Serializable>;
-export type ResolverSchemaOutput = z.Schema<Serializable, z.ZodTypeDef, any>;
+export type ResolverSchemaOutput = z.Schema<Serializable>;
 
 export type inferResolverArgs<TResolverArgs> = TResolverArgs extends z.Schema
   ? TResolverArgs extends z.ZodVoid
@@ -173,22 +173,32 @@ export class Resolver<
    * .query(...)
    * ```
    */
-  args<
-    TNextSchemaArgs extends TSchemaArgs extends undefined
-      ? ResolverSchemaArgs
-      : TSchemaArgs,
-  >(nextSchemaArgs: TNextSchemaArgs) {
+  args<TNextSchemaArgs extends ResolverSchemaArgs>(
+    nextSchemaArgs: ForceZodInputAndOutputSame<TNextSchemaArgs>,
+  ) {
+    type ForcedNextArgsSchema = ForceZodInputAndOutputSame<TNextSchemaArgs>;
+
+    type NextArgsSchema = TSchemaArgs extends ResolverSchemaArgs
+      ? z.ZodIntersection<TSchemaArgs, ForcedNextArgsSchema>
+      : ForcedNextArgsSchema;
+
+    const nextArgsSchema: NextArgsSchema = (
+      this._schemaArgs === undefined
+        ? nextSchemaArgs
+        : z.intersection(this._schemaArgs, nextSchemaArgs)
+    ) as NextArgsSchema;
+
     return new Resolver<
       TSchemaArgs extends undefined
-        ? inferResolverArgs<TNextSchemaArgs>
-        : Simplify<DeepMerge<inferResolverArgs<TNextSchemaArgs>, TArgs>>,
-      TNextSchemaArgs,
+        ? inferResolverArgs<NextArgsSchema>
+        : DeepMerge<inferResolverArgs<NextArgsSchema>, TArgs>,
+      NextArgsSchema,
       TOutput,
       TSchemaOutput,
       TContext,
       TDescription
     >({
-      schemaArgs: nextSchemaArgs,
+      schemaArgs: nextArgsSchema,
       schemaOutput: this._schemaOutput,
       transformations: [...this._transformations],
       middlewares: [...this._middlewares],
@@ -208,21 +218,31 @@ export class Resolver<
    * .query(...)
    * ```
    */
-  output<
-    TNextSchemaOutput extends TSchemaOutput extends undefined
-      ? z.Schema
-      : TSchemaOutput,
-  >(nextSchemaOutput: TNextSchemaOutput) {
+  output<TNextSchemaOutput extends ResolverSchemaOutput>(
+    nextSchemaOutput: ForceZodInputAndOutputSame<TNextSchemaOutput>,
+  ) {
+    type ForcedNextOutputSchema = ForceZodInputAndOutputSame<TNextSchemaOutput>;
+
+    type NextOutputSchema = TSchemaOutput extends ResolverSchemaArgs
+      ? z.ZodIntersection<TSchemaOutput, ForcedNextOutputSchema>
+      : ForcedNextOutputSchema;
+
+    const nextOutputSchema: NextOutputSchema = (
+      this._schemaOutput === undefined
+        ? nextSchemaOutput
+        : z.intersection(this._schemaOutput, nextSchemaOutput)
+    ) as NextOutputSchema;
+
     return new Resolver<
       TArgs,
       TSchemaArgs,
-      z.output<TNextSchemaOutput>,
-      TNextSchemaOutput,
+      DeepMerge<z.infer<TNextSchemaOutput>, TOutput>,
+      NextOutputSchema,
       TContext,
       TDescription
     >({
       schemaArgs: this._schemaArgs,
-      schemaOutput: nextSchemaOutput,
+      schemaOutput: nextOutputSchema,
       middlewares: this._middlewares,
       transformations: [...this._transformations],
     });
