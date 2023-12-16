@@ -13,20 +13,12 @@ import type { AnyTransformation } from './transformation';
  * Mutation class container
  */
 export class Mutation<
-  TSchemaArgs extends ResolverSchemaArgs | undefined,
-  TSchemaOutput extends ResolverSchemaOutput,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
-> extends Route<
-  'mutation',
-  TSchemaArgs,
-  TSchemaOutput,
-  TResolveFunction,
-  TDescription
-> {
+> extends Route<'mutation', TResolveFunction, TDescription> {
   constructor(options: {
-    schemaArgs: TSchemaArgs;
-    schemaOutput: TSchemaOutput;
+    schemaArgs: ResolverSchemaArgs | undefined;
+    schemaOutput: ResolverSchemaOutput;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];
@@ -39,9 +31,4 @@ export class Mutation<
   }
 }
 
-export type AnyMutation = Mutation<
-  ResolverSchemaArgs | undefined,
-  ResolverSchemaOutput,
-  AnyResolveFunction,
-  string | undefined
->;
+export type AnyMutation = Mutation<AnyResolveFunction, string | undefined>;

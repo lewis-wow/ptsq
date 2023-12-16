@@ -538,7 +538,9 @@ test('Should create nested middlewares with query with args chaining', async () 
   expect(query.type).toBe('query');
   expect(query.middlewares.length).toBe(2);
   expect(query.middlewares[0]._schemaArgs).toStrictEqual(firstSchemaInChain);
-  expect(query.middlewares[1]._schemaArgs).toStrictEqual(secondSchemaInChain);
+  expect(query.middlewares[1]._schemaArgs).toStrictEqual(
+    Type.Intersect([firstSchemaInChain, secondSchemaInChain]),
+  );
 
   expect(
     await query.call({

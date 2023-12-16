@@ -26,14 +26,12 @@ import type { ResolverType } from './types';
  */
 export class Route<
   TType extends ResolverType,
-  TSchemaArgs extends ResolverSchemaArgs | undefined,
-  TSchemaOutput extends ResolverSchemaOutput,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
 > {
   type: TType;
-  schemaArgs: TSchemaArgs;
-  schemaOutput: TSchemaOutput;
+  schemaArgs: ResolverSchemaArgs | undefined;
+  schemaOutput: ResolverSchemaOutput;
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
   middlewares: AnyMiddleware[];
@@ -42,8 +40,8 @@ export class Route<
 
   constructor(options: {
     type: TType;
-    schemaArgs: TSchemaArgs;
-    schemaOutput: TSchemaOutput;
+    schemaArgs: ResolverSchemaArgs | undefined;
+    schemaOutput: ResolverSchemaOutput;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];
@@ -143,8 +141,6 @@ export class Route<
 
 export type AnyRoute = Route<
   ResolverType,
-  ResolverSchemaArgs,
-  ResolverSchemaOutput,
   AnyResolveFunction,
   string | undefined
 >;

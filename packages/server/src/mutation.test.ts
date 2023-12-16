@@ -209,10 +209,7 @@ test('Should create mutation with twice chain', async () => {
   }) => `${ctx.greetingsPrefix} ${input.firstName} ${input.lastName}`;
 
   const firstSchemaInChain = Type.Object({ firstName: validationSchema });
-  const secondSchemaInChain = Type.Object({
-    firstName: validationSchema,
-    lastName: validationSchema,
-  });
+  const secondSchemaInChain = Type.Object({ lastName: validationSchema });
 
   const mutation = resolver
     .args(firstSchemaInChain)
@@ -223,7 +220,9 @@ test('Should create mutation with twice chain', async () => {
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
   expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.schemaArgs).toStrictEqual(secondSchemaInChain);
+  expect(mutation.schemaArgs).toStrictEqual(
+    Type.Intersect([firstSchemaInChain, secondSchemaInChain]),
+  );
   expect(mutation.schemaOutput).toStrictEqual(validationSchema);
   expect(mutation.resolveFunction).toBe(resolveFunction);
 
@@ -295,18 +294,29 @@ test('Should create mutation with twice chain', async () => {
           "type": "string",
         },
         "schemaArgs": {
-          "additionalProperties": false,
-          "properties": {
-            "firstName": {
-              "type": "string",
+          "allOf": [
+            {
+              "properties": {
+                "firstName": {
+                  "type": "string",
+                },
+              },
+              "required": [
+                "firstName",
+              ],
+              "type": "object",
             },
-            "lastName": {
-              "$ref": "#/properties/firstName",
+            {
+              "properties": {
+                "lastName": {
+                  "type": "string",
+                },
+              },
+              "required": [
+                "lastName",
+              ],
+              "type": "object",
             },
-          },
-          "required": [
-            "firstName",
-            "lastName",
           ],
           "type": "object",
         },
@@ -339,18 +349,19 @@ test('Should create mutation with optional args chain', async () => {
     }),
   });
 
-  const firstSchemaInArgumentChain = Type.Optional(
+  const firstSchemaInArgumentChain = Type.Union([
     Type.Object({
       firstName: Type.Optional(Type.String()),
     }),
-  );
+    Type.Undefined(),
+  ]);
 
-  const secondSchemaInArgumentChain = Type.Optional(
+  const secondSchemaInArgumentChain = Type.Union([
     Type.Object({
-      firstName: Type.Optional(Type.String()),
       lastName: Type.Optional(Type.String()),
     }),
-  );
+    Type.Undefined(),
+  ]);
 
   const outputSchema = Type.String();
 
@@ -374,7 +385,9 @@ test('Should create mutation with optional args chain', async () => {
   expect(mutation.nodeType).toBe('route');
   expect(mutation.type).toBe('mutation');
   expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.schemaArgs).toStrictEqual(secondSchemaInArgumentChain);
+  expect(mutation.schemaArgs).toStrictEqual(
+    Type.Intersect([firstSchemaInArgumentChain, secondSchemaInArgumentChain]),
+  );
   expect(mutation.schemaOutput).toStrictEqual(outputSchema);
   expect(mutation.resolveFunction).toBe(resolveFunction);
 
@@ -466,21 +479,36 @@ test('Should create mutation with optional args chain', async () => {
           "type": "string",
         },
         "schemaArgs": {
-          "anyOf": [
+          "allOf": [
             {
-              "not": {},
+              "anyOf": [
+                {
+                  "properties": {
+                    "firstName": {
+                      "type": "string",
+                    },
+                  },
+                  "type": "object",
+                },
+                {
+                  "type": "undefined",
+                },
+              ],
             },
             {
-              "additionalProperties": false,
-              "properties": {
-                "firstName": {
-                  "type": "string",
+              "anyOf": [
+                {
+                  "properties": {
+                    "lastName": {
+                      "type": "string",
+                    },
+                  },
+                  "type": "object",
                 },
-                "lastName": {
-                  "type": "string",
+                {
+                  "type": "undefined",
                 },
-              },
-              "type": "object",
+              ],
             },
           ],
         },

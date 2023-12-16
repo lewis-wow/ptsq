@@ -13,20 +13,12 @@ import type { AnyTransformation } from './transformation';
  * Query class container
  */
 export class Query<
-  TSchemaArgs extends ResolverSchemaArgs | undefined,
-  TSchemaOutput extends ResolverSchemaOutput,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
-> extends Route<
-  'query',
-  TSchemaArgs,
-  TSchemaOutput,
-  TResolveFunction,
-  TDescription
-> {
+> extends Route<'query', TResolveFunction, TDescription> {
   constructor(options: {
-    schemaArgs: TSchemaArgs;
-    schemaOutput: TSchemaOutput;
+    schemaArgs: ResolverSchemaArgs | undefined;
+    schemaOutput: ResolverSchemaOutput;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];
@@ -39,9 +31,4 @@ export class Query<
   }
 }
 
-export type AnyQuery = Query<
-  ResolverSchemaArgs | undefined,
-  ResolverSchemaOutput,
-  AnyResolveFunction,
-  string | undefined
->;
+export type AnyQuery = Query<AnyResolveFunction, string | undefined>;

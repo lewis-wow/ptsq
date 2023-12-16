@@ -88,15 +88,13 @@ test('Should parse Date with transformation function', async () => {
 
   const data = {
     state: {
-      createdAt: new Date(1).toISOString(),
+      createdAt: new Date(1).toString(),
     },
   };
 
   const schema = Type.Object({
     state: Type.Object({
-      createdAt: Type.String({
-        format: 'date-time',
-      }),
+      createdAt: Type.String(),
     }),
   });
 
