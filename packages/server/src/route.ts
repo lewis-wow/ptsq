@@ -25,7 +25,7 @@ import type { ResolverType } from './types';
  */
 export class Route<
   TType extends ResolverType,
-  TSchemaArgs extends ResolverSchemaArgs,
+  TSchemaArgs extends ResolverSchemaArgs | undefined,
   TSchemaOutput extends ResolverSchemaOutput,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,

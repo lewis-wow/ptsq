@@ -49,11 +49,11 @@ export class Middleware<
   TNextContext extends Context,
 > {
   _middlewareFunction: MiddlewareFunction<TArgs, TContext, TNextContext>;
-  _schemaArgs: ResolverSchemaArgs;
+  _schemaArgs: ResolverSchemaArgs | undefined;
   _transformations: AnyTransformation[];
 
   constructor(options: {
-    schemaArgs: ResolverSchemaArgs;
+    schemaArgs: ResolverSchemaArgs | undefined;
     transformations: AnyTransformation[];
     middlewareFunction: MiddlewareFunction<TArgs, TContext, TNextContext>;
   }) {
@@ -76,12 +76,12 @@ export class Middleware<
     middlewares: AnyMiddleware[];
   }): Promise<AnyRawMiddlewareReponse> {
     try {
-      const parsedInputErrors = [
-        ...Value.Errors(
-          options.middlewares[options.index]._schemaArgs,
-          options.meta.input,
-        ),
-      ];
+      const argSchema = options.middlewares[options.index]._schemaArgs;
+
+      const parsedInputErrors =
+        argSchema !== undefined
+          ? [...Value.Errors(argSchema, options.meta.input)]
+          : [];
 
       if (parsedInputErrors.length)
         throw new HTTPError({

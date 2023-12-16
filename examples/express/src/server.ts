@@ -1,12 +1,6 @@
-import { inferSchemaArg, objectArg, stringArg, tupleArg } from '@ptsq/args';
-import { Type } from '@sinclair/typebox';
-
-/*import { objectArg, stringArg } from '@ptsq/args';
 import { createServer } from '@ptsq/server';
-import { Value } from '@sinclair/typebox/value';
+import { Type } from '@sinclair/typebox';
 import express, { Request, Response } from 'express';
-import { arrayArg } from '../../../packages/args/src/array';
-
 
 const app = express();
 
@@ -19,15 +13,28 @@ const { router, resolver, serve } = createServer({
   ctx: createContext,
 });
 
+const recursiveSchema = Type.Recursive((This) =>
+  Type.Object(
+    {
+      a: Type.Number(),
+      b: Type.Union([
+        Type.String(),
+        Type.Null(),
+        Type.Array(This),
+        Type.Optional(This),
+      ]),
+    },
+    {
+      additionalProperties: false,
+    },
+  ),
+);
+
 const tes = resolver
-  .args(
-    objectArg({
-      email: stringArg({
-        format: 'email',
-      }),
-    }),
-  )
-  .query(({ input }) => input);
+  .description('Tahnle routa uploadne obrazek')
+  .args(recursiveSchema)
+  .output(Type.Undefined())
+  .query(({ input }) => input.b);
 
 const baseRouter = router({
   greetings: tes,
@@ -40,21 +47,3 @@ app.listen(4000, () => {
 });
 
 export type BaseRouter = typeof baseRouter;
-*/
-
-const schema = tupleArg([
-  objectArg({
-    a: stringArg(),
-  }),
-]);
-
-const test = Type.Tuple([
-  Type.Object({
-    a: Type.String(),
-  }),
-]);
-
-type Test = inferSchemaArg<typeof schema>;
-
-console.log(Type.String());
-console.log(schema);

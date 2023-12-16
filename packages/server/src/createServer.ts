@@ -1,4 +1,3 @@
-import { Type, type TUnknown } from '@sinclair/typebox';
 import type { FetchAPI } from '@whatwg-node/server';
 import { useCookies } from '@whatwg-node/server-plugin-cookies';
 import { createRouter, Response, useCORS } from 'fets';
@@ -67,15 +66,15 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * ```
    */
   const resolver = new Resolver<
-    unknown,
-    TUnknown,
-    unknown,
-    TUnknown,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
     RootContext,
     undefined
   >({
-    schemaArgs: Type.Unknown(),
-    schemaOutput: Type.Unknown(),
+    schemaArgs: undefined,
+    schemaOutput: undefined,
     middlewares: [],
     transformations: [],
   });

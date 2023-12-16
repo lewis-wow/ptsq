@@ -33,9 +33,9 @@ export type inferResolverOutput<TResolverOutput> =
  */
 export class Resolver<
   TArgs,
-  TSchemaArgs extends TAnySchema,
+  TSchemaArgs extends TAnySchema | undefined,
   TOutput,
-  TSchemaOutput extends TAnySchema,
+  TSchemaOutput extends TAnySchema | undefined,
   TContext extends Context,
   TDescription extends string | undefined,
 > {
@@ -175,10 +175,10 @@ export class Resolver<
   args<TNextSchemaArgs extends ResolverSchemaArgs>(
     nextSchemaArgs: TNextSchemaArgs,
   ) {
-    const nextSchema = Type.Intersect([
-      this._schemaArgs,
-      Type.Object(nextSchemaArgs),
-    ]);
+    const nextSchema =
+      this._schemaArgs === undefined
+        ? nextSchemaArgs
+        : Type.Intersect([this._schemaArgs, nextSchemaArgs]);
 
     return new Resolver<
       Static<typeof nextSchema>,
@@ -211,7 +211,10 @@ export class Resolver<
   output<TNextSchemaOutput extends ResolverSchemaOutput>(
     nextSchemaOutput: TNextSchemaOutput,
   ) {
-    const nextSchema = Type.Intersect([this._schemaOutput, nextSchemaOutput]);
+    const nextSchema =
+      this._schemaOutput === undefined
+        ? nextSchemaOutput
+        : Type.Intersect([this._schemaOutput, nextSchemaOutput]);
 
     return new Resolver<
       TArgs,
@@ -247,6 +250,11 @@ export class Resolver<
         ResolveFunction<TArgs, inferResolverOutput<TSchemaOutput>, TContext>,
         TDescription
       > {
+    if (this._schemaOutput === undefined)
+      throw new TypeError(
+        `Output schema cannot be undefined when creating mutation.`,
+      );
+
     return new Mutation({
       schemaArgs: this._schemaArgs,
       schemaOutput: this._schemaOutput,
@@ -283,6 +291,11 @@ export class Resolver<
         ResolveFunction<TArgs, inferResolverOutput<TSchemaOutput>, TContext>,
         TDescription
       > {
+    if (this._schemaOutput === undefined)
+      throw new TypeError(
+        `Output schema cannot be undefined when creating query.`,
+      );
+
     return new Query({
       schemaArgs: this._schemaArgs,
       schemaOutput: this._schemaOutput,

@@ -1,4 +1,4 @@
-import type { z } from 'zod';
+import type { Static, TAnySchema, TUndefined, TVoid } from '@sinclair/typebox';
 
 export type ResolverType = 'query' | 'mutation';
 
@@ -11,22 +11,22 @@ export type MaybePromise<T> = T | Promise<T>;
  */
 export type inferClientResolverArgs<TResolverArgs> = TResolverArgs extends
   | undefined
-  | z.ZodUndefined
+  | TUndefined
   // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
   | void
-  | z.ZodVoid
+  | TVoid
   ? // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
     undefined | void
-  : TResolverArgs extends z.Schema
-  ? z.input<TResolverArgs>
+  : TResolverArgs extends TAnySchema
+  ? Static<TResolverArgs>
   : TResolverArgs;
 
 /**
  * Infers the output type of the zod validation schema or the introspected schema
  */
 export type inferClientResolverOutput<TResolverOutput> =
-  TResolverOutput extends z.Schema
-    ? z.output<TResolverOutput>
+  TResolverOutput extends TAnySchema
+    ? Static<TResolverOutput>
     : TResolverOutput;
 
 /**
