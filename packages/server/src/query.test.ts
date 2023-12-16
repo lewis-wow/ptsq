@@ -117,7 +117,7 @@ test('Should create query without args', async () => {
   const resolveFunction = ({
     ctx,
   }: {
-    input: undefined;
+    input: unknown;
     ctx: { greetingsPrefix: 'Hello' };
   }) => `${ctx.greetingsPrefix}`;
 
