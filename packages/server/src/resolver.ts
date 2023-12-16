@@ -1,4 +1,4 @@
-import type { z } from 'zod';
+import { intersect, type inferSchemaArg, type SchemaArg } from '@ptsq/args';
 import type { Context } from './context';
 import {
   Middleware,
@@ -8,35 +8,34 @@ import {
 } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
-import type { Serializable } from './serializable';
 import {
   createRecursiveTransformation,
   type AnyTransformation,
   type ArgsTransformationObject,
   type inferArgsTransformationNextArgs,
 } from './transformation';
-import type { DeepMerge, ErrorMessage, MaybePromise, Simplify } from './types';
+import type { ErrorMessage, MaybePromise } from './types';
 
-export type ResolverSchemaArgs = z.Schema<Serializable>;
-export type ResolverSchemaOutput = z.Schema<Serializable, z.ZodTypeDef, any>;
+export type ResolverSchemaArgs = SchemaArg;
+export type ResolverSchemaOutput = SchemaArg;
 
-export type inferResolverArgs<TResolverArgs> = TResolverArgs extends z.Schema
-  ? TResolverArgs extends z.ZodVoid
-    ? undefined
-    : z.output<TResolverArgs>
+export type inferResolverArgs<TResolverArgs> = TResolverArgs extends SchemaArg
+  ? inferSchemaArg<TResolverArgs>
   : TResolverArgs;
 
 export type inferResolverOutput<TResolverOutput> =
-  TResolverOutput extends z.Schema ? z.input<TResolverOutput> : TResolverOutput;
+  TResolverOutput extends SchemaArg
+    ? inferSchemaArg<TResolverOutput>
+    : TResolverOutput;
 
 /**
  * Resolver allows you to create queries, mutations and middlewares
  */
 export class Resolver<
   TArgs,
-  TSchemaArgs extends ResolverSchemaArgs | undefined,
+  TSchemaArgs extends SchemaArg,
   TOutput,
-  TSchemaOutput extends ResolverSchemaOutput | undefined,
+  TSchemaOutput extends SchemaArg,
   TContext extends Context,
   TDescription extends string | undefined,
 > {
@@ -173,22 +172,18 @@ export class Resolver<
    * .query(...)
    * ```
    */
-  args<
-    TNextSchemaArgs extends TSchemaArgs extends undefined
-      ? ResolverSchemaArgs
-      : TSchemaArgs,
-  >(nextSchemaArgs: TNextSchemaArgs) {
+  args<TNextSchemaArgs extends SchemaArg>(nextSchemaArgs: TNextSchemaArgs) {
+    const nextSchema = intersect([this._schemaArgs, nextSchemaArgs]);
+
     return new Resolver<
-      TSchemaArgs extends undefined
-        ? inferResolverArgs<TNextSchemaArgs>
-        : Simplify<DeepMerge<inferResolverArgs<TNextSchemaArgs>, TArgs>>,
-      TNextSchemaArgs,
+      inferSchemaArg<typeof nextSchema>,
+      typeof nextSchema,
       TOutput,
       TSchemaOutput,
       TContext,
       TDescription
     >({
-      schemaArgs: nextSchemaArgs,
+      schemaArgs: nextSchema,
       schemaOutput: this._schemaOutput,
       transformations: [...this._transformations],
       middlewares: [...this._middlewares],
@@ -208,21 +203,21 @@ export class Resolver<
    * .query(...)
    * ```
    */
-  output<
-    TNextSchemaOutput extends TSchemaOutput extends undefined
-      ? z.Schema
-      : TSchemaOutput,
-  >(nextSchemaOutput: TNextSchemaOutput) {
+  output<TNextSchemaOutput extends SchemaArg>(
+    nextSchemaOutput: TNextSchemaOutput,
+  ) {
+    const nextSchema = intersect([this._schemaOutput, nextSchemaOutput]);
+
     return new Resolver<
       TArgs,
       TSchemaArgs,
-      z.output<TNextSchemaOutput>,
-      TNextSchemaOutput,
+      inferSchemaArg<typeof nextSchema>,
+      typeof nextSchema,
       TContext,
       TDescription
     >({
       schemaArgs: this._schemaArgs,
-      schemaOutput: nextSchemaOutput,
+      schemaOutput: nextSchema,
       middlewares: this._middlewares,
       transformations: [...this._transformations],
     });
@@ -247,11 +242,6 @@ export class Resolver<
         ResolveFunction<TArgs, inferResolverOutput<TSchemaOutput>, TContext>,
         TDescription
       > {
-    if (this._schemaOutput === undefined)
-      throw new TypeError(
-        'Output schema cannot be undefined when creating mutation.',
-      );
-
     return new Mutation({
       schemaArgs: this._schemaArgs,
       schemaOutput: this._schemaOutput,
@@ -288,11 +278,6 @@ export class Resolver<
         ResolveFunction<TArgs, inferResolverOutput<TSchemaOutput>, TContext>,
         TDescription
       > {
-    if (this._schemaOutput === undefined)
-      throw new TypeError(
-        'Output schema cannot be undefined when creating query.',
-      );
-
     return new Query({
       schemaArgs: this._schemaArgs,
       schemaOutput: this._schemaOutput,

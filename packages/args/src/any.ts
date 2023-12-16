@@ -1,0 +1,5 @@
+import { TAny, Type } from '@sinclair/typebox';
+
+export type AnyArg = TAny;
+
+export const anyArg = Type.Any;

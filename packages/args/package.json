@@ -1,5 +1,5 @@
 {
-  "name": "@ptsq/server",
+  "name": "@ptsq/args",
   "version": "0.2.3",
   "homepage": "https://ptsq-docs.vercel.app/",
   "author": "lewis-wow",
@@ -15,7 +15,9 @@
     "lint": "eslint",
     "test": "vitest"
   },
-  "main": "src/main.ts",
+  "main": "dist/main.js",
+  "module": "dist/main.mjs",
+  "typings": "dist/main.d.ts",
   "publishConfig": {
     "access": "public"
   },
@@ -38,7 +40,6 @@
     "@whatwg-node/server-plugin-cookies": "^1.0.2",
     "fets": "^0.6.6",
     "pascalcase": "^0.1.1",
-    "zod": "^3.22.2",
-    "@ptsq/args": "*"
+    "zod": "^3.22.2"
   }
 }

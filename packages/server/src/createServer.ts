@@ -1,3 +1,4 @@
+import { unknownArg, type UnknownArg } from '@ptsq/args';
 import type { FetchAPI } from '@whatwg-node/server';
 import { useCookies } from '@whatwg-node/server-plugin-cookies';
 import { createRouter, Response, useCORS } from 'fets';
@@ -67,14 +68,14 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    */
   const resolver = new Resolver<
     undefined,
+    UnknownArg,
     undefined,
-    undefined,
-    undefined,
+    UnknownArg,
     RootContext,
     undefined
   >({
-    schemaArgs: undefined,
-    schemaOutput: undefined,
+    schemaArgs: unknownArg(),
+    schemaOutput: unknownArg(),
     middlewares: [],
     transformations: [],
   });

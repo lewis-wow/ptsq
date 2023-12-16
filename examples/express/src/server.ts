@@ -1,6 +1,7 @@
+import { numberArg, objectArg, stringArg } from '@ptsq/args';
 import { createServer } from '@ptsq/server';
 import express, { Request, Response } from 'express';
-import { z } from 'zod';
+import { string, z } from 'zod';
 
 const app = express();
 
@@ -13,19 +14,26 @@ const { router, resolver, serve } = createServer({
   ctx: createContext,
 });
 
-const tr = resolver.description('Description of my resolver');
-
-const q = tr
-  .output(z.date().transform((date) => date.toISOString()))
-  .use(({ ctx, next }) => {
-    console.log(ctx);
-
-    return next(ctx);
-  })
-  .query((_) => new Date());
+const tes = resolver
+  .args(
+    objectArg({
+      a: objectArg({
+        b: stringArg(),
+      }),
+    }),
+  )
+  .args(
+    objectArg({
+      a: objectArg({
+        c: numberArg(),
+      }),
+    }),
+  )
+  .output(stringArg())
+  .query(({ input }) => input.a.b);
 
 const baseRouter = router({
-  greetings: q,
+  greetings: tes,
 });
 
 app.use((req, res) => serve(baseRouter)(req, res));
