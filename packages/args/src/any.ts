@@ -1,5 +1,5 @@
-import { TAny, Type } from '@sinclair/typebox';
+import { SchemaOptions, TAny, Type } from '@sinclair/typebox';
 
 export type AnyArg = TAny;
 
-export const anyArg = Type.Any;
+export const anyArg = (options?: SchemaOptions) => Type.Any(options);

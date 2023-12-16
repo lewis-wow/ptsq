@@ -4,7 +4,7 @@ import { SchemaArg } from './schema';
 export type TupleArg<T extends SchemaArg[]> = TTuple<T>;
 export type AnyTupleArg = TTuple<any>;
 
-export const tupleArg = <T extends SchemaArg[]>(
+export const tupleArg = <const T extends SchemaArg[]>(
   schema: T,
   options?: SchemaOptions,
 ) => Type.Tuple<T>(schema, options);

@@ -1,5 +1,5 @@
-import { TNull, Type } from '@sinclair/typebox';
+import { SchemaOptions, TNull, Type } from '@sinclair/typebox';
 
 export type NullArg = TNull;
 
-export const nullArg = Type.Null;
+export const nullArg = (options?: SchemaOptions) => Type.Null(options);

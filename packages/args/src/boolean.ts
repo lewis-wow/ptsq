@@ -1,5 +1,5 @@
-import { TBoolean, Type } from '@sinclair/typebox';
+import { SchemaOptions, TBoolean, Type } from '@sinclair/typebox';
 
 export type BooleanArg = TBoolean;
 
-export const booleanArg = Type.Boolean;
+export const booleanArg = (options?: SchemaOptions) => Type.Boolean(options);

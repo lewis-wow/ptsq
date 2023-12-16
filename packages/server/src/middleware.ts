@@ -48,11 +48,11 @@ export class Middleware<
   TNextContext extends Context,
 > {
   _middlewareFunction: MiddlewareFunction<TArgs, TContext, TNextContext>;
-  _schemaArgs: ResolverSchemaArgs | undefined;
+  _schemaArgs: ResolverSchemaArgs;
   _transformations: AnyTransformation[];
 
   constructor(options: {
-    schemaArgs: ResolverSchemaArgs | undefined;
+    schemaArgs: ResolverSchemaArgs;
     transformations: AnyTransformation[];
     middlewareFunction: MiddlewareFunction<TArgs, TContext, TNextContext>;
   }) {

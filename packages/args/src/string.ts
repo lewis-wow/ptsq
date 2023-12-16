@@ -1,5 +1,5 @@
-import { TString, Type } from '@sinclair/typebox';
+import { StringOptions, TString, Type } from '@sinclair/typebox';
 
 export type StringArg = TString;
 
-export const stringArg = Type.String;
+export const stringArg = (options?: StringOptions) => Type.String(options);

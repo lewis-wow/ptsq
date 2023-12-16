@@ -1,5 +1,6 @@
-import { TUndefined, Type } from '@sinclair/typebox';
+import { SchemaOptions, TUndefined, Type } from '@sinclair/typebox';
 
 export type UndefinedArg = TUndefined;
 
-export const undefinedArg = Type.Undefined;
+export const undefinedArg = (options?: SchemaOptions) =>
+  Type.Undefined(options);

@@ -16,7 +16,7 @@ import {
 } from './transformation';
 import type { ErrorMessage, MaybePromise } from './types';
 
-export type ResolverSchemaArgs = SchemaArg;
+export type ResolverSchemaArgs = Record<string, SchemaArg>;
 export type ResolverSchemaOutput = SchemaArg;
 
 export type inferResolverArgs<TResolverArgs> = TResolverArgs extends SchemaArg
@@ -203,7 +203,7 @@ export class Resolver<
    * .query(...)
    * ```
    */
-  output<TNextSchemaOutput extends SchemaArg>(
+  output<TNextSchemaOutput extends ResolverSchemaOutput>(
     nextSchemaOutput: TNextSchemaOutput,
   ) {
     const nextSchema = intersect([this._schemaOutput, nextSchemaOutput]);
