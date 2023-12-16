@@ -1,4 +1,4 @@
-import { intersect, type inferSchemaArg, type SchemaArg } from '@ptsq/args';
+import { Type, type Static, type TAnySchema } from '@sinclair/typebox';
 import type { Context } from './context';
 import {
   Middleware,
@@ -16,16 +16,16 @@ import {
 } from './transformation';
 import type { ErrorMessage, MaybePromise } from './types';
 
-export type ResolverSchemaArgs = Record<string, SchemaArg>;
-export type ResolverSchemaOutput = SchemaArg;
+export type ResolverSchemaArgs = TAnySchema;
+export type ResolverSchemaOutput = TAnySchema;
 
-export type inferResolverArgs<TResolverArgs> = TResolverArgs extends SchemaArg
-  ? inferSchemaArg<TResolverArgs>
+export type inferResolverArgs<TResolverArgs> = TResolverArgs extends TAnySchema
+  ? Static<TResolverArgs>
   : TResolverArgs;
 
 export type inferResolverOutput<TResolverOutput> =
-  TResolverOutput extends SchemaArg
-    ? inferSchemaArg<TResolverOutput>
+  TResolverOutput extends TAnySchema
+    ? Static<TResolverOutput>
     : TResolverOutput;
 
 /**
@@ -33,9 +33,9 @@ export type inferResolverOutput<TResolverOutput> =
  */
 export class Resolver<
   TArgs,
-  TSchemaArgs extends SchemaArg,
+  TSchemaArgs extends TAnySchema,
   TOutput,
-  TSchemaOutput extends SchemaArg,
+  TSchemaOutput extends TAnySchema,
   TContext extends Context,
   TDescription extends string | undefined,
 > {
@@ -172,11 +172,16 @@ export class Resolver<
    * .query(...)
    * ```
    */
-  args<TNextSchemaArgs extends SchemaArg>(nextSchemaArgs: TNextSchemaArgs) {
-    const nextSchema = intersect([this._schemaArgs, nextSchemaArgs]);
+  args<TNextSchemaArgs extends ResolverSchemaArgs>(
+    nextSchemaArgs: TNextSchemaArgs,
+  ) {
+    const nextSchema = Type.Intersect([
+      this._schemaArgs,
+      Type.Object(nextSchemaArgs),
+    ]);
 
     return new Resolver<
-      inferSchemaArg<typeof nextSchema>,
+      Static<typeof nextSchema>,
       typeof nextSchema,
       TOutput,
       TSchemaOutput,
@@ -206,12 +211,12 @@ export class Resolver<
   output<TNextSchemaOutput extends ResolverSchemaOutput>(
     nextSchemaOutput: TNextSchemaOutput,
   ) {
-    const nextSchema = intersect([this._schemaOutput, nextSchemaOutput]);
+    const nextSchema = Type.Intersect([this._schemaOutput, nextSchemaOutput]);
 
     return new Resolver<
       TArgs,
       TSchemaArgs,
-      inferSchemaArg<typeof nextSchema>,
+      Static<typeof nextSchema>,
       typeof nextSchema,
       TContext,
       TDescription

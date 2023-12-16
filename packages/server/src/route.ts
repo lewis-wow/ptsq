@@ -1,3 +1,4 @@
+import { Value } from '@sinclair/typebox/value';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
@@ -24,7 +25,7 @@ import type { ResolverType } from './types';
  */
 export class Route<
   TType extends ResolverType,
-  TSchemaArgs extends ResolverSchemaArgs | undefined,
+  TSchemaArgs extends ResolverSchemaArgs,
   TSchemaOutput extends ResolverSchemaOutput,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
@@ -111,17 +112,19 @@ export class Route<
               meta: finalMeta,
             });
 
-            const parsedOutput = this.schemaOutput.safeParse(resolverResult);
+            const parsedOutputErrors = [
+              ...Value.Errors(this.schemaOutput, resolverResult),
+            ];
 
-            if (!parsedOutput.success)
+            if (parsedOutputErrors.length)
               throw new HTTPError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: 'Output validation error',
-                info: parsedOutput.error,
+                info: parsedOutputErrors,
               });
 
             return MiddlewareResponse.createRawSuccessResponse({
-              data: parsedOutput.data,
+              data: resolverResult,
               ctx: finalContext,
             });
           },
@@ -135,7 +138,7 @@ export class Route<
 
 export type AnyRoute = Route<
   ResolverType,
-  ResolverSchemaArgs | undefined,
+  ResolverSchemaArgs,
   ResolverSchemaOutput,
   AnyResolveFunction,
   string | undefined
