@@ -13,28 +13,23 @@ const { router, resolver, serve } = createServer({
   ctx: createContext,
 });
 
-const recursiveSchema = Type.Recursive((This) =>
-  Type.Object(
-    {
-      a: Type.Number(),
-      b: Type.Union([
-        Type.String(),
-        Type.Null(),
-        Type.Array(This),
-        Type.Optional(This),
-      ]),
-    },
-    {
-      additionalProperties: false,
-    },
-  ),
-);
-
 const tes = resolver
-  .description('Tahnle routa uploadne obrazek')
-  .args(recursiveSchema)
+  .description('Tahle routa uploadne obrazek')
+  .args(
+    Type.Object({
+      firstName: Type.String(),
+    }),
+  )
+  .transformation({
+    firstName: (input) => input.length,
+  })
+  .args(
+    Type.Object({
+      lastName: Type.String(),
+    }),
+  )
   .output(Type.Undefined())
-  .query(({ input }) => input.b);
+  .query(({ input: _input }) => undefined);
 
 const baseRouter = router({
   greetings: tes,

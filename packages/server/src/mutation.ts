@@ -13,9 +13,17 @@ import type { AnyTransformation } from './transformation';
  * Mutation class container
  */
 export class Mutation<
+  TArgsInput,
+  TOutput,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
-> extends Route<'mutation', TResolveFunction, TDescription> {
+> extends Route<
+  'mutation',
+  TArgsInput,
+  TOutput,
+  TResolveFunction,
+  TDescription
+> {
   constructor(options: {
     schemaArgs: ResolverSchemaArgs | undefined;
     schemaOutput: ResolverSchemaOutput;
@@ -31,4 +39,9 @@ export class Mutation<
   }
 }
 
-export type AnyMutation = Mutation<AnyResolveFunction, string | undefined>;
+export type AnyMutation = Mutation<
+  any,
+  any,
+  AnyResolveFunction,
+  string | undefined
+>;

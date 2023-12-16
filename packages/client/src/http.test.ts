@@ -1,7 +1,7 @@
 import { createTestHttpServer } from '@ptsq/test-utils';
+import { Type } from '@sinclair/typebox';
 import axios from 'axios';
 import { expect, test } from 'vitest';
-import { z } from 'zod';
 
 test('Should create simple http server', async () => {
   await createTestHttpServer({
@@ -10,11 +10,11 @@ test('Should create simple http server', async () => {
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
-          .output(z.string())
+          .output(Type.String())
           .query(({ input }) => input.name),
       });
     },
@@ -41,14 +41,14 @@ test('Should create simple http server with context', async () => {
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
           .output(
-            z.object({
-              name: z.string(),
-              number: z.literal(42),
+            Type.Object({
+              name: Type.String(),
+              number: Type.Literal(42),
             }),
           )
           .query(({ input, ctx }) => ({
@@ -83,15 +83,15 @@ test('Should create simple http server with middleware', async () => {
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
           .use(({ input, ctx, next }) => next({ ...ctx, ...input }))
           .output(
-            z.object({
-              name: z.string(),
-              number: z.literal(42),
+            Type.Object({
+              name: Type.String(),
+              number: Type.Literal(42),
             }),
           )
           .query(({ ctx }) => ctx),
@@ -171,7 +171,7 @@ test('Should create simple http server with 2 nested middlewares', async () => {
 
             return result;
           })
-          .output(z.null())
+          .output(Type.Null())
           .query(() => null),
       });
     },
@@ -193,11 +193,11 @@ test('Should introspectate the server with http adapter', async () => {
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
-          .output(z.string())
+          .output(Type.String())
           .query(({ input }) => input.name),
       });
     },
@@ -283,11 +283,11 @@ test('Should create simple http server and return BAD_REQUEST response', async (
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
-          .output(z.string())
+          .output(Type.String())
           .query(({ input }) => input.name),
       });
     },
@@ -312,11 +312,11 @@ test('Should create simple http server and return INTERNAL_SERVER_ERROR response
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
-          .output(z.string())
+          .output(Type.String())
           .query(
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error - just for test!

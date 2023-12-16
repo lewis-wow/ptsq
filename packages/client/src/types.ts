@@ -12,8 +12,8 @@ import type { ClientQuery } from './clientQuery';
 export type ClientRoute<TType extends ResolverType> = {
   nodeType: 'route';
   type: TType;
-  schemaArgs?: any;
-  schemaOutput: any;
+  args?: any;
+  output: any;
   description?: string;
 };
 
@@ -41,20 +41,16 @@ export type Client<TRouter extends ClientRouter> = {
     ? ClientQuery<
         TRouter['routes'][K]['description'],
         {
-          args: inferClientResolverArgs<TRouter['routes'][K]['schemaArgs']>;
-          output: inferClientResolverOutput<
-            TRouter['routes'][K]['schemaOutput']
-          >;
+          args: inferClientResolverArgs<TRouter['routes'][K]['args']>;
+          output: inferClientResolverOutput<TRouter['routes'][K]['output']>;
         }
       >
     : TRouter['routes'][K] extends ClientRoute<'mutation'>
     ? ClientMutation<
         TRouter['routes'][K]['description'],
         {
-          args: inferClientResolverArgs<TRouter['routes'][K]['schemaArgs']>;
-          output: inferClientResolverOutput<
-            TRouter['routes'][K]['schemaOutput']
-          >;
+          args: inferClientResolverArgs<TRouter['routes'][K]['args']>;
+          output: inferClientResolverOutput<TRouter['routes'][K]['output']>;
         }
       >
     : never;

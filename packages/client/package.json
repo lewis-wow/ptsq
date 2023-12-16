@@ -38,9 +38,10 @@
   ],
   "devDependencies": {
     "@ptsq/server": "*",
+    "@ptsq/test-utils": "*",
+    "@sinclair/typebox": "^0.31.28",
     "@types/node": "^20.7.0",
     "typescript": "^5.2.2",
-    "@ptsq/test-utils": "*",
     "zod": "^3.22.2"
   },
   "dependencies": {

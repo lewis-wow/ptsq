@@ -13,9 +13,11 @@ import type { AnyTransformation } from './transformation';
  * Query class container
  */
 export class Query<
+  TArgsInput,
+  TOutput,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
-> extends Route<'query', TResolveFunction, TDescription> {
+> extends Route<'query', TArgsInput, TOutput, TResolveFunction, TDescription> {
   constructor(options: {
     schemaArgs: ResolverSchemaArgs | undefined;
     schemaOutput: ResolverSchemaOutput;
@@ -31,4 +33,4 @@ export class Query<
   }
 }
 
-export type AnyQuery = Query<AnyResolveFunction, string | undefined>;
+export type AnyQuery = Query<any, any, AnyResolveFunction, string | undefined>;

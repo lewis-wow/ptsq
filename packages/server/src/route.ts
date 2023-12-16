@@ -26,9 +26,14 @@ import type { ResolverType } from './types';
  */
 export class Route<
   TType extends ResolverType,
+  TArgsInput,
+  TOutput,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
 > {
+  args: TArgsInput = {} as TArgsInput;
+  output: TOutput = {} as TOutput;
+
   type: TType;
   schemaArgs: ResolverSchemaArgs | undefined;
   schemaOutput: ResolverSchemaOutput;
@@ -141,6 +146,8 @@ export class Route<
 
 export type AnyRoute = Route<
   ResolverType,
+  any,
+  any,
   AnyResolveFunction,
   string | undefined
 >;
