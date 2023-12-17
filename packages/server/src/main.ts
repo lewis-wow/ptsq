@@ -20,6 +20,7 @@ export type {
   MaybePromise,
   inferClientResolverArgs,
   inferClientResolverOutput,
+  Simplify,
 } from './types';
 export type { Serializable } from './serializable';
 

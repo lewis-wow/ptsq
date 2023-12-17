@@ -36,7 +36,13 @@ const { url, out, lang } = argv.parseSync();
 const parsedUrl = new URL(url);
 
 axios
-  .get(`${parsedUrl.href}/introspection`)
+  .get(`${parsedUrl.href}/introspection`, {
+    headers: {
+      'Cache-Control': 'no-cache',
+      Pragma: 'no-cache',
+      Expires: '0',
+    },
+  })
   .then(async (response) => {
     let schema: string | null = null;
     let outFile: string | null = null;

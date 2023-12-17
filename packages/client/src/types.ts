@@ -2,6 +2,7 @@ import type {
   inferClientResolverArgs,
   inferClientResolverOutput,
   ResolverType,
+  Simplify,
 } from '@ptsq/server';
 import type { ClientMutation } from './clientMutation';
 import type { ClientQuery } from './clientQuery';
@@ -41,16 +42,20 @@ export type Client<TRouter extends ClientRouter> = {
     ? ClientQuery<
         TRouter['routes'][K]['description'],
         {
-          args: inferClientResolverArgs<TRouter['routes'][K]['args']>;
-          output: inferClientResolverOutput<TRouter['routes'][K]['output']>;
+          args: Simplify<inferClientResolverArgs<TRouter['routes'][K]['args']>>;
+          output: Simplify<
+            inferClientResolverOutput<TRouter['routes'][K]['output']>
+          >;
         }
       >
     : TRouter['routes'][K] extends ClientRoute<'mutation'>
     ? ClientMutation<
         TRouter['routes'][K]['description'],
         {
-          args: inferClientResolverArgs<TRouter['routes'][K]['args']>;
-          output: inferClientResolverOutput<TRouter['routes'][K]['output']>;
+          args: Simplify<inferClientResolverArgs<TRouter['routes'][K]['args']>>;
+          output: Simplify<
+            inferClientResolverOutput<TRouter['routes'][K]['output']>
+          >;
         }
       >
     : never;

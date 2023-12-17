@@ -9,16 +9,8 @@ const client = createProxyClient<BaseRouter>({
 
 client.greetings
   .query({
-    a: 1,
-    b: {
-      a: 2,
-      b: [
-        {
-          a: 1,
-          b: '',
-        },
-      ],
-    },
+    firstName: '',
+    lastName: '',
   })
   .then((response) => {
     console.log(response);

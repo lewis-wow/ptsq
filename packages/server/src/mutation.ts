@@ -1,9 +1,5 @@
 import type { AnyMiddleware } from './middleware';
-import type {
-  AnyResolveFunction,
-  ResolverSchemaArgs,
-  ResolverSchemaOutput,
-} from './resolver';
+import type { AnyResolveFunction, ResolverSchema } from './resolver';
 import { Route } from './route';
 import type { AnyTransformation } from './transformation';
 
@@ -25,8 +21,8 @@ export class Mutation<
   TDescription
 > {
   constructor(options: {
-    schemaArgs: ResolverSchemaArgs | undefined;
-    schemaOutput: ResolverSchemaOutput;
+    schemaArgs: ResolverSchema | undefined;
+    schemaOutput: ResolverSchema;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];

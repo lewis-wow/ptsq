@@ -15,21 +15,7 @@ const { router, resolver, serve } = createServer({
 
 const tes = resolver
   .description('Tahle routa uploadne obrazek')
-  .args(
-    Type.Object({
-      firstName: Type.String(),
-    }),
-  )
-  .transformation({
-    firstName: (input) => input.length,
-  })
-  .args(
-    Type.Object({
-      lastName: Type.String(),
-    }),
-  )
-  .output(Type.Undefined())
-  .query(({ input: _input }) => undefined);
+  .query(({ input: _input }) => ({}));
 
 const baseRouter = router({
   greetings: tes,

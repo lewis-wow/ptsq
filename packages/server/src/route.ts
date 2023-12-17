@@ -9,11 +9,7 @@ import {
   type MiddlewareMeta,
 } from './middleware';
 import type { AnyMiddleware, AnyRawMiddlewareReponse } from './middleware';
-import type {
-  AnyResolveFunction,
-  ResolverSchemaArgs,
-  ResolverSchemaOutput,
-} from './resolver';
+import type { AnyResolveFunction, ResolverSchema } from './resolver';
 import type { AnyTransformation } from './transformation';
 import type { ResolverType } from './types';
 
@@ -35,8 +31,8 @@ export class Route<
   output: TOutput = {} as TOutput;
 
   type: TType;
-  schemaArgs: ResolverSchemaArgs | undefined;
-  schemaOutput: ResolverSchemaOutput;
+  schemaArgs: ResolverSchema | undefined;
+  schemaOutput: ResolverSchema;
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
   middlewares: AnyMiddleware[];
@@ -45,8 +41,8 @@ export class Route<
 
   constructor(options: {
     type: TType;
-    schemaArgs: ResolverSchemaArgs | undefined;
-    schemaOutput: ResolverSchemaOutput;
+    schemaArgs: ResolverSchema | undefined;
+    schemaOutput: ResolverSchema;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];
