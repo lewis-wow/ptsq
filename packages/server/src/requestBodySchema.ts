@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { serializableZodSchema } from './serializable';
 
 /**
  * @internal
@@ -18,6 +17,6 @@ export const requestBodySchema = z
         return segments.length > 0 && hasRoute.length === segments.length;
       }),
     type: z.enum(['query', 'mutation']),
-    input: serializableZodSchema.optional(),
+    input: z.any().optional(),
   })
   .strict();

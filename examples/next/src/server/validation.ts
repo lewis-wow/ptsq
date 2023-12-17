@@ -1,31 +1,65 @@
-import { z } from 'zod';
+import { Type } from '@sinclair/typebox';
 
-export const UserSchema = z.object({
-  id: z.string().cuid(),
-  email: z.string(),
-  name: z.string().nullable(),
+export const UserSchema = Type.Object({
+  id: Type.String(),
+  email: Type.String({
+    format: 'email',
+  }),
+  name: Type.Union([Type.String(), Type.Null()]),
 });
 
-export const createUserSchema = z.object({
-  name: z.string().min(4),
-  email: z.string().email(),
-});
+export const createUserSchema = Type.Object(
+  {
+    name: Type.String({
+      minLength: 4,
+    }),
+    email: Type.String({
+      format: 'email',
+    }),
+  },
+  {
+    additionalProperties: false,
+  },
+);
 
-export const deleteUserSchema = z.object({
-  id: z.string().cuid(),
-});
+export const deleteUserSchema = Type.Object(
+  {
+    id: Type.String(),
+  },
+  {
+    additionalProperties: false,
+  },
+);
 
-export const updateUserSchema = z.object({
-  id: z.string().cuid(),
-  name: z.string().min(4),
-});
+export const updateUserSchema = Type.Object(
+  {
+    id: Type.String(),
+    name: Type.String({
+      minLength: 4,
+    }),
+  },
+  {
+    additionalProperties: false,
+  },
+);
 
-export const getUserSchema = z.object({
-  id: z.string().cuid(),
-});
+export const getUserSchema = Type.Object(
+  {
+    id: Type.String(),
+  },
+  {
+    additionalProperties: false,
+  },
+);
 
-export const listUsersSchema = z
-  .object({
-    name: z.string().optional(),
-  })
-  .optional();
+export const listUsersSchema = Type.Union([
+  Type.Undefined(),
+  Type.Object(
+    {
+      name: Type.Optional(Type.String()),
+    },
+    {
+      additionalProperties: false,
+    },
+  ),
+]);
