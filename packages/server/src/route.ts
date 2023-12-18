@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox';
+import { Type, type TSchema } from '@sinclair/typebox';
 import { safeParseArgs } from './args';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
@@ -9,7 +9,7 @@ import {
   type MiddlewareMeta,
 } from './middleware';
 import type { AnyMiddleware, AnyRawMiddlewareReponse } from './middleware';
-import type { AnyResolveFunction, ResolverSchema } from './resolver';
+import type { AnyResolveFunction } from './resolver';
 import type { AnyTransformation } from './transformation';
 import type { ResolverType } from './types';
 
@@ -22,17 +22,14 @@ import type { ResolverType } from './types';
  */
 export class Route<
   TType extends ResolverType,
-  TArgsInput,
-  TOutput,
+  TArgsSchema extends TSchema | undefined,
+  TOutputSchema extends TSchema,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
 > {
-  args: TArgsInput = {} as TArgsInput;
-  output: TOutput = {} as TOutput;
-
   type: TType;
-  schemaArgs: ResolverSchema | undefined;
-  schemaOutput: ResolverSchema;
+  schemaArgs: TArgsSchema;
+  schemaOutput: TOutputSchema;
   resolveFunction: TResolveFunction;
   nodeType: 'route' = 'route' as const;
   middlewares: AnyMiddleware[];
@@ -41,8 +38,8 @@ export class Route<
 
   constructor(options: {
     type: TType;
-    schemaArgs: ResolverSchema | undefined;
-    schemaOutput: ResolverSchema;
+    schemaArgs: TArgsSchema;
+    schemaOutput: TOutputSchema;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];
@@ -62,9 +59,8 @@ export class Route<
    *
    * Gets the json schema of the route for the introspection query
    */
-  getJsonSchema(title: string) {
+  getJsonSchema() {
     return createSchemaRoot({
-      title: `${title} route`,
       properties: {
         type: {
           type: 'string',

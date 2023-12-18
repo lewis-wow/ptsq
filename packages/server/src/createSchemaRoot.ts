@@ -1,5 +1,3 @@
-import pascalcase from 'pascalcase';
-
 /**
  * @internal
  */
@@ -15,11 +13,9 @@ type CreateSchemaRootArgs = {
  * TODO: better pascalcase title approach!
  */
 export const createSchemaRoot = ({
-  title,
   properties,
 }: CreateSchemaRootArgs): SchemaRoot => {
   const schemaRoot: SchemaRoot = {
-    title: title ? pascalcase(title) : undefined,
     type: 'object',
     additionalProperties: false,
     properties,

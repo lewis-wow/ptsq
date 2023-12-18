@@ -1,5 +1,6 @@
+import type { TSchema } from '@sinclair/typebox';
 import type { AnyMiddleware } from './middleware';
-import type { AnyResolveFunction, ResolverSchema } from './resolver';
+import type { AnyResolveFunction } from './resolver';
 import { Route } from './route';
 import type { AnyTransformation } from './transformation';
 
@@ -9,14 +10,20 @@ import type { AnyTransformation } from './transformation';
  * Query class container
  */
 export class Query<
-  TArgsInput,
-  TOutput,
+  TArgsSchema extends TSchema | undefined,
+  TOutputSchema extends TSchema,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
-> extends Route<'query', TArgsInput, TOutput, TResolveFunction, TDescription> {
+> extends Route<
+  'query',
+  TArgsSchema,
+  TOutputSchema,
+  TResolveFunction,
+  TDescription
+> {
   constructor(options: {
-    schemaArgs: ResolverSchema | undefined;
-    schemaOutput: ResolverSchema;
+    schemaArgs: TArgsSchema;
+    schemaOutput: TOutputSchema;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     transformations: AnyTransformation[];

@@ -13,8 +13,8 @@ import type { ClientQuery } from './clientQuery';
 export type ClientRoute<TType extends ResolverType> = {
   nodeType: 'route';
   type: TType;
-  args?: any;
-  output: any;
+  schemaArgs?: any;
+  schemaOutput: any;
   description?: string;
 };
 
@@ -42,9 +42,11 @@ export type Client<TRouter extends ClientRouter> = {
     ? ClientQuery<
         TRouter['routes'][K]['description'],
         {
-          args: Simplify<inferClientResolverArgs<TRouter['routes'][K]['args']>>;
+          args: Simplify<
+            inferClientResolverArgs<TRouter['routes'][K]['schemaArgs']>
+          >;
           output: Simplify<
-            inferClientResolverOutput<TRouter['routes'][K]['output']>
+            inferClientResolverOutput<TRouter['routes'][K]['schemaOutput']>
           >;
         }
       >
@@ -52,9 +54,11 @@ export type Client<TRouter extends ClientRouter> = {
     ? ClientMutation<
         TRouter['routes'][K]['description'],
         {
-          args: Simplify<inferClientResolverArgs<TRouter['routes'][K]['args']>>;
+          args: Simplify<
+            inferClientResolverArgs<TRouter['routes'][K]['schemaArgs']>
+          >;
           output: Simplify<
-            inferClientResolverOutput<TRouter['routes'][K]['output']>
+            inferClientResolverOutput<TRouter['routes'][K]['schemaOutput']>
           >;
         }
       >

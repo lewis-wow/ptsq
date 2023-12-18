@@ -25,7 +25,7 @@ import {
   type ArgsTransformationObject,
   type inferArgsTransformationNextArgs,
 } from './transformation';
-import type { DeepMerge, MaybePromise, Simplify } from './types';
+import type { DeepMerge, ErrorMessage, MaybePromise, Simplify } from './types';
 
 export type ResolverSchema = TSchema;
 
@@ -351,17 +351,15 @@ export class Resolver<
    * The output must be specified before using mutation
    */
   mutation(
-    resolve: TOutputSchema extends TSchema
-      ? ResolveFunction<Simplify<TArgs>, TOutput, TContext>
-      : never,
-  ): Mutation<
-    TArgsSchema,
-    TOutputSchema,
-    TOutputSchema extends TSchema
-      ? ResolveFunction<Simplify<TArgs>, TOutput, TContext>
-      : never,
-    TDescription
-  > {
+    resolve: ResolveFunction<Simplify<TArgs>, TOutput, TContext>,
+  ): TOutputSchema extends TSchema
+    ? Mutation<
+        TArgsSchema,
+        TOutputSchema,
+        ResolveFunction<Simplify<TArgs>, TOutput, TContext>,
+        TDescription
+      >
+    : ErrorMessage<`Mutation cannot be used without output schema.`> {
     if (this._schemaOutput === undefined) throw new TypeError();
 
     return new Mutation({
@@ -371,7 +369,14 @@ export class Resolver<
       middlewares: this._middlewares,
       transformations: this._transformations,
       description: this._description,
-    });
+    }) as TOutputSchema extends TSchema
+      ? Mutation<
+          TArgsSchema,
+          TOutputSchema,
+          ResolveFunction<Simplify<TArgs>, TOutput, TContext>,
+          TDescription
+        >
+      : ErrorMessage<`Mutation cannot be used without output schema.`>;
   }
 
   /**
@@ -380,17 +385,17 @@ export class Resolver<
    * The output must be specified before using query
    */
   query(
-    resolve: TOutputSchema extends TSchema
-      ? ResolveFunction<Simplify<TArgs>, TOutput, TContext>
-      : never,
-  ): Query<
-    TArgsSchema,
-    TOutputSchema,
-    TOutputSchema extends TSchema
-      ? ResolveFunction<Simplify<TArgs>, TOutput, TContext>
-      : never,
-    TDescription
-  > {
+    resolve: ResolveFunction<Simplify<TArgs>, TOutput, TContext>,
+  ): TOutputSchema extends TSchema
+    ? Query<
+        TArgsSchema,
+        TOutputSchema,
+        TOutputSchema extends TSchema
+          ? ResolveFunction<Simplify<TArgs>, TOutput, TContext>
+          : never,
+        TDescription
+      >
+    : ErrorMessage<`Query cannot be used without output schema.`> {
     if (this._schemaOutput === undefined) throw new TypeError();
 
     return new Query({
@@ -400,7 +405,16 @@ export class Resolver<
       middlewares: this._middlewares,
       transformations: this._transformations,
       description: this._description,
-    });
+    }) as TOutputSchema extends TSchema
+      ? Query<
+          TArgsSchema,
+          TOutputSchema,
+          TOutputSchema extends TSchema
+            ? ResolveFunction<Simplify<TArgs>, TOutput, TContext>
+            : never,
+          TDescription
+        >
+      : ErrorMessage<`Query cannot be used without output schema.`>;
   }
 }
 
