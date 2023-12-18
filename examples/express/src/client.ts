@@ -10,7 +10,6 @@ const client = createProxyClient<BaseRouter>({
 client.greetings
   .query({
     firstName: '',
-    lastName: '',
   })
   .then((response) => {
     console.log(response);

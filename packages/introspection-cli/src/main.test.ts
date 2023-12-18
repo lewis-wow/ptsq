@@ -1,7 +1,7 @@
 import { createTestHttpServer } from '@ptsq/test-utils';
+import { Type } from '@sinclair/typebox';
 import axios from 'axios';
 import { expect, test } from 'vitest';
-import { z } from 'zod';
 
 test('Should instropectate simple http server', async () => {
   await createTestHttpServer({
@@ -10,11 +10,11 @@ test('Should instropectate simple http server', async () => {
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
-          .output(z.string())
+          .output(Type.String())
           .query(({ input }) => input.name),
       });
     },
@@ -98,7 +98,7 @@ test('Should instropectate simple http server with empty query', async () => {
     ctx: () => ({}),
     server: ({ resolver, router }) => {
       return router({
-        test: resolver.output(z.null()).query(() => null),
+        test: resolver.output(Type.Null()).query(() => null),
       });
     },
     client: async (serverUrl) => {
@@ -178,7 +178,7 @@ test('Should instropectate simple http server with nested routers', async () => 
               test: router({
                 test: router({
                   test: router({
-                    test: resolver.output(z.null()).query(() => null),
+                    test: resolver.output(Type.Null()).query(() => null),
                   }),
                 }),
               }),

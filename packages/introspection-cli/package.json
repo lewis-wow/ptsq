@@ -41,6 +41,7 @@
     "!**/*.test.*"
   ],
   "devDependencies": {
+    "@sinclair/typebox": "^0.31.28",
     "@types/node": "^20.7.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
