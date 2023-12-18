@@ -13,18 +13,18 @@ const { router, resolver, serve } = createServer({
   ctx: createContext,
 });
 
-const tes = resolver
-  .description('Tahle routa uploadne obrazek')
+const greetings = resolver
+  .description('This query response with greetings')
   .args(
     Type.Object({
       firstName: Type.String(),
     }),
   )
-  .output(Type.String())
-  .query(({ input: _input }) => '');
+  .output(Type.TemplateLiteral('Hello, ${string}!'))
+  .query(({ input }) => `Hello, ${input.firstName}!`);
 
 const baseRouter = router({
-  greetings: tes,
+  greetings: greetings,
 });
 
 app.use((req, res) => serve(baseRouter)(req, res));
