@@ -1,15 +1,10 @@
 {
   "index": "Introduction",
-  "another": "Another Page",
-  "advanced": "Advanced (A Folder)",
-  "about": {
-    "title": "About",
-    "type": "page"
-  },
-  "contact": {
-    "title": "Contact ↗",
-    "type": "page",
-    "href": "https://twitter.com/shuding_",
-    "newWindow": true
-  }
+  "installation": "Installation",
+  "server": "Server",
+  "client": "Client",
+  "introspection": "Introspection",
+  "integration": "Integration",
+  "examples": "Examples",
+  "comparison": "Comparison"
 }

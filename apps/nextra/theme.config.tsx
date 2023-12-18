@@ -1,18 +1,21 @@
-import React from 'react'
-import { DocsThemeConfig } from 'nextra-theme-docs'
+import { DocsThemeConfig } from 'nextra-theme-docs';
+import React from 'react';
 
 const config: DocsThemeConfig = {
-  logo: <span>My Project</span>,
+  logo: <span>ptsq</span>,
   project: {
-    link: 'https://github.com/shuding/nextra-docs-template',
+    link: 'https://github.com/lewis-wow/ptsq',
   },
-  chat: {
-    link: 'https://discord.com',
-  },
-  docsRepositoryBase: 'https://github.com/shuding/nextra-docs-template',
+  docsRepositoryBase:
+    'https://github.com/lewis-wow/ptsq/tree/master/apps/nextra',
   footer: {
-    text: 'Nextra Docs Template',
+    text: 'ptsq MIT',
   },
-}
+  useNextSeoProps() {
+    return {
+      titleTemplate: '%s – ptsq',
+    };
+  },
+};
 
-export default config
+export default config;

@@ -1,0 +1,13 @@
+{
+  "query": "Query",
+  "mutation": "Mutation",
+  "router": "Router",
+  "context": "Context",
+  "middlewares": "Middlewares",
+  "args-chaining": "Args chaining",
+  "output-chaining": "Output chaining",
+  "args-transformations": "Args transformations",
+  "errors": "Errors",
+  "cors": "Cors",
+  "server-options": "Server options"
+}
