@@ -347,14 +347,14 @@ test('Should create query with optional args chain', async () => {
     Type.Object({
       firstName: Type.Optional(Type.String()),
     }),
-    Type.Null(),
+    Type.Undefined(),
   ]);
 
   const secondSchemaInArgumentChain = Type.Union([
     Type.Object({
       lastName: Type.Optional(Type.String()),
     }),
-    Type.Null(),
+    Type.Undefined(),
   ]);
 
   const outputSchema = Type.String();
@@ -363,7 +363,7 @@ test('Should create query with optional args chain', async () => {
     input,
     ctx,
   }: {
-    input: { firstName?: string; lastName?: string } | null;
+    input?: { firstName?: string; lastName?: string };
     ctx: { greetingsPrefix: 'Hello' };
   }) =>
     `${ctx.greetingsPrefix} ${input?.firstName ?? 'UNDEFINED'} ${

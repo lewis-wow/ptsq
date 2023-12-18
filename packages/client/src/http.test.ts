@@ -227,7 +227,6 @@ test('Should introspectate the server with http adapter', async () => {
                       "type": "string",
                     },
                     "schemaArgs": {
-                      "additionalProperties": false,
                       "properties": {
                         "name": {
                           "type": "string",

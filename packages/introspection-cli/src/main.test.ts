@@ -44,7 +44,6 @@ test('Should instropectate simple http server', async () => {
                       "type": "string",
                     },
                     "schemaArgs": {
-                      "additionalProperties": false,
                       "properties": {
                         "name": {
                           "type": "string",
@@ -125,9 +124,6 @@ test('Should instropectate simple http server with empty query', async () => {
                         "route",
                       ],
                       "type": "string",
-                    },
-                    "schemaArgs": {
-                      "not": {},
                     },
                     "schemaOutput": {
                       "type": "null",
@@ -283,9 +279,6 @@ test('Should instropectate simple http server with nested routers', async () => 
                                                                         "route",
                                                                       ],
                                                                       "type": "string",
-                                                                    },
-                                                                    "schemaArgs": {
-                                                                      "not": {},
                                                                     },
                                                                     "schemaOutput": {
                                                                       "type": "null",
