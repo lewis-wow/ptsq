@@ -65,20 +65,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * });
    * ```
    */
-  const resolver = new Resolver<
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    RootContext,
-    undefined
-  >({
-    schemaArgs: undefined,
-    schemaOutput: undefined,
-    middlewares: [],
-    transformations: [],
-    outputTransformations: [],
-  });
+  const resolver = Resolver.createRoot<RootContext>();
 
   /**
    * Creates a fully typed router

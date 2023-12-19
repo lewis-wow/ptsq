@@ -1,4 +1,4 @@
-import { createServer } from '@ptsq/server';
+import { createServer, Resolver } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 import express, { Request, Response } from 'express';
 
@@ -9,9 +9,23 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => ({
   res,
 });
 
+const resolverX = Resolver.createRoot<{ req: Request }>().args(
+  Type.Object({
+    a: Type.String(),
+  }),
+);
+
 const { router, resolver, serve } = createServer({
   ctx: createContext,
 });
+
+const test = resolver
+  .args(
+    Type.Object({
+      b: Type.String(),
+    }),
+  )
+  .merge(resolverX);
 
 const greetings = resolver
   .description('This query response with greetings')

@@ -13,19 +13,10 @@ import {
   type MiddlewareMeta,
 } from './middleware';
 import { Mutation } from './mutation';
-import type {
-  inferOutputTransformationNextOutput,
-  OutputTransformationObject,
-} from './outputTransformation';
 import { Query } from './query';
 import type { SerializableSchema } from './serializable';
-import {
-  createRecursiveTransformation,
-  type AnyTransformation,
-  type ArgsTransformationObject,
-  type inferArgsTransformationNextArgs,
-} from './transformation';
-import type { DeepMerge, ErrorMessage, MaybePromise, Simplify } from './types';
+import { type AnyTransformation } from './transformation';
+import type { ErrorMessage, MaybePromise, Simplify } from './types';
 
 export type ResolverSchema = TSchema;
 
@@ -38,13 +29,14 @@ export type inferResolverOutput<TResolverOutput> =
     ? Static<TResolverOutput>
     : TResolverOutput;
 
+type inferStatic<TTypeBoxSchema extends TSchema | undefined> =
+  TTypeBoxSchema extends TSchema ? Static<TTypeBoxSchema> : undefined;
+
 /**
  * Resolver allows you to create queries, mutations and middlewares
  */
 export class Resolver<
-  TArgs,
   TArgsSchema extends TSchema | undefined,
-  TOutput,
   TOutputSchema extends TSchema | undefined,
   TContext extends Context,
   TDescription extends string | undefined,
@@ -55,6 +47,7 @@ export class Resolver<
   _schemaArgs: TArgsSchema;
   _schemaOutput: TOutputSchema;
   _description: TDescription;
+  _context: TContext = {} as TContext;
 
   constructor(resolverOptions: {
     schemaArgs: TArgsSchema;
@@ -74,21 +67,16 @@ export class Resolver<
   }
 
   description<TNextDescription extends string>(description: TNextDescription) {
-    return new Resolver<
-      TArgs,
-      TArgsSchema,
-      TOutput,
-      TOutputSchema,
-      TContext,
-      TNextDescription
-    >({
-      schemaArgs: this._schemaArgs,
-      schemaOutput: this._schemaOutput,
-      transformations: [...this._transformations],
-      outputTransformations: [...this._outputTransformations],
-      middlewares: [...this._middlewares],
-      description: description,
-    });
+    return new Resolver<TArgsSchema, TOutputSchema, TContext, TNextDescription>(
+      {
+        schemaArgs: this._schemaArgs,
+        schemaOutput: this._schemaOutput,
+        transformations: [...this._transformations],
+        outputTransformations: [...this._outputTransformations],
+        middlewares: [...this._middlewares],
+        description: description,
+      },
+    );
   }
 
   /**
@@ -109,28 +97,85 @@ export class Resolver<
    * ```
    */
   use<TNextContext extends Context>(
-    middleware: MiddlewareFunction<TArgs, TContext, TNextContext>,
+    middleware: MiddlewareFunction<
+      inferStatic<TArgsSchema>,
+      TContext,
+      TNextContext
+    >,
   ) {
+    return new Resolver<TArgsSchema, TOutputSchema, TNextContext, TDescription>(
+      {
+        schemaArgs: this._schemaArgs,
+        schemaOutput: this._schemaOutput,
+        transformations: [...this._transformations],
+        outputTransformations: [...this._outputTransformations],
+        middlewares: [
+          ...this._middlewares,
+          new Middleware({
+            schemaArgs: this._schemaArgs,
+            transformations: [...this._transformations],
+            middlewareFunction: middleware,
+          }),
+        ] as AnyMiddleware[],
+      },
+    );
+  }
+
+  merge<
+    TResolver extends Resolver<
+      TSchema | undefined,
+      TSchema | undefined,
+      any,
+      string | undefined
+    >,
+  >(
+    resolver: TContext extends TResolver['_context']
+      ? TResolver
+      : ErrorMessage<`The context have to extends the context of the merged resolver.`>,
+  ) {
+    if (typeof resolver === 'string') throw new TypeError();
+
+    const nextArgsSchema =
+      this._schemaArgs === undefined && resolver._schemaArgs === undefined
+        ? undefined
+        : this._schemaArgs === undefined
+        ? resolver._schemaArgs
+        : resolver._schemaArgs === undefined
+        ? this._schemaArgs
+        : Type.Intersect([this._schemaArgs, resolver._schemaArgs]);
+
+    type NextArgsSchema = TArgsSchema extends TSchema
+      ? TResolver['_schemaArgs'] extends TSchema
+        ? TIntersect<[TArgsSchema, TResolver['_schemaArgs']]>
+        : TArgsSchema
+      : TResolver['_schemaArgs'];
+
+    const nextOutputSchema =
+      this._schemaOutput === undefined && resolver._schemaOutput === undefined
+        ? undefined
+        : this._schemaOutput === undefined
+        ? resolver._schemaOutput
+        : resolver._schemaOutput === undefined
+        ? this._schemaOutput
+        : Type.Intersect([this._schemaOutput, resolver._schemaOutput]);
+
+    type NextOutputSchema = TArgsSchema extends TSchema
+      ? TResolver['_schemaOutput'] extends TSchema
+        ? TIntersect<[TArgsSchema, TResolver['_schemaOutput']]>
+        : TArgsSchema
+      : TResolver['_schemaOutput'];
+
     return new Resolver<
-      TArgs,
-      TArgsSchema,
-      TOutput,
-      TOutputSchema,
-      TNextContext,
+      NextArgsSchema,
+      NextOutputSchema,
+      TContext,
       TDescription
     >({
-      schemaArgs: this._schemaArgs,
-      schemaOutput: this._schemaOutput,
+      schemaArgs: nextArgsSchema as NextArgsSchema,
+      schemaOutput: nextOutputSchema as NextOutputSchema,
       transformations: [...this._transformations],
       outputTransformations: [...this._outputTransformations],
-      middlewares: [
-        ...this._middlewares,
-        new Middleware({
-          schemaArgs: this._schemaArgs,
-          transformations: [...this._transformations],
-          middlewareFunction: middleware,
-        }),
-      ] as AnyMiddleware[],
+      middlewares: [...this._middlewares, ...resolver._middlewares],
     });
   }
 
@@ -150,86 +195,13 @@ export class Resolver<
    */
   args<TNextSchemaArgs extends ResolverSchema>(
     nextSchemaArgs: SerializableSchema<TNextSchemaArgs>,
-  ): Resolver<
-    TArgs extends undefined
-      ? Static<
-          TArgsSchema extends TSchema
-            ? TIntersect<[TArgsSchema, TNextSchemaArgs]>
-            : TNextSchemaArgs
-        >
-      : DeepMerge<
-          Static<
-            TArgsSchema extends TSchema
-              ? TIntersect<[TArgsSchema, TNextSchemaArgs]>
-              : TNextSchemaArgs
-          >,
-          TArgs
-        >,
-    TArgsSchema extends TSchema
-      ? TIntersect<[TArgsSchema, TNextSchemaArgs]>
-      : TNextSchemaArgs,
-    TOutput,
-    TOutputSchema,
-    TContext,
-    TDescription
-  >;
-
-  args<
-    TNextSchemaArgs extends ResolverSchema,
-    TArgsTransformationObject extends ArgsTransformationObject<
-      Static<TNextSchemaArgs>
-    >,
-    NextSchema = TArgsSchema extends TSchema
-      ? TIntersect<[TArgsSchema, TNextSchemaArgs]>
-      : TNextSchemaArgs,
-    NextArgs = TArgs extends undefined
-      ? NextSchema extends TSchema
-        ? Static<NextSchema>
-        : never
-      : NextSchema extends TSchema
-      ? DeepMerge<Static<NextSchema>, TArgs>
-      : never,
-  >(
-    nextSchemaArgs: SerializableSchema<TNextSchemaArgs>,
-    argsTransformationObject: TArgsTransformationObject,
-  ): Resolver<
-    TArgsTransformationObject extends ArgsTransformationObject<
-      Static<TNextSchemaArgs>
-    >
-      ? inferArgsTransformationNextArgs<NextArgs, TArgsTransformationObject>
-      : NextArgs,
-    TArgsSchema extends TSchema
-      ? TIntersect<[TArgsSchema, TNextSchemaArgs]>
-      : TNextSchemaArgs,
-    TOutput,
-    TOutputSchema,
-    TContext,
-    TDescription
-  >;
-
-  args<
-    TNextSchemaArgs extends ResolverSchema,
-    TArgsTransformationObject extends ArgsTransformationObject<
-      Static<TNextSchemaArgs>
-    >,
-  >(
-    nextSchemaArgs: SerializableSchema<TNextSchemaArgs>,
-    argsTransformationObject?: TArgsTransformationObject,
   ) {
     if (typeof nextSchemaArgs === 'string')
       throw new TypeError(
         `The args schema cannot be string and must be serializable.`,
       );
 
-    const transformationFunction = argsTransformationObject
-      ? (input: unknown) =>
-          createRecursiveTransformation({
-            input,
-            argsTransformationObject,
-          })
-      : undefined;
-
-    type NextSchema = TArgsSchema extends TSchema
+    type NextArgsSchema = TArgsSchema extends TSchema
       ? TIntersect<[TArgsSchema, TNextSchemaArgs]>
       : TNextSchemaArgs;
 
@@ -238,31 +210,10 @@ export class Resolver<
         ? nextSchemaArgs
         : Type.Intersect([this._schemaArgs, nextSchemaArgs]);
 
-    type NextArgs = TArgs extends undefined
-      ? Static<NextSchema>
-      : DeepMerge<Static<NextSchema>, TArgs>;
-
-    type NextArgsWithTransformation =
-      TArgsTransformationObject extends ArgsTransformationObject<
-        Static<TNextSchemaArgs>
-      >
-        ? inferArgsTransformationNextArgs<NextArgs, TArgsTransformationObject>
-        : NextArgs;
-
-    return new Resolver<
-      NextArgsWithTransformation,
-      NextSchema,
-      TOutput,
-      TOutputSchema,
-      TContext,
-      TDescription
-    >({
-      schemaArgs: nextArgsSchema as NextSchema,
+    return new Resolver<NextArgsSchema, TOutputSchema, TContext, TDescription>({
+      schemaArgs: nextArgsSchema as NextArgsSchema,
       schemaOutput: this._schemaOutput,
-      transformations:
-        transformationFunction === undefined
-          ? [...this._transformations]
-          : [...this._transformations, transformationFunction],
+      transformations: [],
       outputTransformations: [...this._outputTransformations],
       middlewares: [...this._middlewares],
     });
@@ -281,27 +232,13 @@ export class Resolver<
    * .query(...)
    * ```
    */
-  output<
-    TNextSchemaOutput extends ResolverSchema,
-    TOutputTransformationObject extends
-      | OutputTransformationObject<Static<TNextSchemaOutput>>
-      | undefined = undefined,
-  >(
+  output<TNextSchemaOutput extends ResolverSchema>(
     nextSchemaOutput: SerializableSchema<TNextSchemaOutput>,
-    outputTransformationObject?: TOutputTransformationObject,
   ) {
     if (typeof nextSchemaOutput === 'string')
       throw new TypeError(
         `The output schema cannot be string and must be serializable.`,
       );
-
-    const transformationFunction = outputTransformationObject
-      ? (input: unknown) =>
-          createRecursiveTransformation({
-            input,
-            argsTransformationObject: outputTransformationObject,
-          })
-      : undefined;
 
     type NextSchemaOutput = TOutputSchema extends TSchema
       ? TIntersect<[TOutputSchema, TNextSchemaOutput]>
@@ -312,36 +249,12 @@ export class Resolver<
         ? nextSchemaOutput
         : Type.Intersect([this._schemaOutput, nextSchemaOutput]);
 
-    type NextOutput = TOutput extends undefined
-      ? Static<NextSchemaOutput>
-      : DeepMerge<Static<NextSchemaOutput>, TOutput>;
-
-    type NextOutputWithTransformation =
-      TOutputTransformationObject extends OutputTransformationObject<
-        Static<NextSchemaOutput>
-      >
-        ? inferOutputTransformationNextOutput<
-            NextOutput,
-            TOutputTransformationObject
-          >
-        : NextOutput;
-
-    return new Resolver<
-      TArgs,
-      TArgsSchema,
-      NextOutputWithTransformation,
-      NextSchemaOutput,
-      TContext,
-      TDescription
-    >({
+    return new Resolver<TArgsSchema, NextSchemaOutput, TContext, TDescription>({
       schemaArgs: this._schemaArgs,
       schemaOutput: nextOutputSchema as NextSchemaOutput,
       middlewares: this._middlewares,
       transformations: [...this._transformations],
-      outputTransformations:
-        transformationFunction === undefined
-          ? [...this._outputTransformations]
-          : [...this._outputTransformations, transformationFunction],
+      outputTransformations: [],
     });
   }
 
@@ -351,12 +264,20 @@ export class Resolver<
    * The output must be specified before using mutation
    */
   mutation(
-    resolve: ResolveFunction<Simplify<TArgs>, TOutput, TContext>,
+    resolve: ResolveFunction<
+      Simplify<inferStatic<TArgsSchema>>,
+      inferStatic<TOutputSchema>,
+      TContext
+    >,
   ): TOutputSchema extends TSchema
     ? Mutation<
         TArgsSchema,
         TOutputSchema,
-        ResolveFunction<Simplify<TArgs>, TOutput, TContext>,
+        ResolveFunction<
+          Simplify<inferStatic<TArgsSchema>>,
+          inferStatic<TOutputSchema>,
+          TContext
+        >,
         TDescription
       >
     : ErrorMessage<`Mutation cannot be used without output schema.`> {
@@ -373,7 +294,11 @@ export class Resolver<
       ? Mutation<
           TArgsSchema,
           TOutputSchema,
-          ResolveFunction<Simplify<TArgs>, TOutput, TContext>,
+          ResolveFunction<
+            Simplify<inferStatic<TArgsSchema>>,
+            inferStatic<TOutputSchema>,
+            TContext
+          >,
           TDescription
         >
       : ErrorMessage<`Mutation cannot be used without output schema.`>;
@@ -385,13 +310,21 @@ export class Resolver<
    * The output must be specified before using query
    */
   query(
-    resolve: ResolveFunction<Simplify<TArgs>, TOutput, TContext>,
+    resolve: ResolveFunction<
+      Simplify<inferStatic<TArgsSchema>>,
+      inferStatic<TOutputSchema>,
+      TContext
+    >,
   ): TOutputSchema extends TSchema
     ? Query<
         TArgsSchema,
         TOutputSchema,
         TOutputSchema extends TSchema
-          ? ResolveFunction<Simplify<TArgs>, TOutput, TContext>
+          ? ResolveFunction<
+              Simplify<inferStatic<TArgsSchema>>,
+              inferStatic<TOutputSchema>,
+              TContext
+            >
           : never,
         TDescription
       >
@@ -410,11 +343,25 @@ export class Resolver<
           TArgsSchema,
           TOutputSchema,
           TOutputSchema extends TSchema
-            ? ResolveFunction<Simplify<TArgs>, TOutput, TContext>
+            ? ResolveFunction<
+                Simplify<inferStatic<TArgsSchema>>,
+                inferStatic<TOutputSchema>,
+                TContext
+              >
             : never,
           TDescription
         >
       : ErrorMessage<`Query cannot be used without output schema.`>;
+  }
+
+  static createRoot<TContext extends Context>() {
+    return new Resolver<undefined, undefined, TContext, undefined>({
+      schemaArgs: undefined,
+      schemaOutput: undefined,
+      transformations: [],
+      outputTransformations: [],
+      middlewares: [],
+    });
   }
 }
 
