@@ -1,12 +1,7 @@
 export { createServer } from './createServer';
 export { HTTPError } from './httpError';
 
-export {
-  Resolver,
-  type inferResolverOutput,
-  type inferResolverArgs,
-  type ResolveFunction,
-} from './resolver';
+export { Resolver, type ResolveFunction } from './resolver';
 
 export { Middleware, type AnyMiddleware } from './middleware';
 export type { Query, AnyQuery } from './query';

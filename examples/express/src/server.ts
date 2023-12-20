@@ -1,44 +1,29 @@
-import { createServer, Resolver } from '@ptsq/server';
+import { createServer } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 import express, { Request, Response } from 'express';
 
 const app = express();
 
-const createContext = ({ req, res }: { req: Request; res: Response }) => ({
-  req,
-  res,
-});
-
-const resolverX = Resolver.createRoot<{ req: Request }>().args(
-  Type.Object({
-    a: Type.String(),
-  }),
-);
+const createContext = ({ req, res }: { req: Request; res: Response }) => {
+  const user = 'user' as 'user' | 'admin' | undefined;
+  return { req, res, user, test: { a: 1 } };
+};
 
 const { router, resolver, serve } = createServer({
   ctx: createContext,
 });
 
-const test = resolver
-  .args(
-    Type.Object({
-      b: Type.String(),
-    }),
-  )
-  .merge(resolverX);
+const dateSchema = Type.Transform(Type.String())
+  .Decode((arg) => new Date(arg))
+  .Encode((arg) => arg.toISOString());
 
-const greetings = resolver
-  .description('This query response with greetings')
-  .args(
-    Type.Object({
-      firstName: Type.String(),
-    }),
-  )
-  .output(Type.TemplateLiteral('Hello, ${string}!'))
-  .query(({ input }) => `Hello, ${input.firstName}!`);
+const test = resolver
+  .args(dateSchema)
+  .output(dateSchema)
+  .query(({ input }) => input);
 
 const baseRouter = router({
-  greetings: greetings,
+  greetings: test,
 });
 
 app.use((req, res) => serve(baseRouter)(req, res));

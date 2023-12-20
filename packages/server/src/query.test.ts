@@ -26,12 +26,15 @@ test('Should create query', async () => {
     .output(outputValidationSchema)
     .query(resolveFunction);
 
-  expect(query.nodeType).toBe('route');
-  expect(query.type).toBe('query');
-  expect(query.middlewares).toStrictEqual([]);
-  expect(query.schemaArgs).toStrictEqual(argsSchema);
-  expect(query.schemaOutput).toStrictEqual(outputValidationSchema);
-  expect(query.resolveFunction).toBe(resolveFunction);
+  expect(query._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'query',
+    middlewares: [],
+    argsSchema: argsSchema,
+    outputSchema: outputValidationSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await query.call({
@@ -62,7 +65,7 @@ test('Should create query', async () => {
     },
   });
 
-  expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(query.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
@@ -99,7 +102,6 @@ test('Should create query', async () => {
         "schemaArgs",
         "schemaOutput",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);
@@ -123,12 +125,15 @@ test('Should create query without args', async () => {
 
   const query = resolver.output(validationSchema).query(resolveFunction);
 
-  expect(query.nodeType).toBe('route');
-  expect(query.type).toBe('query');
-  expect(query.middlewares).toStrictEqual([]);
-  expect(query.schemaArgs).toBe(undefined);
-  expect(query.schemaOutput).toStrictEqual(validationSchema);
-  expect(query.resolveFunction).toBe(resolveFunction);
+  expect(query._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'query',
+    middlewares: [],
+    argsSchema: undefined,
+    outputSchema: validationSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await query.call({
@@ -156,7 +161,7 @@ test('Should create query without args', async () => {
     },
   });
 
-  expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(query.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
@@ -183,7 +188,6 @@ test('Should create query without args', async () => {
         "schemaArgs",
         "schemaOutput",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);
@@ -215,14 +219,18 @@ test('Should create query with twice chain', async () => {
     .output(outputSchema)
     .query(resolveFunction);
 
-  expect(query.nodeType).toBe('route');
-  expect(query.type).toBe('query');
-  expect(query.middlewares).toStrictEqual([]);
-  expect(query.schemaArgs).toStrictEqual(
-    Type.Intersect([firstSchemaInArgumentChain, secondSchemaInArgumentChain]),
-  );
-  expect(query.schemaOutput).toStrictEqual(outputSchema);
-  expect(query.resolveFunction).toBe(resolveFunction);
+  expect(query._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'query',
+    middlewares: [],
+    argsSchema: Type.Intersect([
+      firstSchemaInArgumentChain,
+      secondSchemaInArgumentChain,
+    ]),
+    outputSchema: outputSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await query.call({
@@ -277,7 +285,7 @@ test('Should create query with twice chain', async () => {
     },
   });
 
-  expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(query.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
@@ -330,7 +338,6 @@ test('Should create query with twice chain', async () => {
         "schemaArgs",
         "schemaOutput",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);
@@ -376,14 +383,18 @@ test('Should create query with optional args chain', async () => {
     .output(outputSchema)
     .query(resolveFunction);
 
-  expect(query.nodeType).toBe('route');
-  expect(query.type).toBe('query');
-  expect(query.middlewares).toStrictEqual([]);
-  expect(query.schemaArgs).toStrictEqual(
-    Type.Intersect([firstSchemaInArgumentChain, secondSchemaInArgumentChain]),
-  );
-  expect(query.schemaOutput).toStrictEqual(outputSchema);
-  expect(query.resolveFunction).toBe(resolveFunction);
+  expect(query._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'query',
+    middlewares: [],
+    argsSchema: Type.Intersect([
+      firstSchemaInArgumentChain,
+      secondSchemaInArgumentChain,
+    ]),
+    outputSchema: outputSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await query.call({
@@ -458,7 +469,7 @@ test('Should create query with optional args chain', async () => {
     },
   });
 
-  expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(query.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
@@ -518,7 +529,6 @@ test('Should create query with optional args chain', async () => {
         "schemaArgs",
         "schemaOutput",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);

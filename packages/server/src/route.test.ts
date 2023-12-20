@@ -15,20 +15,22 @@ test('Should create query route', async () => {
 
   const query = new Route({
     type: 'query',
-    schemaArgs: inputSchema,
-    schemaOutput: outputSchema,
+    argsSchema: inputSchema,
+    outputSchema: outputSchema,
     resolveFunction: resolveFunction,
     middlewares: [],
-    transformations: [],
     description: undefined,
   });
 
-  expect(query.nodeType).toBe('route');
-  expect(query.type).toBe('query');
-  expect(query.middlewares).toStrictEqual([]);
-  expect(query.schemaArgs).toStrictEqual(inputSchema);
-  expect(query.schemaOutput).toBe(outputSchema);
-  expect(query.resolveFunction).toBe(resolveFunction);
+  expect(query._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'query',
+    middlewares: [],
+    argsSchema: inputSchema,
+    outputSchema: outputSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await query.call({
@@ -43,7 +45,7 @@ test('Should create query route', async () => {
     },
   });
 
-  expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(query.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
@@ -80,7 +82,6 @@ test('Should create query route', async () => {
         "schemaArgs",
         "schemaOutput",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);
@@ -99,20 +100,22 @@ test('Should create mutation route', async () => {
 
   const mutation = new Route({
     type: 'mutation',
-    schemaArgs: inputSchema,
-    schemaOutput: outputSchema,
+    argsSchema: inputSchema,
+    outputSchema: outputSchema,
     resolveFunction: resolveFunction,
     middlewares: [],
-    transformations: [],
     description: undefined,
   });
 
-  expect(mutation.nodeType).toBe('route');
-  expect(mutation.type).toBe('mutation');
-  expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.schemaArgs).toStrictEqual(inputSchema);
-  expect(mutation.schemaOutput).toBe(outputSchema);
-  expect(mutation.resolveFunction).toBe(resolveFunction);
+  expect(mutation._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'mutation',
+    middlewares: [],
+    argsSchema: inputSchema,
+    outputSchema: outputSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await mutation.call({
@@ -127,7 +130,7 @@ test('Should create mutation route', async () => {
     },
   });
 
-  expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
@@ -164,7 +167,6 @@ test('Should create mutation route', async () => {
         "schemaArgs",
         "schemaOutput",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);

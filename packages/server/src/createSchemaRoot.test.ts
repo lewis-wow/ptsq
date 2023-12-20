@@ -3,7 +3,6 @@ import { createSchemaRoot } from './createSchemaRoot';
 
 test('Should create json schema root node', () => {
   const jsonSchemaRoot = createSchemaRoot({
-    title: 'test title',
     properties: {
       test: {
         type: 'string',
@@ -19,14 +18,12 @@ test('Should create json schema root node', () => {
       },
     },
     required: ['test'],
-    title: 'TestTitle',
     type: 'object',
   });
 });
 
 test('Should create empty json schema root node', () => {
   const jsonSchemaRoot = createSchemaRoot({
-    title: 'test title',
     properties: {},
   });
 
@@ -34,14 +31,12 @@ test('Should create empty json schema root node', () => {
     additionalProperties: false,
     properties: {},
     required: [],
-    title: 'TestTitle',
     type: 'object',
   });
 });
 
 test('Should create json schema root node without $schema tag', () => {
   const jsonSchemaRoot = createSchemaRoot({
-    title: 'test title',
     properties: {
       test: {
         type: 'string',
@@ -57,7 +52,6 @@ test('Should create json schema root node without $schema tag', () => {
       },
     },
     required: ['test'],
-    title: 'TestTitle',
     type: 'object',
   });
 });

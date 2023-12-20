@@ -26,12 +26,15 @@ test('Should create mutation', async () => {
     .output(outputValidationSchema)
     .mutation(resolveFunction);
 
-  expect(mutation.nodeType).toBe('route');
-  expect(mutation.type).toBe('mutation');
-  expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.schemaArgs).toStrictEqual(argsSchema);
-  expect(mutation.schemaOutput).toStrictEqual(outputValidationSchema);
-  expect(mutation.resolveFunction).toBe(resolveFunction);
+  expect(mutation._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'mutation',
+    middlewares: [],
+    argsSchema: argsSchema,
+    outputSchema: outputValidationSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await mutation.call({
@@ -62,7 +65,7 @@ test('Should create mutation', async () => {
     },
   });
 
-  expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
@@ -99,7 +102,6 @@ test('Should create mutation', async () => {
         "schemaArgs",
         "schemaOutput",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);
@@ -125,12 +127,15 @@ test('Should create mutation without args', async () => {
     .output(outputValidationSchema)
     .mutation(resolveFunction);
 
-  expect(mutation.nodeType).toBe('route');
-  expect(mutation.type).toBe('mutation');
-  expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.schemaArgs).toBe(undefined);
-  expect(mutation.schemaOutput).toStrictEqual(outputValidationSchema);
-  expect(mutation.resolveFunction).toBe(resolveFunction);
+  expect(mutation._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'mutation',
+    middlewares: [],
+    argsSchema: undefined,
+    outputSchema: outputValidationSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await mutation.call({
@@ -158,7 +163,7 @@ test('Should create mutation without args', async () => {
     },
   });
 
-  expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
@@ -185,7 +190,6 @@ test('Should create mutation without args', async () => {
         "schemaArgs",
         "schemaOutput",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);
@@ -217,14 +221,15 @@ test('Should create mutation with twice chain', async () => {
     .output(validationSchema)
     .mutation(resolveFunction);
 
-  expect(mutation.nodeType).toBe('route');
-  expect(mutation.type).toBe('mutation');
-  expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.schemaArgs).toStrictEqual(
-    Type.Intersect([firstSchemaInChain, secondSchemaInChain]),
-  );
-  expect(mutation.schemaOutput).toStrictEqual(validationSchema);
-  expect(mutation.resolveFunction).toBe(resolveFunction);
+  expect(mutation._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'mutation',
+    middlewares: [],
+    argsSchema: Type.Intersect([firstSchemaInChain, secondSchemaInChain]),
+    outputSchema: validationSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await mutation.call({
@@ -283,7 +288,7 @@ test('Should create mutation with twice chain', async () => {
     },
   });
 
-  expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
@@ -336,7 +341,6 @@ test('Should create mutation with twice chain', async () => {
         "schemaArgs",
         "schemaOutput",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);
@@ -382,14 +386,18 @@ test('Should create mutation with optional args chain', async () => {
     .output(outputSchema)
     .mutation(resolveFunction);
 
-  expect(mutation.nodeType).toBe('route');
-  expect(mutation.type).toBe('mutation');
-  expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.schemaArgs).toStrictEqual(
-    Type.Intersect([firstSchemaInArgumentChain, secondSchemaInArgumentChain]),
-  );
-  expect(mutation.schemaOutput).toStrictEqual(outputSchema);
-  expect(mutation.resolveFunction).toBe(resolveFunction);
+  expect(mutation._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'mutation',
+    middlewares: [],
+    argsSchema: Type.Intersect([
+      firstSchemaInArgumentChain,
+      secondSchemaInArgumentChain,
+    ]),
+    outputSchema: outputSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await mutation.call({
@@ -468,7 +476,7 @@ test('Should create mutation with optional args chain', async () => {
     },
   });
 
-  expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
@@ -528,7 +536,6 @@ test('Should create mutation with optional args chain', async () => {
         "schemaArgs",
         "schemaOutput",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);

@@ -1,10 +1,29 @@
-import type { Static, TAnySchema, TUndefined, TVoid } from '@sinclair/typebox';
+import type {
+  Static,
+  StaticDecode,
+  TAnySchema,
+  TUndefined,
+  TVoid,
+} from '@sinclair/typebox';
+import type { ResolverSchema } from './resolver';
 
 export type ResolverType = 'query' | 'mutation';
 
 export type NodeType = 'route' | 'router';
 
 export type MaybePromise<T> = T | Promise<T>;
+
+/**
+ * @internal
+ */
+export type inferStaticInput<TSchema extends ResolverSchema | undefined> =
+  TSchema extends ResolverSchema ? StaticDecode<TSchema> : undefined;
+
+/**
+ * @internal
+ */
+export type inferStaticOutput<TSchema extends ResolverSchema | undefined> =
+  TSchema extends ResolverSchema ? StaticDecode<TSchema> : undefined;
 
 /**
  * Infers the arguments type of the zod validation schema or the introspected schema
@@ -33,6 +52,13 @@ export type inferClientResolverOutput<TResolverOutput> =
  * @internal
  */
 export type ErrorMessage<TMessage extends string> = TMessage & TypeError;
+
+/**
+ * @internal
+ */
+export type ShallowMerge<T extends object, U extends object> = {
+  [K in keyof T]: K extends keyof U ? U[K] : T[K];
+} & U;
 
 /**
  * @internal

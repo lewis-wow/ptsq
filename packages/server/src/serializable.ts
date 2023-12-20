@@ -11,10 +11,10 @@ export type Serializable =
   | Serializable[]
   | { [key: string]: Serializable };
 
-export type SerializableValues =
-  'string, number, null, boolean, Array<Serializable>, Record<string, Serializable>';
-
+/**
+ * @internal
+ */
 export type SerializableSchema<TSchemaArg extends ResolverSchema> =
   Static<TSchemaArg> extends Serializable
     ? TSchemaArg
-    : ErrorMessage<`The schema is not serializable. The only serializable values are ${SerializableValues}`>;
+    : ErrorMessage<`The schema is not serializable.`>;

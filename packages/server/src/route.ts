@@ -1,5 +1,4 @@
 import { Type, type TSchema } from '@sinclair/typebox';
-import { safeParseArgs } from './args';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
@@ -10,7 +9,7 @@ import {
 } from './middleware';
 import type { AnyMiddleware, AnyRawMiddlewareReponse } from './middleware';
 import type { AnyResolveFunction } from './resolver';
-import type { AnyTransformation } from './transformation';
+import { SchemaParser } from './schemaParser';
 import type { ResolverType } from './types';
 
 /**
@@ -27,31 +26,25 @@ export class Route<
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
 > {
-  type: TType;
-  schemaArgs: TArgsSchema;
-  schemaOutput: TOutputSchema;
-  resolveFunction: TResolveFunction;
-  nodeType: 'route' = 'route' as const;
-  middlewares: AnyMiddleware[];
-  transformations: AnyTransformation[];
-  description: TDescription;
+  _def: {
+    type: TType;
+    argsSchema: TArgsSchema;
+    outputSchema: TOutputSchema;
+    resolveFunction: TResolveFunction;
+    nodeType: 'route';
+    middlewares: AnyMiddleware[];
+    description: TDescription;
+  };
 
   constructor(options: {
     type: TType;
-    schemaArgs: TArgsSchema;
-    schemaOutput: TOutputSchema;
+    argsSchema: TArgsSchema;
+    outputSchema: TOutputSchema;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
-    transformations: AnyTransformation[];
     description: TDescription;
   }) {
-    this.type = options.type;
-    this.schemaArgs = options.schemaArgs;
-    this.schemaOutput = options.schemaOutput;
-    this.resolveFunction = options.resolveFunction;
-    this.middlewares = options.middlewares;
-    this.transformations = options.transformations;
-    this.description = options.description;
+    this._def = { ...options, nodeType: 'route' };
   }
 
   /**
@@ -64,17 +57,17 @@ export class Route<
       properties: {
         type: {
           type: 'string',
-          enum: [this.type],
+          enum: [this._def.type],
         },
         nodeType: {
           type: 'string',
-          enum: [this.nodeType],
+          enum: [this._def.nodeType],
         },
         schemaArgs:
-          this.schemaArgs === undefined
+          this._def.argsSchema === undefined
             ? undefined
-            : Type.Strict(this.schemaArgs),
-        schemaOutput: Type.Strict(this.schemaOutput),
+            : Type.Strict(this._def.argsSchema),
+        schemaOutput: Type.Strict(this._def.outputSchema),
       },
     });
   }
@@ -96,23 +89,22 @@ export class Route<
       meta,
       index: 0,
       middlewares: [
-        ...this.middlewares,
+        ...this._def.middlewares,
         new Middleware({
-          schemaArgs: this.schemaArgs,
-          transformations: this.transformations,
+          argsSchema: this._def.argsSchema,
           middlewareFunction: async ({
             ctx: finalContext,
             input,
             meta: finalMeta,
           }) => {
-            const resolverResult = await this.resolveFunction({
+            const resolverResult = await this._def.resolveFunction({
               input,
               ctx: finalContext,
               meta: finalMeta,
             });
 
-            const parseResult = safeParseArgs({
-              schema: this.schemaOutput,
+            const parseResult = SchemaParser.safeParseOutput({
+              schema: this._def.outputSchema,
               value: resolverResult,
             });
 
