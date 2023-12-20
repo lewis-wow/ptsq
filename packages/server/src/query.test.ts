@@ -69,38 +69,49 @@ test('Should create query', async () => {
     {
       "additionalProperties": false,
       "properties": {
-        "nodeType": {
-          "enum": [
-            "route",
-          ],
-          "type": "string",
-        },
-        "schemaArgs": {
+        "_def": {
+          "additionalProperties": false,
           "properties": {
-            "name": {
+            "argsSchema": {
+              "properties": {
+                "name": {
+                  "type": "string",
+                },
+              },
+              "required": [
+                "name",
+              ],
+              "type": "object",
+            },
+            "description": undefined,
+            "nodeType": {
+              "enum": [
+                "route",
+              ],
+              "type": "string",
+            },
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "enum": [
+                "query",
+              ],
               "type": "string",
             },
           },
           "required": [
-            "name",
+            "type",
+            "nodeType",
+            "argsSchema",
+            "outputSchema",
+            "description",
           ],
           "type": "object",
         },
-        "schemaOutput": {
-          "type": "string",
-        },
-        "type": {
-          "enum": [
-            "query",
-          ],
-          "type": "string",
-        },
       },
       "required": [
-        "type",
-        "nodeType",
-        "schemaArgs",
-        "schemaOutput",
+        "_def",
       ],
       "type": "object",
     }
@@ -165,28 +176,39 @@ test('Should create query without args', async () => {
     {
       "additionalProperties": false,
       "properties": {
-        "nodeType": {
-          "enum": [
-            "route",
+        "_def": {
+          "additionalProperties": false,
+          "properties": {
+            "argsSchema": undefined,
+            "description": undefined,
+            "nodeType": {
+              "enum": [
+                "route",
+              ],
+              "type": "string",
+            },
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "enum": [
+                "query",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+            "nodeType",
+            "argsSchema",
+            "outputSchema",
+            "description",
           ],
-          "type": "string",
-        },
-        "schemaArgs": undefined,
-        "schemaOutput": {
-          "type": "string",
-        },
-        "type": {
-          "enum": [
-            "query",
-          ],
-          "type": "string",
+          "type": "object",
         },
       },
       "required": [
-        "type",
-        "nodeType",
-        "schemaArgs",
-        "schemaOutput",
+        "_def",
       ],
       "type": "object",
     }
@@ -289,54 +311,65 @@ test('Should create query with twice chain', async () => {
     {
       "additionalProperties": false,
       "properties": {
-        "nodeType": {
-          "enum": [
-            "route",
-          ],
-          "type": "string",
-        },
-        "schemaArgs": {
-          "allOf": [
-            {
-              "properties": {
-                "firstName": {
-                  "type": "string",
+        "_def": {
+          "additionalProperties": false,
+          "properties": {
+            "argsSchema": {
+              "allOf": [
+                {
+                  "properties": {
+                    "firstName": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "firstName",
+                  ],
+                  "type": "object",
                 },
-              },
-              "required": [
-                "firstName",
+                {
+                  "properties": {
+                    "lastName": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "lastName",
+                  ],
+                  "type": "object",
+                },
               ],
               "type": "object",
             },
-            {
-              "properties": {
-                "lastName": {
-                  "type": "string",
-                },
-              },
-              "required": [
-                "lastName",
+            "description": undefined,
+            "nodeType": {
+              "enum": [
+                "route",
               ],
-              "type": "object",
+              "type": "string",
             },
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "enum": [
+                "query",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+            "nodeType",
+            "argsSchema",
+            "outputSchema",
+            "description",
           ],
           "type": "object",
         },
-        "schemaOutput": {
-          "type": "string",
-        },
-        "type": {
-          "enum": [
-            "query",
-          ],
-          "type": "string",
-        },
       },
       "required": [
-        "type",
-        "nodeType",
-        "schemaArgs",
-        "schemaOutput",
+        "_def",
       ],
       "type": "object",
     }
@@ -473,61 +506,72 @@ test('Should create query with optional args chain', async () => {
     {
       "additionalProperties": false,
       "properties": {
-        "nodeType": {
-          "enum": [
-            "route",
-          ],
-          "type": "string",
-        },
-        "schemaArgs": {
-          "allOf": [
-            {
-              "anyOf": [
+        "_def": {
+          "additionalProperties": false,
+          "properties": {
+            "argsSchema": {
+              "allOf": [
                 {
-                  "properties": {
-                    "firstName": {
-                      "type": "string",
+                  "anyOf": [
+                    {
+                      "properties": {
+                        "firstName": {
+                          "type": "string",
+                        },
+                      },
+                      "type": "object",
                     },
-                  },
-                  "type": "object",
+                    {
+                      "type": "undefined",
+                    },
+                  ],
                 },
                 {
-                  "type": "undefined",
+                  "anyOf": [
+                    {
+                      "properties": {
+                        "lastName": {
+                          "type": "string",
+                        },
+                      },
+                      "type": "object",
+                    },
+                    {
+                      "type": "undefined",
+                    },
+                  ],
                 },
               ],
             },
-            {
-              "anyOf": [
-                {
-                  "properties": {
-                    "lastName": {
-                      "type": "string",
-                    },
-                  },
-                  "type": "object",
-                },
-                {
-                  "type": "undefined",
-                },
+            "description": undefined,
+            "nodeType": {
+              "enum": [
+                "route",
               ],
+              "type": "string",
             },
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "enum": [
+                "query",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+            "nodeType",
+            "argsSchema",
+            "outputSchema",
+            "description",
           ],
-        },
-        "schemaOutput": {
-          "type": "string",
-        },
-        "type": {
-          "enum": [
-            "query",
-          ],
-          "type": "string",
+          "type": "object",
         },
       },
       "required": [
-        "type",
-        "nodeType",
-        "schemaArgs",
-        "schemaOutput",
+        "_def",
       ],
       "type": "object",
     }

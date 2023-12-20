@@ -49,38 +49,49 @@ test('Should create query route', async () => {
     {
       "additionalProperties": false,
       "properties": {
-        "nodeType": {
-          "enum": [
-            "route",
-          ],
-          "type": "string",
-        },
-        "schemaArgs": {
+        "_def": {
+          "additionalProperties": false,
           "properties": {
-            "name": {
+            "argsSchema": {
+              "properties": {
+                "name": {
+                  "type": "string",
+                },
+              },
+              "required": [
+                "name",
+              ],
+              "type": "object",
+            },
+            "description": undefined,
+            "nodeType": {
+              "enum": [
+                "route",
+              ],
+              "type": "string",
+            },
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "enum": [
+                "query",
+              ],
               "type": "string",
             },
           },
           "required": [
-            "name",
+            "type",
+            "nodeType",
+            "argsSchema",
+            "outputSchema",
+            "description",
           ],
           "type": "object",
         },
-        "schemaOutput": {
-          "type": "string",
-        },
-        "type": {
-          "enum": [
-            "query",
-          ],
-          "type": "string",
-        },
       },
       "required": [
-        "type",
-        "nodeType",
-        "schemaArgs",
-        "schemaOutput",
+        "_def",
       ],
       "type": "object",
     }
@@ -134,38 +145,49 @@ test('Should create mutation route', async () => {
     {
       "additionalProperties": false,
       "properties": {
-        "nodeType": {
-          "enum": [
-            "route",
-          ],
-          "type": "string",
-        },
-        "schemaArgs": {
+        "_def": {
+          "additionalProperties": false,
           "properties": {
-            "name": {
+            "argsSchema": {
+              "properties": {
+                "name": {
+                  "type": "string",
+                },
+              },
+              "required": [
+                "name",
+              ],
+              "type": "object",
+            },
+            "description": undefined,
+            "nodeType": {
+              "enum": [
+                "route",
+              ],
+              "type": "string",
+            },
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "enum": [
+                "mutation",
+              ],
               "type": "string",
             },
           },
           "required": [
-            "name",
+            "type",
+            "nodeType",
+            "argsSchema",
+            "outputSchema",
+            "description",
           ],
           "type": "object",
         },
-        "schemaOutput": {
-          "type": "string",
-        },
-        "type": {
-          "enum": [
-            "mutation",
-          ],
-          "type": "string",
-        },
       },
       "required": [
-        "type",
-        "nodeType",
-        "schemaArgs",
-        "schemaOutput",
+        "_def",
       ],
       "type": "object",
     }

@@ -98,7 +98,7 @@ test('Should create simple http server with proxy client and request bad route',
           name: 'John',
         }),
       ).rejects.toMatchInlineSnapshot(
-        '[AxiosError: Request failed with status code 400]',
+        '[AxiosError: Request failed with status code 404]',
       );
     },
   });

@@ -206,66 +206,85 @@ test('Should introspectate the server with http adapter', async () => {
 
       expect(response.data).toMatchInlineSnapshot(`
         {
+          "$schema": "https://json-schema.org/draft/2019-09/schema#",
           "additionalProperties": false,
           "properties": {
-            "nodeType": {
-              "enum": [
-                "router",
-              ],
-              "type": "string",
-            },
-            "routes": {
+            "_def": {
               "additionalProperties": false,
               "properties": {
-                "test": {
+                "nodeType": {
+                  "enum": [
+                    "router",
+                  ],
+                  "type": "string",
+                },
+                "routes": {
                   "additionalProperties": false,
                   "properties": {
-                    "nodeType": {
-                      "enum": [
-                        "route",
-                      ],
-                      "type": "string",
-                    },
-                    "schemaArgs": {
+                    "test": {
+                      "additionalProperties": false,
                       "properties": {
-                        "name": {
-                          "type": "string",
+                        "_def": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "argsSchema": {
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                },
+                              },
+                              "required": [
+                                "name",
+                              ],
+                              "type": "object",
+                            },
+                            "nodeType": {
+                              "enum": [
+                                "route",
+                              ],
+                              "type": "string",
+                            },
+                            "outputSchema": {
+                              "type": "string",
+                            },
+                            "type": {
+                              "enum": [
+                                "query",
+                              ],
+                              "type": "string",
+                            },
+                          },
+                          "required": [
+                            "type",
+                            "nodeType",
+                            "argsSchema",
+                            "outputSchema",
+                            "description",
+                          ],
+                          "type": "object",
                         },
                       },
                       "required": [
-                        "name",
+                        "_def",
                       ],
                       "type": "object",
                     },
-                    "schemaOutput": {
-                      "type": "string",
-                    },
-                    "type": {
-                      "enum": [
-                        "query",
-                      ],
-                      "type": "string",
-                    },
                   },
                   "required": [
-                    "type",
-                    "nodeType",
-                    "schemaArgs",
-                    "schemaOutput",
+                    "test",
                   ],
-                  "title": "BaseTestRoute",
                   "type": "object",
                 },
               },
               "required": [
-                "test",
+                "nodeType",
+                "routes",
               ],
               "type": "object",
             },
           },
           "required": [
-            "nodeType",
-            "routes",
+            "_def",
           ],
           "title": "BaseRouter",
           "type": "object",
