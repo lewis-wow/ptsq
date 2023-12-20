@@ -1,16 +1,18 @@
-import { ClientRoute, type RequestOptions } from './clientRoute';
+import { type RequestOptions } from './client';
 
-export abstract class ClientQuery<
+export type ClientQuery<
   TDescription extends string | undefined,
   TDefinition extends {
     args?: any;
     output: any;
   },
-> extends ClientRoute {
-  abstract description: TDescription;
+> = {
+  _def: {
+    description: TDescription;
+  };
 
-  abstract query(
+  query: (
     requestInput: TDefinition['args'],
     requestOptions?: RequestOptions,
-  ): Promise<TDefinition['output']>;
-}
+  ) => Promise<TDefinition['output']>;
+};

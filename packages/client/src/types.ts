@@ -39,9 +39,9 @@ export type ClientRouter = {
  *
  * Client type for casting proxy client to correct types
  */
-export type Client<TRouter extends ClientRouter> = {
+export type ProxyClientRouter<TRouter extends ClientRouter> = {
   [K in keyof TRouter['_def']['routes']]: TRouter['_def']['routes'][K] extends ClientRouter
-    ? Client<TRouter['_def']['routes'][K]>
+    ? ProxyClientRouter<TRouter['_def']['routes'][K]>
     : TRouter['_def']['routes'][K] extends ClientRoute<'query'>
     ? ClientQuery<
         TRouter['_def']['routes'][K]['_def']['description'] extends string
