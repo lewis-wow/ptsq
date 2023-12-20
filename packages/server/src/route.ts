@@ -54,7 +54,7 @@ export class Route<
    */
   getJsonSchema() {
     return createSchemaRoot({
-      properties: {
+      _def: createSchemaRoot({
         type: {
           type: 'string',
           enum: [this._def.type],
@@ -63,12 +63,19 @@ export class Route<
           type: 'string',
           enum: [this._def.nodeType],
         },
-        schemaArgs:
+        argsSchema:
           this._def.argsSchema === undefined
             ? undefined
             : Type.Strict(this._def.argsSchema),
-        schemaOutput: Type.Strict(this._def.outputSchema),
-      },
+        outputSchema: Type.Strict(this._def.outputSchema),
+        description:
+          this._def.description === undefined
+            ? undefined
+            : {
+                type: 'string',
+                enum: [this._def.description],
+              },
+      }),
     });
   }
 

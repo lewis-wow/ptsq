@@ -1,28 +1,14 @@
 /**
  * @internal
- */
-type CreateSchemaRootArgs = {
-  title?: string;
-  properties: object;
-};
-
-/**
- * @internal
  *
  * Creates schema root for json-schema introspection
  */
-export const createSchemaRoot = ({
-  properties,
-}: CreateSchemaRootArgs): SchemaRoot => {
+export const createSchemaRoot = (properties: object): SchemaRoot => {
   const schemaRoot: SchemaRoot = {
     type: 'object',
     additionalProperties: false,
-    _def: {
-      type: 'object',
-      additionalProperties: false,
-      properties,
-      required: Object.getOwnPropertyNames(properties),
-    },
+    properties,
+    required: Object.getOwnPropertyNames(properties),
   };
 
   return schemaRoot;
@@ -34,10 +20,6 @@ export const createSchemaRoot = ({
 export type SchemaRoot = {
   type: 'object';
   additionalProperties: false;
-  _def: {
-    type: 'object';
-    additionalProperties: false;
-    properties: object;
-    required: string[];
-  };
+  properties: object;
+  required: string[];
 };

@@ -36,20 +36,21 @@ export class Router<TRoutes extends Routes> {
    */
   getJsonSchema() {
     return createSchemaRoot({
-      properties: {
+      _def: createSchemaRoot({
         nodeType: {
           type: 'string',
           enum: [this._def.nodeType],
         },
-        routes: createSchemaRoot({
-          properties: Object.entries(this._def.routes).reduce<
-            Record<string, SchemaRoot>
-          >((acc, [key, node]) => {
-            acc[key] = node.getJsonSchema();
-            return acc;
-          }, {}),
-        }),
-      },
+        routes: createSchemaRoot(
+          Object.entries(this._def.routes).reduce<Record<string, SchemaRoot>>(
+            (acc, [key, node]) => {
+              acc[key] = node.getJsonSchema();
+              return acc;
+            },
+            {},
+          ),
+        ),
+      }),
     });
   }
 

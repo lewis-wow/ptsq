@@ -3,10 +3,8 @@ import { createSchemaRoot } from './createSchemaRoot';
 
 test('Should create json schema root node', () => {
   const jsonSchemaRoot = createSchemaRoot({
-    properties: {
-      test: {
-        type: 'string',
-      },
+    test: {
+      type: 'string',
     },
   });
 
@@ -23,9 +21,7 @@ test('Should create json schema root node', () => {
 });
 
 test('Should create empty json schema root node', () => {
-  const jsonSchemaRoot = createSchemaRoot({
-    properties: {},
-  });
+  const jsonSchemaRoot = createSchemaRoot({});
 
   expect(jsonSchemaRoot).toStrictEqual({
     additionalProperties: false,
@@ -37,10 +33,8 @@ test('Should create empty json schema root node', () => {
 
 test('Should create json schema root node without $schema tag', () => {
   const jsonSchemaRoot = createSchemaRoot({
-    properties: {
-      test: {
-        type: 'string',
-      },
+    test: {
+      type: 'string',
     },
   });
 

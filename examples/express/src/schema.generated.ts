@@ -6,16 +6,18 @@
  */
 
 export interface BaseRouter {
-  nodeType: 'router';
-  routes: {
-    greetings: {
-      type: 'query';
-      nodeType: 'route';
-      schemaArgs: {
-        firstName: string;
-        [k: string]: unknown;
+  _def: {
+    nodeType: 'router';
+    routes: {
+      greetings: {
+        _def: {
+          type: 'query';
+          nodeType: 'route';
+          argsSchema: string;
+          outputSchema: string;
+          description: 'My test query...';
+        };
       };
-      schemaOutput: string;
     };
   };
 }

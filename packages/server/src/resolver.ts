@@ -110,6 +110,7 @@ export class Resolver<
           middlewareFunction: middleware,
         }),
       ] as AnyMiddleware[],
+      description: this._def.description,
     });
   }
 
@@ -170,6 +171,7 @@ export class Resolver<
       argsSchema: nextArgsSchema as NextArgsSchema,
       outputSchema: nextOutputSchema as NextOutputSchema,
       middlewares: [...this._def.middlewares, ...resolver._def.middlewares],
+      description: this._def.description,
     });
   }
 
@@ -214,6 +216,7 @@ export class Resolver<
       argsSchema: nextArgsSchema as NextArgsSchema,
       outputSchema: this._def.outputSchema,
       middlewares: [...this._def.middlewares],
+      description: this._def.description,
     });
   }
 
@@ -257,6 +260,7 @@ export class Resolver<
       argsSchema: this._def.argsSchema,
       outputSchema: nextOutputSchema as NextSchemaOutput,
       middlewares: [...this._def.middlewares],
+      description: this._def.description,
     });
   }
 
@@ -357,6 +361,7 @@ export class Resolver<
       argsSchema: undefined,
       outputSchema: undefined,
       middlewares: [],
+      description: undefined,
     });
   }
 }

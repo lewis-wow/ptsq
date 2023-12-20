@@ -44,7 +44,9 @@ export type Client<TRouter extends ClientRouter> = {
     ? Client<TRouter['_def']['routes'][K]>
     : TRouter['_def']['routes'][K] extends ClientRoute<'query'>
     ? ClientQuery<
-        TRouter['_def']['routes'][K]['_def']['description'],
+        TRouter['_def']['routes'][K]['_def']['description'] extends string
+          ? TRouter['_def']['routes'][K]['_def']['description']
+          : undefined,
         {
           args: Simplify<
             inferClientResolverArgs<
@@ -60,7 +62,9 @@ export type Client<TRouter extends ClientRouter> = {
       >
     : TRouter['_def']['routes'][K] extends ClientRoute<'mutation'>
     ? ClientMutation<
-        TRouter['_def']['routes'][K]['_def']['description'],
+        TRouter['_def']['routes'][K]['_def']['description'] extends string
+          ? TRouter['_def']['routes'][K]['_def']['description']
+          : undefined,
         {
           args: Simplify<
             inferClientResolverArgs<

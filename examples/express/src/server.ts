@@ -18,9 +18,12 @@ const dateSchema = Type.Transform(Type.String())
   .Encode((arg) => arg.toISOString());
 
 const test = resolver
+  .description(`My test query...`)
   .args(dateSchema)
   .output(dateSchema)
   .query(({ input }) => input);
+
+console.log(test._def.description);
 
 const baseRouter = router({
   greetings: test,
