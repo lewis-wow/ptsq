@@ -27,13 +27,13 @@ export const createProxyClient = <TRouter extends ClientRouter>(
      * await userClient.getCurrent.query();
      * ```
      */
+    const client = new ClientRoute({ route, options });
+
     const proxyHandler: ProxyHandler<Client<TRouter>> = {
       get: (_target, key: string) => createRouteProxyClient([...route, key]),
-      apply: (_target, _thisArg, argumentsList) => {
-        const client = new ClientRoute({ route, options });
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        return client.fetch(argumentsList[0], argumentsList[1]);
-      },
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      apply: (_target, _thisArg, argumentsList) =>
+        client.fetch(argumentsList[0], argumentsList[1]),
     };
 
     /**
