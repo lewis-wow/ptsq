@@ -17,8 +17,12 @@ export const createSchemaRoot = ({
   const schemaRoot: SchemaRoot = {
     type: 'object',
     additionalProperties: false,
-    properties,
-    required: Object.getOwnPropertyNames(properties),
+    _def: {
+      type: 'object',
+      additionalProperties: false,
+      properties,
+      required: Object.getOwnPropertyNames(properties),
+    },
   };
 
   return schemaRoot;
@@ -30,6 +34,10 @@ export const createSchemaRoot = ({
 export type SchemaRoot = {
   type: 'object';
   additionalProperties: false;
-  properties: object;
-  required: string[];
+  _def: {
+    type: 'object';
+    additionalProperties: false;
+    properties: object;
+    required: string[];
+  };
 };

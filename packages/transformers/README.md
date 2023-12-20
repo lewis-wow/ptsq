@@ -1,3 +1,0 @@
-# @ptsq/transformers
-
-Predefined transformers
