@@ -32,8 +32,8 @@ yarn add -D @ptsq/introspection-cli
 
 ```ts title="server.ts"
 import { createServer } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
 import express, { Request, Response } from 'express';
-import { z } from 'zod';
 
 const app = express();
 
@@ -47,8 +47,8 @@ const { resolver, router, serve } = createServer({
 });
 
 const testQuery = resolver
-  .args(z.object({ name: z.string() }))
-  .output(z.string())
+  .args(Type.Object({ name: Type.String() }))
+  .output(Type.String())
   .query(
     async ({
       ctx /* { req: express.Request, res: express.Response } */,
