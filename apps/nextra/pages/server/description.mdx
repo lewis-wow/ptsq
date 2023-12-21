@@ -1,0 +1,15 @@
+# Description
+
+You can add a description to a resolver, and then on the client side, the TypeScript shows that description in the client query and mutation types.
+
+Description works the same with or without introspection.
+
+```ts
+resolver.description('Returns user from database by user id');
+```
+
+The description can be overwritten by calling the `description` method again.
+
+```ts
+resolver.description('A').description('B'); // B
+```

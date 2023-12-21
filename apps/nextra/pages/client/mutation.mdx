@@ -1,0 +1,16 @@
+## Client mutation
+
+On the client side, the `mutation` can be requested by a `mutate` method on the route.
+
+```ts copy
+import { createProxyClient } from '@ptsq/client';
+import { BaseRouter } from './server';
+
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/ptsq',
+});
+
+const result /* string */ = await client.test.mutate({
+  name: /* string */ 'John',
+});
+```

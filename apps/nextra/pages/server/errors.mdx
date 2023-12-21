@@ -1,0 +1,47 @@
+# Errors
+
+```ts copy
+const isAuthed = middleware(({ ctx, next }) => {
+  if (!ctx.user)
+    throw new HTTPError({
+      code: 'UNAUTHORIZED',
+      message: 'Must be logged in!',
+    });
+
+  return next({
+    ...ctx,
+    user: ctx.user,
+  });
+});
+```
+
+The `HTTPError` is the only error that is caught by the `ptsq`.
+The adapter such as `Express` or `Koa` then responds with that error code and message, if specified.
+You can also specify info, which can be something like a schema validation error.
+
+```ts copy
+throw new HTTPError({
+  code: 'BAD_REQUEST',
+  message: 'User already exists.',
+  info: databaseInsert.error,
+});
+```
+
+## Error codes
+
+| HTTPError code        | Status code |
+| --------------------- | ----------- |
+| BAD_REQUEST           | 400         |
+| UNAUTHORIZED          | 401         |
+| FORBIDDEN             | 403         |
+| NOT_FOUND             | 404         |
+| METHOD_NOT_SUPPORTED  | 405         |
+| TIMEOUT               | 408         |
+| CONFLICT              | 409         |
+| PRECONDITION_FAILED   | 412         |
+| PAYLOAD_TOO_LARGE     | 413         |
+| UNPROCESSABLE_CONTENT | 422         |
+| TOO_MANY_REQUESTS     | 429         |
+| INTERNAL_SERVER_ERROR | 500         |
+
+Any other thrown exception that is not the `HTTPError`, throws as normal and the server response with `INTERNAL_SERVER_ERROR`.

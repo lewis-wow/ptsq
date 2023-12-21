@@ -1,0 +1,125 @@
+# Client
+
+The client is a Javascript `Proxy` object.
+
+## Proprietary client
+
+```ts
+import { createProxyClient } from '@ptsq/client';
+/**
+ * non-introspected or generated file, just a type of server router
+ */
+import type { BaseRouter } from './server';
+
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/ptsq',
+});
+
+const result /* string */ = await client.test.query({
+  name: /* string */ 'John',
+});
+```
+
+## Introspected schema
+
+Even if this is not directly the server router schema, it is introspected, the way you define client stays the same, the client does not care if the server is in your repository or somewhere else.
+
+```ts
+import { createProxyClient } from '@ptsq/client';
+/**
+ * introspected or generated file, no server exposed, ready for open API
+ */
+import type { RootRouter } from './schema.generated';
+
+const client = createProxyClient<RootRouter>({
+  url: 'http://localhost:4000/ptsq',
+});
+
+const result /* string */ = await client.test.query({
+  name: /* string */ 'John',
+});
+```
+
+Introspected schema can also have comments with hints about what serialized type actually is. So if the response returns `DateTime` as a string, then there is a way to describe the `DateTime` scalar on the server, to give hints on the client side.
+
+## Options
+
+```ts
+type CreateProxyClientArgs = {
+  url: string;
+  credentials?: boolean;
+  headers?: RequestHeaders | (() => MaybePromise<RequestHeaders>);
+};
+```
+
+The `url` is the URL of ptsq server e.g. `https://example.com/ptsq/'.
+If the credentials option is true, then credentials like cookies are sent to the server with every request.
+You can also specify headers you want to send such as the Authorization header and so on.
+Headers can be defined as callable functions, so for example, you can get cookies like JWT token in the function that is then passed to Authorization header.
+
+```ts
+import { createProxyClient } from '@ptsq/client';
+import type { BaseRouter } from './server';
+
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/ptsq',
+  headers: async () => {
+    const jwt = await cookies.get('jwt');
+
+    return {
+      Authorization: `Bearer ${jwt}`,
+    };
+  },
+  credentials: true,
+});
+
+const result /* string */ = await client.test.query({
+  name: /* string */ 'John',
+});
+```
+
+## Wrong route
+
+The proxy client has `noop` function as the Proxy target.
+But you cannot call that `noop` function, because the `Proxy` object overrides the `apply` method of that `noop` function.
+That `apply` handler is for calling the `query` or `mutate` requests.
+There is only one requester for both `query and `mutation`, so they are called the same way.
+
+```ts
+const proxyHandler: ProxyHandler<Client<TRouter>> = {
+  get: (_target, key: string) => createProxyClientRouter([...route, key]),
+  apply: (_target, _thisArg, argumentsList) =>
+    client.request(argumentsList[0], argumentsList[1]),
+};
+
+const noop = () => {};
+
+const client = new Proxy(noop, proxyHandler);
+```
+
+As you can see, you can for e.g. `@ts-ignore` disable bad route input, because the check is only on the type-level.
+If you `query` or `mutate` a wrong route it throws on the server `BAD_REQUEST` `HTTPError`.
+
+## Request body validation
+
+On the server, the body sent from the client is validated by the following schema.
+If the validation fails the server throws `BAD_REQUEST` `HTTPError`.
+
+```ts
+Type.Object(
+  {
+    route: Type.RegExp(/^[a-zA-Z]+(\.[a-zA-Z]+)*$/),
+    type: Type.Union([Type.Literal('query'), Type.Literal('mutation')]),
+    input: Type.Optional(Type.Unknown()),
+  },
+  {
+    additionalProperties: false,
+  },
+);
+```
+
+As you can see there is no validation for if the route exists and has resolver. The route is validated by walking the nested `routers`.
+
+As you can expect, if the route has no `resolver`, means that the route is incomplete and should continue, so `node type` is `router` or some preceding route should be terminating, then `BAD_REQUEST` error is thrown by a server.
+
+If the route does not exist server automatically returns `NOT_FOUND`.

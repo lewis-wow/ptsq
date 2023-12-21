@@ -1,0 +1,23 @@
+# Transformations
+
+Sometimes you don't want to get serialized type from the client.
+
+You can parse/serialize values automatically thanks to transformations.
+
+```ts
+const urlSchema = Type.Transformation(
+  Type.String({
+    format: 'uri',
+  }),
+)
+  .Decode((arg) => new URL(arg))
+  .Encode((arg) => arg.toISOString());
+
+const urlResolver = resolver
+  .args(z.object({ url: urlSchema }))
+  .output(urlSchema)
+  .query(
+    ({ input /* { url: { URL } }  */ }) =>
+      new URL(`http://localhost:3000/${input.url.pathname}`),
+  );
+```
