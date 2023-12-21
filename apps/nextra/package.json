@@ -1,5 +1,5 @@
 {
-  "name": "nextra-docs-template",
+  "name": "@ptsq/nextra",
   "version": "0.0.1",
   "scripts": {
     "dev": "next dev",
