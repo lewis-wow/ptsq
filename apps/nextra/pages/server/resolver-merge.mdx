@@ -1,0 +1,153 @@
+# Resolver merge
+
+You can merge resolvers by calling the merge method.
+
+Merging allows you to create a standalone resolver without the `createServer` method and then merge it with your resolvers.
+
+When merging two resolvers, args and output validation schema are intersected and middlewares are added into middlewares from the original resolver.
+
+The context of the original resolver has to extend the root context of the resolver you want to merge.
+
+```ts copy filename="auth.ts"
+import { HTTPError, Resolver } from '@ptsq/server';
+import { Request } from 'express';
+
+export type Role = 'Administrator' | 'Manager' | 'User';
+
+export const authedResolver = Resolver.createRoot<{
+  user?: Role;
+}>().use(({ ctx /* { user?: Role } */, next }) => {
+  if (!ctx.user) throw new HTTPError({ code: 'UNAUTHORIZED' });
+
+  return next({
+    user: ctx.user,
+  });
+});
+```
+
+```ts copy filename="server.ts"
+import { createServer } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
+import { Request, Response } from 'express';
+import { authedResolver, getUserFromJWT } from './auth.ts';
+
+const createContext = async ({ req, res }: { req: Request; res: Response }) => {
+  const user = await getUserFromJWT(req);
+
+  return {
+    req,
+    res,
+    user,
+  };
+};
+
+const { resolver, router, serve } = createServer({
+  // The context has type { req: Request; res: Response; user?: User<Role> }
+  ctx: createContext,
+});
+
+const administratorResolver = resolver
+  // ctx = { req: Request; res: Response; user?: User<Role> }
+  .merge(authedResolver)
+  // ctx = { req: Request; res: Response; user: User<Role> }
+  .use(
+    ({ ctx /* { req: Request; res: Response; user: User<Role> } */, next }) => {
+      if (ctx.user.role !== 'Administrator')
+        throw new HTTPError({ code: 'FORBIDDEN' });
+
+      return next({
+        user: ctx.user,
+      });
+    },
+  );
+```
+
+## Deep context
+
+When using deep context objects, objects are not merged deeply, only shallowly.
+
+```ts copy
+import { Resolver } from '@ptsq/server';
+
+export const deepContextChangeResolver = Resolver.createRoot<{
+  a: {
+    b: number;
+  };
+}>().use(({ ctx /* { a: { b: number } } */, next }) => {
+  return next({
+    a: {
+      c: 1,
+    },
+  });
+});
+```
+
+```ts copy filename="server.ts"
+import { createServer } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
+import { Request, Response } from 'express';
+import { deepContextChangeResolver } from './deepContextChangeResolver.ts';
+
+const createContext = () => {
+  return {
+    a: {
+      b: 1,
+    },
+  };
+};
+
+const { resolver, router, serve } = createServer({
+  // The context has type { req: Request; res: Response; user?: User<Role> }
+  ctx: createContext,
+});
+
+const deepContextChangeResolverOverwrite = resolver
+  // ctx = { a: { b: number } }
+  .merge(deepContextChangeResolver);
+// ctx = { a: { c: number } }
+// The b property inside a object is gone
+```
+
+If you want to merge them deeply, you have to do that on your own.
+
+```ts copy
+import { Resolver } from '@ptsq/server';
+
+export const deepContextChangeResolver = Resolver.createRoot<{
+  a: {
+    b: number;
+  };
+}>().use(({ ctx /* { a: { b: number } } */, next }) => {
+  return next({
+    a: {
+      ...ctx.a,
+      c: 1,
+    },
+  });
+});
+```
+
+```ts copy filename="server.ts"
+import { createServer } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
+import { Request, Response } from 'express';
+import { deepContextChangeResolver } from './deepContextChangeResolver.ts';
+
+const createContext = () => {
+  return {
+    a: {
+      b: 1,
+    },
+  };
+};
+
+const { resolver, router, serve } = createServer({
+  // The context has type { req: Request; res: Response; user?: User<Role> }
+  ctx: createContext,
+});
+
+const deepContextChangeResolverOverwrite = resolver
+  // ctx = { a: { b: number } }
+  .merge(deepContextChangeResolver);
+// ctx = { a: { b: number; c: number } }
+```
