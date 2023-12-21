@@ -1,7 +1,7 @@
 import { createTestHttpServer } from '@ptsq/test-utils';
+import { Type } from '@sinclair/typebox';
 import axios from 'axios';
 import { expect, test } from 'vitest';
-import { z } from 'zod';
 
 test('Should instropectate simple http server', async () => {
   await createTestHttpServer({
@@ -10,11 +10,11 @@ test('Should instropectate simple http server', async () => {
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
-          .output(z.string())
+          .output(Type.String())
           .query(({ input }) => input.name),
       });
     },
@@ -23,67 +23,85 @@ test('Should instropectate simple http server', async () => {
 
       expect(response.data).toMatchInlineSnapshot(`
         {
+          "$schema": "https://json-schema.org/draft/2019-09/schema#",
           "additionalProperties": false,
           "properties": {
-            "nodeType": {
-              "enum": [
-                "router",
-              ],
-              "type": "string",
-            },
-            "routes": {
+            "_def": {
               "additionalProperties": false,
               "properties": {
-                "test": {
+                "nodeType": {
+                  "enum": [
+                    "router",
+                  ],
+                  "type": "string",
+                },
+                "routes": {
                   "additionalProperties": false,
                   "properties": {
-                    "nodeType": {
-                      "enum": [
-                        "route",
-                      ],
-                      "type": "string",
-                    },
-                    "schemaArgs": {
+                    "test": {
                       "additionalProperties": false,
                       "properties": {
-                        "name": {
-                          "type": "string",
+                        "_def": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "argsSchema": {
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                },
+                              },
+                              "required": [
+                                "name",
+                              ],
+                              "type": "object",
+                            },
+                            "nodeType": {
+                              "enum": [
+                                "route",
+                              ],
+                              "type": "string",
+                            },
+                            "outputSchema": {
+                              "type": "string",
+                            },
+                            "type": {
+                              "enum": [
+                                "query",
+                              ],
+                              "type": "string",
+                            },
+                          },
+                          "required": [
+                            "type",
+                            "nodeType",
+                            "argsSchema",
+                            "outputSchema",
+                            "description",
+                          ],
+                          "type": "object",
                         },
                       },
                       "required": [
-                        "name",
+                        "_def",
                       ],
                       "type": "object",
                     },
-                    "schemaOutput": {
-                      "type": "string",
-                    },
-                    "type": {
-                      "enum": [
-                        "query",
-                      ],
-                      "type": "string",
-                    },
                   },
                   "required": [
-                    "type",
-                    "nodeType",
-                    "schemaArgs",
-                    "schemaOutput",
+                    "test",
                   ],
-                  "title": "BaseTestRoute",
                   "type": "object",
                 },
               },
               "required": [
-                "test",
+                "nodeType",
+                "routes",
               ],
               "type": "object",
             },
           },
           "required": [
-            "nodeType",
-            "routes",
+            "_def",
           ],
           "title": "BaseRouter",
           "type": "object",
@@ -98,7 +116,7 @@ test('Should instropectate simple http server with empty query', async () => {
     ctx: () => ({}),
     server: ({ resolver, router }) => {
       return router({
-        test: resolver.output(z.null()).query(() => null),
+        test: resolver.output(Type.Null()).query(() => null),
       });
     },
     client: async (serverUrl) => {
@@ -106,58 +124,74 @@ test('Should instropectate simple http server with empty query', async () => {
 
       expect(response.data).toMatchInlineSnapshot(`
         {
+          "$schema": "https://json-schema.org/draft/2019-09/schema#",
           "additionalProperties": false,
           "properties": {
-            "nodeType": {
-              "enum": [
-                "router",
-              ],
-              "type": "string",
-            },
-            "routes": {
+            "_def": {
               "additionalProperties": false,
               "properties": {
-                "test": {
+                "nodeType": {
+                  "enum": [
+                    "router",
+                  ],
+                  "type": "string",
+                },
+                "routes": {
                   "additionalProperties": false,
                   "properties": {
-                    "nodeType": {
-                      "enum": [
-                        "route",
+                    "test": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "_def": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "nodeType": {
+                              "enum": [
+                                "route",
+                              ],
+                              "type": "string",
+                            },
+                            "outputSchema": {
+                              "type": "null",
+                            },
+                            "type": {
+                              "enum": [
+                                "query",
+                              ],
+                              "type": "string",
+                            },
+                          },
+                          "required": [
+                            "type",
+                            "nodeType",
+                            "argsSchema",
+                            "outputSchema",
+                            "description",
+                          ],
+                          "type": "object",
+                        },
+                      },
+                      "required": [
+                        "_def",
                       ],
-                      "type": "string",
-                    },
-                    "schemaArgs": {
-                      "not": {},
-                    },
-                    "schemaOutput": {
-                      "type": "null",
-                    },
-                    "type": {
-                      "enum": [
-                        "query",
-                      ],
-                      "type": "string",
+                      "type": "object",
                     },
                   },
                   "required": [
-                    "type",
-                    "nodeType",
-                    "schemaArgs",
-                    "schemaOutput",
+                    "test",
                   ],
-                  "title": "BaseTestRoute",
                   "type": "object",
                 },
               },
               "required": [
-                "test",
+                "nodeType",
+                "routes",
               ],
               "type": "object",
             },
           },
           "required": [
-            "nodeType",
-            "routes",
+            "_def",
           ],
           "title": "BaseRouter",
           "type": "object",
@@ -178,7 +212,7 @@ test('Should instropectate simple http server with nested routers', async () => 
               test: router({
                 test: router({
                   test: router({
-                    test: resolver.output(z.null()).query(() => null),
+                    test: resolver.output(Type.Null()).query(() => null),
                   }),
                 }),
               }),
@@ -192,30 +226,25 @@ test('Should instropectate simple http server with nested routers', async () => 
 
       expect(response.data).toMatchInlineSnapshot(`
         {
+          "$schema": "https://json-schema.org/draft/2019-09/schema#",
           "additionalProperties": false,
           "properties": {
-            "nodeType": {
-              "enum": [
-                "router",
-              ],
-              "type": "string",
-            },
-            "routes": {
+            "_def": {
               "additionalProperties": false,
               "properties": {
-                "test": {
+                "nodeType": {
+                  "enum": [
+                    "router",
+                  ],
+                  "type": "string",
+                },
+                "routes": {
                   "additionalProperties": false,
                   "properties": {
-                    "nodeType": {
-                      "enum": [
-                        "router",
-                      ],
-                      "type": "string",
-                    },
-                    "routes": {
+                    "test": {
                       "additionalProperties": false,
                       "properties": {
-                        "test": {
+                        "_def": {
                           "additionalProperties": false,
                           "properties": {
                             "nodeType": {
@@ -230,28 +259,22 @@ test('Should instropectate simple http server with nested routers', async () => 
                                 "test": {
                                   "additionalProperties": false,
                                   "properties": {
-                                    "nodeType": {
-                                      "enum": [
-                                        "router",
-                                      ],
-                                      "type": "string",
-                                    },
-                                    "routes": {
+                                    "_def": {
                                       "additionalProperties": false,
                                       "properties": {
-                                        "test": {
+                                        "nodeType": {
+                                          "enum": [
+                                            "router",
+                                          ],
+                                          "type": "string",
+                                        },
+                                        "routes": {
                                           "additionalProperties": false,
                                           "properties": {
-                                            "nodeType": {
-                                              "enum": [
-                                                "router",
-                                              ],
-                                              "type": "string",
-                                            },
-                                            "routes": {
+                                            "test": {
                                               "additionalProperties": false,
                                               "properties": {
-                                                "test": {
+                                                "_def": {
                                                   "additionalProperties": false,
                                                   "properties": {
                                                     "nodeType": {
@@ -266,58 +289,140 @@ test('Should instropectate simple http server with nested routers', async () => 
                                                         "test": {
                                                           "additionalProperties": false,
                                                           "properties": {
-                                                            "nodeType": {
-                                                              "enum": [
-                                                                "router",
-                                                              ],
-                                                              "type": "string",
-                                                            },
-                                                            "routes": {
+                                                            "_def": {
                                                               "additionalProperties": false,
                                                               "properties": {
-                                                                "test": {
+                                                                "nodeType": {
+                                                                  "enum": [
+                                                                    "router",
+                                                                  ],
+                                                                  "type": "string",
+                                                                },
+                                                                "routes": {
                                                                   "additionalProperties": false,
                                                                   "properties": {
-                                                                    "nodeType": {
-                                                                      "enum": [
-                                                                        "route",
+                                                                    "test": {
+                                                                      "additionalProperties": false,
+                                                                      "properties": {
+                                                                        "_def": {
+                                                                          "additionalProperties": false,
+                                                                          "properties": {
+                                                                            "nodeType": {
+                                                                              "enum": [
+                                                                                "router",
+                                                                              ],
+                                                                              "type": "string",
+                                                                            },
+                                                                            "routes": {
+                                                                              "additionalProperties": false,
+                                                                              "properties": {
+                                                                                "test": {
+                                                                                  "additionalProperties": false,
+                                                                                  "properties": {
+                                                                                    "_def": {
+                                                                                      "additionalProperties": false,
+                                                                                      "properties": {
+                                                                                        "nodeType": {
+                                                                                          "enum": [
+                                                                                            "router",
+                                                                                          ],
+                                                                                          "type": "string",
+                                                                                        },
+                                                                                        "routes": {
+                                                                                          "additionalProperties": false,
+                                                                                          "properties": {
+                                                                                            "test": {
+                                                                                              "additionalProperties": false,
+                                                                                              "properties": {
+                                                                                                "_def": {
+                                                                                                  "additionalProperties": false,
+                                                                                                  "properties": {
+                                                                                                    "nodeType": {
+                                                                                                      "enum": [
+                                                                                                        "route",
+                                                                                                      ],
+                                                                                                      "type": "string",
+                                                                                                    },
+                                                                                                    "outputSchema": {
+                                                                                                      "type": "null",
+                                                                                                    },
+                                                                                                    "type": {
+                                                                                                      "enum": [
+                                                                                                        "query",
+                                                                                                      ],
+                                                                                                      "type": "string",
+                                                                                                    },
+                                                                                                  },
+                                                                                                  "required": [
+                                                                                                    "type",
+                                                                                                    "nodeType",
+                                                                                                    "argsSchema",
+                                                                                                    "outputSchema",
+                                                                                                    "description",
+                                                                                                  ],
+                                                                                                  "type": "object",
+                                                                                                },
+                                                                                              },
+                                                                                              "required": [
+                                                                                                "_def",
+                                                                                              ],
+                                                                                              "type": "object",
+                                                                                            },
+                                                                                          },
+                                                                                          "required": [
+                                                                                            "test",
+                                                                                          ],
+                                                                                          "type": "object",
+                                                                                        },
+                                                                                      },
+                                                                                      "required": [
+                                                                                        "nodeType",
+                                                                                        "routes",
+                                                                                      ],
+                                                                                      "type": "object",
+                                                                                    },
+                                                                                  },
+                                                                                  "required": [
+                                                                                    "_def",
+                                                                                  ],
+                                                                                  "type": "object",
+                                                                                },
+                                                                              },
+                                                                              "required": [
+                                                                                "test",
+                                                                              ],
+                                                                              "type": "object",
+                                                                            },
+                                                                          },
+                                                                          "required": [
+                                                                            "nodeType",
+                                                                            "routes",
+                                                                          ],
+                                                                          "type": "object",
+                                                                        },
+                                                                      },
+                                                                      "required": [
+                                                                        "_def",
                                                                       ],
-                                                                      "type": "string",
-                                                                    },
-                                                                    "schemaArgs": {
-                                                                      "not": {},
-                                                                    },
-                                                                    "schemaOutput": {
-                                                                      "type": "null",
-                                                                    },
-                                                                    "type": {
-                                                                      "enum": [
-                                                                        "query",
-                                                                      ],
-                                                                      "type": "string",
+                                                                      "type": "object",
                                                                     },
                                                                   },
                                                                   "required": [
-                                                                    "type",
-                                                                    "nodeType",
-                                                                    "schemaArgs",
-                                                                    "schemaOutput",
+                                                                    "test",
                                                                   ],
-                                                                  "title": "BaseTestTestTestTestTestTestTestRoute",
                                                                   "type": "object",
                                                                 },
                                                               },
                                                               "required": [
-                                                                "test",
+                                                                "nodeType",
+                                                                "routes",
                                                               ],
                                                               "type": "object",
                                                             },
                                                           },
                                                           "required": [
-                                                            "nodeType",
-                                                            "routes",
+                                                            "_def",
                                                           ],
-                                                          "title": "BaseTestTestTestTestTestTestRouter",
                                                           "type": "object",
                                                         },
                                                       },
@@ -331,35 +436,31 @@ test('Should instropectate simple http server with nested routers', async () => 
                                                     "nodeType",
                                                     "routes",
                                                   ],
-                                                  "title": "BaseTestTestTestTestTestRouter",
                                                   "type": "object",
                                                 },
                                               },
                                               "required": [
-                                                "test",
+                                                "_def",
                                               ],
                                               "type": "object",
                                             },
                                           },
                                           "required": [
-                                            "nodeType",
-                                            "routes",
+                                            "test",
                                           ],
-                                          "title": "BaseTestTestTestTestRouter",
                                           "type": "object",
                                         },
                                       },
                                       "required": [
-                                        "test",
+                                        "nodeType",
+                                        "routes",
                                       ],
                                       "type": "object",
                                     },
                                   },
                                   "required": [
-                                    "nodeType",
-                                    "routes",
+                                    "_def",
                                   ],
-                                  "title": "BaseTestTestTestRouter",
                                   "type": "object",
                                 },
                               },
@@ -373,33 +474,30 @@ test('Should instropectate simple http server with nested routers', async () => 
                             "nodeType",
                             "routes",
                           ],
-                          "title": "BaseTestTestRouter",
                           "type": "object",
                         },
                       },
                       "required": [
-                        "test",
+                        "_def",
                       ],
                       "type": "object",
                     },
                   },
                   "required": [
-                    "nodeType",
-                    "routes",
+                    "test",
                   ],
-                  "title": "BaseTestRouter",
                   "type": "object",
                 },
               },
               "required": [
-                "test",
+                "nodeType",
+                "routes",
               ],
               "type": "object",
             },
           },
           "required": [
-            "nodeType",
-            "routes",
+            "_def",
           ],
           "title": "BaseRouter",
           "type": "object",

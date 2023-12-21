@@ -1,11 +1,7 @@
+import type { TSchema } from '@sinclair/typebox';
 import type { AnyMiddleware } from './middleware';
-import type {
-  AnyResolveFunction,
-  ResolverSchemaArgs,
-  ResolverSchemaOutput,
-} from './resolver';
+import type { AnyResolveFunction } from './resolver';
 import { Route } from './route';
-import type { AnyTransformation } from './transformation';
 
 /**
  * @internal
@@ -13,23 +9,22 @@ import type { AnyTransformation } from './transformation';
  * Mutation class container
  */
 export class Mutation<
-  TSchemaArgs extends ResolverSchemaArgs | undefined,
-  TSchemaOutput extends ResolverSchemaOutput,
+  TArgsSchema extends TSchema | undefined,
+  TOutputSchema extends TSchema,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
 > extends Route<
   'mutation',
-  TSchemaArgs,
-  TSchemaOutput,
+  TArgsSchema,
+  TOutputSchema,
   TResolveFunction,
   TDescription
 > {
   constructor(options: {
-    schemaArgs: TSchemaArgs;
-    schemaOutput: TSchemaOutput;
+    argsSchema: TArgsSchema;
+    outputSchema: TOutputSchema;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
-    transformations: AnyTransformation[];
     description: TDescription;
   }) {
     super({
@@ -40,8 +35,8 @@ export class Mutation<
 }
 
 export type AnyMutation = Mutation<
-  ResolverSchemaArgs | undefined,
-  ResolverSchemaOutput,
+  any,
+  any,
   AnyResolveFunction,
   string | undefined
 >;

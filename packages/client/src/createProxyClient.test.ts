@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 import { createTestHttpServer } from '@ptsq/test-utils';
+import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { z } from 'zod';
 import { createProxyClient } from './createProxyClient';
 
 type HttpAdapterContext = {
@@ -16,11 +16,11 @@ test('Should create simple http server with proxy client', async () => {
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
-          .output(z.string())
+          .output(Type.String())
           .query(({ input }) => input.name),
       });
     },
@@ -45,11 +45,11 @@ test('Should create simple http server with proxy client and request bad route',
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
-          .output(z.string())
+          .output(Type.String())
           .query(({ input }) => input.name),
       });
     },
@@ -78,11 +78,11 @@ test('Should create simple http server with proxy client and request bad route',
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
-          .output(z.string())
+          .output(Type.String())
           .query(({ input }) => input.name),
       });
     },
@@ -98,7 +98,7 @@ test('Should create simple http server with proxy client and request bad route',
           name: 'John',
         }),
       ).rejects.toMatchInlineSnapshot(
-        '[AxiosError: Request failed with status code 400]',
+        '[AxiosError: Request failed with status code 404]',
       );
     },
   });
@@ -109,7 +109,7 @@ test('Should create simple http server with proxy client without query input', a
     ctx: () => ({}),
     server: ({ resolver, router }) => {
       return router({
-        test: resolver.output(z.string()).query(() => 'Hello world!'),
+        test: resolver.output(Type.String()).query(() => 'Hello world!'),
       });
     },
     client: async (serverUrl, router) => {
@@ -129,7 +129,7 @@ test('Should create simple http server with proxy client without mutation input'
     ctx: () => ({}),
     server: ({ resolver, router }) => {
       return router({
-        test: resolver.output(z.string()).mutation(() => 'Hello world!'),
+        test: resolver.output(Type.String()).mutation(() => 'Hello world!'),
       });
     },
     client: async (serverUrl, router) => {
@@ -152,7 +152,7 @@ test('Should create simple http server with Authorization header', async () => {
     server: ({ resolver, router }) => {
       return router({
         test: resolver
-          .output(z.string())
+          .output(Type.String())
           .query(({ ctx }) => `Hello ${ctx.auth ?? '!NOPE!'}!`),
       });
     },

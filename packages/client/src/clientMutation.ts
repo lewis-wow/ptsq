@@ -1,16 +1,18 @@
-import { ClientRoute, type RequestOptions } from './clientRoute';
+import { type RequestOptions } from './client';
 
-export abstract class ClientMutation<
+export type ClientMutation<
   TDescription extends string | undefined,
   TDefinition extends {
     args?: any;
     output: any;
   },
-> extends ClientRoute {
-  abstract description: TDescription;
+> = {
+  _def: {
+    description: TDescription;
+  };
 
-  abstract mutate(
+  mutate: (
     requestInput: TDefinition['args'],
     requestOptions?: RequestOptions,
-  ): Promise<TDefinition['output']>;
-}
+  ) => Promise<TDefinition['output']>;
+};

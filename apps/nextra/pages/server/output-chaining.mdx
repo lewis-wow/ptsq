@@ -1,0 +1,9 @@
+# Output chaining
+
+Output validation schemas can chain the same as the arguments schemas.
+
+```ts copy
+resolver
+  .output(Type.Object({ firstName: Type.String() }))
+  .output(Type.Object({ lastName: Type.String() }));
+```

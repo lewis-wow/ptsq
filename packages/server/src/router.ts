@@ -20,11 +20,13 @@ export type Routes = {
  * Creates a router that can be nested.
  */
 export class Router<TRoutes extends Routes> {
-  routes: TRoutes;
-  nodeType: 'router' = 'router' as const;
+  _def: {
+    routes: TRoutes;
+    nodeType: 'router';
+  };
 
-  constructor({ routes }: { routes: TRoutes }) {
-    this.routes = routes;
+  constructor(routerOptions: { routes: TRoutes }) {
+    this._def = { ...routerOptions, nodeType: 'router' };
   }
 
   /**
@@ -32,23 +34,23 @@ export class Router<TRoutes extends Routes> {
    *
    * Gets the json schema of the whole router recursivelly
    */
-  getJsonSchema(title = 'base') {
+  getJsonSchema() {
     return createSchemaRoot({
-      title: `${title} router`,
-      properties: {
+      _def: createSchemaRoot({
         nodeType: {
           type: 'string',
-          enum: [this.nodeType],
+          enum: [this._def.nodeType],
         },
-        routes: createSchemaRoot({
-          properties: Object.entries(this.routes).reduce<
-            Record<string, SchemaRoot>
-          >((acc, [key, node]) => {
-            acc[key] = node.getJsonSchema(`${title} ${key}`);
-            return acc;
-          }, {}),
-        }),
-      },
+        routes: createSchemaRoot(
+          Object.entries(this._def.routes).reduce<Record<string, SchemaRoot>>(
+            (acc, [key, node]) => {
+              acc[key] = node.getJsonSchema();
+              return acc;
+            },
+            {},
+          ),
+        ),
+      }),
     });
   }
 
@@ -72,15 +74,15 @@ export class Router<TRoutes extends Routes> {
           'The route was terminated by query or mutate but should continue.',
       });
 
-    if (!(currentRoute in this.routes))
+    if (!(currentRoute in this._def.routes))
       throw new HTTPError({
-        code: 'BAD_REQUEST',
+        code: 'NOT_FOUND',
         message: 'The route was invalid.',
       });
 
-    const nextNode = this.routes[currentRoute];
+    const nextNode = this._def.routes[currentRoute];
 
-    if (nextNode.nodeType === 'router') return nextNode.call(options);
+    if (nextNode._def.nodeType === 'router') return nextNode.call(options);
 
     if (options.route.size !== 0)
       throw new HTTPError({
@@ -89,10 +91,10 @@ export class Router<TRoutes extends Routes> {
           'The route continues, but should be terminated by query or mutate.',
       });
 
-    if (nextNode.type !== options.type)
+    if (nextNode._def.type !== options.type)
       throw new HTTPError({
         code: 'BAD_REQUEST',
-        message: `The route type is invalid, it should be ${nextNode.type} and it is ${options.type}.`,
+        message: `The route type is invalid, it should be ${nextNode._def.type} and it is ${options.type}.`,
       });
 
     return nextNode.call(options);

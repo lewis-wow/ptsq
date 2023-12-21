@@ -1,7 +1,7 @@
 import { createTestHttpServer } from '@ptsq/test-utils';
+import { Type } from '@sinclair/typebox';
 import axios from 'axios';
 import { expect, test } from 'vitest';
-import { z } from 'zod';
 
 test('Should create simple http server', async () => {
   await createTestHttpServer({
@@ -10,11 +10,11 @@ test('Should create simple http server', async () => {
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
-          .output(z.string())
+          .output(Type.String())
           .query(({ input }) => input.name),
       });
     },
@@ -41,14 +41,14 @@ test('Should create simple http server with context', async () => {
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
           .output(
-            z.object({
-              name: z.string(),
-              number: z.literal(42),
+            Type.Object({
+              name: Type.String(),
+              number: Type.Literal(42),
             }),
           )
           .query(({ input, ctx }) => ({
@@ -83,15 +83,15 @@ test('Should create simple http server with middleware', async () => {
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
           .use(({ input, ctx, next }) => next({ ...ctx, ...input }))
           .output(
-            z.object({
-              name: z.string(),
-              number: z.literal(42),
+            Type.Object({
+              name: Type.String(),
+              number: Type.Literal(42),
             }),
           )
           .query(({ ctx }) => ctx),
@@ -171,7 +171,7 @@ test('Should create simple http server with 2 nested middlewares', async () => {
 
             return result;
           })
-          .output(z.null())
+          .output(Type.Null())
           .query(() => null),
       });
     },
@@ -193,11 +193,11 @@ test('Should introspectate the server with http adapter', async () => {
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
-          .output(z.string())
+          .output(Type.String())
           .query(({ input }) => input.name),
       });
     },
@@ -206,67 +206,85 @@ test('Should introspectate the server with http adapter', async () => {
 
       expect(response.data).toMatchInlineSnapshot(`
         {
+          "$schema": "https://json-schema.org/draft/2019-09/schema#",
           "additionalProperties": false,
           "properties": {
-            "nodeType": {
-              "enum": [
-                "router",
-              ],
-              "type": "string",
-            },
-            "routes": {
+            "_def": {
               "additionalProperties": false,
               "properties": {
-                "test": {
+                "nodeType": {
+                  "enum": [
+                    "router",
+                  ],
+                  "type": "string",
+                },
+                "routes": {
                   "additionalProperties": false,
                   "properties": {
-                    "nodeType": {
-                      "enum": [
-                        "route",
-                      ],
-                      "type": "string",
-                    },
-                    "schemaArgs": {
+                    "test": {
                       "additionalProperties": false,
                       "properties": {
-                        "name": {
-                          "type": "string",
+                        "_def": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "argsSchema": {
+                              "properties": {
+                                "name": {
+                                  "type": "string",
+                                },
+                              },
+                              "required": [
+                                "name",
+                              ],
+                              "type": "object",
+                            },
+                            "nodeType": {
+                              "enum": [
+                                "route",
+                              ],
+                              "type": "string",
+                            },
+                            "outputSchema": {
+                              "type": "string",
+                            },
+                            "type": {
+                              "enum": [
+                                "query",
+                              ],
+                              "type": "string",
+                            },
+                          },
+                          "required": [
+                            "type",
+                            "nodeType",
+                            "argsSchema",
+                            "outputSchema",
+                            "description",
+                          ],
+                          "type": "object",
                         },
                       },
                       "required": [
-                        "name",
+                        "_def",
                       ],
                       "type": "object",
                     },
-                    "schemaOutput": {
-                      "type": "string",
-                    },
-                    "type": {
-                      "enum": [
-                        "query",
-                      ],
-                      "type": "string",
-                    },
                   },
                   "required": [
-                    "type",
-                    "nodeType",
-                    "schemaArgs",
-                    "schemaOutput",
+                    "test",
                   ],
-                  "title": "BaseTestRoute",
                   "type": "object",
                 },
               },
               "required": [
-                "test",
+                "nodeType",
+                "routes",
               ],
               "type": "object",
             },
           },
           "required": [
-            "nodeType",
-            "routes",
+            "_def",
           ],
           "title": "BaseRouter",
           "type": "object",
@@ -283,11 +301,11 @@ test('Should create simple http server and return BAD_REQUEST response', async (
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
-          .output(z.string())
+          .output(Type.String())
           .query(({ input }) => input.name),
       });
     },
@@ -312,11 +330,11 @@ test('Should create simple http server and return INTERNAL_SERVER_ERROR response
       return router({
         test: resolver
           .args(
-            z.object({
-              name: z.string(),
+            Type.Object({
+              name: Type.String(),
             }),
           )
-          .output(z.string())
+          .output(Type.String())
           .query(
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error - just for test!

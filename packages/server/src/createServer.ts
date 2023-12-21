@@ -65,19 +65,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * });
    * ```
    */
-  const resolver = new Resolver<
-    undefined,
-    undefined,
-    undefined,
-    undefined,
-    RootContext,
-    undefined
-  >({
-    schemaArgs: undefined,
-    schemaOutput: undefined,
-    middlewares: [],
-    transformations: [],
-  });
+  const resolver = Resolver.createRoot<RootContext>();
 
   /**
    * Creates a fully typed router
@@ -122,7 +110,12 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
       .route({
         path: `${path}/introspection`,
         method: 'GET',
-        handler: () => Response.json(baseRouter.getJsonSchema('base')),
+        handler: () =>
+          Response.json({
+            ...baseRouter.getJsonSchema(),
+            title: 'BaseRouter',
+            $schema: 'https://json-schema.org/draft/2019-09/schema#',
+          }),
       });
   };
 

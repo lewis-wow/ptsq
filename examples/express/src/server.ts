@@ -1,31 +1,35 @@
 import { createServer } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
+import { TypeSystem } from '@sinclair/typebox/system';
 import express, { Request, Response } from 'express';
-import { z } from 'zod';
 
 const app = express();
 
-const createContext = ({ req, res }: { req: Request; res: Response }) => ({
-  req,
-  res,
-});
+const createContext = ({ req, res }: { req: Request; res: Response }) => {
+  const user = 'user' as 'user' | 'admin' | undefined;
+  return { req, res, user, test: { a: 1 } };
+};
 
 const { router, resolver, serve } = createServer({
   ctx: createContext,
 });
 
-const tr = resolver.description('Description of my resolver');
+const foo = TypeSystem.Format('foo', (value) => value === 'foo');
 
-const q = tr
-  .output(z.date().transform((date) => date.toISOString()))
-  .use(({ ctx, next }) => {
-    console.log(ctx);
+const dateSchema = Type.String({
+  format: foo,
+});
 
-    return next(ctx);
-  })
-  .query((_) => new Date());
+const test = resolver
+  .description(`My test query...`)
+  .args(dateSchema)
+  .output(dateSchema)
+  .query(({ input }) => input);
+
+console.log(test._def.description);
 
 const baseRouter = router({
-  greetings: q,
+  greetings: test,
 });
 
 app.use((req, res) => serve(baseRouter)(req, res));

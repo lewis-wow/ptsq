@@ -1,0 +1,184 @@
+# Middlewares
+
+The Middleware function runs before every route call (query, mutation) that the resolver that uses the middleware creates.
+The `next` function determines when the next middleware will start.
+
+```ts copy
+import { createServer } from '@ptsq/server';
+import express, { Request, Response } from 'express';
+import { getUserFromJWT } from './getUserFromJWT';
+import { userRouter } from './userRouter';
+
+const app = express();
+
+const createContext = async ({ req, res }: { req: Request; res: Response }) => {
+  const user = await getUserFromJWT(req.cookies.jwt);
+
+  return {
+    req,
+    res,
+    user,
+  };
+};
+
+const { resolver, router } = createServer({
+  ctx: createContext,
+});
+
+const protectedResolver = resolver.use(({ ctx, next }) => {
+  if (!ctx.user) throw new Error('Must be logged in!');
+
+  return next({
+    ...ctx,
+    user: ctx.user,
+  });
+});
+
+resolver.query({
+  resolve: async ({
+    ctx /* { user: User | null } */,
+    input /* undefined */,
+  }) => {
+    return `Hello, ${ctx.user.name}`;
+    // throws Error user can be null
+  },
+});
+
+protectedResolver.query({
+  resolve: async ({ ctx /* { user: User } */, input /* undefined */ }) => {
+    return `Hello, ${ctx.user.name}`;
+  },
+});
+```
+
+The `next` function only returns the passed context.
+It is only for keep the context type up to date after e.g. `if` condition.
+
+## Run next function before return
+
+You can also run the next function before the return, so the next middlewares runs before the first middleware ends.
+
+It can be usefull for measuring the time for response.
+
+The last middleware that runs is the `resolve` function. It always runs as a last middleware.
+
+```ts copy
+const measuredResolver = resolver.use(({ ctx, next }) => {
+  if (!ctx.user) throw new Error('Must be logged in!');
+
+  const timeStart = performance.now();
+
+  const resolverResult = next({
+    ...ctx,
+    user: ctx.user,
+  });
+
+  const time = performance.now() - timeStart;
+
+  console.log('Time to resolve: ', time);
+  console.log('The result of resolver is: ', resolverResult);
+
+  return resolverResult;
+});
+```
+
+As you can see, you still have to return the resolver result, it is for context type inferring and for passing the result up to middlewares that runs before, as you can nest multiple middlewares and the result returns recursively.
+
+The type of middleware response is
+
+```ts copy
+type MiddlewareResponse<TContext extends Context> =
+  | {
+      ok: true;
+      data: unknown;
+      ctx: TContext;
+    }
+  | {
+      ok: false;
+      error: HTTPError;
+      ctx: TContext;
+    };
+```
+
+so you have to determine if the `ok` property is `true` or `false` to access the `data` or `error`.
+
+## Arguments validation with middleware
+
+You can validate part of arguments before middleware definition, so you can access the properties in the middleware.
+
+```ts copy
+const protectedResolver = resolver
+  .args(
+    Type.Object({
+      firstName: Type.String(),
+    }),
+  )
+  .use(
+    ({
+      ctx /* { user: User<any> | null } */,
+      input /* { firstName: string } */,
+      next,
+    }) => {
+      if (!ctx.user || ctx.user.firstName !== input.firstName)
+        throw new Error('Must be logged in with firstName match!');
+
+      return next({
+        ...ctx,
+        user: ctx.user,
+      });
+    },
+  );
+```
+
+## Middleware pipes
+
+If middlewares are piped, then all the middlewares run before the route call in piping order.
+
+```ts copy
+const protectedResolver = resolver.use(
+  ({ ctx /* { user: User<any> | null } */, next }) => {
+    if (!ctx.user) throw new Error('Must be logged in!');
+
+    return next({
+      ...ctx,
+      user: ctx.user,
+    });
+  },
+);
+
+const adminResolver = protectedResolver.use(
+  ({ ctx /* { user: User<any> } */, next }) => {
+    if (ctx.user.role !== 'admin') throw new Error('Must be an admin!');
+
+    return next({
+      ...ctx,
+      user: ctx.user,
+    });
+  },
+);
+
+const deleteOrganization = adminResolver.mutation({
+  //...
+  resolve: ({ ctx /* { user: User<'admin'> } */, input }) => {
+    //...
+  },
+});
+```
+
+Piping the middleware with another middleware, pass the context returned from the first middleware as an input to the piped (next) middleware.
+
+There is a demonstration of the `Middleware` types work.
+
+```ts
+// the mutation without any middleware
+Mutation<{ user?: User | null }>;
+
+// the first middleware gets the root context and checks if the user is undefined
+Middleware<{ user?: User | null }, { user: User | null }>;
+
+// the piped middleware gets the result context of the first middleware and checks if the user is null
+Middleware<{ user: User | null }, { user: User }>;
+
+// the mutation with a resolver that uses the piped middleware
+Mutation<{ user: User }>;
+```

@@ -1,0 +1,74 @@
+# Router
+
+Routers describe the API interface.
+
+The strength of this model lies in the nesting of routers into one `Base` router.
+
+Routers can be merged across files, so you can define routers somewhere and then merge them into one `Base` router.
+
+It is recommended to export `type` of the `Base` router because then you can specify your server as a `devDependency` on the client if you are using monorepo project structure.
+
+```ts copy
+import { createServer } from '@ptsq/server';
+import express, { Request, Response } from 'express';
+import { userRouter } from './userRouter';
+
+const app = express();
+
+const createContext = ({ req, res }: { req: Request; res: Response }) => ({
+  req,
+  res,
+});
+
+const { resolver, router, serve } = createServer({
+  ctx: createContext,
+});
+
+// routers can be merged as you want
+const baseRouter = router({
+  a: router({
+    b: router({
+      c: router({
+        user: userRouter,
+      }),
+    }),
+  }),
+});
+
+export type BaseRouter = typeof baseRouter;
+
+app.use((req, res) => serve(baseRouter)(req, res));
+
+app.listen(4000);
+```
+
+## Client
+
+On the client side routers are objects (Proxy objects).
+If routers are nested on the server, it creates the nesting on the client side as well.
+
+```ts copy
+import { createProxyClient } from '@ptsq/client';
+import { BaseRouter } from './server';
+
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/ptsq'
+});
+
+const result = await client.a.b.c.user.current.query();
+
+// auto-completion
+const userList = await client.a. /* b.c.user.userList.query() */
+```
+
+## Type-level only
+
+The `BaseRouter` is a Typescript type, which means the client doesn't know anything about the server in runtime.
+
+```ts
+//@ts-ignore
+const result = await client.a.wrong.route.query();
+```
+
+That means you can disable the type hinting and call the wrong route.
+If the wrong route is called, then the server responds with `BAD_REQUEST` error.

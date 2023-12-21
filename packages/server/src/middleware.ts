@@ -2,36 +2,31 @@ import { Response } from 'fets';
 import type { Context } from './context';
 import type { ErrorFormatter } from './errorFormatter';
 import { HTTPError } from './httpError';
-import type { ResolverSchemaArgs } from './resolver';
-import type { AnyTransformation } from './transformation';
+import type { ResolverSchema } from './resolver';
+import { SchemaParser } from './schemaParser';
 import type { ResolverType } from './types';
 
 /**
  * @internal
  */
-export type NextFunction = <TNextContext extends Context>(
-  nextContext: TNextContext,
-) => Promise<RawMiddlewareReponse<TNextContext>>;
+export type NextFunction<TContext extends Context> = {
+  (): Promise<RawMiddlewareReponse<TContext>>;
+  <TNextContext extends Context>(
+    nextContext: TNextContext,
+  ): Promise<RawMiddlewareReponse<TNextContext>>;
+};
 
 /**
  * @internal
  */
-export type MiddlewareFunction<
-  TArgs,
-  TContext extends Context,
-  TNextContext extends Context,
-> = (options: {
+export type MiddlewareFunction<TArgs, TContext extends Context> = (options: {
   input: TArgs;
   meta: MiddlewareMeta;
   ctx: TContext;
-  next: NextFunction;
-}) => ReturnType<typeof options.next<TNextContext>>;
+  next: NextFunction<TContext>;
+}) => ReturnType<typeof options.next>;
 
-export type AnyMiddlewareCallback = MiddlewareFunction<
-  unknown,
-  Context,
-  Context
->;
+export type AnyMiddlewareCallback = MiddlewareFunction<unknown, Context>;
 
 export type MiddlewareMeta = {
   input: unknown;
@@ -42,23 +37,17 @@ export type MiddlewareMeta = {
 /**
  * The middleware class container
  */
-export class Middleware<
-  TArgs,
-  TContext extends Context,
-  TNextContext extends Context,
-> {
-  _middlewareFunction: MiddlewareFunction<TArgs, TContext, TNextContext>;
-  _schemaArgs: ResolverSchemaArgs | undefined;
-  _transformations: AnyTransformation[];
+export class Middleware<TArgs, TContext extends Context> {
+  _def: {
+    middlewareFunction: MiddlewareFunction<TArgs, TContext>;
+    argsSchema: ResolverSchema | undefined;
+  };
 
-  constructor(options: {
-    schemaArgs: ResolverSchemaArgs | undefined;
-    transformations: AnyTransformation[];
-    middlewareFunction: MiddlewareFunction<TArgs, TContext, TNextContext>;
+  constructor(middlewareOptions: {
+    argsSchema: ResolverSchema | undefined;
+    middlewareFunction: MiddlewareFunction<TArgs, TContext>;
   }) {
-    this._middlewareFunction = options.middlewareFunction;
-    this._schemaArgs = options.schemaArgs;
-    this._transformations = options.transformations;
+    this._def = middlewareOptions;
   }
 
   /**
@@ -75,38 +64,30 @@ export class Middleware<
     middlewares: AnyMiddleware[];
   }): Promise<AnyRawMiddlewareReponse> {
     try {
-      const parsedInput = options.middlewares[
-        options.index
-      ]._schemaArgs?.safeParse(options.meta.input);
+      const parseResult = SchemaParser.safeParseInput({
+        schema: options.middlewares[options.index]._def.argsSchema,
+        value: options.meta.input,
+      });
 
-      if (parsedInput !== undefined && !parsedInput.success)
+      if (!parseResult.ok)
         throw new HTTPError({
           code: 'BAD_REQUEST',
           message: 'Args validation error.',
-          info: parsedInput.error,
+          info: parseResult.errors,
         });
 
-      const transformedInputData = await options.middlewares[
-        options.index
-      ]._transformations.reduce(
-        async (acc, currentTransformation) =>
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-          await currentTransformation(await acc),
-        Promise.resolve(parsedInput?.data),
-      );
-
-      return await options.middlewares[options.index]._middlewareFunction({
-        input: transformedInputData,
+      return await options.middlewares[options.index]._def.middlewareFunction({
+        input: parseResult.data,
         meta: options.meta,
         ctx: options.ctx,
-        next: (nextContext): Promise<RawMiddlewareReponse<any>> => {
+        next: ((nextContext) => {
           return Middleware.recursiveCall({
-            ctx: nextContext,
+            ctx: { ...options.ctx, ...nextContext },
             meta: options.meta,
             index: options.index + 1,
             middlewares: options.middlewares,
           });
-        },
+        }) as NextFunction<Context>,
       });
     } catch (error) {
       return MiddlewareResponse.createRawFailureResponse({
@@ -122,7 +103,7 @@ export class Middleware<
   }
 }
 
-export type AnyMiddleware = Middleware<unknown, Context, Context>;
+export type AnyMiddleware = Middleware<unknown, Context>;
 
 export type RawMiddlewareReponse<TContext extends Context> =
   | { ok: true; data: unknown; ctx: TContext }

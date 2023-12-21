@@ -1,5 +1,5 @@
+import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { z } from 'zod';
 import { createServer } from './createServer';
 import { HTTPError } from './httpError';
 
@@ -10,8 +10,8 @@ test('Should create query', async () => {
     }),
   });
 
-  const argsSchema = z.object({ name: z.string() });
-  const outputValidationSchema = z.string();
+  const argsSchema = Type.Object({ name: Type.String() });
+  const outputValidationSchema = Type.String();
 
   const resolveFunction = ({
     input,
@@ -26,12 +26,15 @@ test('Should create query', async () => {
     .output(outputValidationSchema)
     .query(resolveFunction);
 
-  expect(query.nodeType).toBe('route');
-  expect(query.type).toBe('query');
-  expect(query.middlewares).toStrictEqual([]);
-  expect(query.schemaArgs).toStrictEqual(argsSchema);
-  expect(query.schemaOutput).toStrictEqual(outputValidationSchema);
-  expect(query.resolveFunction).toBe(resolveFunction);
+  expect(query._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'query',
+    middlewares: [],
+    argsSchema: argsSchema,
+    outputSchema: outputValidationSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await query.call({
@@ -62,45 +65,54 @@ test('Should create query', async () => {
     },
   });
 
-  expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(query.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
-        "nodeType": {
-          "enum": [
-            "route",
-          ],
-          "type": "string",
-        },
-        "schemaArgs": {
+        "_def": {
           "additionalProperties": false,
           "properties": {
-            "name": {
+            "argsSchema": {
+              "properties": {
+                "name": {
+                  "type": "string",
+                },
+              },
+              "required": [
+                "name",
+              ],
+              "type": "object",
+            },
+            "description": undefined,
+            "nodeType": {
+              "enum": [
+                "route",
+              ],
+              "type": "string",
+            },
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "enum": [
+                "query",
+              ],
               "type": "string",
             },
           },
           "required": [
-            "name",
+            "type",
+            "nodeType",
+            "argsSchema",
+            "outputSchema",
+            "description",
           ],
           "type": "object",
         },
-        "schemaOutput": {
-          "type": "string",
-        },
-        "type": {
-          "enum": [
-            "query",
-          ],
-          "type": "string",
-        },
       },
       "required": [
-        "type",
-        "nodeType",
-        "schemaArgs",
-        "schemaOutput",
+        "_def",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);
@@ -113,23 +125,26 @@ test('Should create query without args', async () => {
     }),
   });
 
-  const validationSchema = z.string();
+  const validationSchema = Type.String();
 
   const resolveFunction = ({
     ctx,
   }: {
-    input: undefined;
+    input: unknown;
     ctx: { greetingsPrefix: 'Hello' };
   }) => `${ctx.greetingsPrefix}`;
 
   const query = resolver.output(validationSchema).query(resolveFunction);
 
-  expect(query.nodeType).toBe('route');
-  expect(query.type).toBe('query');
-  expect(query.middlewares).toStrictEqual([]);
-  expect(query.schemaArgs).toBe(undefined);
-  expect(query.schemaOutput).toStrictEqual(validationSchema);
-  expect(query.resolveFunction).toBe(resolveFunction);
+  expect(query._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'query',
+    middlewares: [],
+    argsSchema: undefined,
+    outputSchema: validationSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await query.call({
@@ -157,36 +172,44 @@ test('Should create query without args', async () => {
     },
   });
 
-  expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(query.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
-        "nodeType": {
-          "enum": [
-            "route",
+        "_def": {
+          "additionalProperties": false,
+          "properties": {
+            "argsSchema": undefined,
+            "description": undefined,
+            "nodeType": {
+              "enum": [
+                "route",
+              ],
+              "type": "string",
+            },
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "enum": [
+                "query",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+            "nodeType",
+            "argsSchema",
+            "outputSchema",
+            "description",
           ],
-          "type": "string",
-        },
-        "schemaArgs": {
-          "not": {},
-        },
-        "schemaOutput": {
-          "type": "string",
-        },
-        "type": {
-          "enum": [
-            "query",
-          ],
-          "type": "string",
+          "type": "object",
         },
       },
       "required": [
-        "type",
-        "nodeType",
-        "schemaArgs",
-        "schemaOutput",
+        "_def",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);
@@ -199,12 +222,10 @@ test('Should create query with twice chain', async () => {
     }),
   });
 
-  const firstSchemaInArgumentChain = z.object({ firstName: z.string() });
-  const secondSchemaInArgumentChain = z.object({
-    firstName: z.string(),
-    lastName: z.string(),
-  });
-  const outputSchema = z.string();
+  const firstSchemaInArgumentChain = Type.Object({ firstName: Type.String() });
+  const secondSchemaInArgumentChain = Type.Object({ lastName: Type.String() });
+
+  const outputSchema = Type.String();
 
   const resolveFunction = ({
     input,
@@ -220,12 +241,18 @@ test('Should create query with twice chain', async () => {
     .output(outputSchema)
     .query(resolveFunction);
 
-  expect(query.nodeType).toBe('route');
-  expect(query.type).toBe('query');
-  expect(query.middlewares).toStrictEqual([]);
-  expect(query.schemaArgs).toStrictEqual(secondSchemaInArgumentChain);
-  expect(query.schemaOutput).toStrictEqual(outputSchema);
-  expect(query.resolveFunction).toBe(resolveFunction);
+  expect(query._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'query',
+    middlewares: [],
+    argsSchema: Type.Intersect([
+      firstSchemaInArgumentChain,
+      secondSchemaInArgumentChain,
+    ]),
+    outputSchema: outputSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await query.call({
@@ -280,49 +307,70 @@ test('Should create query with twice chain', async () => {
     },
   });
 
-  expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(query.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
-        "nodeType": {
-          "enum": [
-            "route",
-          ],
-          "type": "string",
-        },
-        "schemaArgs": {
+        "_def": {
           "additionalProperties": false,
           "properties": {
-            "firstName": {
+            "argsSchema": {
+              "allOf": [
+                {
+                  "properties": {
+                    "firstName": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "firstName",
+                  ],
+                  "type": "object",
+                },
+                {
+                  "properties": {
+                    "lastName": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "lastName",
+                  ],
+                  "type": "object",
+                },
+              ],
+              "type": "object",
+            },
+            "description": undefined,
+            "nodeType": {
+              "enum": [
+                "route",
+              ],
               "type": "string",
             },
-            "lastName": {
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "enum": [
+                "query",
+              ],
               "type": "string",
             },
           },
           "required": [
-            "firstName",
-            "lastName",
+            "type",
+            "nodeType",
+            "argsSchema",
+            "outputSchema",
+            "description",
           ],
           "type": "object",
         },
-        "schemaOutput": {
-          "type": "string",
-        },
-        "type": {
-          "enum": [
-            "query",
-          ],
-          "type": "string",
-        },
       },
       "required": [
-        "type",
-        "nodeType",
-        "schemaArgs",
-        "schemaOutput",
+        "_def",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);
@@ -335,17 +383,21 @@ test('Should create query with optional args chain', async () => {
     }),
   });
 
-  const firstSchemaInArgumentChain = z
-    .object({ firstName: z.string().optional() })
-    .optional();
-  const secondSchemaInArgumentChain = z
-    .object({
-      firstName: z.string().optional(),
-      lastName: z.string().optional(),
-    })
-    .optional();
+  const firstSchemaInArgumentChain = Type.Union([
+    Type.Object({
+      firstName: Type.Optional(Type.String()),
+    }),
+    Type.Undefined(),
+  ]);
 
-  const outputSchema = z.string();
+  const secondSchemaInArgumentChain = Type.Union([
+    Type.Object({
+      lastName: Type.Optional(Type.String()),
+    }),
+    Type.Undefined(),
+  ]);
+
+  const outputSchema = Type.String();
 
   const resolveFunction = ({
     input,
@@ -364,12 +416,18 @@ test('Should create query with optional args chain', async () => {
     .output(outputSchema)
     .query(resolveFunction);
 
-  expect(query.nodeType).toBe('route');
-  expect(query.type).toBe('query');
-  expect(query.middlewares).toStrictEqual([]);
-  expect(query.schemaArgs).toStrictEqual(secondSchemaInArgumentChain);
-  expect(query.schemaOutput).toStrictEqual(outputSchema);
-  expect(query.resolveFunction).toBe(resolveFunction);
+  expect(query._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'query',
+    middlewares: [],
+    argsSchema: Type.Intersect([
+      firstSchemaInArgumentChain,
+      secondSchemaInArgumentChain,
+    ]),
+    outputSchema: outputSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await query.call({
@@ -444,52 +502,77 @@ test('Should create query with optional args chain', async () => {
     },
   });
 
-  expect(query.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(query.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
-        "nodeType": {
-          "enum": [
-            "route",
-          ],
-          "type": "string",
-        },
-        "schemaArgs": {
-          "anyOf": [
-            {
-              "not": {},
-            },
-            {
-              "additionalProperties": false,
-              "properties": {
-                "firstName": {
-                  "type": "string",
+        "_def": {
+          "additionalProperties": false,
+          "properties": {
+            "argsSchema": {
+              "allOf": [
+                {
+                  "anyOf": [
+                    {
+                      "properties": {
+                        "firstName": {
+                          "type": "string",
+                        },
+                      },
+                      "type": "object",
+                    },
+                    {
+                      "type": "undefined",
+                    },
+                  ],
                 },
-                "lastName": {
-                  "type": "string",
+                {
+                  "anyOf": [
+                    {
+                      "properties": {
+                        "lastName": {
+                          "type": "string",
+                        },
+                      },
+                      "type": "object",
+                    },
+                    {
+                      "type": "undefined",
+                    },
+                  ],
                 },
-              },
-              "type": "object",
+              ],
             },
+            "description": undefined,
+            "nodeType": {
+              "enum": [
+                "route",
+              ],
+              "type": "string",
+            },
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "enum": [
+                "query",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+            "nodeType",
+            "argsSchema",
+            "outputSchema",
+            "description",
           ],
-        },
-        "schemaOutput": {
-          "type": "string",
-        },
-        "type": {
-          "enum": [
-            "query",
-          ],
-          "type": "string",
+          "type": "object",
         },
       },
       "required": [
-        "type",
-        "nodeType",
-        "schemaArgs",
-        "schemaOutput",
+        "_def",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);

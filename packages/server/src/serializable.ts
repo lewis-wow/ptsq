@@ -1,4 +1,6 @@
-import { z } from 'zod';
+import type { Static } from '@sinclair/typebox';
+import type { ResolverSchema } from './resolver';
+import type { ErrorMessage } from './types';
 
 export type Serializable =
   | string
@@ -11,15 +13,8 @@ export type Serializable =
 
 /**
  * @internal
- *
- * Checks if the response and request is serializable.
  */
-export const serializableZodSchema: z.Schema<Serializable> = z.union([
-  z.string(),
-  z.number(),
-  z.null(),
-  z.boolean(),
-  z.undefined(),
-  z.lazy(() => serializableZodSchema.array()),
-  z.lazy(() => z.record(z.string(), serializableZodSchema)),
-]);
+export type SerializableSchema<TSchemaArg extends ResolverSchema> =
+  Static<TSchemaArg> extends Serializable
+    ? TSchemaArg
+    : ErrorMessage<`The schema is not serializable.`>;

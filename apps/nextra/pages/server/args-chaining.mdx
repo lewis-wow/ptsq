@@ -1,0 +1,92 @@
+# Arguments chaining
+
+Input arguments of the `resolver` can be chained to create a complex type or to know the type before the `resolver` resolve function, for example in the `middleware`.
+
+```ts
+const personWithFirstNameResolver = resolver.args(
+  Type.Object({ person: Type.Object({ firstName: Type.String() }) }),
+);
+
+const personResolver = personWithFirstNameResolver.args(
+  Type.Object({
+    person: Type.Object({ lastName: Type.String() }),
+  }),
+);
+
+const testQuery = personResolver
+  .output(Type.String())
+  .query(
+    ({ input /* { person: { firstName: string; lastName: string; } } */ }) => {
+      return `Hello, ${input.person.firstName} ${input.person.lastName}`;
+    },
+  );
+```
+
+The types are merged into one. It is using the `Type.Intersection` in the background.
+
+## Using arguments chaining with middleware
+
+You can use the arguments chaining for getting validated input in the `middleware` before the `resolver` run.
+
+```ts
+const personResolver = resolver.args(
+  Type.Object({ person: Type.Object({ firstName: Type.String() }) }),
+);
+
+const personWithLogResolver = personResolver.use(
+  ({ input /* { person: { firstName: string } } */, ctx, next }) => {
+    console.log('Persons first name: ', input.person.firstName);
+
+    return next();
+  },
+);
+
+const testQuery = personWithLogResolver
+  .args(
+    Type.Object({
+      person: Type.Object({
+        firstName: Type.String(), // <- can be there but it does not have to
+        lastName: Type.String(),
+      }),
+    }),
+  )
+  .output(Type.String())
+  .query(
+    ({
+      input /* { person: { firstName: string; lastName: string; } } */,
+      ctx /* { personFirstName: string } */,
+    }) /* string */ => {
+      return `Hello, ${input.person.firstName} ${input.person.lastName}`;
+    },
+  );
+```
+
+As you can see, you can safely access the `input` cause it is validated by the arguments.
+
+In the example, we log the first name and pass the first name into a context, so the `query` can use the context with the already assigned person's first name.
+
+The future arguments in the args chaining can extend the previous/current validation schema but do not have to.
+
+```ts
+import { personSchema } from './validation';
+
+const loggerResolver = resolver
+  .args(
+    Type.Object({
+      email: Type.String({
+        format: 'email',
+      }),
+    }),
+  )
+  .use(({ input, ctx, next }) => {
+    console.log('Log the email: ', input.email);
+
+    return next(ctx);
+  });
+
+loggerResolver.args(personSchema).query({
+  // ...
+});
+```
+
+The `personSchema` can have email validation in its definition.

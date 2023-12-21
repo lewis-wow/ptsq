@@ -2,6 +2,7 @@ import type {
   inferClientResolverArgs,
   inferClientResolverOutput,
   ResolverType,
+  Simplify,
 } from '@ptsq/server';
 import type { ClientMutation } from './clientMutation';
 import type { ClientQuery } from './clientQuery';
@@ -10,11 +11,13 @@ import type { ClientQuery } from './clientQuery';
  * more general route type than in server package, because of introspection result
  */
 export type ClientRoute<TType extends ResolverType> = {
-  nodeType: 'route';
-  type: TType;
-  schemaArgs?: any;
-  schemaOutput: any;
-  description?: string;
+  _def: {
+    nodeType: 'route';
+    type: TType;
+    argsSchema?: any;
+    outputSchema: any;
+    description?: string;
+  };
 };
 
 type AnyClientRoute = ClientRoute<ResolverType>;
@@ -23,9 +26,11 @@ type AnyClientRoute = ClientRoute<ResolverType>;
  * more general router type than in server package, because of introspection result
  */
 export type ClientRouter = {
-  nodeType: 'router';
-  routes: {
-    [key: string]: ClientRouter | AnyClientRoute;
+  _def: {
+    nodeType: 'router';
+    routes: {
+      [key: string]: ClientRouter | AnyClientRoute;
+    };
   };
 };
 
@@ -34,26 +39,42 @@ export type ClientRouter = {
  *
  * Client type for casting proxy client to correct types
  */
-export type Client<TRouter extends ClientRouter> = {
-  [K in keyof TRouter['routes']]: TRouter['routes'][K] extends ClientRouter
-    ? Client<TRouter['routes'][K]>
-    : TRouter['routes'][K] extends ClientRoute<'query'>
+export type ProxyClientRouter<TRouter extends ClientRouter> = {
+  [K in keyof TRouter['_def']['routes']]: TRouter['_def']['routes'][K] extends ClientRouter
+    ? ProxyClientRouter<TRouter['_def']['routes'][K]>
+    : TRouter['_def']['routes'][K] extends ClientRoute<'query'>
     ? ClientQuery<
-        TRouter['routes'][K]['description'],
+        TRouter['_def']['routes'][K]['_def']['description'] extends string
+          ? TRouter['_def']['routes'][K]['_def']['description']
+          : undefined,
         {
-          args: inferClientResolverArgs<TRouter['routes'][K]['schemaArgs']>;
-          output: inferClientResolverOutput<
-            TRouter['routes'][K]['schemaOutput']
+          args: Simplify<
+            inferClientResolverArgs<
+              TRouter['_def']['routes'][K]['_def']['argsSchema']
+            >
+          >;
+          output: Simplify<
+            inferClientResolverOutput<
+              TRouter['_def']['routes'][K]['_def']['outputSchema']
+            >
           >;
         }
       >
-    : TRouter['routes'][K] extends ClientRoute<'mutation'>
+    : TRouter['_def']['routes'][K] extends ClientRoute<'mutation'>
     ? ClientMutation<
-        TRouter['routes'][K]['description'],
+        TRouter['_def']['routes'][K]['_def']['description'] extends string
+          ? TRouter['_def']['routes'][K]['_def']['description']
+          : undefined,
         {
-          args: inferClientResolverArgs<TRouter['routes'][K]['schemaArgs']>;
-          output: inferClientResolverOutput<
-            TRouter['routes'][K]['schemaOutput']
+          args: Simplify<
+            inferClientResolverArgs<
+              TRouter['_def']['routes'][K]['_def']['argsSchema']
+            >
+          >;
+          output: Simplify<
+            inferClientResolverOutput<
+              TRouter['_def']['routes'][K]['_def']['outputSchema']
+            >
           >;
         }
       >

@@ -1,13 +1,10 @@
-import type { ResolverType } from '@ptsq/server';
+const actionsMap = {
+  query: 'query' as const,
+  mutate: 'mutation' as const,
+} as const;
 
-const actions = ['query', 'mutate'] as const;
-
-export type Action = (typeof actions)[number];
-
-export const actionsMapper: Record<Action, ResolverType> = {
-  query: 'query',
-  mutate: 'mutation',
+export const actions = {
+  map: actionsMap,
+  isActions: (action?: string): action is keyof typeof actionsMap =>
+    !!(action && Object.keys(actions.map).includes(action)),
 };
-
-export const isAction = (action?: string): action is Action =>
-  actions.includes(action as Action);

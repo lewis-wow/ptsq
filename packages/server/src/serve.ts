@@ -5,6 +5,7 @@ import { MiddlewareResponse, type AnyMiddlewareResponse } from './middleware';
 import { Queue } from './queue';
 import { requestBodySchema } from './requestBodySchema';
 import type { AnyRouter } from './router';
+import { SchemaParser } from './schemaParser';
 
 /**
  * @internal
@@ -20,16 +21,19 @@ export const serve = async (options: {
   try {
     const ctx = await options.contextBuilder(options.params);
 
-    const parsedRequestBody = requestBodySchema.safeParse(options.body);
+    const parsedRequestBody = SchemaParser.safeParse({
+      schema: requestBodySchema,
+      value: options.body,
+    });
 
-    if (!parsedRequestBody.success)
+    if (!parsedRequestBody.ok)
       return new MiddlewareResponse({
         ok: false,
         ctx,
         error: new HTTPError({
           code: 'BAD_REQUEST',
           message: 'Parsing request body failed.',
-          info: parsedRequestBody.error,
+          info: parsedRequestBody.errors,
         }),
       });
 

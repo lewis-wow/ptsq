@@ -1,5 +1,5 @@
+import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { z } from 'zod';
 import { createServer } from './createServer';
 import { HTTPError } from './httpError';
 
@@ -18,20 +18,23 @@ test('Should create mutation', async () => {
     ctx: { greetingsPrefix: 'Hello' };
   }) => `${ctx.greetingsPrefix} ${input.name}`;
 
-  const argsSchema = z.object({ name: z.string() });
-  const outputValidationSchema = z.string();
+  const argsSchema = Type.Object({ name: Type.String() });
+  const outputValidationSchema = Type.String();
 
   const mutation = resolver
     .args(argsSchema)
     .output(outputValidationSchema)
     .mutation(resolveFunction);
 
-  expect(mutation.nodeType).toBe('route');
-  expect(mutation.type).toBe('mutation');
-  expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.schemaArgs).toStrictEqual(argsSchema);
-  expect(mutation.schemaOutput).toStrictEqual(outputValidationSchema);
-  expect(mutation.resolveFunction).toBe(resolveFunction);
+  expect(mutation._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'mutation',
+    middlewares: [],
+    argsSchema: argsSchema,
+    outputSchema: outputValidationSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await mutation.call({
@@ -62,45 +65,54 @@ test('Should create mutation', async () => {
     },
   });
 
-  expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
-        "nodeType": {
-          "enum": [
-            "route",
-          ],
-          "type": "string",
-        },
-        "schemaArgs": {
+        "_def": {
           "additionalProperties": false,
           "properties": {
-            "name": {
+            "argsSchema": {
+              "properties": {
+                "name": {
+                  "type": "string",
+                },
+              },
+              "required": [
+                "name",
+              ],
+              "type": "object",
+            },
+            "description": undefined,
+            "nodeType": {
+              "enum": [
+                "route",
+              ],
+              "type": "string",
+            },
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "enum": [
+                "mutation",
+              ],
               "type": "string",
             },
           },
           "required": [
-            "name",
+            "type",
+            "nodeType",
+            "argsSchema",
+            "outputSchema",
+            "description",
           ],
           "type": "object",
         },
-        "schemaOutput": {
-          "type": "string",
-        },
-        "type": {
-          "enum": [
-            "mutation",
-          ],
-          "type": "string",
-        },
       },
       "required": [
-        "type",
-        "nodeType",
-        "schemaArgs",
-        "schemaOutput",
+        "_def",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);
@@ -120,18 +132,21 @@ test('Should create mutation without args', async () => {
     ctx: { greetingsPrefix: 'Hello' };
   }) => `${ctx.greetingsPrefix}`;
 
-  const outputValidationSchema = z.string();
+  const outputValidationSchema = Type.String();
 
   const mutation = resolver
     .output(outputValidationSchema)
     .mutation(resolveFunction);
 
-  expect(mutation.nodeType).toBe('route');
-  expect(mutation.type).toBe('mutation');
-  expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.schemaArgs).toBe(undefined);
-  expect(mutation.schemaOutput).toStrictEqual(outputValidationSchema);
-  expect(mutation.resolveFunction).toBe(resolveFunction);
+  expect(mutation._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'mutation',
+    middlewares: [],
+    argsSchema: undefined,
+    outputSchema: outputValidationSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await mutation.call({
@@ -159,36 +174,44 @@ test('Should create mutation without args', async () => {
     },
   });
 
-  expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
-        "nodeType": {
-          "enum": [
-            "route",
+        "_def": {
+          "additionalProperties": false,
+          "properties": {
+            "argsSchema": undefined,
+            "description": undefined,
+            "nodeType": {
+              "enum": [
+                "route",
+              ],
+              "type": "string",
+            },
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "enum": [
+                "mutation",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+            "nodeType",
+            "argsSchema",
+            "outputSchema",
+            "description",
           ],
-          "type": "string",
-        },
-        "schemaArgs": {
-          "not": {},
-        },
-        "schemaOutput": {
-          "type": "string",
-        },
-        "type": {
-          "enum": [
-            "mutation",
-          ],
-          "type": "string",
+          "type": "object",
         },
       },
       "required": [
-        "type",
-        "nodeType",
-        "schemaArgs",
-        "schemaOutput",
+        "_def",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);
@@ -201,7 +224,7 @@ test('Should create mutation with twice chain', async () => {
     }),
   });
 
-  const validationSchema = z.string();
+  const validationSchema = Type.String();
 
   const resolveFunction = ({
     input,
@@ -211,11 +234,8 @@ test('Should create mutation with twice chain', async () => {
     ctx: { greetingsPrefix: 'Hello' };
   }) => `${ctx.greetingsPrefix} ${input.firstName} ${input.lastName}`;
 
-  const firstSchemaInChain = z.object({ firstName: validationSchema });
-  const secondSchemaInChain = z.object({
-    firstName: validationSchema,
-    lastName: validationSchema,
-  });
+  const firstSchemaInChain = Type.Object({ firstName: validationSchema });
+  const secondSchemaInChain = Type.Object({ lastName: validationSchema });
 
   const mutation = resolver
     .args(firstSchemaInChain)
@@ -223,12 +243,15 @@ test('Should create mutation with twice chain', async () => {
     .output(validationSchema)
     .mutation(resolveFunction);
 
-  expect(mutation.nodeType).toBe('route');
-  expect(mutation.type).toBe('mutation');
-  expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.schemaArgs).toStrictEqual(secondSchemaInChain);
-  expect(mutation.schemaOutput).toStrictEqual(validationSchema);
-  expect(mutation.resolveFunction).toBe(resolveFunction);
+  expect(mutation._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'mutation',
+    middlewares: [],
+    argsSchema: Type.Intersect([firstSchemaInChain, secondSchemaInChain]),
+    outputSchema: validationSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await mutation.call({
@@ -287,49 +310,70 @@ test('Should create mutation with twice chain', async () => {
     },
   });
 
-  expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
-        "nodeType": {
-          "enum": [
-            "route",
-          ],
-          "type": "string",
-        },
-        "schemaArgs": {
+        "_def": {
           "additionalProperties": false,
           "properties": {
-            "firstName": {
+            "argsSchema": {
+              "allOf": [
+                {
+                  "properties": {
+                    "firstName": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "firstName",
+                  ],
+                  "type": "object",
+                },
+                {
+                  "properties": {
+                    "lastName": {
+                      "type": "string",
+                    },
+                  },
+                  "required": [
+                    "lastName",
+                  ],
+                  "type": "object",
+                },
+              ],
+              "type": "object",
+            },
+            "description": undefined,
+            "nodeType": {
+              "enum": [
+                "route",
+              ],
               "type": "string",
             },
-            "lastName": {
-              "$ref": "#/properties/firstName",
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "enum": [
+                "mutation",
+              ],
+              "type": "string",
             },
           },
           "required": [
-            "firstName",
-            "lastName",
+            "type",
+            "nodeType",
+            "argsSchema",
+            "outputSchema",
+            "description",
           ],
           "type": "object",
         },
-        "schemaOutput": {
-          "type": "string",
-        },
-        "type": {
-          "enum": [
-            "mutation",
-          ],
-          "type": "string",
-        },
       },
       "required": [
-        "type",
-        "nodeType",
-        "schemaArgs",
-        "schemaOutput",
+        "_def",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);
@@ -342,17 +386,21 @@ test('Should create mutation with optional args chain', async () => {
     }),
   });
 
-  const firstSchemaInArgumentChain = z
-    .object({ firstName: z.string().optional() })
-    .optional();
-  const secondSchemaInArgumentChain = z
-    .object({
-      firstName: z.string().optional(),
-      lastName: z.string().optional(),
-    })
-    .optional();
+  const firstSchemaInArgumentChain = Type.Union([
+    Type.Object({
+      firstName: Type.Optional(Type.String()),
+    }),
+    Type.Undefined(),
+  ]);
 
-  const outputSchema = z.string();
+  const secondSchemaInArgumentChain = Type.Union([
+    Type.Object({
+      lastName: Type.Optional(Type.String()),
+    }),
+    Type.Undefined(),
+  ]);
+
+  const outputSchema = Type.String();
 
   const resolveFunction = ({
     input,
@@ -371,12 +419,18 @@ test('Should create mutation with optional args chain', async () => {
     .output(outputSchema)
     .mutation(resolveFunction);
 
-  expect(mutation.nodeType).toBe('route');
-  expect(mutation.type).toBe('mutation');
-  expect(mutation.middlewares).toStrictEqual([]);
-  expect(mutation.schemaArgs).toStrictEqual(secondSchemaInArgumentChain);
-  expect(mutation.schemaOutput).toStrictEqual(outputSchema);
-  expect(mutation.resolveFunction).toBe(resolveFunction);
+  expect(mutation._def).toStrictEqual({
+    nodeType: 'route',
+    type: 'mutation',
+    middlewares: [],
+    argsSchema: Type.Intersect([
+      firstSchemaInArgumentChain,
+      secondSchemaInArgumentChain,
+    ]),
+    outputSchema: outputSchema,
+    resolveFunction: resolveFunction,
+    description: undefined,
+  });
 
   expect(
     await mutation.call({
@@ -455,52 +509,77 @@ test('Should create mutation with optional args chain', async () => {
     },
   });
 
-  expect(mutation.getJsonSchema('test')).toMatchInlineSnapshot(`
+  expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
     {
       "additionalProperties": false,
       "properties": {
-        "nodeType": {
-          "enum": [
-            "route",
-          ],
-          "type": "string",
-        },
-        "schemaArgs": {
-          "anyOf": [
-            {
-              "not": {},
-            },
-            {
-              "additionalProperties": false,
-              "properties": {
-                "firstName": {
-                  "type": "string",
+        "_def": {
+          "additionalProperties": false,
+          "properties": {
+            "argsSchema": {
+              "allOf": [
+                {
+                  "anyOf": [
+                    {
+                      "properties": {
+                        "firstName": {
+                          "type": "string",
+                        },
+                      },
+                      "type": "object",
+                    },
+                    {
+                      "type": "undefined",
+                    },
+                  ],
                 },
-                "lastName": {
-                  "type": "string",
+                {
+                  "anyOf": [
+                    {
+                      "properties": {
+                        "lastName": {
+                          "type": "string",
+                        },
+                      },
+                      "type": "object",
+                    },
+                    {
+                      "type": "undefined",
+                    },
+                  ],
                 },
-              },
-              "type": "object",
+              ],
             },
+            "description": undefined,
+            "nodeType": {
+              "enum": [
+                "route",
+              ],
+              "type": "string",
+            },
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "enum": [
+                "mutation",
+              ],
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+            "nodeType",
+            "argsSchema",
+            "outputSchema",
+            "description",
           ],
-        },
-        "schemaOutput": {
-          "type": "string",
-        },
-        "type": {
-          "enum": [
-            "mutation",
-          ],
-          "type": "string",
+          "type": "object",
         },
       },
       "required": [
-        "type",
-        "nodeType",
-        "schemaArgs",
-        "schemaOutput",
+        "_def",
       ],
-      "title": "TestRoute",
       "type": "object",
     }
   `);

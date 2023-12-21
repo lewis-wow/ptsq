@@ -1,0 +1,140 @@
+# Context
+
+Context holds some information across all resolvers, queries, mutations and middlewares.
+
+The only way to customize context in the runtime is middleware.
+
+```ts copy
+const createContext = ({ req, res }: { req: Request; res: Response }) => {
+  return {
+    req,
+    res,
+  };
+};
+
+const { resolver, router, serve } = createServer({
+  ctx: createContext,
+});
+```
+
+Context types like context input and output are automatically inferred, so you don't have to care about them.
+
+The only argument that context gets is the adapter request and response information.
+
+## Async context
+
+The context builder function can be async as well, so you can for example wait for database request or wait for JWT token decode.
+
+```ts copy
+const createContext = async ({ req, res }: { req: Request; res: Response }) => {
+  const user = await JWT.decode(req.cookies.jwt);
+
+  return {
+    req,
+    res,
+    user,
+  };
+};
+
+const { resolver, router, serve } = createServer({
+  ctx: createContext,
+});
+```
+
+## Global variables
+
+In context, there should be also the global variables that you want to have available in every query, mutation or middleware.
+
+A typical global variable in the context can be a database connection.
+
+```ts copy
+import { prisma } from './prisma';
+
+const createContext = ({ req, res }: { req: Request; res: Response }) => {
+  return {
+    req,
+    res,
+    prisma,
+  };
+};
+
+const { resolver, router, serve } = createServer({
+  ctx: createContext,
+});
+```
+
+In the example, there is a `Prisma` ORM database connection that is passed into the context, so you can then access the Prisma connection anywhere in the routes.
+
+## Middlewares
+
+You can also mutate the context. The only place where you can do that is middleware.
+
+```ts copy
+const resolverWithNewPropInCtx = resolver.use(({ ctx, next }) => {
+  return next({
+    ...ctx,
+    newProperty: 'my-new-property',
+  });
+});
+```
+
+If I use the `resolverWithNewPropInCtx` there will be `newProperty` in the context. The `newProperty` will be also in the type level as well.
+
+### Middleware checks
+
+Typically you want to use middleware for authentication.
+
+```ts copy
+const authedResolver = resolver.use(({ ctx /* User | undefined */, next }) => {
+  if (!ctx.user) throw new HTTPError({ code: 'UNAUTHORIZED' });
+
+  return next({
+    ...ctx, // { user: User | undefined }
+    user: ctx.user, // User - because of the check before
+  }); // { user: User }
+});
+```
+
+The type of the `authedResolver` context will be inferred as in the example before.
+
+The most important piece of code is this
+
+```ts
+return next({
+  ...ctx,
+  user: ctx.user,
+});
+```
+
+Thanks to returning the next function and passing the new context, the type can be inferred in the next resolver.
+
+```ts
+user: ctx.user;
+```
+
+This is too very important, cause we checked that the user cannot be falsy in the example, this assignment correctly set the types for the next context user property.
+
+## Mutation and query
+
+You can access the context in the mutations and queries.
+
+```ts
+authedResolver
+  .output(Type.String())
+  .query(({ ctx /* user: User */ }) => ctx.user.name);
+```
+
+```ts copy
+authedResolver
+  .output(PostSchema)
+  .mutation(async ({ ctx /* user: User, prisma: PrismaClient */ }) => {
+    const post = await ctx.prisma.post.create({
+      data: {
+        user: ctx.user.id,
+        // ...
+      },
+    });
+
+    return post;
+  });
+```

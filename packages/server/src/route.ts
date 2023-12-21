@@ -1,5 +1,4 @@
-import { zodToJsonSchema } from '@ptsq/zod-parser';
-import { z } from 'zod';
+import { Type, type TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
@@ -9,12 +8,8 @@ import {
   type MiddlewareMeta,
 } from './middleware';
 import type { AnyMiddleware, AnyRawMiddlewareReponse } from './middleware';
-import type {
-  AnyResolveFunction,
-  ResolverSchemaArgs,
-  ResolverSchemaOutput,
-} from './resolver';
-import type { AnyTransformation } from './transformation';
+import type { AnyResolveFunction } from './resolver';
+import { SchemaParser } from './schemaParser';
 import type { ResolverType } from './types';
 
 /**
@@ -26,36 +21,30 @@ import type { ResolverType } from './types';
  */
 export class Route<
   TType extends ResolverType,
-  TSchemaArgs extends ResolverSchemaArgs | undefined,
-  TSchemaOutput extends ResolverSchemaOutput,
+  TArgsSchema extends TSchema | undefined,
+  TOutputSchema extends TSchema,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
 > {
-  type: TType;
-  schemaArgs: TSchemaArgs;
-  schemaOutput: TSchemaOutput;
-  resolveFunction: TResolveFunction;
-  nodeType: 'route' = 'route' as const;
-  middlewares: AnyMiddleware[];
-  transformations: AnyTransformation[];
-  description: TDescription;
+  _def: {
+    type: TType;
+    argsSchema: TArgsSchema;
+    outputSchema: TOutputSchema;
+    resolveFunction: TResolveFunction;
+    nodeType: 'route';
+    middlewares: AnyMiddleware[];
+    description: TDescription;
+  };
 
   constructor(options: {
     type: TType;
-    schemaArgs: TSchemaArgs;
-    schemaOutput: TSchemaOutput;
+    argsSchema: TArgsSchema;
+    outputSchema: TOutputSchema;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
-    transformations: AnyTransformation[];
     description: TDescription;
   }) {
-    this.type = options.type;
-    this.schemaArgs = options.schemaArgs;
-    this.schemaOutput = options.schemaOutput;
-    this.resolveFunction = options.resolveFunction;
-    this.middlewares = options.middlewares;
-    this.transformations = options.transformations;
-    this.description = options.description;
+    this._def = { ...options, nodeType: 'route' };
   }
 
   /**
@@ -63,21 +52,30 @@ export class Route<
    *
    * Gets the json schema of the route for the introspection query
    */
-  getJsonSchema(title: string) {
+  getJsonSchema() {
     return createSchemaRoot({
-      title: `${title} route`,
-      properties: {
+      _def: createSchemaRoot({
         type: {
           type: 'string',
-          enum: [this.type],
+          enum: [this._def.type],
         },
         nodeType: {
           type: 'string',
-          enum: [this.nodeType],
+          enum: [this._def.nodeType],
         },
-        schemaArgs: zodToJsonSchema(this.schemaArgs ?? z.undefined()),
-        schemaOutput: zodToJsonSchema(this.schemaOutput),
-      },
+        argsSchema:
+          this._def.argsSchema === undefined
+            ? undefined
+            : Type.Strict(this._def.argsSchema),
+        outputSchema: Type.Strict(this._def.outputSchema),
+        description:
+          this._def.description === undefined
+            ? undefined
+            : {
+                type: 'string',
+                enum: [this._def.description],
+              },
+      }),
     });
   }
 
@@ -98,32 +96,34 @@ export class Route<
       meta,
       index: 0,
       middlewares: [
-        ...this.middlewares,
+        ...this._def.middlewares,
         new Middleware({
-          schemaArgs: this.schemaArgs,
-          transformations: this.transformations,
+          argsSchema: this._def.argsSchema,
           middlewareFunction: async ({
             ctx: finalContext,
             input,
             meta: finalMeta,
           }) => {
-            const resolverResult = await this.resolveFunction({
+            const resolverResult = await this._def.resolveFunction({
               input,
               ctx: finalContext,
               meta: finalMeta,
             });
 
-            const parsedOutput = this.schemaOutput.safeParse(resolverResult);
+            const parseResult = SchemaParser.safeParseOutput({
+              schema: this._def.outputSchema,
+              value: resolverResult,
+            });
 
-            if (!parsedOutput.success)
+            if (!parseResult.ok)
               throw new HTTPError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: 'Output validation error',
-                info: parsedOutput.error,
+                info: parseResult.errors,
               });
 
             return MiddlewareResponse.createRawSuccessResponse({
-              data: parsedOutput.data,
+              data: parseResult.data,
               ctx: finalContext,
             });
           },
@@ -137,8 +137,8 @@ export class Route<
 
 export type AnyRoute = Route<
   ResolverType,
-  ResolverSchemaArgs | undefined,
-  ResolverSchemaOutput,
+  any,
+  any,
   AnyResolveFunction,
   string | undefined
 >;
