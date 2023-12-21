@@ -1,0 +1,13 @@
+# Validations
+
+Arguments and output validation are one of the concepts of `ptsq`.
+
+For the validation, the library uses [Typebox](https://github.com/sinclairzx81/typebox).
+
+## Why not Zod?
+
+The reason is that Typebox creates JSON schemas for validation, so the introspection is then very easy to do.
+
+In Zod, the library has to convert the Zod schema into JSON schema for introspection.
+
+From Typebox, `ptsq` can infer the Typescript type.
