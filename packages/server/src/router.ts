@@ -5,13 +5,15 @@ import {
   type AnyRawMiddlewareReponse,
   type MiddlewareMeta,
 } from './middleware';
-import type { AnyMutation } from './mutation';
-import type { AnyQuery } from './query';
+import { Mutation, type AnyMutation } from './mutation';
+import { Query, type AnyQuery } from './query';
 import type { Queue } from './queue';
 import type { ResolverType } from './types';
 
+export type AnyNode = AnyQuery | AnyMutation | AnyRouter;
+
 export type Routes = {
-  [Key: string]: AnyQuery | AnyMutation | AnyRouter;
+  [Key: string]: AnyNode;
 };
 
 /**
@@ -19,7 +21,7 @@ export type Routes = {
  *
  * Creates a router that can be nested.
  */
-export class Router<TRoutes extends Routes> {
+export class Router<TRoutes extends Routes, TContext extends Context> {
   _def: {
     routes: TRoutes;
     nodeType: 'router';
@@ -99,6 +101,60 @@ export class Router<TRoutes extends Routes> {
 
     return nextNode.call(options);
   }
+
+  static isRouterNode(node: AnyNode): node is AnyRouter {
+    return node._def.nodeType === 'router';
+  }
+
+  _createServerSideProxyCaller({
+    ctx,
+    route,
+  }: {
+    ctx: TContext;
+    route: string[];
+  }): ServerSideProxyCaller<TRoutes> {
+    const proxy = new Proxy(this._def.routes, {
+      get: (target, property: string) => {
+        const nextNode = target[property];
+
+        switch (true) {
+          case Router.isRouterNode(nextNode):
+            return nextNode._createServerSideProxyCaller({
+              ctx,
+              route: [...route, property],
+            });
+          case Query.isQueryNode(nextNode):
+            return nextNode.createServerSideQuery({
+              ctx,
+              route: route.join('.'),
+            });
+          case Mutation.isMutationNode(nextNode):
+            return nextNode.createServerSideMutation({
+              ctx,
+              route: route.join('.'),
+            });
+          default:
+            throw new Error('');
+        }
+      },
+    });
+
+    return proxy as ServerSideProxyCaller<TRoutes>;
+  }
+
+  createServerSideProxyCaller(ctx: TContext) {
+    this._createServerSideProxyCaller({ ctx, route: [] });
+  }
 }
 
-export type AnyRouter = Router<Routes>;
+type ServerSideProxyCaller<TRoutes extends Routes> = {
+  [K in keyof TRoutes]: TRoutes[K] extends AnyRouter
+    ? ServerSideProxyCaller<TRoutes[K]['_def']['routes']>
+    : TRoutes[K] extends AnyQuery
+    ? ReturnType<TRoutes[K]['createServerSideQuery']>
+    : TRoutes[K] extends AnyMutation
+    ? ReturnType<TRoutes[K]['createServerSideMutation']>
+    : never;
+};
+
+export type AnyRouter = Router<Routes, Context>;

@@ -133,6 +133,19 @@ export class Route<
 
     return response;
   }
+
+  async serverSideCall({ ctx, meta }: { ctx: Context; meta: MiddlewareMeta }) {
+    const callResponse = await this.call({ ctx, meta });
+
+    if (!callResponse.ok)
+      throw new HTTPError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Server side call error.',
+        info: callResponse.error,
+      });
+
+    return callResponse.data;
+  }
 }
 
 export type AnyRoute = Route<
