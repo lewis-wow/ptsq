@@ -1,7 +1,7 @@
 import type {
   Static,
   StaticDecode,
-  TAnySchema,
+  TSchema,
   TUndefined,
   TVoid,
 } from '@sinclair/typebox';
@@ -16,14 +16,20 @@ export type MaybePromise<T> = T | Promise<T>;
 /**
  * @internal
  */
-export type inferStaticInput<TSchema extends ResolverSchema | undefined> =
-  TSchema extends ResolverSchema ? StaticDecode<TSchema> : undefined;
+export type inferStaticInput<
+  TResolverSchema extends ResolverSchema | undefined,
+> = TResolverSchema extends ResolverSchema
+  ? StaticDecode<TResolverSchema>
+  : undefined;
 
 /**
  * @internal
  */
-export type inferStaticOutput<TSchema extends ResolverSchema | undefined> =
-  TSchema extends ResolverSchema ? StaticDecode<TSchema> : undefined;
+export type inferStaticOutput<
+  TResolverSchema extends ResolverSchema | undefined,
+> = TResolverSchema extends ResolverSchema
+  ? StaticDecode<TResolverSchema>
+  : undefined;
 
 /**
  * Infers the arguments type of the zod validation schema or the introspected schema
@@ -36,7 +42,7 @@ export type inferClientResolverArgs<TResolverArgs> = TResolverArgs extends
   | TVoid
   ? // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
     undefined | void
-  : TResolverArgs extends TAnySchema
+  : TResolverArgs extends TSchema
   ? Static<TResolverArgs>
   : TResolverArgs;
 
@@ -44,9 +50,7 @@ export type inferClientResolverArgs<TResolverArgs> = TResolverArgs extends
  * Infers the output type of the zod validation schema or the introspected schema
  */
 export type inferClientResolverOutput<TResolverOutput> =
-  TResolverOutput extends TAnySchema
-    ? Static<TResolverOutput>
-    : TResolverOutput;
+  TResolverOutput extends TSchema ? Static<TResolverOutput> : TResolverOutput;
 
 /**
  * @internal

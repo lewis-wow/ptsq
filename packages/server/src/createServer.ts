@@ -83,7 +83,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * ```
    */
   const router = <TRoutes extends Routes>(routes: TRoutes) =>
-    new Router({ routes });
+    new Router<TRoutes, RootContext>({ routes });
 
   const serve = (baseRouter: AnyRouter) => {
     return createRouter<ContextBuilderParams>({

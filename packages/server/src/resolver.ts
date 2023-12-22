@@ -114,15 +114,7 @@ export class Resolver<
     });
   }
 
-  merge<
-    TResolver extends Resolver<
-      TSchema | undefined,
-      TSchema | undefined,
-      any,
-      any,
-      string | undefined
-    >,
-  >(
+  merge<TResolver extends AnyResolver>(
     resolver: TContext extends TResolver['_def']['rootContext']
       ? TResolver
       : ErrorMessage<`Current resolver context have to extend the root context of the merging resolver.`>,
@@ -166,12 +158,12 @@ export class Resolver<
       NextOutputSchema,
       TRootContext,
       Simplify<ShallowMerge<TContext, TResolver['_def']['context']>>,
-      TDescription
+      TResolver['_def']['description']
     >({
       argsSchema: nextArgsSchema as NextArgsSchema,
       outputSchema: nextOutputSchema as NextOutputSchema,
       middlewares: [...this._def.middlewares, ...resolver._def.middlewares],
-      description: this._def.description,
+      description: resolver._def.description,
     });
   }
 
@@ -279,6 +271,7 @@ export class Resolver<
     ? Mutation<
         TArgsSchema,
         TOutputSchema,
+        TContext,
         ResolveFunction<
           inferStaticInput<TArgsSchema>,
           inferStaticOutput<TOutputSchema>,
@@ -298,6 +291,7 @@ export class Resolver<
       ? Mutation<
           TArgsSchema,
           TOutputSchema,
+          TContext,
           ResolveFunction<
             inferStaticInput<TArgsSchema>,
             inferStaticOutput<TOutputSchema>,
@@ -323,6 +317,7 @@ export class Resolver<
     ? Query<
         TArgsSchema,
         TOutputSchema,
+        TContext,
         TOutputSchema extends TSchema
           ? ResolveFunction<
               inferStaticInput<TArgsSchema>,
@@ -344,6 +339,7 @@ export class Resolver<
       ? Query<
           TArgsSchema,
           TOutputSchema,
+          TContext,
           TOutputSchema extends TSchema
             ? ResolveFunction<
                 inferStaticInput<TArgsSchema>,
@@ -365,6 +361,8 @@ export class Resolver<
     });
   }
 }
+
+export type AnyResolver = Resolver<any, any, any, any, string | undefined>;
 
 export type ResolveFunction<
   TInput,
