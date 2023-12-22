@@ -1,5 +1,7 @@
 # React client
 
+React client is a very thin extension of [react query](https://tanstack.com/query/latest).
+
 ```ts copy filename="client.ts"
 import { createReactClient } from '@ptsq/react-client';
 import type { BaseRouter } from './server';
@@ -59,11 +61,9 @@ export const App = () => {
   return (
     <main>
       <button onClick={() =>
-          testQuery.refetch(/* { name: string } */ {
-            name: 'John'
-          })
-        }>
-        Mutate
+        testQuery.refetch()
+      }>
+        Query
       </button>
       {testQuery.isFetching ? 'Loading...' : testQuery.data /* string */}
     </main>
