@@ -7,7 +7,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import type { ReactClientRouter } from './types';
 
 /**
- * Creates vanillajs proxy based client
+ * Creates React client
  *
  * @example
  * ```ts
@@ -15,23 +15,13 @@ import type { ReactClientRouter } from './types';
  *   url: 'http://localhost:4000/ptsq/'
  * });
  *
- * const currentUser = await client.user.getCurrent.query();
+ * const currentUser = await client.user.getCurrent.useQuery();
  * ```
  */
 export const createReactClient = <TRouter extends ClientRouter>(
   options: ClientOptions['options'],
 ): ReactClientRouter<TRouter> => {
   const createRouteProxyClient = (route: string[]) => {
-    /**
-     * Creating new proxy client for every route allows you to create route fragment
-     * like
-     *
-     * @example
-     * ```ts
-     * const userClient = client.user;
-     * await userClient.getCurrent.query();
-     * ```
-     */
     const proxyHandler: ProxyHandler<ReactClientRouter<TRouter>> = {
       get: (_target, key: string) => createRouteProxyClient([...route, key]),
       apply: (_target, _thisArg, argumentsList) => {
