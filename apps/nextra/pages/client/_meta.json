@@ -1,5 +1,6 @@
 {
   "proxy-client": "Proxy client",
   "query": "Query",
-  "mutation": "Mutation"
+  "mutation": "Mutation",
+  "react-client": "React client"
 }

@@ -31,8 +31,20 @@ export const createProxyClient = <TRouter extends ClientRouter>(
       get: (_target, key: string) => createRouteProxyClient([...route, key]),
       apply: (_target, _thisArg, argumentsList) => {
         const client = new Client({ route, options });
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        return client.fetch(argumentsList[0], argumentsList[1]);
+
+        const resolverType = client.getResolverType({
+          pop: true,
+          map: {
+            query: 'query',
+            mutate: 'mutation',
+          },
+        });
+
+        return client.fetch({
+          requestInput: argumentsList[0],
+          requestOptions: argumentsList[1],
+          resolverType: resolverType,
+        });
       },
     };
 

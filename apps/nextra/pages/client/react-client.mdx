@@ -1,0 +1,72 @@
+# React client
+
+React client is a very thin extension of [react query](https://tanstack.com/query/latest).
+
+```ts copy filename="client.ts"
+import { createReactClient } from '@ptsq/react-client';
+import type { BaseRouter } from './server';
+
+const client = createReactClient<BaseRouter>({
+  url: 'http://localhost:4000/ptsq',
+});
+```
+
+## Query
+
+```tsx copy filename="component.tsx"
+export const App = () => {
+  const testQuery = await client.test.useQuery({
+    name: /* string */ 'John',
+  });
+
+  return (
+    <main>
+      {testQuery.isFetching ? 'Loading...' : testQuery.data /* string */}
+    </main>
+  )
+}
+```
+
+## Mutation
+
+```tsx copy filename="component.tsx"
+export const App = () => {
+  const testMutation = await client.test.useMutation();
+
+  return (
+    <main>
+      <button onClick={() =>
+        testMutation.mutate(/* { name: string } */ {
+          name: 'John'
+        })
+      }>
+        Mutate
+      </button>
+      {testMutation.isFetching ? 'Loading...' : testMutation.data /* string */}
+    </main>
+  )
+}
+```
+
+### Query without immediately call
+
+```tsx copy filename="component.tsx"
+export const App = () => {
+  const testQuery = await client.test.useQuery({
+    name: /* string */ 'John',
+  }, {
+    enabled: false
+  });
+
+  return (
+    <main>
+      <button onClick={() =>
+        testQuery.refetch()
+      }>
+        Query
+      </button>
+      {testQuery.isFetching ? 'Loading...' : testQuery.data /* string */}
+    </main>
+  )
+}
+```
