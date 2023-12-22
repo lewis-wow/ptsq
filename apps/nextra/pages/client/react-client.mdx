@@ -13,7 +13,7 @@ const client = createReactClient<BaseRouter>({
 
 ## Query
 
-```tsx copy filename="component.tsx"
+```jsx copy filename="component.tsx"
 export const App = () => {
   const testQuery = await client.test.useQuery({
     name: /* string */ 'John',
@@ -29,7 +29,7 @@ export const App = () => {
 
 ## Mutation
 
-```tsx copy filename="component.tsx"
+```jsx copy filename="component.tsx"
 export const App = () => {
   const testMutation = await client.test.useMutation();
 
@@ -50,7 +50,7 @@ export const App = () => {
 
 ### Query without immediately call
 
-```tsx copy filename="component.tsx"
+```jsx copy filename="component.tsx"
 export const App = () => {
   const testQuery = await client.test.useQuery({
     name: /* string */ 'John',
@@ -60,9 +60,7 @@ export const App = () => {
 
   return (
     <main>
-      <button onClick={() =>
-        testQuery.refetch()
-      }>
+      <button onClick={() => testQuery.refetch()}>
         Query
       </button>
       {testQuery.isFetching ? 'Loading...' : testQuery.data /* string */}

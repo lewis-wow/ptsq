@@ -1,0 +1,32 @@
+# Svelte client
+
+Svelte client is a very thin extension of [svelte query](https://tanstack.com/query/latest).
+
+```ts copy filename="client.ts"
+import { createSvelteClient } from '@ptsq/svelte-client';
+import type { BaseRouter } from './server';
+
+const client = createSvelteClient<BaseRouter>({
+  url: 'http://localhost:4000/ptsq',
+});
+```
+
+## Query
+
+```svelte copy filename="component.svelte"
+<script lang="ts">
+  const testQuery = await client.test.createQuery({
+    name: /* string */ 'John',
+  });
+</script>
+
+<main>
+  {#if $query.isLoading}
+    <p>Loading...</p>
+  {:else if $query.isError}
+    <p>Error: {$query.error.message}</p>
+  {:else if $query.isSuccess}
+    <p>{$query.data /* string */}</p>
+  {/if}
+</main>
+```
