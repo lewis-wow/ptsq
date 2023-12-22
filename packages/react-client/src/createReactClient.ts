@@ -36,6 +36,7 @@ export const createReactClient = <TRouter extends ClientRouter>(
         });
 
         if (resolverType === 'query')
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           return useQuery({
             queryKey: route,
             queryFn: async (context) =>
@@ -44,8 +45,10 @@ export const createReactClient = <TRouter extends ClientRouter>(
                 resolverType: resolverType,
                 requestOptions: { signal: context.signal },
               }),
+            ...argumentsList[1],
           });
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return useMutation({
           mutationKey: route,
           mutationFn: (variables: any) =>
@@ -53,6 +56,7 @@ export const createReactClient = <TRouter extends ClientRouter>(
               requestInput: variables,
               resolverType: resolverType,
             }),
+          ...argumentsList[0],
         });
       },
     };

@@ -1,11 +1,16 @@
 import { client } from './client';
 
 export const App = () => {
-  const greetingsQuery = client.greetingsQuery.useQuery({ name: 'John' });
+  const greetingsQuery = client.greetingsQuery.useQuery(
+    { name: 'John' },
+    { enabled: false },
+  );
+
   const greetingsMutation = client.greetingsMutation.useMutation();
 
   return (
     <main>
+      <button onClick={() => greetingsQuery.refetch()}>Refetch</button>
       <p>
         state: <pre>{JSON.stringify(greetingsQuery)}</pre>
       </p>
