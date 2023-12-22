@@ -1,21 +1,26 @@
-import { Client, type ClientOptions } from './client';
-import type { ClientRouter, ProxyClientRouter } from './types';
+import {
+  Client,
+  type ClientOptions,
+  type Router as ClientRouter,
+} from '@ptsq/client';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import type { ReactClientRouter } from './types';
 
 /**
  * Creates vanillajs proxy based client
  *
  * @example
  * ```ts
- * const client = createProxyClient<BaseRouter>({
+ * const client = createReactClient<BaseRouter>({
  *   url: 'http://localhost:4000/ptsq/'
  * });
  *
  * const currentUser = await client.user.getCurrent.query();
  * ```
  */
-export const createProxyClient = <TRouter extends ClientRouter>(
+export const createReactClient = <TRouter extends ClientRouter>(
   options: ClientOptions['options'],
-): ProxyClientRouter<TRouter> => {
+): ReactClientRouter<TRouter> => {
   const createRouteProxyClient = (route: string[]) => {
     /**
      * Creating new proxy client for every route allows you to create route fragment
@@ -27,7 +32,7 @@ export const createProxyClient = <TRouter extends ClientRouter>(
      * await userClient.getCurrent.query();
      * ```
      */
-    const proxyHandler: ProxyHandler<ProxyClientRouter<TRouter>> = {
+    const proxyHandler: ProxyHandler<ReactClientRouter<TRouter>> = {
       get: (_target, key: string) => createRouteProxyClient([...route, key]),
       apply: (_target, _thisArg, argumentsList) => {
         const client = new Client({ route, options });
@@ -35,15 +40,29 @@ export const createProxyClient = <TRouter extends ClientRouter>(
         const resolverType = client.getResolverType({
           pop: true,
           map: {
-            query: 'query',
-            mutate: 'mutation',
+            useQuery: 'query',
+            useMutation: 'mutation',
           },
         });
 
-        return client.fetch({
-          requestInput: argumentsList[0],
-          requestOptions: argumentsList[1],
-          resolverType: resolverType,
+        if (resolverType === 'query')
+          return useQuery({
+            queryKey: route,
+            queryFn: async (context) =>
+              client.fetch({
+                requestInput: argumentsList[0],
+                resolverType: resolverType,
+                requestOptions: { signal: context.signal },
+              }),
+          });
+
+        return useMutation({
+          mutationKey: route,
+          mutationFn: (variables: any) =>
+            client.fetch({
+              requestInput: variables,
+              resolverType: resolverType,
+            }),
         });
       },
     };
@@ -53,7 +72,7 @@ export const createProxyClient = <TRouter extends ClientRouter>(
      * the noop function is never called in proxy
      */
     return new Proxy(
-      noop as unknown as ProxyClientRouter<TRouter>,
+      noop as unknown as ReactClientRouter<TRouter>,
       proxyHandler,
     );
   };
