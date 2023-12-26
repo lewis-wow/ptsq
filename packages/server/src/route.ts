@@ -10,7 +10,7 @@ import {
 import type { AnyMiddleware, AnyRawMiddlewareReponse } from './middleware';
 import type { AnyResolveFunction } from './resolver';
 import { SchemaParser } from './schemaParser';
-import type { ResolverType } from './types';
+import type { inferStaticInput, ResolverType } from './types';
 
 /**
  * @internal
@@ -23,6 +23,7 @@ export class Route<
   TType extends ResolverType,
   TArgsSchema extends TSchema | undefined,
   TOutputSchema extends TSchema,
+  TContext extends Context,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
 > {
@@ -133,11 +134,21 @@ export class Route<
 
     return response;
   }
+
+  resolve(resolveFunctionOptions: {
+    ctx: TContext;
+    input: inferStaticInput<TArgsSchema>;
+    meta: MiddlewareMeta;
+  }): ReturnType<TResolveFunction> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return this._def.resolveFunction(resolveFunctionOptions);
+  }
 }
 
 export type AnyRoute = Route<
   ResolverType,
-  any,
+  TSchema | undefined,
+  TSchema,
   any,
   AnyResolveFunction,
   string | undefined

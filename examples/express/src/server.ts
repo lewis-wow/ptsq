@@ -1,6 +1,5 @@
 import { createServer } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
-import { TypeSystem } from '@sinclair/typebox/system';
 import express, { Request, Response } from 'express';
 
 const app = express();
@@ -14,19 +13,24 @@ const { router, resolver, serve } = createServer({
   ctx: createContext,
 });
 
-const foo = TypeSystem.Format('foo', (value) => value === 'foo');
+const dateSchema = Type.Transform(Type.String())
+  .Decode((arg) => new Date(arg))
+  .Encode((arg) => arg.toISOString());
 
-const dateSchema = Type.String({
-  format: foo,
-});
-
-const test = resolver
+const root = resolver
   .description(`My test query...`)
   .args(dateSchema)
-  .output(dateSchema)
-  .query(({ input }) => input);
+  .output(dateSchema);
 
-console.log(test._def.description);
+const testA = root.query(({ input }) => input);
+
+const test = root.query(async (opts) => {
+  const res = await testA.resolve(opts);
+
+  console.log('time', res.getTime());
+
+  return res;
+});
 
 const baseRouter = router({
   greetings: test,

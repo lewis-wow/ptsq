@@ -8,7 +8,7 @@ const client = createProxyClient<BaseRouter>({
 });
 
 client.greetings
-  .query('foo')
+  .query(new Date().toISOString())
   .then((response) => {
     console.log(response);
   })

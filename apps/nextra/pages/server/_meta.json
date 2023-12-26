@@ -9,6 +9,7 @@
   "transformations": "Transformations",
   "description": "Description",
   "errors": "Errors",
+  "server-calls": "Server calls",
   "cors": "Cors",
   "server-options": "Server options"
 }

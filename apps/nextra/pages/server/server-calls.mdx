@@ -1,0 +1,21 @@
+# Server calls
+
+You can call the route (query or mutation) in another route by `resolve` method.
+
+It can be helpful if you want to split resolve functions for administrator, authenticated and unauthenticated for example.-
+
+```ts copy
+const dateResolver = resolver.args(dateSchema).output(dateSchema);
+
+const adminDateQuery = dateResolver.query(({ input }) => input);
+const nonAdminDateQuery = dateResolver.query(
+  ({ input }) => new Date(input.getTime() - 10_000),
+);
+
+const dateQuery = dateResolver.query(async (opts) => {
+  if (opts.ctx.session.user.isAdministrator)
+    return /* Date */ adminDateQuery.resolve(opts);
+
+  return /* Date */ nonAdminDateQuery.resolve(opts);
+});
+```
