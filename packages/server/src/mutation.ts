@@ -1,4 +1,5 @@
 import type { TSchema } from '@sinclair/typebox';
+import type { Context } from './context';
 import type { AnyMiddleware } from './middleware';
 import type { AnyResolveFunction } from './resolver';
 import { Route } from './route';
@@ -11,12 +12,14 @@ import { Route } from './route';
 export class Mutation<
   TArgsSchema extends TSchema | undefined,
   TOutputSchema extends TSchema,
+  TContext extends Context,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
 > extends Route<
   'mutation',
   TArgsSchema,
   TOutputSchema,
+  TContext,
   TResolveFunction,
   TDescription
 > {
@@ -35,7 +38,8 @@ export class Mutation<
 }
 
 export type AnyMutation = Mutation<
-  any,
+  TSchema | undefined,
+  TSchema,
   any,
   AnyResolveFunction,
   string | undefined

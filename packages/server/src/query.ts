@@ -1,4 +1,5 @@
 import type { TSchema } from '@sinclair/typebox';
+import type { Context } from './context';
 import type { AnyMiddleware } from './middleware';
 import type { AnyResolveFunction } from './resolver';
 import { Route } from './route';
@@ -11,12 +12,14 @@ import { Route } from './route';
 export class Query<
   TArgsSchema extends TSchema | undefined,
   TOutputSchema extends TSchema,
+  TContext extends Context,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
 > extends Route<
   'query',
   TArgsSchema,
   TOutputSchema,
+  TContext,
   TResolveFunction,
   TDescription
 > {
@@ -34,4 +37,10 @@ export class Query<
   }
 }
 
-export type AnyQuery = Query<any, any, AnyResolveFunction, string | undefined>;
+export type AnyQuery = Query<
+  TSchema | undefined,
+  TSchema,
+  any,
+  AnyResolveFunction,
+  string | undefined
+>;

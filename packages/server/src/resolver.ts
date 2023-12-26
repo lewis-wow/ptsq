@@ -279,6 +279,7 @@ export class Resolver<
     ? Mutation<
         TArgsSchema,
         TOutputSchema,
+        TContext,
         ResolveFunction<
           inferStaticInput<TArgsSchema>,
           inferStaticOutput<TOutputSchema>,
@@ -298,6 +299,7 @@ export class Resolver<
       ? Mutation<
           TArgsSchema,
           TOutputSchema,
+          TContext,
           ResolveFunction<
             inferStaticInput<TArgsSchema>,
             inferStaticOutput<TOutputSchema>,
@@ -323,6 +325,7 @@ export class Resolver<
     ? Query<
         TArgsSchema,
         TOutputSchema,
+        TContext,
         TOutputSchema extends TSchema
           ? ResolveFunction<
               inferStaticInput<TArgsSchema>,
@@ -344,6 +347,7 @@ export class Resolver<
       ? Query<
           TArgsSchema,
           TOutputSchema,
+          TContext,
           TOutputSchema extends TSchema
             ? ResolveFunction<
                 inferStaticInput<TArgsSchema>,
