@@ -4,21 +4,28 @@ import { Parser } from './parser';
 
 export class Compiler {
   _def: {
-    cache: Map<TSchema, TypeCheck<TSchema>>;
+    hits: number;
+    cache: Map<string, TypeCheck<TSchema>>;
   };
 
   constructor() {
-    this._def = { cache: new Map() };
+    this._def = { hits: 0, cache: new Map() };
   }
 
   get(schema?: TSchema) {
     if (schema === undefined) return undefined;
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    if (this._def.cache.has(schema)) return this._def.cache.get(schema)!;
+
+    const pattern = JSON.stringify(schema);
+
+    if (this._def.cache.has(pattern)) {
+      this._def.hits++;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return this._def.cache.get(pattern)!;
+    }
 
     const compiledSchema = TypeCompiler.Compile(schema);
 
-    this._def.cache.set(schema, compiledSchema);
+    this._def.cache.set(pattern, compiledSchema);
     return compiledSchema;
   }
 
