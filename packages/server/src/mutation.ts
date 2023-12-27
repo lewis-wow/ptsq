@@ -1,4 +1,5 @@
 import type { TSchema } from '@sinclair/typebox';
+import type { Compiler } from './compiler';
 import type { Context } from './context';
 import type { AnyMiddleware } from './middleware';
 import type { AnyResolveFunction } from './resolver';
@@ -29,6 +30,7 @@ export class Mutation<
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     description: TDescription;
+    compiler: Compiler;
   }) {
     super({
       type: 'mutation',

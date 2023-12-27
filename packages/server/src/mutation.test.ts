@@ -1,4 +1,5 @@
 import { Type } from '@sinclair/typebox';
+import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
 import { createServer } from './createServer';
 import { HTTPError } from './httpError';
@@ -34,11 +35,16 @@ test('Should create mutation', async () => {
     outputSchema: outputValidationSchema,
     resolveFunction: resolveFunction,
     description: undefined,
+    compiler: resolver._def.compiler,
   });
 
   expect(
     await mutation.call({
-      meta: { type: 'mutation', input: { name: 'John' }, route: 'dummy.route' },
+      meta: {
+        type: 'mutation',
+        input: { name: 'John' },
+        route: `dummy.route.${uuidv4()}`,
+      },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -51,7 +57,11 @@ test('Should create mutation', async () => {
 
   expect(
     await mutation.call({
-      meta: { type: 'mutation', input: 'John', route: 'dummy.route' },
+      meta: {
+        type: 'mutation',
+        input: 'John',
+        route: `dummy.route.${uuidv4()}`,
+      },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -146,11 +156,16 @@ test('Should create mutation without args', async () => {
     outputSchema: outputValidationSchema,
     resolveFunction: resolveFunction,
     description: undefined,
+    compiler: resolver._def.compiler,
   });
 
   expect(
     await mutation.call({
-      meta: { type: 'mutation', input: undefined, route: 'dummy.route' },
+      meta: {
+        type: 'mutation',
+        input: undefined,
+        route: `dummy.route.${uuidv4()}`,
+      },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -163,7 +178,11 @@ test('Should create mutation without args', async () => {
 
   expect(
     await mutation.call({
-      meta: { type: 'mutation', input: 'John', route: 'dummy.route' },
+      meta: {
+        type: 'mutation',
+        input: 'John',
+        route: `dummy.route.${uuidv4()}`,
+      },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -251,6 +270,7 @@ test('Should create mutation with twice chain', async () => {
     outputSchema: validationSchema,
     resolveFunction: resolveFunction,
     description: undefined,
+    compiler: resolver._def.compiler,
   });
 
   expect(
@@ -258,7 +278,7 @@ test('Should create mutation with twice chain', async () => {
       meta: {
         type: 'mutation',
         input: { firstName: 'John', lastName: 'Doe' },
-        route: 'dummy.route',
+        route: `dummy.route.${uuidv4()}`,
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
@@ -275,7 +295,7 @@ test('Should create mutation with twice chain', async () => {
       meta: {
         type: 'mutation',
         input: { firstName: 'John' },
-        route: 'dummy.route',
+        route: `dummy.route.${uuidv4()}`,
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
@@ -295,7 +315,7 @@ test('Should create mutation with twice chain', async () => {
       meta: {
         type: 'mutation',
         input: { lastName: 'Doe' },
-        route: 'dummy.route',
+        route: `dummy.route.${uuidv4()}`,
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
@@ -430,6 +450,7 @@ test('Should create mutation with optional args chain', async () => {
     outputSchema: outputSchema,
     resolveFunction: resolveFunction,
     description: undefined,
+    compiler: resolver._def.compiler,
   });
 
   expect(
@@ -437,7 +458,7 @@ test('Should create mutation with optional args chain', async () => {
       meta: {
         type: 'mutation',
         input: { firstName: 'John', lastName: 'Doe' },
-        route: 'dummy.route',
+        route: `dummy.route.${uuidv4()}`,
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
@@ -454,7 +475,7 @@ test('Should create mutation with optional args chain', async () => {
       meta: {
         type: 'mutation',
         input: { firstName: 'John' },
-        route: 'dummy.route',
+        route: `dummy.route.${uuidv4()}`,
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
@@ -471,7 +492,7 @@ test('Should create mutation with optional args chain', async () => {
       meta: {
         type: 'mutation',
         input: { lastName: 'Doe' },
-        route: 'dummy.route',
+        route: `dummy.route.${uuidv4()}`,
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
@@ -485,7 +506,7 @@ test('Should create mutation with optional args chain', async () => {
 
   expect(
     await mutation.call({
-      meta: { type: 'mutation', input: {}, route: 'dummy.route' },
+      meta: { type: 'mutation', input: {}, route: `dummy.route.${uuidv4()}` },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
@@ -498,7 +519,11 @@ test('Should create mutation with optional args chain', async () => {
 
   expect(
     await mutation.call({
-      meta: { type: 'mutation', input: undefined, route: 'dummy.route' },
+      meta: {
+        type: 'mutation',
+        input: undefined,
+        route: `dummy.route.${uuidv4()}`,
+      },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({

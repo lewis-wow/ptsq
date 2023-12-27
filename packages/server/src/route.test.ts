@@ -1,5 +1,6 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
+import { Compiler } from './compiler';
 import { Route } from './route';
 
 test('Should create query route', async () => {
@@ -13,6 +14,8 @@ test('Should create query route', async () => {
     ctx: object;
   }) => `${input.name}`;
 
+  const compiler = new Compiler();
+
   const query = new Route({
     type: 'query',
     argsSchema: inputSchema,
@@ -20,6 +23,7 @@ test('Should create query route', async () => {
     resolveFunction: resolveFunction,
     middlewares: [],
     description: undefined,
+    compiler: compiler,
   });
 
   expect(query._def).toStrictEqual({
@@ -30,6 +34,7 @@ test('Should create query route', async () => {
     outputSchema: outputSchema,
     resolveFunction: resolveFunction,
     description: undefined,
+    compiler: compiler,
   });
 
   expect(
@@ -109,6 +114,8 @@ test('Should create mutation route', async () => {
     ctx: object;
   }) => `${input.name}`;
 
+  const compiler = new Compiler();
+
   const mutation = new Route({
     type: 'mutation',
     argsSchema: inputSchema,
@@ -116,6 +123,7 @@ test('Should create mutation route', async () => {
     resolveFunction: resolveFunction,
     middlewares: [],
     description: undefined,
+    compiler: compiler,
   });
 
   expect(mutation._def).toStrictEqual({
@@ -126,6 +134,7 @@ test('Should create mutation route', async () => {
     outputSchema: outputSchema,
     resolveFunction: resolveFunction,
     description: undefined,
+    compiler: compiler,
   });
 
   expect(

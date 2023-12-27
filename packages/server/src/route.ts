@@ -1,5 +1,5 @@
 import { Type, type TSchema } from '@sinclair/typebox';
-import { Compiler } from './compiler';
+import type { Compiler } from './compiler';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
@@ -35,6 +35,7 @@ export class Route<
     nodeType: 'route';
     middlewares: AnyMiddleware[];
     description: TDescription;
+    compiler: Compiler;
   };
 
   constructor(options: {
@@ -44,6 +45,7 @@ export class Route<
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     description: TDescription;
+    compiler: Compiler;
   }) {
     this._def = { ...options, nodeType: 'route' };
   }
@@ -100,6 +102,7 @@ export class Route<
         ...this._def.middlewares,
         new Middleware({
           argsSchema: this._def.argsSchema,
+          compiler: this._def.compiler,
           middlewareFunction: async ({
             ctx: finalContext,
             input,
@@ -111,12 +114,11 @@ export class Route<
               meta: finalMeta,
             });
 
-            const compiler = new Compiler({
-              compilationId: `route-${meta.route}`,
-              schema: this._def.outputSchema,
-            });
+            const compiledParser = this._def.compiler.getParser(
+              this._def.outputSchema,
+            );
 
-            const parseResult = compiler.encode(resolverResult);
+            const parseResult = compiledParser.encode(resolverResult);
 
             if (!parseResult.ok)
               throw new HTTPError({

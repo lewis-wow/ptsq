@@ -1,4 +1,5 @@
 import { Type, type TIntersect, type TSchema } from '@sinclair/typebox';
+import { Compiler } from './compiler';
 import type { Context } from './context';
 import {
   Middleware,
@@ -38,6 +39,7 @@ export class Resolver<
     description: TDescription;
     context: TContext;
     rootContext: TRootContext;
+    compiler: Compiler;
   };
 
   constructor(resolverOptions: {
@@ -45,6 +47,7 @@ export class Resolver<
     outputSchema: TOutputSchema;
     middlewares: AnyMiddleware[];
     description?: TDescription;
+    compiler: Compiler;
   }) {
     this._def = {
       ...resolverOptions,
@@ -66,6 +69,7 @@ export class Resolver<
       outputSchema: this._def.outputSchema,
       middlewares: [...this._def.middlewares],
       description: description,
+      compiler: this._def.compiler,
     });
   }
 
@@ -108,9 +112,11 @@ export class Resolver<
         new Middleware({
           argsSchema: this._def.argsSchema,
           middlewareFunction: middleware,
+          compiler: this._def.compiler,
         }),
       ] as AnyMiddleware[],
       description: this._def.description,
+      compiler: this._def.compiler,
     });
   }
 
@@ -172,6 +178,7 @@ export class Resolver<
       outputSchema: nextOutputSchema as NextOutputSchema,
       middlewares: [...this._def.middlewares, ...resolver._def.middlewares],
       description: this._def.description,
+      compiler: this._def.compiler,
     });
   }
 
@@ -217,6 +224,7 @@ export class Resolver<
       outputSchema: this._def.outputSchema,
       middlewares: [...this._def.middlewares],
       description: this._def.description,
+      compiler: this._def.compiler,
     });
   }
 
@@ -261,6 +269,7 @@ export class Resolver<
       outputSchema: nextOutputSchema as NextSchemaOutput,
       middlewares: [...this._def.middlewares],
       description: this._def.description,
+      compiler: this._def.compiler,
     });
   }
 
@@ -295,6 +304,7 @@ export class Resolver<
       resolveFunction: resolve,
       middlewares: this._def.middlewares,
       description: this._def.description,
+      compiler: this._def.compiler,
     }) as TOutputSchema extends TSchema
       ? Mutation<
           TArgsSchema,
@@ -343,6 +353,7 @@ export class Resolver<
       resolveFunction: resolve,
       middlewares: this._def.middlewares,
       description: this._def.description,
+      compiler: this._def.compiler,
     }) as TOutputSchema extends TSchema
       ? Query<
           TArgsSchema,
@@ -360,12 +371,15 @@ export class Resolver<
       : ErrorMessage<`Query cannot be used without output schema.`>;
   }
 
-  static createRoot<TContext extends Context>() {
+  static createRoot<TContext extends Context>(rootResolverOptions?: {
+    compiler?: Compiler;
+  }) {
     return new Resolver<undefined, undefined, TContext, TContext, undefined>({
       argsSchema: undefined,
       outputSchema: undefined,
       middlewares: [],
       description: undefined,
+      compiler: rootResolverOptions?.compiler ?? new Compiler(),
     });
   }
 }

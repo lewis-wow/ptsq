@@ -1,5 +1,5 @@
 import { Response } from 'fets';
-import { Compiler } from './compiler';
+import type { Compiler } from './compiler';
 import type { Context } from './context';
 import type { ErrorFormatter } from './errorFormatter';
 import { HTTPError } from './httpError';
@@ -41,11 +41,13 @@ export class Middleware<TArgs, TContext extends Context> {
   _def: {
     middlewareFunction: MiddlewareFunction<TArgs, TContext>;
     argsSchema: ResolverSchema | undefined;
+    compiler: Compiler;
   };
 
   constructor(middlewareOptions: {
     argsSchema: ResolverSchema | undefined;
     middlewareFunction: MiddlewareFunction<TArgs, TContext>;
+    compiler: Compiler;
   }) {
     this._def = middlewareOptions;
   }
@@ -64,12 +66,13 @@ export class Middleware<TArgs, TContext extends Context> {
     middlewares: AnyMiddleware[];
   }): Promise<AnyRawMiddlewareReponse> {
     try {
-      const compiler = new Compiler({
-        compilationId: `middleware-${options.meta.route}-${options.index}`,
-        schema: options.middlewares[options.index]._def.argsSchema,
-      });
+      const compiledParser = options.middlewares[
+        options.index
+      ]._def.compiler.getParser(
+        options.middlewares[options.index]._def.argsSchema,
+      );
 
-      const parseResult = compiler.parse({
+      const parseResult = compiledParser.parse({
         value: options.meta.input,
         mode: 'decode',
       });
