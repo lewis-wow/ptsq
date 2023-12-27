@@ -1,4 +1,5 @@
 import { Type, type TSchema } from '@sinclair/typebox';
+import { Compiler } from './compiler';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
@@ -9,7 +10,6 @@ import {
 } from './middleware';
 import type { AnyMiddleware, AnyRawMiddlewareReponse } from './middleware';
 import type { AnyResolveFunction } from './resolver';
-import { SchemaParser } from './schemaParser';
 import type { inferStaticInput, ResolverType } from './types';
 
 /**
@@ -111,10 +111,12 @@ export class Route<
               meta: finalMeta,
             });
 
-            const parseResult = SchemaParser.safeParseOutput({
+            const compiler = new Compiler({
+              compilationId: `route-${meta.route}`,
               schema: this._def.outputSchema,
-              value: resolverResult,
             });
+
+            const parseResult = compiler.encode(resolverResult);
 
             if (!parseResult.ok)
               throw new HTTPError({

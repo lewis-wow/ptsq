@@ -1,9 +1,9 @@
 import { Response } from 'fets';
+import { Compiler } from './compiler';
 import type { Context } from './context';
 import type { ErrorFormatter } from './errorFormatter';
 import { HTTPError } from './httpError';
 import type { ResolverSchema } from './resolver';
-import { SchemaParser } from './schemaParser';
 import type { ResolverType } from './types';
 
 /**
@@ -64,10 +64,17 @@ export class Middleware<TArgs, TContext extends Context> {
     middlewares: AnyMiddleware[];
   }): Promise<AnyRawMiddlewareReponse> {
     try {
-      const parseResult = SchemaParser.safeParseInput({
+      console.time('parsing');
+      const compiler = new Compiler({
+        compilationId: `middleware-${options.index}`,
         schema: options.middlewares[options.index]._def.argsSchema,
-        value: options.meta.input,
       });
+
+      const parseResult = compiler.parse({
+        value: options.meta.input,
+        mode: 'decode',
+      });
+      console.timeEnd('parsing');
 
       if (!parseResult.ok)
         throw new HTTPError({

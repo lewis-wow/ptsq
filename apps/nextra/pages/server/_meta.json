@@ -4,6 +4,7 @@
   "router": "Router",
   "context": "Context",
   "middlewares": "Middlewares",
+  "compilation": "Compilation",
   "args-chaining": "Args chaining",
   "output-chaining": "Output chaining",
   "transformations": "Transformations",

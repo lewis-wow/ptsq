@@ -1,0 +1,19 @@
+# Compilation
+
+Every argument or output schemas are compiled by TypeBox TypeCompiler.
+
+The reason for the compilation is to create very high-performance validations.
+
+The TypeBox TypeCompiler is a high-performance JIT validation compiler that transforms TypeBox types into optimized JavaScript validation routines.
+
+## Cold starts
+
+The compilation is done in runtime, so the first call of validation can be slightly slower than the others because of the compilation step.
+
+```txt
+parsing: 0.706ms
+parsing: 0.018ms
+parsing: 0.042ms
+```
+
+These stats are from the real application. As you can see, the first parsing process lasts longer than others.
