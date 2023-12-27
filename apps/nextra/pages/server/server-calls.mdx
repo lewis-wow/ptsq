@@ -19,3 +19,5 @@ const dateQuery = dateResolver.query(async (opts) => {
   return /* Date */ nonAdminDateQuery.resolve(opts);
 });
 ```
+
+The resolve call does not trigger any middleware or validation, it is just a wrapper around the resolve function call.
