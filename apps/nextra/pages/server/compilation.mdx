@@ -18,6 +18,8 @@ parsing: 0.042ms
 
 These stats are from the real application. As you can see, the first parsing process lasts longer than others.
 
+Compilations are automatically cached by `JSON.stringify` comparison.
+
 ## Compilers sharing
 
 You can share your compilers across the whole application, so the same validation schema would not be compiled twice.
