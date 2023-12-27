@@ -64,9 +64,8 @@ export class Middleware<TArgs, TContext extends Context> {
     middlewares: AnyMiddleware[];
   }): Promise<AnyRawMiddlewareReponse> {
     try {
-      console.time('parsing');
       const compiler = new Compiler({
-        compilationId: `middleware-${options.index}`,
+        compilationId: `middleware-${options.meta.route}-${options.index}`,
         schema: options.middlewares[options.index]._def.argsSchema,
       });
 
@@ -74,7 +73,6 @@ export class Middleware<TArgs, TContext extends Context> {
         value: options.meta.input,
         mode: 'decode',
       });
-      console.timeEnd('parsing');
 
       if (!parseResult.ok)
         throw new HTTPError({
