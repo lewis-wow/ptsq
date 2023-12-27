@@ -18,6 +18,38 @@ parsing: 0.042ms
 
 These stats are from the real application. As you can see, the first parsing process lasts longer than others.
 
+## Compilers sharing
+
+You can share your compilers across the whole application, so the same validation schema would not be compiled twice.
+
+```ts copy filename="compiler.ts"
+import { Compiler } from '@ptsq/server';
+
+export const compiler = new Compiler();
+```
+
+```ts copy filename="external-resolver.ts"
+import { Resolver } from '@ptsq/server';
+import { compiler } from './compiler';
+
+const externalResolver = Resolver.createRoot({
+  compiler: compiler,
+});
+```
+
+```ts copy filename="main.ts"
+import { createServer } from '@ptsq/server';
+import { compiler } from './compiler';
+import { externalResolver } from './external-resolver';
+
+const { resolver, router, serve } = createServer({
+  ctx: () => ({}),
+  compiler: compiler,
+});
+
+// ...
+```
+
 ## Typebox vs Zod
 
 Performance comparison between Typebox and Zod validations.
