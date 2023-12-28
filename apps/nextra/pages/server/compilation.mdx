@@ -1,0 +1,130 @@
+# Compilation
+
+Every argument or output schemas are compiled by TypeBox TypeCompiler.
+
+The reason for the compilation is to create very high-performance validations.
+
+The TypeBox TypeCompiler is a high-performance JIT validation compiler that transforms TypeBox types into optimized JavaScript validation routines.
+
+## Cold starts
+
+The compilation is done in runtime, so the first call of validation can be slightly slower than the others because of the compilation step.
+
+```txt
+parsing: 0.706ms
+parsing: 0.018ms
+parsing: 0.042ms
+```
+
+These stats are from the real application. As you can see, the first parsing process lasts longer than others.
+
+Compilations are automatically cached per instance of validation schema.
+
+That means that those two schemas
+
+```ts
+const schema1 = Type.String();
+
+const schema2 = Type.String();
+```
+
+are both must be compiled, so the compilation process is twice.
+
+## Compilers sharing
+
+You can share your compilers across the whole application, so the same validation schema would not be compiled twice.
+
+```ts copy filename="compiler.ts"
+import { Compiler } from '@ptsq/server';
+
+export const compiler = new Compiler();
+```
+
+```ts copy filename="external-resolver.ts"
+import { Resolver } from '@ptsq/server';
+import { compiler } from './compiler';
+
+const externalResolver = Resolver.createRoot({
+  compiler: compiler,
+});
+```
+
+```ts copy filename="main.ts"
+import { createServer } from '@ptsq/server';
+import { compiler } from './compiler';
+import { externalResolver } from './external-resolver';
+
+const { resolver, router, serve } = createServer({
+  ctx: () => ({}),
+  compiler: compiler,
+});
+
+// ...
+```
+
+## Typebox vs Zod
+
+Performance comparison between Typebox and Zod validations.
+
+```ts copy filename="validation.ts"
+const personSchemaTypeBox = Type.Intersect([
+  Type.Object({
+    firstName: Type.String({ minLength: 4 }),
+    age: Type.Number({ minimum: 18 }),
+  }),
+  Type.Object({
+    lastName: Type.Optional(Type.String({ minLength: 4 })),
+  }),
+]);
+
+const personSchemaZod = z.intersection(
+  z.object({
+    firstName: z.string().min(4),
+    age: z.number().min(18),
+  }),
+  z.object({
+    lastName: z.string().min(4).optional(),
+  }),
+);
+```
+
+### Test 1
+
+```ts copy
+const data = {
+  firstName: 'John',
+  age: 22,
+};
+```
+
+```txt
+non-compiled Typebox schema check: 0.247ms
+Typebox compilation: 0.738ms
+compiled Typebox schema check: 0.024ms
+Zod schema check: 0.67ms
+```
+
+### Test 2
+
+```ts copy
+const data = {
+  firstName: 'John',
+  age: 22,
+  lastName: 'Doe', // invalid!
+};
+```
+
+```txt
+non-compiled Typebox schema check: 0.244ms
+Typebox compilation: 0.702ms
+compiled Typebox schema check: 0.025ms
+Zod schema check: 0.846ms
+```
+
+### Results
+
+As you can see from those small tests, the Typebox compilation step is almost as fast as the Zod validation.
+
+But the compilation runs only once per whole application deployment, every next validation is cached and validated by a compiled JavaScript function.
+
+It's not complicated schemas, but the tests shows the most used pattern which is intersection of two schemas in `ptsq`

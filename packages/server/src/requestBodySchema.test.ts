@@ -1,10 +1,16 @@
 import { expect, test } from 'vitest';
+import { Compiler } from './compiler';
+import { Parser } from './parser';
 import { requestBodySchema } from './requestBodySchema';
-import { SchemaParser } from './schemaParser';
 
 test('Should parse valid request body', () => {
-  const parseResult = SchemaParser.safeParse({
+  const parser = new Parser({
     schema: requestBodySchema,
+    compiler: new Compiler(),
+  });
+
+  const parseResult = parser.parse({
+    mode: 'decode',
     value: {
       route: 'a.b.c.d',
       input: {
@@ -25,8 +31,13 @@ test('Should parse valid request body', () => {
 });
 
 test('Should parse valid request body without input', () => {
-  const parseResult = SchemaParser.safeParse({
+  const parser = new Parser({
     schema: requestBodySchema,
+    compiler: new Compiler(),
+  });
+
+  const parseResult = parser.parse({
+    mode: 'decode',
     value: {
       route: 'a.b.c.d',
       type: 'query',
@@ -37,8 +48,13 @@ test('Should parse valid request body without input', () => {
 });
 
 test('Should parse invalid request body without route', () => {
-  const parseResult = SchemaParser.safeParse({
+  const parser = new Parser({
     schema: requestBodySchema,
+    compiler: new Compiler(),
+  });
+
+  const parseResult = parser.parse({
+    mode: 'decode',
     value: {
       input: {
         array: [
@@ -58,8 +74,13 @@ test('Should parse invalid request body without route', () => {
 });
 
 test('Should parse invalid request body with bad formated route', () => {
-  const parseResult = SchemaParser.safeParse({
+  const parser = new Parser({
     schema: requestBodySchema,
+    compiler: new Compiler(),
+  });
+
+  const parseResult = parser.parse({
+    mode: 'decode',
     value: {
       route: '',
       input: {
@@ -80,8 +101,13 @@ test('Should parse invalid request body with bad formated route', () => {
 });
 
 test('Should parse invalid request body with bad formated route', () => {
-  const parseResult = SchemaParser.safeParse({
+  const parser = new Parser({
     schema: requestBodySchema,
+    compiler: new Compiler(),
+  });
+
+  const parseResult = parser.parse({
+    mode: 'decode',
     value: {
       route: 'a,b,c',
       input: {
@@ -102,8 +128,13 @@ test('Should parse invalid request body with bad formated route', () => {
 });
 
 test('Should parse valid request body with only one route without dot', () => {
-  const parseResult = SchemaParser.safeParse({
+  const parser = new Parser({
     schema: requestBodySchema,
+    compiler: new Compiler(),
+  });
+
+  const parseResult = parser.parse({
+    mode: 'decode',
     value: {
       route: 'abcdc',
       input: {
@@ -124,8 +155,13 @@ test('Should parse valid request body with only one route without dot', () => {
 });
 
 test('Should not parse invalid request body without route type', () => {
-  const parseResult = SchemaParser.safeParse({
+  const parser = new Parser({
     schema: requestBodySchema,
+    compiler: new Compiler(),
+  });
+
+  const parseResult = parser.parse({
+    mode: 'decode',
     value: {
       route: 'abcdc',
       input: {
@@ -145,8 +181,13 @@ test('Should not parse invalid request body without route type', () => {
 });
 
 test('Should not parse invalid request body with additional property', () => {
-  const parseResult = SchemaParser.safeParse({
+  const parser = new Parser({
     schema: requestBodySchema,
+    compiler: new Compiler(),
+  });
+
+  const parseResult = parser.parse({
+    mode: 'decode',
     value: {
       route: 'abcdc',
       input: {

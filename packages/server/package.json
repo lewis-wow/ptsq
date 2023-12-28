@@ -31,8 +31,10 @@
   "devDependencies": {
     "@types/node": "^20.7.0",
     "@types/pascalcase": "^1.0.1",
+    "@types/uuid": "^9.0.7",
     "axios": "^1.5.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "uuid": "^9.0.1"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.31.28",

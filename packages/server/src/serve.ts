@@ -1,11 +1,11 @@
 import type { Context } from 'vitest';
+import type { Compiler } from './compiler';
 import type { ContextBuilder } from './context';
 import { HTTPError } from './httpError';
 import { MiddlewareResponse, type AnyMiddlewareResponse } from './middleware';
 import { Queue } from './queue';
 import { requestBodySchema } from './requestBodySchema';
 import type { AnyRouter } from './router';
-import { SchemaParser } from './schemaParser';
 
 /**
  * @internal
@@ -17,13 +17,17 @@ export const serve = async (options: {
   body: unknown;
   params: Context;
   contextBuilder: ContextBuilder;
+  compiler: Compiler;
 }): Promise<AnyMiddlewareResponse> => {
   try {
     const ctx = await options.contextBuilder(options.params);
 
-    const parsedRequestBody = SchemaParser.safeParse({
-      schema: requestBodySchema,
+    const requestBodySchemaParser =
+      options.compiler.getParser(requestBodySchema);
+
+    const parsedRequestBody = requestBodySchemaParser.parse({
       value: options.body,
+      mode: 'decode',
     });
 
     if (!parsedRequestBody.ok)

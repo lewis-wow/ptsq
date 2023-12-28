@@ -1,6 +1,7 @@
 import type { FetchAPI } from '@whatwg-node/server';
 import { useCookies } from '@whatwg-node/server-plugin-cookies';
 import { createRouter, Response, useCORS } from 'fets';
+import { Compiler } from './compiler';
 import type {
   ContextBuilder,
   inferContextFromContextBuilder,
@@ -22,6 +23,7 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   root?: string;
   endpoint?: string;
   errorFormatter?: ErrorFormatter;
+  compiler?: Compiler;
 };
 
 /**
@@ -45,6 +47,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   root = '',
   endpoint = '/ptsq',
   errorFormatter = (error) => error,
+  compiler = new Compiler(),
 }: CreateServerArgs<TContextBuilder>) => {
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
   type ContextBuilderParams =
@@ -65,7 +68,9 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
    * });
    * ```
    */
-  const resolver = Resolver.createRoot<RootContext>();
+  const resolver = Resolver.createRoot<RootContext>({
+    compiler,
+  });
 
   /**
    * Creates a fully typed router
@@ -102,6 +107,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
             body: requestBody,
             contextBuilder: ctx,
             params: ctxParams,
+            compiler,
           });
 
           return serverResponse.toResponse(errorFormatter);
