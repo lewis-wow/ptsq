@@ -1,5 +1,4 @@
 import {
-  TypeGuard,
   type StaticDecode,
   type StaticEncode,
   type TSchema,
@@ -48,19 +47,6 @@ export class Parser<TValidationSchema extends TSchema> {
         data: value,
       };
 
-    if (!TypeGuard.TTransform(this._def.schema)) {
-      if (compiledSchema.Check(value))
-        return {
-          ok: true,
-          data: value,
-        };
-
-      return {
-        ok: false,
-        errors: [...compiledSchema.Errors(value)],
-      };
-    }
-
     try {
       return {
         ok: true,
@@ -82,19 +68,6 @@ export class Parser<TValidationSchema extends TSchema> {
         ok: true,
         data: value,
       };
-
-    if (!TypeGuard.TTransform(this._def.schema)) {
-      if (compiledSchema.Check(value))
-        return {
-          ok: true,
-          data: value,
-        };
-
-      return {
-        ok: false,
-        errors: [...compiledSchema.Errors(value)],
-      };
-    }
 
     try {
       return {
