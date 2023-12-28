@@ -18,7 +18,17 @@ parsing: 0.042ms
 
 These stats are from the real application. As you can see, the first parsing process lasts longer than others.
 
-Compilations are automatically cached by `JSON.stringify` comparison.
+Compilations are automatically cached per instance of validation schema.
+
+That means that those two schemas
+
+```ts
+const schema1 = Type.String();
+
+const schema2 = Type.String();
+```
+
+are both must be compiled, so the compilation process is twice.
 
 ## Compilers sharing
 

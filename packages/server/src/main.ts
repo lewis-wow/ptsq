@@ -7,6 +7,8 @@ export { Middleware, type AnyMiddleware } from './middleware';
 export type { Query, AnyQuery } from './query';
 export type { Mutation, AnyMutation } from './mutation';
 
+export { Compiler } from './compiler';
+
 export type { Route, AnyRoute } from './route';
 export type { Router, AnyRouter } from './router';
 export type { Context } from './context';
