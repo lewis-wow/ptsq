@@ -323,6 +323,28 @@ test('Should create simple http server and return BAD_REQUEST response', async (
   });
 });
 
+test('Should create simple http server and return BAD_REQUEST response with bad resolver type', async () => {
+  await createTestHttpServer({
+    ctx: () => ({}),
+    server: ({ resolver, router }) => {
+      return router({
+        test: resolver.output(Type.Null()).query(() => null),
+      });
+    },
+    client: async (serverUrl) => {
+      await expect(() =>
+        axios.post(serverUrl, {
+          route: 'test',
+          input: 'John',
+          type: 'mutation',
+        }),
+      ).rejects.toMatchInlineSnapshot(
+        '[AxiosError: Request failed with status code 400]',
+      );
+    },
+  });
+});
+
 test('Should create simple http server and return INTERNAL_SERVER_ERROR response', async () => {
   await createTestHttpServer({
     ctx: () => ({}),
