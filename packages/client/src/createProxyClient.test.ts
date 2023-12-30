@@ -104,6 +104,36 @@ test('Should create simple http server with proxy client and request bad route',
   });
 });
 
+test('Should create simple http server with proxy client and creates request with bad resolver type', async () => {
+  await createTestHttpServer({
+    ctx: () => ({}),
+    server: ({ resolver, router }) => {
+      return router({
+        test: resolver
+          .args(
+            Type.Object({
+              name: Type.String(),
+            }),
+          )
+          .output(Type.String())
+          .query(({ input }) => input.name),
+      });
+    },
+    client: async (serverUrl, router) => {
+      const client = createProxyClient<typeof router>({
+        url: serverUrl,
+      });
+
+      await expect(() =>
+        // @ts-expect-error - should be query, not mutate (Just for test!)
+        client.test.mutate({
+          name: 'John',
+        }),
+      ).rejects.toThrow();
+    },
+  });
+});
+
 test('Should create simple http server with proxy client without query input', async () => {
   await createTestHttpServer({
     ctx: () => ({}),
