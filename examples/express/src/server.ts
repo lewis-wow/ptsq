@@ -13,19 +13,42 @@ const { router, resolver, serve } = createServer({
   ctx: createContext,
 });
 
+const loggingResolver = resolver.use(async ({ next }) => {
+  console.time('request');
+  const res = await next();
+  console.timeEnd('request');
+  return res;
+});
+
 const dateSchema = Type.Transform(Type.String())
   .Decode((arg) => new Date(arg))
   .Encode((arg) => arg.toISOString());
 
-const root = resolver
+const personSchema = Type.Object({
+  firstName: Type.String({
+    minLength: 4,
+  }),
+  lastName: Type.String(),
+  age: Type.Number(),
+  url: Type.Transform(Type.String())
+    .Decode((arg) => new URL(arg))
+    .Encode((arg) => arg.toString()),
+  createdAt: dateSchema,
+  updatedAt: dateSchema,
+});
+
+const root = loggingResolver
   .description(`My test query...`)
-  .args(dateSchema)
+  .args(personSchema)
   .output(dateSchema);
 
-const testA = root.query(({ input }) => input);
+const testA = root.query(({ input }) => input.updatedAt);
 
 const test = root.query(async (opts) => {
+  console.log(opts);
   const res = await testA.resolve(opts);
+
+  console.log(res, typeof res);
 
   console.log('time', res.getTime());
 

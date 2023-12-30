@@ -8,8 +8,15 @@ const client = createProxyClient<BaseRouter>({
 });
 
 client.greetings
-  .query(new Date().toISOString())
+  .query({
+    firstName: 'asdfa',
+    lastName: 'asdfasdf',
+    age: 11,
+    updatedAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    url: 'http://localhost:3000/pathname',
+  })
   .then((response) => {
     console.log(response);
   })
-  .catch((error) => console.log(error.response.data));
+  .catch((error) => console.log(error));
