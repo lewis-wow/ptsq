@@ -9,8 +9,9 @@ import {
   type MiddlewareMeta,
 } from './middleware';
 import type { AnyMiddleware, AnyRawMiddlewareReponse } from './middleware';
+import type { ResolverType } from './node';
 import type { AnyResolveFunction } from './resolver';
-import type { inferStaticInput, ResolverType } from './types';
+import type { inferStaticInput } from './types';
 
 /**
  * @internal

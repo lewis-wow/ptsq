@@ -13,7 +13,6 @@ export type { Route, AnyRoute } from './route';
 export type { Router, AnyRouter } from './router';
 export type { Context } from './context';
 export type {
-  ResolverType,
   MaybePromise,
   inferClientResolverArgs,
   inferClientResolverOutput,
@@ -22,3 +21,13 @@ export type {
 export type { Serializable } from './serializable';
 
 export type { CORSOptions } from './cors';
+
+export type {
+  ResolverType,
+  ResolverEndpoint,
+  Node,
+  NodeType,
+  AnyNode,
+  AnyResolverEndpoint,
+  AnyRouteType,
+} from './node';

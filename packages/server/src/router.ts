@@ -5,13 +5,11 @@ import {
   type AnyRawMiddlewareReponse,
   type MiddlewareMeta,
 } from './middleware';
-import type { AnyMutation } from './mutation';
-import type { AnyQuery } from './query';
+import type { AnyRouteType, ResolverType } from './node';
 import type { Queue } from './queue';
-import type { ResolverType } from './types';
 
 export type Routes = {
-  [Key: string]: AnyQuery | AnyMutation | AnyRouter;
+  [Key: string]: AnyRouteType;
 };
 
 /**

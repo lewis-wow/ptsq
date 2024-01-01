@@ -3,8 +3,8 @@ import type { Compiler } from './compiler';
 import type { Context } from './context';
 import type { ErrorFormatter } from './errorFormatter';
 import { HTTPError } from './httpError';
+import type { ResolverType } from './node';
 import type { ResolverSchema } from './resolver';
-import type { ResolverType } from './types';
 
 /**
  * @internal

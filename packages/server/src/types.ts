@@ -7,10 +7,6 @@ import type {
 } from '@sinclair/typebox';
 import type { ResolverSchema } from './resolver';
 
-export type ResolverType = 'query' | 'mutation';
-
-export type NodeType = 'route' | 'router';
-
 export type MaybePromise<T> = T | Promise<T>;
 
 /**
