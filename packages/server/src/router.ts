@@ -1,4 +1,3 @@
-import type { APIDefinition, inferAPIDefinition } from './APIDefinition';
 import type { Context } from './context';
 import { createSchemaRoot, type SchemaRoot } from './createSchemaRoot';
 import { HTTPError } from './httpError';
@@ -55,18 +54,10 @@ export class Router<TRoutes extends Routes> {
     });
   }
 
-  getAPIDefinition(): { node: 'router'; routes: inferAPIDefinition<TRoutes> } {
+  getAPIDefinition() {
     return {
       node: this._def.nodeType,
-      routes: new Proxy(this._def.routes, {
-        get: (target, prop: string) => {
-          const nextRoute = target[prop];
-          return nextRoute.getAPIDefinition();
-        },
-      }) as unknown as inferAPIDefinition<TRoutes>,
-    } satisfies APIDefinition as {
-      node: 'router';
-      routes: inferAPIDefinition<TRoutes>;
+      routes: this._def.routes,
     };
   }
 

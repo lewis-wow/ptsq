@@ -1,5 +1,4 @@
 import { Type, type TSchema } from '@sinclair/typebox';
-import type { APIDefinition } from './APIDefinition';
 import type { Compiler } from './compiler';
 import type { Context } from './context';
 import type { AnyMiddleware } from './middleware';
@@ -46,18 +45,14 @@ export class Mutation<
   > {
     return {
       type: this._def.type,
-      node: 'route',
+      node: this._def.nodeType,
       args:
         this._def.argsSchema === undefined
           ? undefined
           : Type.Strict(this._def.argsSchema),
       output: Type.Strict(this._def.outputSchema),
       description: this._def.description,
-    } as MutationAPIDefinition<
-      TArgsSchema,
-      TOutputSchema,
-      TDescription
-    > satisfies APIDefinition;
+    } as MutationAPIDefinition<TArgsSchema, TOutputSchema, TDescription>;
   }
 }
 
