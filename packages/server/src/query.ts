@@ -1,4 +1,5 @@
-import type { TSchema } from '@sinclair/typebox';
+import { Type, type TSchema } from '@sinclair/typebox';
+import type { APIDefinition } from './APIDefinition';
 import type { Compiler } from './compiler';
 import type { Context } from './context';
 import type { AnyMiddleware } from './middleware';
@@ -37,7 +38,40 @@ export class Query<
       ...options,
     });
   }
+
+  getAPIDefinition(): QueryAPIDefinition<
+    TArgsSchema,
+    TOutputSchema,
+    TDescription
+  > {
+    return {
+      type: this._def.type,
+      node: 'route',
+      args:
+        this._def.argsSchema === undefined
+          ? undefined
+          : Type.Strict(this._def.argsSchema),
+      output: Type.Strict(this._def.outputSchema),
+      description: this._def.description,
+    } as QueryAPIDefinition<
+      TArgsSchema,
+      TOutputSchema,
+      TDescription
+    > satisfies APIDefinition;
+  }
 }
+
+export type QueryAPIDefinition<
+  TArgsSchema extends TSchema | undefined,
+  TOutputSchema extends TSchema,
+  TDescription extends string | undefined,
+> = {
+  type: 'query';
+  node: 'route';
+  args: TArgsSchema;
+  output: TOutputSchema;
+  description: TDescription;
+};
 
 export type AnyQuery = Query<
   TSchema | undefined,

@@ -1,4 +1,5 @@
-import type { TSchema } from '@sinclair/typebox';
+import { Type, type TSchema } from '@sinclair/typebox';
+import type { APIDefinition } from './APIDefinition';
 import type { Compiler } from './compiler';
 import type { Context } from './context';
 import type { AnyMiddleware } from './middleware';
@@ -37,7 +38,40 @@ export class Mutation<
       ...options,
     });
   }
+
+  getAPIDefinition(): MutationAPIDefinition<
+    TArgsSchema,
+    TOutputSchema,
+    TDescription
+  > {
+    return {
+      type: this._def.type,
+      node: 'route',
+      args:
+        this._def.argsSchema === undefined
+          ? undefined
+          : Type.Strict(this._def.argsSchema),
+      output: Type.Strict(this._def.outputSchema),
+      description: this._def.description,
+    } as MutationAPIDefinition<
+      TArgsSchema,
+      TOutputSchema,
+      TDescription
+    > satisfies APIDefinition;
+  }
 }
+
+export type MutationAPIDefinition<
+  TArgsSchema extends TSchema | undefined,
+  TOutputSchema extends TSchema,
+  TDescription extends string | undefined,
+> = {
+  type: 'mutation';
+  node: 'route';
+  args: TArgsSchema;
+  output: TOutputSchema;
+  description: TDescription;
+};
 
 export type AnyMutation = Mutation<
   TSchema | undefined,
