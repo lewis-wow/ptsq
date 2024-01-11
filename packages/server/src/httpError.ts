@@ -45,6 +45,10 @@ export class HTTPError extends Error {
     return JSON.stringify(this.toJSON());
   }
 
+  toResponse() {
+    return new Response(this.toString(), { status: this.getHTTPErrorCode() });
+  }
+
   getHTTPErrorCode() {
     return HTTPErrorCode[this.code];
   }

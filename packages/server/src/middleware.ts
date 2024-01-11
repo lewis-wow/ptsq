@@ -1,4 +1,3 @@
-import { Response } from 'fets';
 import type { Compiler } from './compiler';
 import type { Context } from './context';
 import type { ErrorFormatter } from './errorFormatter';

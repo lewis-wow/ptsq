@@ -330,13 +330,6 @@
   dependencies:
     regenerator-runtime "^0.14.0"
 
-"@babel/runtime@^7.18.3":
-  version "7.23.5"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.23.5.tgz#11edb98f8aeec529b82b211028177679144242db"
-  integrity sha512-NdUTHcPe4C99WxPub+K9l9tK5/lV4UXIoaHSYgzco9BCyjKAAwzdBI+wWtYqHt7LJdbo74ZjRPJgzVweq1sz0w==
-  dependencies:
-    regenerator-runtime "^0.14.0"
-
 "@babel/runtime@^7.20.1", "@babel/runtime@^7.20.7", "@babel/runtime@^7.5.5":
   version "7.23.2"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.23.2.tgz#062b0ac103261d68a966c4c7baf2ae3e62ec3885"
@@ -1453,7 +1446,7 @@
   resolved "https://registry.npmjs.org/@sinclair/typebox/-/typebox-0.27.8.tgz"
   integrity sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==
 
-"@sinclair/typebox@^0.31.23", "@sinclair/typebox@^0.31.28":
+"@sinclair/typebox@^0.31.28":
   version "0.31.28"
   resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.31.28.tgz#b68831e7bc7d09daac26968ea32f42bedc968ede"
   integrity sha512-/s55Jujywdw/Jpan+vsy6JZs1z2ZTGxTmbZTPiuSL2wz9mfzA2gN1zzaqmvfi4pq+uOt7Du85fkiwv5ymW84aQ==
@@ -2263,7 +2256,7 @@
     loupe "^2.3.6"
     pretty-format "^29.5.0"
 
-"@whatwg-node/cookie-store@0.2.2", "@whatwg-node/cookie-store@^0.2.0":
+"@whatwg-node/cookie-store@0.2.2":
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/@whatwg-node/cookie-store/-/cookie-store-0.2.2.tgz#cc9e932a4775a5d2f94093522a20789cafbfe7c6"
   integrity sha512-poI6G6rYGsXNA+JTZLU+IUUXb+Xsau8M3GrcbF3VJdbvW6QGpbuvC+gvN4rD9zJAnqM0jpDKDhIWf2DmEAmWFQ==
@@ -2275,7 +2268,7 @@
   resolved "https://registry.yarnpkg.com/@whatwg-node/events/-/events-0.1.1.tgz#0ca718508249419587e130da26d40e29d99b5356"
   integrity sha512-AyQEn5hIPV7Ze+xFoXVU3QTHXVbWPrzaOkxtENMPMuNL6VVHrp4hHfDt9nrQpjO7BgvuM95dMtkycX5M/DZR3w==
 
-"@whatwg-node/fetch@^0.9.10", "@whatwg-node/fetch@^0.9.4":
+"@whatwg-node/fetch@^0.9.10":
   version "0.9.14"
   resolved "https://registry.yarnpkg.com/@whatwg-node/fetch/-/fetch-0.9.14.tgz#262039fd8aea52a9c8aac2ec20f316382eae1a3c"
   integrity sha512-wurZC82zzZwXRDSW0OS9l141DynaJQh7Yt0FD1xZ8niX7/Et/7RoiLiltbVU1fSF1RR9z6ndEaTUQBAmddTm1w==
@@ -2302,10 +2295,10 @@
     "@whatwg-node/cookie-store" "0.2.2"
     tslib "^2.3.1"
 
-"@whatwg-node/server@^0.9.15":
-  version "0.9.18"
-  resolved "https://registry.yarnpkg.com/@whatwg-node/server/-/server-0.9.18.tgz#5194822b4280a33251bfd082cd967561be31f8e7"
-  integrity sha512-rfI2ZhKWakfkhyVA4v95cnkMF5k5B4k57yLH4bYkEORnLJj+SL7sger0q4hyA47bdp1KOY1raeIBIBEXSpwTvw==
+"@whatwg-node/server@^0.9.23":
+  version "0.9.23"
+  resolved "https://registry.yarnpkg.com/@whatwg-node/server/-/server-0.9.23.tgz#0f8b90fba6356b33c5a8c0a89b7397121695c416"
+  integrity sha512-B4SkvwXq0dNFQC/9r6UjMeE1MG0zxxFqSCljasgq/HYtY8Sm/blr7F2vZorIsjtz3nv/RDyrh1sM1MG7PUS6Vg==
   dependencies:
     "@whatwg-node/fetch" "^0.9.10"
     tslib "^2.3.1"
@@ -4398,21 +4391,6 @@ fastq@^1.6.0:
   dependencies:
     reusify "^1.0.4"
 
-fets@^0.6.6:
-  version "0.6.6"
-  resolved "https://registry.yarnpkg.com/fets/-/fets-0.6.6.tgz#d93e48be844c07a55f78c283d9c6db81d95a5802"
-  integrity sha512-3755C8c2Bb/peJbmNHmB6vpmM3IPgGg02ejKA6J+73e/l6vo87wSzoLAI4dYvJP1L6AsuBiXeG5T2ouhZ1qikg==
-  dependencies:
-    "@sinclair/typebox" "^0.31.23"
-    "@whatwg-node/cookie-store" "^0.2.0"
-    "@whatwg-node/fetch" "^0.9.4"
-    "@whatwg-node/server" "^0.9.15"
-    hotscript "^1.0.11"
-    json-schema-to-ts "^2.9.1"
-    qs "^6.11.2"
-    ts-toolbelt "^9.6.0"
-    tslib "^2.3.1"
-
 file-entry-cache@^6.0.1:
   version "6.0.1"
   resolved "https://registry.npmjs.org/file-entry-cache/-/file-entry-cache-6.0.1.tgz"
@@ -4977,11 +4955,6 @@ hosted-git-info@^2.1.4:
   resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.9.tgz#dffc0bf9a21c02209090f2aa69429e1414daf3f9"
   integrity sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==
 
-hotscript@^1.0.11:
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/hotscript/-/hotscript-1.0.13.tgz#6eb5de757e9b33444ffc22555e98dbc17fa31fb4"
-  integrity sha512-C++tTF1GqkGYecL+2S1wJTfoH6APGAsbb7PAWQ3iVIwgG/EFseAfEVOKFgAFq4yK3+6j1EjUD4UQ9dRJHX/sSQ==
-
 html-escaper@^2.0.0:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/html-escaper/-/html-escaper-2.0.2.tgz#dfd60027da36a36dfcbe236262c00a5822681453"
@@ -5514,15 +5487,6 @@ json-parse-even-better-errors@^2.3.0:
   version "2.3.1"
   resolved "https://registry.npmjs.org/json-parse-even-better-errors/-/json-parse-even-better-errors-2.3.1.tgz"
   integrity sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==
-
-json-schema-to-ts@^2.9.1:
-  version "2.9.2"
-  resolved "https://registry.yarnpkg.com/json-schema-to-ts/-/json-schema-to-ts-2.9.2.tgz#a054bc6410f13c7a2fc51aeabac52292e885b98d"
-  integrity sha512-h9WqLkTVpBbiaPb5OmeUpz/FBLS/kvIJw4oRCPiEisIu2WjMh+aai0QIY2LoOhRFx5r92taGLcerIrzxKBAP6g==
-  dependencies:
-    "@babel/runtime" "^7.18.3"
-    "@types/json-schema" "^7.0.9"
-    ts-algebra "^1.2.0"
 
 json-schema-to-typescript@^13.1.1:
   version "13.1.1"
@@ -7271,13 +7235,6 @@ qs@6.11.0:
   dependencies:
     side-channel "^1.0.4"
 
-qs@^6.11.2:
-  version "6.11.2"
-  resolved "https://registry.yarnpkg.com/qs/-/qs-6.11.2.tgz#64bea51f12c1f5da1bc01496f48ffcff7c69d7d9"
-  integrity sha512-tDNIz22aBzCDxLtVH++VnTfzxlfeK5CbqohpSqpJgj1Wg/cQbStNAz3NuqCs5vV+pjBsK4x4pN9HlVh7rcYRiA==
-  dependencies:
-    side-channel "^1.0.4"
-
 queue-microtask@^1.2.2:
   version "1.2.3"
   resolved "https://registry.npmjs.org/queue-microtask/-/queue-microtask-1.2.3.tgz"
@@ -8278,11 +8235,6 @@ trough@^2.0.0:
   resolved "https://registry.yarnpkg.com/trough/-/trough-2.1.0.tgz#0f7b511a4fde65a46f18477ab38849b22c554876"
   integrity sha512-AqTiAOLcj85xS7vQ8QkAV41hPDIJ71XJB4RCUrzo/1GM2CQwhkJGaf9Hgr7BOugMRpgGUrqRg/DrBDl4H40+8g==
 
-ts-algebra@^1.2.0:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/ts-algebra/-/ts-algebra-1.2.2.tgz#b75d301c28cd4126cd344760a47b43e48e2872e0"
-  integrity sha512-kloPhf1hq3JbCPOTYoOWDKxebWjNb2o/LKnNfkWhxVVisFFmMJPPdJeGoGmM+iRLyoXAR61e08Pb+vUXINg8aA==
-
 ts-api-utils@^1.0.1:
   version "1.0.3"
   resolved "https://registry.npmjs.org/ts-api-utils/-/ts-api-utils-1.0.3.tgz"
@@ -8330,11 +8282,6 @@ ts-node@^10.9.2:
     make-error "^1.1.1"
     v8-compile-cache-lib "^3.0.1"
     yn "3.1.1"
-
-ts-toolbelt@^9.6.0:
-  version "9.6.0"
-  resolved "https://registry.yarnpkg.com/ts-toolbelt/-/ts-toolbelt-9.6.0.tgz#50a25426cfed500d4a09bd1b3afb6f28879edfd5"
-  integrity sha512-nsZd8ZeNUzukXPlJmTBwUAuABDe/9qtVDelJeT/qW0ow3ZS3BsQJtNkan1802aM9Uf68/Y8ljw86Hu0h5IUW3w==
 
 tsconfig-paths@^3.14.2:
   version "3.14.2"
