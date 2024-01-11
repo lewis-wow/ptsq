@@ -1,4 +1,4 @@
-import { createServer } from '@ptsq/server';
+import { createServer, useCORS } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 import express, { Request, Response } from 'express';
 
@@ -11,6 +11,11 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => {
 
 const { router, resolver, serve } = createServer({
   ctx: createContext,
+  plugins: [
+    useCORS({
+      origin: '',
+    }),
+  ],
 });
 
 const loggingResolver = resolver.use(async ({ next }) => {

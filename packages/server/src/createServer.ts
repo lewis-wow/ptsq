@@ -1,14 +1,17 @@
-import type { FetchAPI } from '@whatwg-node/server';
-import { useCookies } from '@whatwg-node/server-plugin-cookies';
-import { createRouter, Response, useCORS } from 'fets';
+import {
+  createServerAdapter,
+  type FetchAPI,
+  type ServerAdapterPlugin,
+} from '@whatwg-node/server';
 import { Compiler } from './compiler';
 import type {
   ContextBuilder,
   inferContextFromContextBuilder,
   inferContextParamsFromContextBuilder,
 } from './context';
-import type { CORSOptions } from './cors';
 import type { ErrorFormatter } from './errorFormatter';
+import { HTTPError } from './httpError';
+import { PtsqServer } from './ptsqServer';
 import { Resolver } from './resolver';
 import { Router, type AnyRouter, type Routes } from './router';
 import { serve as _serve } from './serve';
@@ -18,12 +21,12 @@ import { serve as _serve } from './serve';
  */
 type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   ctx: TContextBuilder;
-  cors?: CORSOptions;
   fetchAPI?: FetchAPI;
   root?: string;
   endpoint?: string;
   errorFormatter?: ErrorFormatter;
   compiler?: Compiler;
+  plugins?: ServerAdapterPlugin[];
 };
 
 /**
@@ -42,12 +45,12 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
  */
 export const createServer = <TContextBuilder extends ContextBuilder>({
   ctx,
-  cors,
   fetchAPI,
   root = '',
   endpoint = '/ptsq',
   errorFormatter = (error) => error,
   compiler = new Compiler(),
+  plugins = [],
 }: CreateServerArgs<TContextBuilder>) => {
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
   type ContextBuilderParams =
@@ -91,38 +94,35 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
     new Router({ routes });
 
   const serve = (baseRouter: AnyRouter) => {
-    return createRouter<ContextBuilderParams>({
-      plugins: [useCORS(cors), useCookies()],
-      landingPage: false,
-      fetchAPI: fetchAPI,
-    })
-      .route({
-        path: path,
-        method: 'POST',
-        handler: async (req, ctxParams) => {
-          const requestBody = await req.json();
+    const ptsqServer = new PtsqServer({
+      router: baseRouter,
+      contextBuilder: ctx,
+      compiler,
+    });
 
-          const serverResponse = await _serve({
-            router: baseRouter,
-            body: requestBody,
-            contextBuilder: ctx,
-            params: ctxParams,
-            compiler,
-          });
+    return createServerAdapter<ContextBuilderParams>(
+      async (request, contextParams) => {
+        const url = new URL(request.url);
+        const method = request.method;
 
-          return serverResponse.toResponse(errorFormatter);
-        },
-      })
-      .route({
-        path: `${path}/introspection`,
-        method: 'GET',
-        handler: () =>
-          Response.json({
-            ...baseRouter.getJsonSchema(),
-            title: 'BaseRouter',
-            $schema: 'https://json-schema.org/draft/2019-09/schema#',
-          }),
-      });
+        if (url.pathname === path && method === 'POST')
+          return (await ptsqServer.serve(request, contextParams)).toResponse(
+            errorFormatter,
+          );
+
+        if (url.pathname === `${path}/introspection` && method === 'GET')
+          return ptsqServer.introspection().toResponse();
+
+        if (!['GET', 'POST'].includes(method))
+          return new HTTPError({ code: 'METHOD_NOT_SUPPORTED' }).toResponse();
+
+        return new HTTPError({ code: 'NOT_FOUND' }).toResponse();
+      },
+      {
+        plugins,
+        fetchAPI,
+      },
+    );
   };
 
   return {

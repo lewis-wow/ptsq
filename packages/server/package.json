@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@sinclair/typebox": "^0.31.28",
-    "@whatwg-node/server-plugin-cookies": "^1.0.2",
-    "fets": "^0.6.6"
+    "@whatwg-node/server": "^0.9.23",
+    "@whatwg-node/server-plugin-cookies": "^1.0.2"
   }
 }

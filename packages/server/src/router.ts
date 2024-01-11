@@ -99,6 +99,13 @@ export class Router<TRoutes extends Routes> {
 
     return nextNode.call(options);
   }
+
+  static createRootIntrospectionSchema() {
+    return {
+      title: 'BaseRouter',
+      $schema: 'https://json-schema.org/draft/2019-09/schema#',
+    };
+  }
 }
 
 export type AnyRouter = Router<Routes>;

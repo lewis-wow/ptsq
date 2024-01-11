@@ -1,6 +1,5 @@
 import { createServer } from 'http';
 import type { Context } from '../context';
-import type { CORSOptions } from '../cors';
 import { createServer as createPtsqServer } from '../createServer';
 import type { AnyRouter } from '../router';
 import type { MaybePromise } from '../types';
@@ -13,7 +12,6 @@ export type CreateTestHttpServerArgs<
   TRouter extends AnyRouter,
 > = {
   ctx: (params: any) => TContext;
-  cors?: CORSOptions;
   server: (
     ptsq: ReturnType<typeof createPtsqServer<(params: any) => TContext>>,
   ) => MaybePromise<TRouter>;
@@ -28,7 +26,6 @@ export const createTestHttpServer = <
   TRouter extends AnyRouter,
 >({
   ctx,
-  cors,
   server,
   client,
 }: CreateTestHttpServerArgs<TContext, TRouter>) => {
@@ -36,7 +33,6 @@ export const createTestHttpServer = <
   return new Promise(async (resolve) => {
     const ptsq = createPtsqServer({
       ctx: ctx,
-      cors,
     });
 
     const baseRouter = await server(ptsq);
