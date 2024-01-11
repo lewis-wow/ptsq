@@ -1,4 +1,5 @@
 import { createServer } from '@ptsq/server';
+import { Plugin, plugin } from '@ptsq/server/dist/plugin';
 import { Type } from '@sinclair/typebox';
 import express, { Request, Response } from 'express';
 
@@ -9,8 +10,22 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => {
   return { req, res, user, test: { a: 1 } };
 };
 
+const p = plugin(() => ({
+  onRequest: () => {
+    return {
+      onResponse: () => {},
+    };
+  },
+  onExecute: ({ meta }) => {
+    return {
+      onExecuteDone: ({ response }) => {},
+    };
+  },
+}));
+
 const { router, resolver, serve } = createServer({
   ctx: createContext,
+  plugins: [p],
 });
 
 const loggingResolver = resolver.use(async ({ next }) => {

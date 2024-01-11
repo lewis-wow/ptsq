@@ -8,7 +8,7 @@ import type {
   inferContextParamsFromContextBuilder,
 } from './context';
 import type { CORSOptions } from './cors';
-import type { ErrorFormatter } from './errorFormatter';
+import type { Plugin } from './plugin';
 import { Resolver } from './resolver';
 import { Router, type AnyRouter, type Routes } from './router';
 import { serve as _serve } from './serve';
@@ -22,8 +22,8 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   fetchAPI?: FetchAPI;
   root?: string;
   endpoint?: string;
-  errorFormatter?: ErrorFormatter;
   compiler?: Compiler;
+  plugins?: Plugin[];
 };
 
 /**
@@ -46,8 +46,8 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
   fetchAPI,
   root = '',
   endpoint = '/ptsq',
-  errorFormatter = (error) => error,
   compiler = new Compiler(),
+  plugins = [],
 }: CreateServerArgs<TContextBuilder>) => {
   type RootContext = inferContextFromContextBuilder<TContextBuilder>;
   type ContextBuilderParams =
@@ -101,6 +101,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
         method: 'POST',
         handler: async (req, ctxParams) => {
           const requestBody = await req.json();
+          console.log(plugins);
 
           const serverResponse = await _serve({
             router: baseRouter,
@@ -110,7 +111,7 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
             compiler,
           });
 
-          return serverResponse.toResponse(errorFormatter);
+          return serverResponse.toResponse();
         },
       })
       .route({
