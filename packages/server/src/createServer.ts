@@ -14,7 +14,6 @@ import { HTTPError } from './httpError';
 import { PtsqServer } from './ptsqServer';
 import { Resolver } from './resolver';
 import { Router, type AnyRouter, type Routes } from './router';
-import { serve as _serve } from './serve';
 
 /**
  * @internal
@@ -26,7 +25,7 @@ type CreateServerArgs<TContextBuilder extends ContextBuilder> = {
   endpoint?: string;
   errorFormatter?: ErrorFormatter;
   compiler?: Compiler;
-  plugins?: ServerAdapterPlugin[];
+  plugins?: ServerAdapterPlugin<any>[];
 };
 
 /**

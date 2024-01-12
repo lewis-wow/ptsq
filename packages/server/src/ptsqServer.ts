@@ -6,6 +6,7 @@ import { MiddlewareResponse } from './middleware';
 import { Queue } from './queue';
 import { requestBodySchema } from './requestBodySchema';
 import type { AnyRouter } from './router';
+import { omit } from './utils/omit';
 
 export class PtsqServer {
   _def: {
@@ -26,7 +27,15 @@ export class PtsqServer {
     try {
       const body = await request.json();
 
-      const ctx = await this._def.contextBuilder(contextParams);
+      const requestClone = new Request(request.url, {
+        ...omit(request, ['url']),
+        body: JSON.stringify(body),
+      });
+
+      const ctx = await this._def.contextBuilder({
+        request: requestClone,
+        ...contextParams,
+      });
 
       const requestBodySchemaParser =
         this._def.compiler.getParser(requestBodySchema);

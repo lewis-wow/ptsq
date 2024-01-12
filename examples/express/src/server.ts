@@ -4,7 +4,16 @@ import express, { Request, Response } from 'express';
 
 const app = express();
 
-const createContext = ({ req, res }: { req: Request; res: Response }) => {
+const createContext = async ({
+  request,
+  req,
+  res,
+}: {
+  request: globalThis.Request;
+  req: Request;
+  res: Response;
+}) => {
+  request.json().then(console.log);
   const user = 'user' as 'user' | 'admin' | undefined;
   return { req, res, user, test: { a: 1 } };
 };
@@ -19,9 +28,9 @@ const { router, resolver, serve } = createServer({
 });
 
 const loggingResolver = resolver.use(async ({ next }) => {
-  console.time('request');
+  //console.time('request');
   const res = await next();
-  console.timeEnd('request');
+  //console.timeEnd('request');
   return res;
 });
 
@@ -50,12 +59,12 @@ const root = loggingResolver
 const testA = root.query(({ input }) => input.updatedAt);
 
 const test = root.query(async (opts) => {
-  console.log(opts);
+  //console.log(opts);
   const res = await testA.resolve(opts);
 
-  console.log(res, typeof res);
+  //console.log(res, typeof res);
 
-  console.log('time', res.getTime());
+  //console.log('time', res.getTime());
 
   return res;
 });
