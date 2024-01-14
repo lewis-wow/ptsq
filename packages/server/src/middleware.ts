@@ -129,10 +129,6 @@ export class MiddlewareResponse<TContext extends Context> {
       : this.response.error.toJSON();
   }
 
-  toString(errorFormatter?: ErrorFormatter) {
-    return JSON.stringify(this.toJSON(errorFormatter));
-  }
-
   toResponse(errorFormatter?: ErrorFormatter): Response {
     return Response.json(this.toJSON(errorFormatter), {
       status: this.response.ok ? 200 : this.response.error.getHTTPErrorCode(),

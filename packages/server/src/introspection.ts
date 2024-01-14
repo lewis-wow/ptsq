@@ -23,11 +23,7 @@ export class Introspecion {
     };
   }
 
-  toString() {
-    return JSON.stringify(this.toJson());
-  }
-
   toResponse() {
-    return new Response(this.toString());
+    return Response.json(this.toJson());
   }
 }

@@ -34,19 +34,14 @@ export class HTTPError extends Error {
 
   toJSON() {
     return {
-      code: this.code,
       name: this.name,
       message: this.message,
       info: this.info,
     };
   }
 
-  toString() {
-    return JSON.stringify(this.toJSON());
-  }
-
   toResponse() {
-    return new Response(this.toString(), { status: this.getHTTPErrorCode() });
+    return Response.json(this.toJSON(), { status: this.getHTTPErrorCode() });
   }
 
   getHTTPErrorCode() {
