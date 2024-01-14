@@ -8,7 +8,7 @@ import {
 import type { AnyMutation } from './mutation';
 import type { AnyQuery } from './query';
 import type { Queue } from './queue';
-import type { ResolverType } from './types';
+import type { ResolverType, ShallowMerge } from './types';
 
 export type Routes = {
   [Key: string]: AnyQuery | AnyMutation | AnyRouter;
@@ -100,11 +100,13 @@ export class Router<TRoutes extends Routes> {
     return nextNode.call(options);
   }
 
-  static createRootIntrospectionSchema() {
-    return {
-      title: 'BaseRouter',
-      $schema: 'https://json-schema.org/draft/2019-09/schema#',
-    };
+  merge<TRouter extends AnyRouter>(router: TRouter) {
+    return new Router<ShallowMerge<TRoutes, TRouter['_def']['routes']>>({
+      routes: {
+        ...this._def.routes,
+        ...router._def.routes,
+      } as ShallowMerge<TRoutes, TRouter['_def']['routes']>,
+    });
   }
 }
 
