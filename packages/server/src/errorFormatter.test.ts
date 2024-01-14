@@ -84,7 +84,6 @@ test('Should create server with error formatter and keep the original error', as
         .catch((error) => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           expect(error.response.data).toStrictEqual({
-            code: 'BAD_REQUEST',
             message: 'message...',
             name: '_HTTPError',
           });
@@ -119,7 +118,6 @@ test('Should create server with error formatter and change the http error', asyn
         .catch((error) => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           expect(error.response.data).toStrictEqual({
-            code: 'CONFLICT',
             message: '',
             name: '_HTTPError',
           });
@@ -155,7 +153,6 @@ test('Should create server with error formatter and keep the original error with
         .catch((error) => {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           expect(error.response.data).toStrictEqual({
-            code: 'BAD_REQUEST',
             info: 'my info...',
             message: '',
             name: '_HTTPError',
