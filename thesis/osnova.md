@@ -19,18 +19,7 @@
       7. function overloading
       8. type-fest a dalsí TS type-only knihovny
       9. Simplify type - zmineni zajimaveho typu
-   7. npm
-      1. npm registry
-      2. yarn
-      3. pnpm
-      4. bun
-   8. komunikace
-      1. XMLHttpRequest
-      2. Fetch API
-         1. promises
-         2. ponyfill (nodejs polyfill)
-      3. Axios
-   9. Server frameworky
+   7. Server frameworky
       1. node:http
       2. Express
       3. Fastify
@@ -38,39 +27,29 @@
       5. Next.js
       6. Sveltekit
       7. Bun
-   10. Klient frameworky
-       1. vanillajs
-       2. React
-       3. Next.js
-       4. Sveltekit
-   11. whatwg standard
-       1. o standardu
-       2. Request a Response objekty
-          1. Request vs IncommingMessage
-          2. Response vs ServerResponse
-       3. whatwg-node/server
-   12. Monorepo
-       1. struktura
-       2. Turborepo
-       3. NX
-   13. Dokumentace
+   8. Klient frameworky
+      1. vanillajs
+      2. React
+      3. Next.js
+      4. Sveltekit
+   9. whatwg standard
+      1. o standardu
+      2. Request a Response objekty
+         1. Request vs IncommingMessage
+         2. Response vs ServerResponse
+      3. whatwg-node/server
+   10. Dokumentace
        1. Docusaurus
        2. Nextra
-   14. IDE
-       1. VS code
-   15. Testování
-       1. vitest
-       2. jest
-       3. unit testing
-       4. coverage
 3. Implementace (možná spíše Knihovna nebo Řešení, chci popisovat tu knihovnu, ne proces implementace knihovny)
    1. Struktura projektu
-      1. Turborepo
-      2. docs - nextra
-      3. eslint
-      4. prettier
-      5. yarn
-      6. vitest
+      1. monorepo
+      2. Turborepo
+      3. docs - nextra
+      4. eslint
+      5. prettier
+      6. yarn
+      7. vitest
    2. Server
       1. Resolver
          1. query
