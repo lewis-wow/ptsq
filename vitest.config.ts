@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    teardownTimeout: 1000,
     coverage: {
       provider: 'istanbul',
       include: [
