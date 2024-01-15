@@ -6,6 +6,7 @@ import { createServer } from './createServer';
 
 test('Should create context with Request object that should be injected', async () => {
   const createContext = ({ request }: { request: Request }) => {
+    console.log(request);
     expect(request).toBeInstanceOf(Request);
 
     return {
@@ -23,11 +24,14 @@ test('Should create context with Request object that should be injected', async 
     }),
   );
 
-  const { fetch } = await createHttpTestServer(server);
+  const { fetch, $disconnect } = await createHttpTestServer(server);
 
-  fetch({
+  await fetch({
     route: 'test',
+    type: 'query',
   });
+
+  await $disconnect();
 });
 
 test('Should create context with req and res object that should be injected', async () => {
@@ -57,11 +61,14 @@ test('Should create context with req and res object that should be injected', as
     }),
   );
 
-  const { fetch } = await createHttpTestServer(server);
+  const { fetch, $disconnect } = await createHttpTestServer(server);
 
-  fetch({
+  await fetch({
     route: 'test',
+    type: 'query',
   });
+
+  await $disconnect();
 });
 
 test('Should create context with custom param that should not be injected', async () => {
@@ -83,11 +90,14 @@ test('Should create context with custom param that should not be injected', asyn
     }),
   );
 
-  const { fetch } = await createHttpTestServer(server);
+  const { fetch, $disconnect } = await createHttpTestServer(server);
 
-  fetch({
+  await fetch({
     route: 'test',
+    type: 'query',
   });
+
+  await $disconnect();
 });
 
 test('Should create context with custom param that should not be injected but passed in', async () => {
@@ -109,14 +119,17 @@ test('Should create context with custom param that should not be injected but pa
     }),
   );
 
-  const { fetch } = await createHttpTestServer(
+  const { fetch, $disconnect } = await createHttpTestServer(
     (req: IncomingMessage, res: ServerResponse) =>
       server(req, res, {
         custom: 1,
       }),
   );
 
-  fetch({
+  await fetch({
     route: 'test',
+    type: 'query',
   });
+
+  await $disconnect();
 });

@@ -26,7 +26,7 @@ test('Should create simple http server with proxy client', async () => {
       .query(({ input }) => input.name),
   });
 
-  const { url } = await createHttpTestServer(serve(baseRouter));
+  const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   const client = createProxyClient<typeof baseRouter>({
     url,
@@ -37,6 +37,8 @@ test('Should create simple http server with proxy client', async () => {
   });
 
   expect(response).toBe('John');
+
+  await $disconnect();
 });
 
 test('Should create simple http server with proxy client and request bad route', async () => {
@@ -55,7 +57,7 @@ test('Should create simple http server with proxy client and request bad route',
       .query(({ input }) => input.name),
   });
 
-  const { url } = await createHttpTestServer(serve(baseRouter));
+  const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   const client = createProxyClient<typeof baseRouter>({
     url,
@@ -70,6 +72,8 @@ test('Should create simple http server with proxy client and request bad route',
   ).rejects.toMatchInlineSnapshot(
     '[AxiosError: Request failed with status code 400]',
   );
+
+  await $disconnect();
 });
 
 test('Should create simple http server with proxy client and request bad route', async () => {
@@ -88,7 +92,7 @@ test('Should create simple http server with proxy client and request bad route',
       .query(({ input }) => input.name),
   });
 
-  const { url } = await createHttpTestServer(serve(baseRouter));
+  const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   const client = createProxyClient<typeof baseRouter>({
     url,
@@ -103,6 +107,8 @@ test('Should create simple http server with proxy client and request bad route',
   ).rejects.toMatchInlineSnapshot(
     '[AxiosError: Request failed with status code 404]',
   );
+
+  await $disconnect();
 });
 
 test('Should create simple http server with proxy client and creates request with bad resolver type', async () => {
@@ -121,7 +127,7 @@ test('Should create simple http server with proxy client and creates request wit
       .query(({ input }) => input.name),
   });
 
-  const { url } = await createHttpTestServer(serve(baseRouter));
+  const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   const client = createProxyClient<typeof baseRouter>({
     url,
@@ -135,6 +141,8 @@ test('Should create simple http server with proxy client and creates request wit
   ).rejects.toMatchInlineSnapshot(
     '[AxiosError: Request failed with status code 400]',
   );
+
+  await $disconnect();
 });
 
 test('Should create simple http server with proxy client without query input', async () => {
@@ -146,7 +154,7 @@ test('Should create simple http server with proxy client without query input', a
     test: resolver.output(Type.String()).query(() => 'Hello world!'),
   });
 
-  const { url } = await createHttpTestServer(serve(baseRouter));
+  const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   const client = createProxyClient<typeof baseRouter>({
     url,
@@ -155,6 +163,8 @@ test('Should create simple http server with proxy client without query input', a
   const response = await client.test.query();
 
   expect(response).toBe('Hello world!');
+
+  await $disconnect();
 });
 
 test('Should create simple http server with proxy client without mutation input', async () => {
@@ -166,7 +176,7 @@ test('Should create simple http server with proxy client without mutation input'
     test: resolver.output(Type.String()).mutation(() => 'Hello world!'),
   });
 
-  const { url } = await createHttpTestServer(serve(baseRouter));
+  const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   const client = createProxyClient<typeof baseRouter>({
     url,
@@ -175,6 +185,8 @@ test('Should create simple http server with proxy client without mutation input'
   const response = await client.test.mutate();
 
   expect(response).toBe('Hello world!');
+
+  await $disconnect();
 });
 
 test('Should create simple http server with Authorization header', async () => {
@@ -190,7 +202,7 @@ test('Should create simple http server with Authorization header', async () => {
       .query(({ ctx }) => `Hello ${ctx.auth ?? '!NOPE!'}!`),
   });
 
-  const { url } = await createHttpTestServer(serve(baseRouter));
+  const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   const client = createProxyClient<typeof baseRouter>({
     url: url,
@@ -204,4 +216,6 @@ test('Should create simple http server with Authorization header', async () => {
   const response = await client.test.query();
 
   expect(response).toBe('Hello John!');
+
+  await $disconnect();
 });
