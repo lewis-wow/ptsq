@@ -2,7 +2,7 @@ import { Type } from '@sinclair/typebox';
 import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
 import { createServer } from './createServer';
-import { HTTPError } from './httpError';
+import { PtsqError } from './ptsqError';
 
 test('Should create mutation', async () => {
   const { resolver } = createServer({
@@ -65,7 +65,7 @@ test('Should create mutation', async () => {
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
-    error: new HTTPError({
+    error: new PtsqError({
       code: 'BAD_REQUEST',
       message: 'Args validation error.',
     }),
@@ -300,7 +300,7 @@ test('Should create mutation with twice chain', async () => {
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
-    error: new HTTPError({
+    error: new PtsqError({
       code: 'BAD_REQUEST',
       message: 'Args validation error.',
     }),
@@ -320,7 +320,7 @@ test('Should create mutation with twice chain', async () => {
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
   ).toStrictEqual({
-    error: new HTTPError({
+    error: new PtsqError({
       code: 'BAD_REQUEST',
       message: 'Args validation error.',
     }),

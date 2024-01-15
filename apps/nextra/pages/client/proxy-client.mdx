@@ -98,12 +98,12 @@ const client = new Proxy(noop, proxyHandler);
 ```
 
 As you can see, you can for e.g. `@ts-ignore` disable bad route input, because the check is only on the type-level.
-If you `query` or `mutate` a wrong route it throws on the server `BAD_REQUEST` `HTTPError`.
+If you `query` or `mutate` a wrong route it throws on the server `BAD_REQUEST` `PtsqError`.
 
 ## Request body validation
 
 On the server, the body sent from the client is validated by the following schema.
-If the validation fails the server throws `BAD_REQUEST` `HTTPError`.
+If the validation fails the server throws `BAD_REQUEST` `PtsqError`.
 
 ```ts
 Type.Object(

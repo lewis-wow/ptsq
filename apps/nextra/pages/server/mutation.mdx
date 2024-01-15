@@ -7,8 +7,8 @@ The `resolve` function gets `{ input, ctx }`, where the input is the actual `inp
 
 The input is validated by the input schema, and the output of the resolver (return from the `resolve` function), is validated by the output schema.
 
-If the input validation failed, then the `HTTPError` throws `BAD_REQUEST` error.
-If the output validation failed, then the `HTTPError` throws `INTERNAL_SERVER_ERROR` error.
+If the input validation failed, then the `PtsqError` throws `BAD_REQUEST` error.
+If the output validation failed, then the `PtsqError` throws `INTERNAL_SERVER_ERROR` error.
 Those errors are trown with the `info` property as a `zod` validation schema error result.
 
 ```ts copy

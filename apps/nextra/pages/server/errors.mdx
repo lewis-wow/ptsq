@@ -1,9 +1,9 @@
 # Errors
 
 ```ts copy
-const isAuthed = middleware(({ ctx, next }) => {
+const isAuthedResolver = resolver.use(({ ctx, next }) => {
   if (!ctx.user)
-    throw new HTTPError({
+    throw new PtsqError({
       code: 'UNAUTHORIZED',
       message: 'Must be logged in!',
     });
@@ -15,12 +15,12 @@ const isAuthed = middleware(({ ctx, next }) => {
 });
 ```
 
-The `HTTPError` is the only error that is caught by the `ptsq`.
+The `PtsqError` is the only error that is caught by the `ptsq`.
 The adapter such as `Express` or `Koa` then responds with that error code and message, if specified.
 You can also specify info, which can be something like a schema validation error.
 
 ```ts copy
-throw new HTTPError({
+throw new PtsqError({
   code: 'BAD_REQUEST',
   message: 'User already exists.',
   info: databaseInsert.error,
@@ -29,7 +29,7 @@ throw new HTTPError({
 
 ## Error codes
 
-| HTTPError code        | Status code |
+| PtsqError code        | Status code |
 | --------------------- | ----------- |
 | BAD_REQUEST           | 400         |
 | UNAUTHORIZED          | 401         |
@@ -44,4 +44,4 @@ throw new HTTPError({
 | TOO_MANY_REQUESTS     | 429         |
 | INTERNAL_SERVER_ERROR | 500         |
 
-Any other thrown exception that is not the `HTTPError`, throws as normal and the server response with `INTERNAL_SERVER_ERROR`.
+Any other thrown exception that is not the `PtsqError`, throws as normal and the server response with `INTERNAL_SERVER_ERROR`.

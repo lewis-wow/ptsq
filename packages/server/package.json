@@ -34,7 +34,8 @@
     "@types/uuid": "^9.0.7",
     "axios": "^1.5.1",
     "typescript": "^5.2.2",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "@ptsq/test-utils": "*"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.31.28",

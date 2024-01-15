@@ -95,7 +95,7 @@ type MiddlewareResponse<TContext extends Context> =
     }
   | {
       ok: false;
-      error: HTTPError;
+      error: PtsqError;
       ctx: TContext;
     };
 ```
