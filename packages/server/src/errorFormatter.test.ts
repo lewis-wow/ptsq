@@ -15,7 +15,7 @@ test('Should create server without error formatter and return the error', async 
     }),
   });
 
-  const { fetch } = await createHttpTestServer(serve(baseRouter));
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   await expect(() =>
     fetch({
@@ -30,6 +30,8 @@ test('Should create server without error formatter and return the error', async 
       },
     },
   });
+
+  await $disconnect();
 });
 
 test('Should create server without error formatter and return null as error', async () => {
@@ -44,7 +46,7 @@ test('Should create server without error formatter and return null as error', as
     }),
   });
 
-  const { fetch } = await createHttpTestServer(serve(baseRouter));
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   await expect(() =>
     fetch({
@@ -56,6 +58,8 @@ test('Should create server without error formatter and return null as error', as
       data: null,
     },
   });
+
+  await $disconnect();
 });
 
 test('Should create server without error formatter and return custom object as error', async () => {
@@ -73,7 +77,7 @@ test('Should create server without error formatter and return custom object as e
     }),
   });
 
-  const { fetch } = await createHttpTestServer(serve(baseRouter));
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   await expect(() =>
     fetch({
@@ -88,6 +92,8 @@ test('Should create server without error formatter and return custom object as e
       },
     },
   });
+
+  await $disconnect();
 });
 
 test('Should create server with error formatter and return empty object on error', async () => {
@@ -102,7 +108,7 @@ test('Should create server with error formatter and return empty object on error
     }),
   });
 
-  const { fetch } = await createHttpTestServer(serve(baseRouter));
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   await expect(() =>
     fetch({
@@ -114,6 +120,8 @@ test('Should create server with error formatter and return empty object on error
       data: {},
     },
   });
+
+  await $disconnect();
 });
 
 test('Should create server with error formatter and keep the original error', async () => {
@@ -128,7 +136,7 @@ test('Should create server with error formatter and keep the original error', as
     }),
   });
 
-  const { fetch } = await createHttpTestServer(serve(baseRouter));
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   await expect(() =>
     fetch({
@@ -143,6 +151,8 @@ test('Should create server with error formatter and keep the original error', as
       },
     },
   });
+
+  await $disconnect();
 });
 
 test('Should create server with error formatter and change the http error', async () => {
@@ -161,7 +171,7 @@ test('Should create server with error formatter and change the http error', asyn
     }),
   });
 
-  const { fetch } = await createHttpTestServer(serve(baseRouter));
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   await expect(() =>
     fetch({
@@ -176,6 +186,8 @@ test('Should create server with error formatter and change the http error', asyn
       },
     },
   });
+
+  await $disconnect();
 });
 
 test('Should create server with error formatter and keep the original error with info', async () => {
@@ -195,7 +207,7 @@ test('Should create server with error formatter and keep the original error with
     }),
   });
 
-  const { fetch } = await createHttpTestServer(serve(baseRouter));
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   await expect(() =>
     fetch({
@@ -211,4 +223,6 @@ test('Should create server with error formatter and keep the original error with
       },
     },
   });
+
+  await $disconnect();
 });

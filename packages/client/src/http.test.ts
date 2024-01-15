@@ -19,7 +19,7 @@ test('Should create simple http server', async () => {
       .query(({ input }) => input.name),
   });
 
-  const { fetch } = await createHttpTestServer(serve(baseRouter));
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   const response = await fetch({
     route: 'test',
@@ -30,6 +30,8 @@ test('Should create simple http server', async () => {
   });
 
   expect(response.data).toBe('John');
+
+  await $disconnect();
 });
 
 test('Should create simple http server with context', async () => {
@@ -58,7 +60,7 @@ test('Should create simple http server with context', async () => {
       })),
   });
 
-  const { fetch } = await createHttpTestServer(serve(baseRouter));
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   const response = await fetch({
     route: 'test',
@@ -72,6 +74,8 @@ test('Should create simple http server with context', async () => {
     name: 'John',
     number: 42,
   });
+
+  await $disconnect();
 });
 
 test('Should create simple http server with middleware', async () => {
@@ -98,7 +102,7 @@ test('Should create simple http server with middleware', async () => {
       .query(({ ctx }) => ctx),
   });
 
-  const { fetch } = await createHttpTestServer(serve(baseRouter));
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   const response = await fetch({
     route: 'test',
@@ -112,6 +116,8 @@ test('Should create simple http server with middleware', async () => {
     name: 'John',
     number: 42,
   });
+
+  await $disconnect();
 });
 
 test('Should create simple http server with 2 nested middlewares', async () => {
@@ -176,7 +182,7 @@ test('Should create simple http server with 2 nested middlewares', async () => {
       .query(() => null),
   });
 
-  const { fetch } = await createHttpTestServer(serve(baseRouter));
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   const response = await fetch({
     route: 'test',
@@ -184,6 +190,8 @@ test('Should create simple http server with 2 nested middlewares', async () => {
   });
 
   expect(response.data).toBe(null);
+
+  await $disconnect();
 });
 
 test('Should introspectate the server with http adapter', async () => {
@@ -202,7 +210,9 @@ test('Should introspectate the server with http adapter', async () => {
       .query(({ input }) => input.name),
   });
 
-  const { introspectate } = await createHttpTestServer(serve(baseRouter));
+  const { introspectate, $disconnect } = await createHttpTestServer(
+    serve(baseRouter),
+  );
 
   const response = await introspectate();
 
@@ -292,6 +302,8 @@ test('Should introspectate the server with http adapter', async () => {
       "type": "object",
     }
   `);
+
+  await $disconnect();
 });
 
 test('Should create simple http server and return BAD_REQUEST response', async () => {
@@ -310,7 +322,7 @@ test('Should create simple http server and return BAD_REQUEST response', async (
       .query(({ input }) => input.name),
   });
 
-  const { fetch } = await createHttpTestServer(serve(baseRouter));
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   await expect(() =>
     fetch({
@@ -321,6 +333,8 @@ test('Should create simple http server and return BAD_REQUEST response', async (
   ).rejects.toMatchInlineSnapshot(
     '[AxiosError: Request failed with status code 400]',
   );
+
+  await $disconnect();
 });
 
 test('Should create simple http server and return BAD_REQUEST response with bad resolver type', async () => {
@@ -332,7 +346,7 @@ test('Should create simple http server and return BAD_REQUEST response with bad 
     test: resolver.output(Type.Null()).query(() => null),
   });
 
-  const { fetch } = await createHttpTestServer(serve(baseRouter));
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   await expect(() =>
     fetch({
@@ -343,6 +357,8 @@ test('Should create simple http server and return BAD_REQUEST response with bad 
   ).rejects.toMatchInlineSnapshot(
     '[AxiosError: Request failed with status code 400]',
   );
+
+  await $disconnect();
 });
 
 test('Should create simple http server and return INTERNAL_SERVER_ERROR response', async () => {
@@ -365,7 +381,7 @@ test('Should create simple http server and return INTERNAL_SERVER_ERROR response
       ),
   });
 
-  const { fetch } = await createHttpTestServer(serve(baseRouter));
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   await expect(() =>
     fetch({
@@ -376,4 +392,6 @@ test('Should create simple http server and return INTERNAL_SERVER_ERROR response
   ).rejects.toMatchInlineSnapshot(
     '[AxiosError: Request failed with status code 500]',
   );
+
+  await $disconnect();
 });

@@ -5,19 +5,21 @@ import {
   type ServerResponse,
 } from 'http';
 import axios from 'axios';
+import type { AxiosResponse } from 'axios';
+
+type CreateHttpTestServerPayload = {
+  fetch: (data: unknown) => Promise<AxiosResponse>;
+  introspectate: () => Promise<AxiosResponse>;
+  url: string;
+  $disconnect: () => Promise<void>;
+};
 
 export const createHttpTestServer = (
   listener:
     | RequestListener
     | ((req: IncomingMessage, res: ServerResponse) => Promise<void>),
 ) => {
-  const createFetcher = (serverURL: string) => ({
-    fetch: (data: unknown) => axios.post(`${serverURL}/ptsq`, data),
-    introspectate: () => axios.get(`${serverURL}/ptsq/introspection`),
-    url: `${serverURL}/ptsq`,
-  });
-
-  return new Promise<ReturnType<typeof createFetcher>>((resolve) => {
+  return new Promise<CreateHttpTestServerPayload>((resolve) => {
     const server = createServer((req, res) => {
       listener(req, res);
     });
@@ -34,7 +36,17 @@ export const createHttpTestServer = (
               address.address === '::' ? 'localhost' : address.address
             }:${address.port}`;
 
-      resolve(createFetcher(serverURL));
+      resolve({
+        fetch: (data: unknown) => axios.post(`${serverURL}/ptsq`, data),
+        introspectate: () => axios.get(`${serverURL}/ptsq/introspection`),
+        url: `${serverURL}/ptsq`,
+        $disconnect: () =>
+          new Promise((disconnectResolve) =>
+            server.close(() => {
+              disconnectResolve();
+            }),
+          ),
+      });
     });
   });
 };

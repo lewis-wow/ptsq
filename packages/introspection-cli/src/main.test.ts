@@ -19,7 +19,9 @@ test('Should instropectate simple http server', async () => {
       .query(({ input }) => input.name),
   });
 
-  const { introspectate } = await createHttpTestServer(serve(baseRouter));
+  const { introspectate, $disconnect } = await createHttpTestServer(
+    serve(baseRouter),
+  );
 
   const response = await introspectate();
 
@@ -109,6 +111,8 @@ test('Should instropectate simple http server', async () => {
       "type": "object",
     }
   `);
+
+  await $disconnect();
 });
 
 test('Should instropectate simple http server with empty query', async () => {
@@ -120,7 +124,9 @@ test('Should instropectate simple http server with empty query', async () => {
     test: resolver.output(Type.Null()).query(() => null),
   });
 
-  const { introspectate } = await createHttpTestServer(serve(baseRouter));
+  const { introspectate, $disconnect } = await createHttpTestServer(
+    serve(baseRouter),
+  );
 
   const response = await introspectate();
 
@@ -199,6 +205,8 @@ test('Should instropectate simple http server with empty query', async () => {
       "type": "object",
     }
   `);
+
+  await $disconnect();
 });
 
 test('Should instropectate simple http server with nested routers', async () => {
@@ -222,7 +230,9 @@ test('Should instropectate simple http server with nested routers', async () => 
     }),
   });
 
-  const { introspectate } = await createHttpTestServer(serve(baseRouter));
+  const { introspectate, $disconnect } = await createHttpTestServer(
+    serve(baseRouter),
+  );
 
   const response = await introspectate();
 
@@ -505,4 +515,6 @@ test('Should instropectate simple http server with nested routers', async () => 
       "type": "object",
     }
   `);
+
+  await $disconnect();
 });
