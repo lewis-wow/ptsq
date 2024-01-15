@@ -9,7 +9,7 @@ When merging two resolvers, args and output validation schema are intersected an
 The context of the original resolver has to extend the root context of the resolver you want to merge.
 
 ```ts copy filename="auth.ts"
-import { HTTPError, Resolver } from '@ptsq/server';
+import { PtsqError, Resolver } from '@ptsq/server';
 import { Request } from 'express';
 
 export type Role = 'Administrator' | 'Manager' | 'User';
@@ -17,7 +17,7 @@ export type Role = 'Administrator' | 'Manager' | 'User';
 export const authedResolver = Resolver.createRoot<{
   user?: Role;
 }>().use(({ ctx /* { user?: Role } */, next }) => {
-  if (!ctx.user) throw new HTTPError({ code: 'UNAUTHORIZED' });
+  if (!ctx.user) throw new PtsqError({ code: 'UNAUTHORIZED' });
 
   return next({
     user: ctx.user,
@@ -53,7 +53,7 @@ const administratorResolver = resolver
   .use(
     ({ ctx /* { req: Request; res: Response; user: User<Role> } */, next }) => {
       if (ctx.user.role !== 'Administrator')
-        throw new HTTPError({ code: 'FORBIDDEN' });
+        throw new PtsqError({ code: 'FORBIDDEN' });
 
       return next({
         user: ctx.user,

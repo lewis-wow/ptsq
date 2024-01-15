@@ -1,8 +1,8 @@
 import type { Compiler } from './compiler';
 import type { ContextBuilder } from './context';
-import { HTTPError } from './httpError';
 import { Introspecion } from './introspection';
 import { MiddlewareResponse } from './middleware';
+import { PtsqError } from './ptsqError';
 import { Queue } from './queue';
 import { requestBodySchema } from './requestBodySchema';
 import type { AnyRouter } from './router';
@@ -49,7 +49,7 @@ export class PtsqServer {
         return new MiddlewareResponse({
           ok: false,
           ctx,
-          error: new HTTPError({
+          error: new PtsqError({
             code: 'BAD_REQUEST',
             message: 'Parsing request body failed.',
             info: parsedRequestBody.errors,
@@ -74,9 +74,9 @@ export class PtsqServer {
       return new MiddlewareResponse({
         ok: false,
         ctx: {},
-        error: HTTPError.isHttpError(error)
+        error: PtsqError.isPtsqError(error)
           ? error
-          : new HTTPError({
+          : new PtsqError({
               code: 'INTERNAL_SERVER_ERROR',
               info: error,
             }),

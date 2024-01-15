@@ -79,7 +79,7 @@ export class Resolver<
    * @example
    * ```ts
    * .use(({ ctx, next }) => {
-   *    if(!ctx.user) throw new HTTPError({ code: 'UNAUTHORIZED' });
+   *    if(!ctx.user) throw new PtsqError({ code: 'UNAUTHORIZED' });
    *
    *    return next({
    *      ...ctx,

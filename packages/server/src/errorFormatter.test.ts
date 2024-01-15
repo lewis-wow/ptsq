@@ -1,9 +1,94 @@
-import { createHTTPTest } from './__test__/createHTTPTest';
+import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
-import axios from 'axios';
 import { expect, test } from 'vitest';
 import { createServer } from './createServer';
-import { HTTPError } from './httpError';
+import { PtsqError } from './ptsqError';
+
+test('Should create server without error formatter and return the error', async () => {
+  const { router, resolver, serve } = createServer({
+    ctx: () => ({}),
+  });
+
+  const baseRouter = router({
+    test: resolver.output(Type.Null()).query(() => {
+      throw new PtsqError({ code: 'BAD_REQUEST', message: 'message...' });
+    }),
+  });
+
+  const { fetch } = await createHttpTestServer(serve(baseRouter));
+
+  await expect(() =>
+    fetch({
+      route: 'test',
+      type: 'query',
+    }),
+  ).rejects.toMatchObject({
+    response: {
+      data: {
+        message: 'message...',
+        name: 'PtsqError',
+      },
+    },
+  });
+});
+
+test('Should create server without error formatter and return null as error', async () => {
+  const { router, resolver, serve } = createServer({
+    ctx: () => ({}),
+    errorFormatter: (_error) => null,
+  });
+
+  const baseRouter = router({
+    test: resolver.output(Type.Null()).query(() => {
+      throw new PtsqError({ code: 'BAD_REQUEST', message: 'message...' });
+    }),
+  });
+
+  const { fetch } = await createHttpTestServer(serve(baseRouter));
+
+  await expect(() =>
+    fetch({
+      route: 'test',
+      type: 'query',
+    }),
+  ).rejects.toMatchObject({
+    response: {
+      data: null,
+    },
+  });
+});
+
+test('Should create server without error formatter and return custom object as error', async () => {
+  const { router, resolver, serve } = createServer({
+    ctx: () => ({}),
+    errorFormatter: (_error) => ({
+      a: 1,
+      b: 2,
+    }),
+  });
+
+  const baseRouter = router({
+    test: resolver.output(Type.Null()).query(() => {
+      throw new PtsqError({ code: 'BAD_REQUEST', message: 'message...' });
+    }),
+  });
+
+  const { fetch } = await createHttpTestServer(serve(baseRouter));
+
+  await expect(() =>
+    fetch({
+      route: 'test',
+      type: 'query',
+    }),
+  ).rejects.toMatchObject({
+    response: {
+      data: {
+        a: 1,
+        b: 2,
+      },
+    },
+  });
+});
 
 test('Should create server with error formatter and return empty object on error', async () => {
   const { router, resolver, serve } = createServer({
@@ -13,50 +98,20 @@ test('Should create server with error formatter and return empty object on error
 
   const baseRouter = router({
     test: resolver.output(Type.Null()).query(() => {
-      throw new HTTPError({ code: 'BAD_REQUEST', message: 'message...' });
+      throw new PtsqError({ code: 'BAD_REQUEST', message: 'message...' });
     }),
   });
 
-  await createHTTPTest({
-    serve: serve(baseRouter),
-    client: async (address) => {
-      await axios
-        .post(address, {
-          route: 'test',
-          type: 'query',
-        })
-        .catch((error) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          expect(error.response.data).toStrictEqual({});
-        });
-    },
-  });
-});
+  const { fetch } = await createHttpTestServer(serve(baseRouter));
 
-test('Should create server with error formatter to response with null', async () => {
-  const { router, resolver, serve } = createServer({
-    ctx: () => ({}),
-    errorFormatter: (_error) => null,
-  });
-
-  const baseRouter = router({
-    test: resolver.output(Type.Null()).query(() => {
-      throw new HTTPError({ code: 'BAD_REQUEST', message: 'message...' });
+  await expect(() =>
+    fetch({
+      route: 'test',
+      type: 'query',
     }),
-  });
-
-  await createHTTPTest({
-    serve: serve(baseRouter),
-    client: async (address) => {
-      await axios
-        .post(address, {
-          route: 'test',
-          type: 'query',
-        })
-        .catch((error) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          expect(error.response.data).toBe(null);
-        });
+  ).rejects.toMatchObject({
+    response: {
+      data: {},
     },
   });
 });
@@ -69,25 +124,23 @@ test('Should create server with error formatter and keep the original error', as
 
   const baseRouter = router({
     test: resolver.output(Type.Null()).query(() => {
-      throw new HTTPError({ code: 'BAD_REQUEST', message: 'message...' });
+      throw new PtsqError({ code: 'BAD_REQUEST', message: 'message...' });
     }),
   });
 
-  await createHTTPTest({
-    serve: serve(baseRouter),
-    client: async (address) => {
-      await axios
-        .post(address, {
-          route: 'test',
-          type: 'query',
-        })
-        .catch((error) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          expect(error.response.data).toStrictEqual({
-            message: 'message...',
-            name: '_HTTPError',
-          });
-        });
+  const { fetch } = await createHttpTestServer(serve(baseRouter));
+
+  await expect(() =>
+    fetch({
+      route: 'test',
+      type: 'query',
+    }),
+  ).rejects.toMatchObject({
+    response: {
+      data: {
+        message: 'message...',
+        name: 'PtsqError',
+      },
     },
   });
 });
@@ -96,32 +149,31 @@ test('Should create server with error formatter and change the http error', asyn
   const { router, resolver, serve } = createServer({
     ctx: () => ({}),
     errorFormatter: (_error) =>
-      new HTTPError({
+      new PtsqError({
         code: 'CONFLICT',
+        message: 'Hello',
       }),
   });
 
   const baseRouter = router({
     test: resolver.output(Type.Null()).query(() => {
-      throw new HTTPError({ code: 'BAD_REQUEST', message: 'message...' });
+      throw new PtsqError({ code: 'BAD_REQUEST', message: 'message...' });
     }),
   });
 
-  await createHTTPTest({
-    serve: serve(baseRouter),
-    client: async (address) => {
-      await axios
-        .post(address, {
-          route: 'test',
-          type: 'query',
-        })
-        .catch((error) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          expect(error.response.data).toStrictEqual({
-            message: '',
-            name: '_HTTPError',
-          });
-        });
+  const { fetch } = await createHttpTestServer(serve(baseRouter));
+
+  await expect(() =>
+    fetch({
+      route: 'test',
+      type: 'query',
+    }),
+  ).rejects.toMatchObject({
+    response: {
+      data: {
+        message: 'Hello',
+        name: 'PtsqError',
+      },
     },
   });
 });
@@ -130,34 +182,33 @@ test('Should create server with error formatter and keep the original error with
   const { router, resolver, serve } = createServer({
     ctx: () => ({}),
     errorFormatter: (error) =>
-      new HTTPError({
-        ...error,
+      new PtsqError({
+        code: error.code,
+        message: error.message,
         info: 'my info...',
       }),
   });
 
   const baseRouter = router({
     test: resolver.output(Type.Null()).query(() => {
-      throw new HTTPError({ code: 'BAD_REQUEST', message: 'message...' });
+      throw new PtsqError({ code: 'BAD_REQUEST', message: 'message...' });
     }),
   });
 
-  await createHTTPTest({
-    serve: serve(baseRouter),
-    client: async (address) => {
-      await axios
-        .post(address, {
-          route: 'test',
-          type: 'query',
-        })
-        .catch((error) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          expect(error.response.data).toStrictEqual({
-            info: 'my info...',
-            message: '',
-            name: '_HTTPError',
-          });
-        });
+  const { fetch } = await createHttpTestServer(serve(baseRouter));
+
+  await expect(() =>
+    fetch({
+      route: 'test',
+      type: 'query',
+    }),
+  ).rejects.toMatchObject({
+    response: {
+      data: {
+        info: 'my info...',
+        message: 'message...',
+        name: 'PtsqError',
+      },
     },
   });
 });

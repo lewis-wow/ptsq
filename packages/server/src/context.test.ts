@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { createHttpTestServer } from './__test__/createHttpTestServer';
+import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { createServer } from './createServer';
@@ -23,9 +23,7 @@ test('Should create context with Request object that should be injected', async 
     }),
   );
 
-  const { fetch } = await createHttpTestServer((req, res) => {
-    server(req, res);
-  });
+  const { fetch } = await createHttpTestServer(server);
 
   fetch({
     route: 'test',
@@ -59,9 +57,7 @@ test('Should create context with req and res object that should be injected', as
     }),
   );
 
-  const { fetch } = await createHttpTestServer((req, res) => {
-    server(req, res);
-  });
+  const { fetch } = await createHttpTestServer(server);
 
   fetch({
     route: 'test',
@@ -87,9 +83,7 @@ test('Should create context with custom param that should not be injected', asyn
     }),
   );
 
-  const { fetch } = await createHttpTestServer((req, res) => {
-    server(req, res);
-  });
+  const { fetch } = await createHttpTestServer(server);
 
   fetch({
     route: 'test',
@@ -115,11 +109,12 @@ test('Should create context with custom param that should not be injected but pa
     }),
   );
 
-  const { fetch } = await createHttpTestServer((req, res) => {
-    server(req, res, {
-      custom: 1,
-    });
-  });
+  const { fetch } = await createHttpTestServer(
+    (req: IncomingMessage, res: ServerResponse) =>
+      server(req, res, {
+        custom: 1,
+      }),
+  );
 
   fetch({
     route: 'test',

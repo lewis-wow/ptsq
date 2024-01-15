@@ -14,7 +14,8 @@
     "build": "rollup --config rollup.config.ts --bundleConfigAsCjs",
     "dev": "ts-node src/main.ts",
     "start": "node dist/main.js",
-    "test": "vitest"
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "bin": {
     "introspection-cli": "./dist/main.js"
@@ -44,7 +45,8 @@
     "@sinclair/typebox": "^0.31.28",
     "@types/node": "^20.7.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "@ptsq/server": "*"
   },
   "dependencies": {
     "axios": "^1.5.1",

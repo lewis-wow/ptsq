@@ -1,9 +1,9 @@
 import type { Compiler } from './compiler';
 import type { Context } from './context';
 import type { ErrorFormatter } from './errorFormatter';
-import { HTTPError } from './httpError';
+import { PtsqError } from './ptsqError';
 import type { ResolverSchema } from './resolver';
-import type { ResolverType } from './types';
+import type { MaybePromise, ResolverType } from './types';
 
 /**
  * @internal
@@ -77,7 +77,7 @@ export class Middleware<TArgs, TContext extends Context> {
       });
 
       if (!parseResult.ok)
-        throw new HTTPError({
+        throw new PtsqError({
           code: 'BAD_REQUEST',
           message: 'Args validation error.',
           info: parseResult.errors,
@@ -99,9 +99,9 @@ export class Middleware<TArgs, TContext extends Context> {
     } catch (error) {
       return MiddlewareResponse.createRawFailureResponse({
         ctx: options.ctx,
-        error: HTTPError.isHttpError(error)
+        error: PtsqError.isPtsqError(error)
           ? error
-          : new HTTPError({
+          : new PtsqError({
               code: 'INTERNAL_SERVER_ERROR',
               info: error,
             }),
@@ -114,29 +114,21 @@ export type AnyMiddleware = Middleware<unknown, Context>;
 
 export type RawMiddlewareReponse<TContext extends Context> =
   | { ok: true; data: unknown; ctx: TContext }
-  | { ok: false; error: HTTPError; ctx: TContext };
+  | { ok: false; error: PtsqError; ctx: TContext };
 
 export type AnyRawMiddlewareReponse = RawMiddlewareReponse<Context>;
 
 export class MiddlewareResponse<TContext extends Context> {
   constructor(public response: RawMiddlewareReponse<TContext>) {}
 
-  toJSON(errorFormatter?: ErrorFormatter) {
-    return this.response.ok
-      ? this.response.data
-      : errorFormatter
-      ? errorFormatter(this.response.error)
-      : this.response.error.toJSON();
-  }
+  toResponse(errorFormatter?: ErrorFormatter): MaybePromise<Response> {
+    if (this.response.ok) return Response.json(this.response.data);
 
-  toResponse(errorFormatter?: ErrorFormatter): Response {
-    return Response.json(this.toJSON(errorFormatter), {
-      status: this.response.ok ? 200 : this.response.error.getHTTPErrorCode(),
-    });
+    return this.response.error.toResponse(errorFormatter);
   }
 
   static createRawFailureResponse(options: {
-    error: HTTPError;
+    error: PtsqError;
     ctx: Context;
   }): AnyRawMiddlewareReponse {
     return {

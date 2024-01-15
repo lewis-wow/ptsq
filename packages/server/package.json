@@ -13,7 +13,8 @@
     "prebuild": "rm -rf dist",
     "build": "rollup --config rollup.config.ts --bundleConfigAsCjs",
     "lint": "eslint",
-    "test": "vitest"
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "main": "dist/main.js",
   "module": "dist/main.mjs",
@@ -34,7 +35,8 @@
     "@types/uuid": "^9.0.7",
     "axios": "^1.5.1",
     "typescript": "^5.2.2",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "@ptsq/test-utils": "*"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.31.28",
