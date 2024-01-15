@@ -1,11 +1,11 @@
 import type { Context } from './context';
 import { createSchemaRoot, type SchemaRoot } from './createSchemaRoot';
-import { HTTPError } from './httpError';
 import {
   type AnyRawMiddlewareReponse,
   type MiddlewareMeta,
 } from './middleware';
 import type { AnyMutation } from './mutation';
+import { PtsqError } from './ptsqError';
 import type { AnyQuery } from './query';
 import type { Queue } from './queue';
 import type { ResolverType, ShallowMerge } from './types';
@@ -68,14 +68,14 @@ export class Router<TRoutes extends Routes> {
     const currentRoute = options.route.dequeue();
 
     if (!currentRoute)
-      throw new HTTPError({
+      throw new PtsqError({
         code: 'BAD_REQUEST',
         message:
           'The route was terminated by query or mutate but should continue.',
       });
 
     if (!(currentRoute in this._def.routes))
-      throw new HTTPError({
+      throw new PtsqError({
         code: 'NOT_FOUND',
         message: 'The route was invalid.',
       });
@@ -85,14 +85,14 @@ export class Router<TRoutes extends Routes> {
     if (nextNode._def.nodeType === 'router') return nextNode.call(options);
 
     if (options.route.size !== 0)
-      throw new HTTPError({
+      throw new PtsqError({
         code: 'BAD_REQUEST',
         message:
           'The route continues, but should be terminated by query or mutate.',
       });
 
     if (nextNode._def.type !== options.type)
-      throw new HTTPError({
+      throw new PtsqError({
         code: 'BAD_REQUEST',
         message: `The route type is invalid, it should be ${nextNode._def.type} and it is ${options.type}.`,
       });

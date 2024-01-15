@@ -1,5 +1,5 @@
 export { createServer } from './createServer';
-export { HTTPError } from './httpError';
+export { PtsqError } from './ptsqError';
 
 export { Resolver, type ResolveFunction } from './resolver';
 

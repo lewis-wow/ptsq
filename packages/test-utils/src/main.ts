@@ -1,1 +1,1 @@
-export { createTestHttpServer } from './createTestHttpServer';
+export { createHttpTestServer } from './createHttpTestServer';

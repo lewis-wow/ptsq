@@ -2,13 +2,13 @@ import { Type, type TSchema } from '@sinclair/typebox';
 import type { Compiler } from './compiler';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
-import { HTTPError } from './httpError';
 import {
   Middleware,
   MiddlewareResponse,
   type MiddlewareMeta,
 } from './middleware';
 import type { AnyMiddleware, AnyRawMiddlewareReponse } from './middleware';
+import { PtsqError } from './ptsqError';
 import type { AnyResolveFunction } from './resolver';
 import type { inferStaticInput, ResolverType } from './types';
 
@@ -121,7 +121,7 @@ export class Route<
             const parseResult = compiledParser.encode(resolverResult);
 
             if (!parseResult.ok)
-              throw new HTTPError({
+              throw new PtsqError({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: 'Output validation error',
                 info: parseResult.errors,

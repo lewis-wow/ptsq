@@ -1,6 +1,6 @@
-import type { HTTPError } from './httpError';
+import type { PtsqError } from './ptsqError';
 import type { MaybePromise } from './types';
 
 export type ErrorFormatter = (
-  error: HTTPError,
-) => MaybePromise<HTTPError | null | Record<string, any>>;
+  error: PtsqError,
+) => MaybePromise<PtsqError | Record<string, any> | null>;

@@ -10,7 +10,7 @@ import type {
   inferContextParamsFromContextBuilder,
 } from './context';
 import type { ErrorFormatter } from './errorFormatter';
-import { HTTPError } from './httpError';
+import { PtsqError } from './ptsqError';
 import { PtsqServer } from './ptsqServer';
 import { Resolver } from './resolver';
 import { Router, type AnyRouter, type Routes } from './router';
@@ -104,18 +104,30 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
         const url = new URL(request.url);
         const method = request.method;
 
-        if (url.pathname === path && method === 'POST')
-          return (await ptsqServer.serve(request, contextParams)).toResponse(
-            errorFormatter,
+        if (url.pathname === path && method === 'POST') {
+          const middlewareResponse = await ptsqServer.serve(
+            request,
+            contextParams,
           );
+
+          const response = await middlewareResponse.toResponse(errorFormatter);
+
+          return response;
+        }
 
         if (url.pathname === `${path}/introspection` && method === 'GET')
           return ptsqServer.introspection().toResponse();
 
         if (!['GET', 'POST'].includes(method))
-          return new HTTPError({ code: 'METHOD_NOT_SUPPORTED' }).toResponse();
+          return new PtsqError({
+            code: 'METHOD_NOT_SUPPORTED',
+            message: `Method ${method} is not supported by Ptsq server.`,
+          }).toResponse(errorFormatter);
 
-        return new HTTPError({ code: 'NOT_FOUND' }).toResponse();
+        return new PtsqError({
+          code: 'NOT_FOUND',
+          message: `Http pathname ${path} is not supported by Ptsq server, supported are POST ${path} and GET ${path}/introspection.`,
+        }).toResponse(errorFormatter);
       },
       {
         plugins,

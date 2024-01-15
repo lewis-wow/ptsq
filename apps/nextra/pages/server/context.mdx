@@ -86,7 +86,7 @@ Typically you want to use middleware for authentication.
 
 ```ts copy
 const authedResolver = resolver.use(({ ctx /* User | undefined */, next }) => {
-  if (!ctx.user) throw new HTTPError({ code: 'UNAUTHORIZED' });
+  if (!ctx.user) throw new PtsqError({ code: 'UNAUTHORIZED' });
 
   return next({
     ...ctx, // { user: User | undefined }
