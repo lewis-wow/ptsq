@@ -14,7 +14,8 @@
     "build": "rollup --config rollup.config.ts --bundleConfigAsCjs",
     "dev": "ts-node src/main.ts",
     "start": "node dist/main.js",
-    "test": "vitest"
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "bin": {
     "introspection-cli": "./dist/main.js"

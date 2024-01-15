@@ -26,7 +26,7 @@ test('Should create server without error formatter and return the error', async 
     response: {
       data: {
         message: 'message...',
-        name: '_PtsqError',
+        name: 'PtsqError',
       },
     },
   });
@@ -139,7 +139,7 @@ test('Should create server with error formatter and keep the original error', as
     response: {
       data: {
         message: 'message...',
-        name: '_PtsqError',
+        name: 'PtsqError',
       },
     },
   });
@@ -172,7 +172,7 @@ test('Should create server with error formatter and change the http error', asyn
     response: {
       data: {
         message: 'Hello',
-        name: '_PtsqError',
+        name: 'PtsqError',
       },
     },
   });
@@ -183,7 +183,8 @@ test('Should create server with error formatter and keep the original error with
     ctx: () => ({}),
     errorFormatter: (error) =>
       new PtsqError({
-        ...error,
+        code: error.code,
+        message: error.message,
         info: 'my info...',
       }),
   });
@@ -205,7 +206,8 @@ test('Should create server with error formatter and keep the original error with
     response: {
       data: {
         info: 'my info...',
-        name: '_PtsqError',
+        message: 'message...',
+        name: 'PtsqError',
       },
     },
   });
