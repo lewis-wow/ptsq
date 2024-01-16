@@ -1,5 +1,13 @@
 {
   "name": "ptsq",
+  "version": "0.3.1",
+  "homepage": "https://ptsq.vercel.app/",
+  "author": "lewis-wow",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lewis-wow/ptsq.git"
+  },
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
