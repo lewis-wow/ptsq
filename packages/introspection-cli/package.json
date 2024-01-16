@@ -1,7 +1,7 @@
 {
   "name": "@ptsq/introspection-cli",
-  "version": "0.3.0",
-  "homepage": "https://ptsq-docs.vercel.app/",
+  "version": "0.3.1",
+  "homepage": "https://ptsq.vercel.app/",
   "author": "lewis-wow",
   "license": "MIT",
   "repository": {
