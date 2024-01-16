@@ -9,7 +9,8 @@
    3. tRPC
    4. CRUD
    5. API
-   6. Typescript
+   6. commonjs vs esmodules
+   7. Typescript
       1. typy (number, string, function, string literals, unions, merge, ...)
       2. type inference (infer)
       3. loops ([K in keyof T])
@@ -19,7 +20,7 @@
       7. function overloading
       8. type-fest a dalsí TS type-only knihovny
       9. Simplify type - zmineni zajimaveho typu
-   7. Server frameworky
+   8. Server frameworky
       1. node:http
       2. Express
       3. Fastify
@@ -27,18 +28,18 @@
       5. Next.js
       6. Sveltekit
       7. Bun
-   8. Klient frameworky
+   9. Klient frameworky
       1. vanillajs
       2. React
       3. Next.js
       4. Sveltekit
-   9. whatwg standard
-      1. o standardu
-      2. Request a Response objekty
-         1. Request vs IncommingMessage
-         2. Response vs ServerResponse
-      3. whatwg-node/server
-   10. Dokumentace
+   10. whatwg standard
+   11. o standardu
+   12. Request a Response objekty
+       1. Request vs IncommingMessage
+       2. Response vs ServerResponse
+   13. whatwg-node/server
+   14. Dokumentace
        1. Docusaurus
        2. Nextra
 3. Implementace (možná spíše Knihovna nebo Řešení, chci popisovat tu knihovnu, ne proces implementace knihovny)
@@ -50,6 +51,9 @@
       5. prettier
       6. yarn
       7. vitest
+      8. rollup
+      9. coverage - istanbul
+      10. Github - workflows
    2. Server
       1. Resolver
          1. query
@@ -101,6 +105,7 @@
    1. npm
    2. changeset
    3. vercel - docs
+   4. rollup
 7. Zaver
    1. slepe ulicky
       1. Zod
