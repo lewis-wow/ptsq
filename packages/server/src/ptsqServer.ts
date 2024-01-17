@@ -1,6 +1,5 @@
 import type { Compiler } from './compiler';
 import type { ContextBuilder } from './context';
-import { Introspecion } from './introspection';
 import { MiddlewareResponse } from './middleware';
 import { PtsqError } from './ptsqError';
 import { Queue } from './queue';
@@ -85,6 +84,14 @@ export class PtsqServer {
   }
 
   introspection() {
-    return new Introspecion(this._def.router);
+    return new MiddlewareResponse({
+      ctx: {},
+      ok: true,
+      data: {
+        title: 'BaseRouter',
+        $schema: 'https://json-schema.org/draft/2019-09/schema#',
+        ...this._def.router.getJsonSchema(),
+      },
+    });
   }
 }
