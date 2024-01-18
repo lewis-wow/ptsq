@@ -1,9 +1,6 @@
 import type { Context } from './context';
 import { createSchemaRoot, type SchemaRoot } from './createSchemaRoot';
-import {
-  type AnyRawMiddlewareReponse,
-  type MiddlewareMeta,
-} from './middleware';
+import { type AnyMiddlewareResponse, type MiddlewareMeta } from './middleware';
 import type { AnyMutation } from './mutation';
 import { PtsqError } from './ptsqError';
 import type { AnyQuery } from './query';
@@ -64,7 +61,7 @@ export class Router<TRoutes extends Routes> {
     ctx: Context;
     type: ResolverType;
     meta: MiddlewareMeta;
-  }): Promise<AnyRawMiddlewareReponse> {
+  }): Promise<AnyMiddlewareResponse> {
     const currentRoute = options.route[options.index];
 
     if (!currentRoute)

@@ -48,7 +48,7 @@ export class PtsqServer {
           }),
         });
 
-      const rawResponse = await this._def.router.call({
+      return this._def.router.call({
         route: parsedRequestBody.data.route.split('.'),
         index: 0,
         type: parsedRequestBody.data.type,
@@ -59,8 +59,6 @@ export class PtsqServer {
         },
         ctx,
       });
-
-      return new MiddlewareResponse(rawResponse);
     } catch (error) {
       return new MiddlewareResponse({
         ok: false,

@@ -7,7 +7,7 @@ import {
   MiddlewareResponse,
   type MiddlewareMeta,
 } from './middleware';
-import type { AnyMiddleware, AnyRawMiddlewareReponse } from './middleware';
+import type { AnyMiddleware, AnyMiddlewareResponse } from './middleware';
 import { PtsqError } from './ptsqError';
 import type { AnyResolveFunction } from './resolver';
 import type { inferStaticInput, ResolverType } from './types';
@@ -93,7 +93,7 @@ export class Route<
   }: {
     ctx: Context;
     meta: MiddlewareMeta;
-  }): Promise<AnyRawMiddlewareReponse> {
+  }): Promise<AnyMiddlewareResponse> {
     const response = await Middleware.recursiveCall({
       ctx,
       meta,
@@ -127,7 +127,8 @@ export class Route<
                 info: parseResult.errors,
               });
 
-            return MiddlewareResponse.createRawSuccessResponse({
+            return new MiddlewareResponse({
+              ok: true,
               data: parseResult.data,
               ctx: finalContext,
             });

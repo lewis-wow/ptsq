@@ -2,6 +2,7 @@ import { Type } from '@sinclair/typebox';
 import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
 import { createServer } from './createServer';
+import { MiddlewareResponse } from './middleware';
 import { PtsqError } from './ptsqError';
 
 test('Should create mutation', async () => {
@@ -47,13 +48,15 @@ test('Should create mutation', async () => {
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
-  ).toStrictEqual({
-    data: 'Hello John',
-    ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      data: 'Hello John',
+      ok: true,
+      ctx: {
+        greetingsPrefix: 'Hello',
+      },
+    }),
+  );
 
   expect(
     await mutation.call({
@@ -64,16 +67,18 @@ test('Should create mutation', async () => {
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
-  ).toStrictEqual({
-    error: new PtsqError({
-      code: 'BAD_REQUEST',
-      message: 'Args validation error.',
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      error: new PtsqError({
+        code: 'BAD_REQUEST',
+        message: 'Args validation error.',
+      }),
+      ok: false,
+      ctx: {
+        greetingsPrefix: 'Hello',
+      },
     }),
-    ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
+  );
 
   expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
     {
@@ -168,13 +173,15 @@ test('Should create mutation without args', async () => {
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
-  ).toStrictEqual({
-    data: 'Hello',
-    ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      data: 'Hello',
+      ok: true,
+      ctx: {
+        greetingsPrefix: 'Hello',
+      },
+    }),
+  );
 
   expect(
     await mutation.call({
@@ -185,13 +192,15 @@ test('Should create mutation without args', async () => {
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
-  ).toStrictEqual({
-    data: 'Hello',
-    ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      data: 'Hello',
+      ok: true,
+      ctx: {
+        greetingsPrefix: 'Hello',
+      },
+    }),
+  );
 
   expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
     {
@@ -282,13 +291,15 @@ test('Should create mutation with twice chain', async () => {
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
-  ).toStrictEqual({
-    data: 'Hello John Doe',
-    ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      data: 'Hello John Doe',
+      ok: true,
+      ctx: {
+        greetingsPrefix: 'Hello',
+      },
+    }),
+  );
 
   expect(
     await mutation.call({
@@ -299,16 +310,18 @@ test('Should create mutation with twice chain', async () => {
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
-  ).toStrictEqual({
-    error: new PtsqError({
-      code: 'BAD_REQUEST',
-      message: 'Args validation error.',
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      error: new PtsqError({
+        code: 'BAD_REQUEST',
+        message: 'Args validation error.',
+      }),
+      ok: false,
+      ctx: {
+        greetingsPrefix: 'Hello',
+      },
     }),
-    ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
+  );
 
   expect(
     await mutation.call({
@@ -319,16 +332,18 @@ test('Should create mutation with twice chain', async () => {
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
-  ).toStrictEqual({
-    error: new PtsqError({
-      code: 'BAD_REQUEST',
-      message: 'Args validation error.',
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      error: new PtsqError({
+        code: 'BAD_REQUEST',
+        message: 'Args validation error.',
+      }),
+      ok: false,
+      ctx: {
+        greetingsPrefix: 'Hello',
+      },
     }),
-    ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
+  );
 
   expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
     {
@@ -462,13 +477,15 @@ test('Should create mutation with optional args chain', async () => {
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
-  ).toStrictEqual({
-    data: 'Hello John Doe',
-    ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      data: 'Hello John Doe',
+      ok: true,
+      ctx: {
+        greetingsPrefix: 'Hello',
+      },
+    }),
+  );
 
   expect(
     await mutation.call({
@@ -479,13 +496,15 @@ test('Should create mutation with optional args chain', async () => {
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
-  ).toStrictEqual({
-    data: 'Hello John UNDEFINED',
-    ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      data: 'Hello John UNDEFINED',
+      ok: true,
+      ctx: {
+        greetingsPrefix: 'Hello',
+      },
+    }),
+  );
 
   expect(
     await mutation.call({
@@ -496,26 +515,30 @@ test('Should create mutation with optional args chain', async () => {
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
-  ).toStrictEqual({
-    data: 'Hello UNDEFINED Doe',
-    ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      data: 'Hello UNDEFINED Doe',
+      ok: true,
+      ctx: {
+        greetingsPrefix: 'Hello',
+      },
+    }),
+  );
 
   expect(
     await mutation.call({
       meta: { type: 'mutation', input: {}, route: `dummy.route.${uuidv4()}` },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
-  ).toStrictEqual({
-    data: 'Hello UNDEFINED UNDEFINED',
-    ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      data: 'Hello UNDEFINED UNDEFINED',
+      ok: true,
+      ctx: {
+        greetingsPrefix: 'Hello',
+      },
+    }),
+  );
 
   expect(
     await mutation.call({
@@ -526,13 +549,15 @@ test('Should create mutation with optional args chain', async () => {
       },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
-  ).toStrictEqual({
-    data: 'Hello UNDEFINED UNDEFINED',
-    ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
-  });
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      data: 'Hello UNDEFINED UNDEFINED',
+      ok: true,
+      ctx: {
+        greetingsPrefix: 'Hello',
+      },
+    }),
+  );
 
   expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
     {

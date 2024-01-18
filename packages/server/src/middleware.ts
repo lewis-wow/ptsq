@@ -9,10 +9,10 @@ import type { MaybePromise, ResolverType } from './types';
  * @internal
  */
 export type NextFunction<TContext extends Context> = {
-  (): Promise<RawMiddlewareReponse<TContext>>;
+  (): Promise<MiddlewareResponse<TContext>>;
   <TNextContext extends Context>(
     nextContext: TNextContext,
-  ): Promise<RawMiddlewareReponse<TNextContext>>;
+  ): Promise<MiddlewareResponse<TNextContext>>;
 };
 
 /**
@@ -63,7 +63,7 @@ export class Middleware<TArgs, TContext extends Context> {
     meta: MiddlewareMeta;
     index: number;
     middlewares: AnyMiddleware[];
-  }): Promise<AnyRawMiddlewareReponse> {
+  }): Promise<AnyMiddlewareResponse> {
     try {
       const compiledParser = options.middlewares[
         options.index
@@ -97,7 +97,8 @@ export class Middleware<TArgs, TContext extends Context> {
         }) as NextFunction<Context>,
       });
     } catch (error) {
-      return MiddlewareResponse.createRawFailureResponse({
+      return new MiddlewareResponse({
+        ok: false,
         ctx: options.ctx,
         error: PtsqError.isPtsqError(error)
           ? error
@@ -125,28 +126,6 @@ export class MiddlewareResponse<TContext extends Context> {
     if (this._def.ok) return Response.json(this._def.data);
 
     return this._def.error.toResponse(errorFormatter);
-  }
-
-  static createRawFailureResponse(options: {
-    error: PtsqError;
-    ctx: Context;
-  }): AnyRawMiddlewareReponse {
-    return {
-      ok: false,
-      error: options.error,
-      ctx: options.ctx,
-    };
-  }
-
-  static createRawSuccessResponse(options: {
-    data: unknown;
-    ctx: Context;
-  }): AnyRawMiddlewareReponse {
-    return {
-      ok: true,
-      data: options.data,
-      ctx: options.ctx,
-    };
   }
 }
 

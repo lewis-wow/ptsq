@@ -1,6 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { createServer } from './createServer';
+import { MiddlewareResponse } from './middleware';
 import { PtsqError } from './ptsqError';
 
 test('Should merge two routers', async () => {
@@ -32,11 +33,13 @@ test('Should merge two routers', async () => {
         type: 'query',
       },
     }),
-  ).toMatchObject({
-    ctx: {},
-    data: null,
-    ok: true,
-  });
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      ctx: {},
+      data: null,
+      ok: true,
+    }),
+  );
 
   expect(
     await mergedRouter.call({
@@ -50,11 +53,13 @@ test('Should merge two routers', async () => {
         type: 'query',
       },
     }),
-  ).toMatchObject({
-    ctx: {},
-    data: null,
-    ok: true,
-  });
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      ctx: {},
+      data: null,
+      ok: true,
+    }),
+  );
 });
 
 test('Should merge two routers deeply', async () => {
@@ -90,11 +95,13 @@ test('Should merge two routers deeply', async () => {
         type: 'query',
       },
     }),
-  ).toMatchObject({
-    ctx: {},
-    data: null,
-    ok: true,
-  });
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      ctx: {},
+      data: null,
+      ok: true,
+    }),
+  );
 
   expect(
     await mergedRouter.call({
@@ -108,11 +115,13 @@ test('Should merge two routers deeply', async () => {
         type: 'query',
       },
     }),
-  ).toMatchObject({
-    ctx: {},
-    data: null,
-    ok: true,
-  });
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      ctx: {},
+      data: null,
+      ok: true,
+    }),
+  );
 });
 
 test('Should merge two routers with overwrite', async () => {
@@ -145,11 +154,13 @@ test('Should merge two routers with overwrite', async () => {
         type: 'mutation',
       },
     }),
-  ).toMatchObject({
-    ctx: {},
-    data: null,
-    ok: true,
-  });
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      ctx: {},
+      data: null,
+      ok: true,
+    }),
+  );
 });
 
 test('Should not call wrong route', async () => {

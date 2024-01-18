@@ -101,7 +101,10 @@ export class Resolver<
       TOutputSchema,
       TRootContext,
       Simplify<
-        ShallowMerge<TContext, Awaited<ReturnType<TMiddlewareFunction>>['ctx']>
+        ShallowMerge<
+          TContext,
+          Awaited<ReturnType<TMiddlewareFunction>>['_def']['ctx']
+        >
       >,
       TDescription
     >({
