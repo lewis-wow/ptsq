@@ -7,7 +7,6 @@ import {
 import type { AnyMutation } from './mutation';
 import { PtsqError } from './ptsqError';
 import type { AnyQuery } from './query';
-import type { Queue } from './queue';
 import type { ResolverType, ShallowMerge } from './types';
 
 export type Routes = {
@@ -59,17 +58,18 @@ export class Router<TRoutes extends Routes> {
    *
    * Call the router and shift a route path
    */
-  call(options: {
-    route: Queue<string>;
+  async call(options: {
+    route: string[];
+    index: number;
     ctx: Context;
     type: ResolverType;
     meta: MiddlewareMeta;
   }): Promise<AnyRawMiddlewareReponse> {
-    const currentRoute = options.route.dequeue();
+    const currentRoute = options.route[options.index];
 
     if (!currentRoute)
       throw new PtsqError({
-        code: 'BAD_REQUEST',
+        code: 'NOT_FOUND',
         message:
           'The route was terminated by query or mutate but should continue.',
       });
@@ -82,11 +82,12 @@ export class Router<TRoutes extends Routes> {
 
     const nextNode = this._def.routes[currentRoute];
 
-    if (nextNode._def.nodeType === 'router') return nextNode.call(options);
+    if (nextNode._def.nodeType === 'router')
+      return nextNode.call({ ...options, index: options.index + 1 });
 
-    if (options.route.size !== 0)
+    if (options.index !== options.route.length - 1)
       throw new PtsqError({
-        code: 'BAD_REQUEST',
+        code: 'NOT_FOUND',
         message:
           'The route continues, but should be terminated by query or mutate.',
       });

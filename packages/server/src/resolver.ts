@@ -131,10 +131,8 @@ export class Resolver<
   >(
     resolver: TContext extends TResolver['_def']['rootContext']
       ? TResolver
-      : ErrorMessage<`Current resolver context have to extend the root context of the merging resolver.`>,
+      : never,
   ) {
-    if (typeof resolver === 'string') throw new TypeError();
-
     const nextArgsSchema =
       this._def.argsSchema === undefined &&
       resolver._def.argsSchema === undefined
@@ -199,11 +197,6 @@ export class Resolver<
   args<TNextSchemaArgs extends ResolverSchema>(
     nextSchemaArgs: SerializableSchema<TNextSchemaArgs>,
   ) {
-    if (typeof nextSchemaArgs === 'string')
-      throw new TypeError(
-        `The args schema cannot be string and must be serializable.`,
-      );
-
     type NextArgsSchema = TArgsSchema extends TSchema
       ? TIntersect<[TArgsSchema, TNextSchemaArgs]>
       : TNextSchemaArgs;
@@ -211,7 +204,10 @@ export class Resolver<
     const nextArgsSchema =
       this._def.argsSchema === undefined
         ? nextSchemaArgs
-        : Type.Intersect([this._def.argsSchema, nextSchemaArgs]);
+        : Type.Intersect([
+            this._def.argsSchema,
+            nextSchemaArgs as TNextSchemaArgs,
+          ]);
 
     return new Resolver<
       NextArgsSchema,
@@ -244,11 +240,6 @@ export class Resolver<
   output<TNextSchemaOutput extends ResolverSchema>(
     nextSchemaOutput: SerializableSchema<TNextSchemaOutput>,
   ) {
-    if (typeof nextSchemaOutput === 'string')
-      throw new TypeError(
-        `The output schema cannot be string and must be serializable.`,
-      );
-
     type NextSchemaOutput = TOutputSchema extends TSchema
       ? TIntersect<[TOutputSchema, TNextSchemaOutput]>
       : TNextSchemaOutput;
@@ -256,7 +247,10 @@ export class Resolver<
     const nextOutputSchema =
       this._def.outputSchema === undefined
         ? nextSchemaOutput
-        : Type.Intersect([this._def.outputSchema, nextSchemaOutput]);
+        : Type.Intersect([
+            this._def.outputSchema,
+            nextSchemaOutput as TNextSchemaOutput,
+          ]);
 
     return new Resolver<
       TArgsSchema,

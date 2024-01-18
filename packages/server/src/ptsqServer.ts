@@ -1,12 +1,9 @@
 import type { Compiler } from './compiler';
 import type { ContextBuilder } from './context';
-import { Introspecion } from './introspection';
 import { MiddlewareResponse } from './middleware';
 import { PtsqError } from './ptsqError';
-import { Queue } from './queue';
 import { requestBodySchema } from './requestBodySchema';
 import type { AnyRouter } from './router';
-import { omit } from './utils/omit';
 
 export class PtsqServer {
   _def: {
@@ -27,13 +24,8 @@ export class PtsqServer {
     try {
       const body = await request.json();
 
-      const requestClone = new Request(request.url, {
-        ...omit(request, ['url']),
-        body: JSON.stringify(body),
-      });
-
       const ctx = await this._def.contextBuilder({
-        request: requestClone,
+        request: request,
         ...contextParams,
       });
 
@@ -56,10 +48,9 @@ export class PtsqServer {
           }),
         });
 
-      const routeQueue = new Queue(parsedRequestBody.data.route.split('.'));
-
       const rawResponse = await this._def.router.call({
-        route: routeQueue,
+        route: parsedRequestBody.data.route.split('.'),
+        index: 0,
         type: parsedRequestBody.data.type,
         meta: {
           input: parsedRequestBody.data.input,
@@ -85,6 +76,14 @@ export class PtsqServer {
   }
 
   introspection() {
-    return new Introspecion(this._def.router);
+    return new MiddlewareResponse({
+      ctx: {},
+      ok: true,
+      data: {
+        title: 'BaseRouter',
+        $schema: 'https://json-schema.org/draft/2019-09/schema#',
+        ...this._def.router.getJsonSchema(),
+      },
+    });
   }
 }

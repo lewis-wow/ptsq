@@ -118,7 +118,11 @@ export const createServer = <TContextBuilder extends ContextBuilder>({
         if (url.pathname === `${path}/introspection` && method === 'GET')
           return ptsqServer.introspection().toResponse();
 
-        if (!['GET', 'POST'].includes(method))
+        if (
+          !['GET', 'POST'].includes(method) ||
+          (url.pathname === `${path}/introspection` && method !== 'GET') ||
+          (url.pathname === path && method !== 'POST')
+        )
           return new PtsqError({
             code: 'METHOD_NOT_SUPPORTED',
             message: `Method ${method} is not supported by Ptsq server.`,

@@ -12,6 +12,7 @@ export default defineConfig({
         'packages/introspection-cli/src/**',
       ],
       exclude: ['**/node_modules/**', '**/dist/**'],
+      all: false,
     },
   },
 });
