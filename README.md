@@ -2,7 +2,9 @@
 
 Public type-safe query
 
-## npm
+[![codecov](https://codecov.io/gh/lewis-wow/ptsq/graph/badge.svg?token=18BSO2G62X)](https://codecov.io/gh/lewis-wow/ptsq)
+
+## Installation
 
 ```bash
 npm i @ptsq/server
@@ -14,20 +16,6 @@ npm i @ptsq/client
 
 ```bash
 npm i -D @ptsq/introspection-cli
-```
-
-## yarn
-
-```bash
-yarn add @ptsq/server
-```
-
-```bash
-yarn add @ptsq/client
-```
-
-```bash
-yarn add -D @ptsq/introspection-cli
 ```
 
 ```ts title="server.ts"
