@@ -119,12 +119,12 @@ export type RawMiddlewareReponse<TContext extends Context> =
 export type AnyRawMiddlewareReponse = RawMiddlewareReponse<Context>;
 
 export class MiddlewareResponse<TContext extends Context> {
-  constructor(public response: RawMiddlewareReponse<TContext>) {}
+  constructor(public _def: RawMiddlewareReponse<TContext>) {}
 
   toResponse(errorFormatter?: ErrorFormatter): MaybePromise<Response> {
-    if (this.response.ok) return Response.json(this.response.data);
+    if (this._def.ok) return Response.json(this._def.data);
 
-    return this.response.error.toResponse(errorFormatter);
+    return this._def.error.toResponse(errorFormatter);
   }
 
   static createRawFailureResponse(options: {

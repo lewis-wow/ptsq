@@ -6,8 +6,7 @@ import { createServer } from './createServer';
 
 test('Should create context with Request object that should be injected', async () => {
   const createContext = ({ request }: { request: Request }) => {
-    console.log(request);
-    expect(request).toBeInstanceOf(Request);
+    expect(request.method).toBe('POST');
 
     return {
       request,

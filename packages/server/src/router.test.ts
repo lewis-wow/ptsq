@@ -1,7 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { createServer } from './createServer';
-import { Queue } from './queue';
+import { PtsqError } from './ptsqError';
 
 test('Should merge two routers', async () => {
   const { router, resolver } = createServer({
@@ -22,7 +22,8 @@ test('Should merge two routers', async () => {
 
   expect(
     await mergedRouter.call({
-      route: new Queue(['a']),
+      route: ['a'],
+      index: 0,
       ctx: {},
       type: 'query',
       meta: {
@@ -39,7 +40,8 @@ test('Should merge two routers', async () => {
 
   expect(
     await mergedRouter.call({
-      route: new Queue(['b']),
+      route: ['b'],
+      index: 0,
       ctx: {},
       type: 'query',
       meta: {
@@ -78,7 +80,8 @@ test('Should merge two routers deeply', async () => {
 
   expect(
     await mergedRouter.call({
-      route: new Queue(['a', 'b']),
+      route: ['a', 'b'],
+      index: 0,
       ctx: {},
       type: 'query',
       meta: {
@@ -95,7 +98,8 @@ test('Should merge two routers deeply', async () => {
 
   expect(
     await mergedRouter.call({
-      route: new Queue(['c', 'd']),
+      route: ['c', 'd'],
+      index: 0,
       ctx: {},
       type: 'query',
       meta: {
@@ -131,7 +135,8 @@ test('Should merge two routers with overwrite', async () => {
 
   expect(
     await mergedRouter.call({
-      route: new Queue(['a']),
+      route: ['a'],
+      index: 0,
       ctx: {},
       type: 'mutation',
       meta: {
@@ -145,4 +150,264 @@ test('Should merge two routers with overwrite', async () => {
     data: null,
     ok: true,
   });
+});
+
+test('Should not call wrong route', async () => {
+  const { router, resolver } = createServer({
+    ctx: () => ({}),
+  });
+
+  const query = resolver.output(Type.Null()).query(() => null);
+
+  const baseRouter = router({
+    a: query,
+  });
+
+  await expect(
+    baseRouter.call({
+      route: ['wrong', 'route'],
+      index: 0,
+      ctx: {},
+      type: 'query',
+      meta: {
+        input: undefined,
+        route: 'wrong.route',
+        type: 'query',
+      },
+    }),
+  ).rejects.toThrowError(
+    new PtsqError({ code: 'NOT_FOUND', message: 'The route was invalid.' }),
+  );
+});
+
+test('Should not call wrong method', async () => {
+  const { router, resolver } = createServer({
+    ctx: () => ({}),
+  });
+
+  const query = resolver.output(Type.Null()).query(() => null);
+
+  const baseRouter = router({
+    a: query,
+  });
+
+  await expect(
+    baseRouter.call({
+      route: ['a'],
+      index: 0,
+      ctx: {},
+      type: 'mutation',
+      meta: {
+        input: undefined,
+        route: 'a',
+        type: 'mutation',
+      },
+    }),
+  ).rejects.toThrowError(
+    new PtsqError({
+      code: 'BAD_REQUEST',
+      message:
+        'The route type is invalid, it should be query and it is mutation.',
+    }),
+  );
+});
+
+test('Should not call if route excess correct route path', async () => {
+  const { router, resolver } = createServer({
+    ctx: () => ({}),
+  });
+
+  const query = resolver.output(Type.Null()).query(() => null);
+
+  const baseRouter = router({
+    a: query,
+  });
+
+  await expect(
+    baseRouter.call({
+      route: ['a', 'b'],
+      index: 0,
+      ctx: {},
+      type: 'query',
+      meta: {
+        input: undefined,
+        route: 'a.b',
+        type: 'query',
+      },
+    }),
+  ).rejects.toThrowError(
+    new PtsqError({
+      code: 'NOT_FOUND',
+      message:
+        'The route continues, but should be terminated by query or mutate.',
+    }),
+  );
+});
+
+test('Should not call if route not fit correct route path', async () => {
+  const { router, resolver } = createServer({
+    ctx: () => ({}),
+  });
+
+  const query = resolver.output(Type.Null()).query(() => null);
+
+  const baseRouter = router({
+    a: router({
+      b: query,
+    }),
+  });
+
+  await expect(
+    baseRouter.call({
+      route: ['a'],
+      index: 0,
+      ctx: {},
+      type: 'query',
+      meta: {
+        input: undefined,
+        route: 'a',
+        type: 'query',
+      },
+    }),
+  ).rejects.toThrowError(
+    new PtsqError({
+      code: 'NOT_FOUND',
+      message:
+        'The route was terminated by query or mutate but should continue.',
+    }),
+  );
+});
+
+test('Should merge two routers and get json schema', () => {
+  const { router, resolver } = createServer({
+    ctx: () => ({}),
+  });
+
+  const query = resolver.output(Type.Null()).query(() => null);
+
+  const routerA = router({
+    a: query,
+  });
+
+  const routerB = router({
+    b: query,
+  });
+
+  const mergedRouter = routerA.merge(routerB);
+
+  expect(mergedRouter.getJsonSchema()).toMatchInlineSnapshot(`
+    {
+      "additionalProperties": false,
+      "properties": {
+        "_def": {
+          "additionalProperties": false,
+          "properties": {
+            "nodeType": {
+              "enum": [
+                "router",
+              ],
+              "type": "string",
+            },
+            "routes": {
+              "additionalProperties": false,
+              "properties": {
+                "a": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "_def": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "argsSchema": undefined,
+                        "description": undefined,
+                        "nodeType": {
+                          "enum": [
+                            "route",
+                          ],
+                          "type": "string",
+                        },
+                        "outputSchema": {
+                          "type": "null",
+                        },
+                        "type": {
+                          "enum": [
+                            "query",
+                          ],
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "type",
+                        "nodeType",
+                        "argsSchema",
+                        "outputSchema",
+                        "description",
+                      ],
+                      "type": "object",
+                    },
+                  },
+                  "required": [
+                    "_def",
+                  ],
+                  "type": "object",
+                },
+                "b": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "_def": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "argsSchema": undefined,
+                        "description": undefined,
+                        "nodeType": {
+                          "enum": [
+                            "route",
+                          ],
+                          "type": "string",
+                        },
+                        "outputSchema": {
+                          "type": "null",
+                        },
+                        "type": {
+                          "enum": [
+                            "query",
+                          ],
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "type",
+                        "nodeType",
+                        "argsSchema",
+                        "outputSchema",
+                        "description",
+                      ],
+                      "type": "object",
+                    },
+                  },
+                  "required": [
+                    "_def",
+                  ],
+                  "type": "object",
+                },
+              },
+              "required": [
+                "a",
+                "b",
+              ],
+              "type": "object",
+            },
+          },
+          "required": [
+            "nodeType",
+            "routes",
+          ],
+          "type": "object",
+        },
+      },
+      "required": [
+        "_def",
+      ],
+      "type": "object",
+    }
+  `);
 });

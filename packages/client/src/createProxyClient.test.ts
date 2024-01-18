@@ -70,7 +70,7 @@ test('Should create simple http server with proxy client and request bad route',
       name: 'John',
     }),
   ).rejects.toMatchInlineSnapshot(
-    '[AxiosError: Request failed with status code 400]',
+    '[AxiosError: Request failed with status code 404]',
   );
 
   await $disconnect();
@@ -216,6 +216,38 @@ test('Should create simple http server with Authorization header', async () => {
   const response = await client.test.query();
 
   expect(response).toBe('Hello John!');
+
+  await $disconnect();
+});
+
+test('Should create simple http server with proxy client and creates request with bad action type that should be catched on client', async () => {
+  const { resolver, router, serve } = createServer({
+    ctx: () => ({}),
+  });
+
+  const baseRouter = router({
+    test: resolver
+      .args(
+        Type.Object({
+          name: Type.String(),
+        }),
+      )
+      .output(Type.String())
+      .query(({ input }) => input.name),
+  });
+
+  const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
+
+  const client = createProxyClient<typeof baseRouter>({
+    url,
+  });
+
+  expect(() =>
+    // @ts-expect-error - should be query or mutate (Just for test!)
+    client.test.method({
+      name: 'John',
+    }),
+  ).toThrowError(new TypeError('Action is not in action map.'));
 
   await $disconnect();
 });
