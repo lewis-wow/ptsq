@@ -94,7 +94,7 @@ export class Route<
     ctx: Context;
     meta: MiddlewareMeta;
   }): Promise<AnyMiddlewareResponse> {
-    const response = await Middleware.recursiveCall({
+    return Middleware.recursiveCall({
       ctx,
       meta,
       index: 0,
@@ -136,8 +136,6 @@ export class Route<
         }),
       ],
     });
-
-    return response;
   }
 
   resolve(resolveFunctionOptions: {

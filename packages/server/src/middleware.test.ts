@@ -574,3 +574,91 @@ test('Should create nested middlewares with query with args chaining', async () 
     }),
   );
 });
+
+test('Should create nested middlewares with query and returns response recursivelly', async () => {
+  const { resolver } = createServer({
+    ctx: () => ({}),
+  });
+
+  const middlewareState = {
+    firstRequest: false,
+    firstReponse: false,
+    secondRequest: false,
+    secondResponse: false,
+  };
+
+  const query = resolver
+    .use(async ({ next }) => {
+      expect(middlewareState).toStrictEqual({
+        firstRequest: false,
+        firstReponse: false,
+        secondRequest: false,
+        secondResponse: false,
+      });
+      middlewareState.firstRequest = true;
+      const response = await next();
+      middlewareState.firstReponse = true;
+      expect(middlewareState).toStrictEqual({
+        firstRequest: true,
+        firstReponse: true,
+        secondRequest: true,
+        secondResponse: true,
+      });
+
+      expect(response).toStrictEqual(
+        new MiddlewareResponse({
+          ok: true,
+          data: 'Hello',
+          ctx: {},
+        }),
+      );
+
+      return response;
+    })
+    .use(async ({ next }) => {
+      expect(middlewareState).toStrictEqual({
+        firstRequest: true,
+        firstReponse: false,
+        secondRequest: false,
+        secondResponse: false,
+      });
+      middlewareState.secondRequest = true;
+      const response = await next();
+      middlewareState.secondResponse = true;
+      expect(middlewareState).toStrictEqual({
+        firstRequest: true,
+        firstReponse: false,
+        secondRequest: true,
+        secondResponse: true,
+      });
+
+      expect(response).toStrictEqual(
+        new MiddlewareResponse({
+          ok: true,
+          data: 'Hello',
+          ctx: {},
+        }),
+      );
+
+      return response;
+    })
+    .output(Type.String())
+    .query(() => 'Hello');
+
+  expect(
+    await query.call({
+      meta: {
+        type: 'query',
+        input: undefined,
+        route: 'dummy.route',
+      },
+      ctx: {},
+    }),
+  ).toStrictEqual(
+    new MiddlewareResponse({
+      ctx: {},
+      data: 'Hello',
+      ok: true,
+    }),
+  );
+});

@@ -83,18 +83,17 @@ export class Middleware<TArgs, TContext extends Context> {
           info: parseResult.errors,
         });
 
-      return await options.middlewares[options.index]._def.middlewareFunction({
+      return options.middlewares[options.index]._def.middlewareFunction({
         input: parseResult.data,
         meta: options.meta,
         ctx: options.ctx,
-        next: ((nextContext) => {
-          return Middleware.recursiveCall({
+        next: ((nextContext) =>
+          Middleware.recursiveCall({
             ctx: { ...options.ctx, ...nextContext },
             meta: options.meta,
             index: options.index + 1,
             middlewares: options.middlewares,
-          });
-        }) as NextFunction<Context>,
+          })) as NextFunction<Context>,
       });
     } catch (error) {
       return new MiddlewareResponse({
