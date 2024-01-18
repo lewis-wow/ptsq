@@ -1,6 +1,6 @@
 {
   "name": "@ptsq/server",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "homepage": "https://ptsq.vercel.app/",
   "author": "lewis-wow",
   "license": "MIT",
@@ -31,7 +31,6 @@
   ],
   "devDependencies": {
     "@types/node": "^20.7.0",
-    "@types/pascalcase": "^1.0.1",
     "@types/uuid": "^9.0.7",
     "axios": "^1.5.1",
     "typescript": "^5.2.2",
@@ -40,7 +39,6 @@
   },
   "dependencies": {
     "@sinclair/typebox": "^0.31.28",
-    "@whatwg-node/server": "^0.9.23",
-    "@whatwg-node/server-plugin-cookies": "^1.0.2"
+    "@whatwg-node/server": "^0.9.23"
   }
 }

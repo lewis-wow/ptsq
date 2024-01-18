@@ -1675,11 +1675,6 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.2.tgz#9b0e3e8533fe5024ad32d6637eb9589988b6fdca"
   integrity sha512-lqa4UEhhv/2sjjIQgjX8B+RBjj47eo0mzGasklVJ78UKGQY1r0VpB9XHDaZZO9qzEFDdy4MrXLuEaSmPrPSe/A==
 
-"@types/pascalcase@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@types/pascalcase/-/pascalcase-1.0.1.tgz#2466c1e23713c1681320e49449643e3f16c84f33"
-  integrity sha512-JYPox1hbKw66Sv9HtvTp0r5jJkaz6k+V8XjEnZUb7B+4ffIoS+3sjiAtwkX6IMO68UQtQWe9QcAjugn9VR4GJg==
-
 "@types/prettier@^2.6.1":
   version "2.7.3"
   resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-2.7.3.tgz#3e51a17e291d01d17d3fc61422015a933af7a08f"
@@ -2168,13 +2163,6 @@
     loupe "^2.3.6"
     pretty-format "^29.5.0"
 
-"@whatwg-node/cookie-store@0.2.2":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@whatwg-node/cookie-store/-/cookie-store-0.2.2.tgz#cc9e932a4775a5d2f94093522a20789cafbfe7c6"
-  integrity sha512-poI6G6rYGsXNA+JTZLU+IUUXb+Xsau8M3GrcbF3VJdbvW6QGpbuvC+gvN4rD9zJAnqM0jpDKDhIWf2DmEAmWFQ==
-  dependencies:
-    tslib "^2.3.1"
-
 "@whatwg-node/events@^0.1.0":
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/@whatwg-node/events/-/events-0.1.1.tgz#0ca718508249419587e130da26d40e29d99b5356"
@@ -2197,14 +2185,6 @@
     busboy "^1.6.0"
     fast-querystring "^1.1.1"
     fast-url-parser "^1.1.3"
-    tslib "^2.3.1"
-
-"@whatwg-node/server-plugin-cookies@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@whatwg-node/server-plugin-cookies/-/server-plugin-cookies-1.0.2.tgz#6e200455d4a4343ed8aac216c9e644864164847c"
-  integrity sha512-l5ramNKf3aGCybZcN+bVNrTtUJwuB3PRQSjvvn9oh1CnBEMcrucatELRrSAWL/wZcXcJNF8NHB8G0UPEXkDzkw==
-  dependencies:
-    "@whatwg-node/cookie-store" "0.2.2"
     tslib "^2.3.1"
 
 "@whatwg-node/server@^0.9.23":
