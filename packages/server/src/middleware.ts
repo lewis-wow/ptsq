@@ -101,7 +101,7 @@ export class Middleware<TArgs, TContext extends Context> {
 
       return response;
     } catch (error) {
-      return new MiddlewareResponse({
+      return Middleware.createResponse({
         ok: false,
         ctx: ctx,
         error: PtsqError.isPtsqError(error)
@@ -113,24 +113,27 @@ export class Middleware<TArgs, TContext extends Context> {
       });
     }
   }
+
+  static createResponse<TContext extends Context>(
+    response: MiddlewareResponse<TContext>,
+  ) {
+    return {
+      ...response,
+      toResponse: async (
+        errorFormatter?: ErrorFormatter,
+      ): Promise<Response> => {
+        if (response.ok) return Response.json(response.data);
+
+        return response.error.toResponse(errorFormatter);
+      },
+    };
+  }
 }
 
 export type AnyMiddleware = Middleware<unknown, Context>;
 
-export type RawMiddlewareReponse<TContext extends Context> =
+export type MiddlewareResponse<TContext extends Context> =
   | { ok: true; data: unknown; ctx: TContext }
   | { ok: false; error: PtsqError; ctx: TContext };
-
-export type AnyRawMiddlewareReponse = RawMiddlewareReponse<Context>;
-
-export class MiddlewareResponse<TContext extends Context> {
-  constructor(public _def: RawMiddlewareReponse<TContext>) {}
-
-  async toResponse(errorFormatter?: ErrorFormatter): Promise<Response> {
-    if (this._def.ok) return Response.json(this._def.data);
-
-    return this._def.error.toResponse(errorFormatter);
-  }
-}
 
 export type AnyMiddlewareResponse = MiddlewareResponse<Context>;

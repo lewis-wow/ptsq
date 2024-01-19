@@ -2,11 +2,7 @@ import { Type, type TSchema } from '@sinclair/typebox';
 import type { Compiler } from './compiler';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
-import {
-  Middleware,
-  MiddlewareResponse,
-  type MiddlewareMeta,
-} from './middleware';
+import { Middleware, type MiddlewareMeta } from './middleware';
 import type { AnyMiddleware, AnyMiddlewareResponse } from './middleware';
 import { PtsqError } from './ptsqError';
 import type { AnyResolveFunction } from './resolver';
@@ -123,7 +119,7 @@ export class Route<
                 info: parseResult.errors,
               });
 
-            const response = new MiddlewareResponse({
+            const response = Middleware.createResponse({
               ok: true,
               data: parseResult.data,
               ctx: resolveFunctionParams.ctx,

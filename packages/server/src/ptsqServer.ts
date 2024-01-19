@@ -1,7 +1,8 @@
 import type { Compiler } from './compiler';
 import type { ContextBuilder } from './context';
-import { MiddlewareResponse } from './middleware';
+import { Middleware } from './middleware';
 import { parseRequest } from './parseRequest';
+import { PtsqError } from './ptsqError';
 import type { AnyRouter } from './router';
 
 export class PtsqServer {
@@ -20,33 +21,46 @@ export class PtsqServer {
   }
 
   async serve(request: Request, contextParams: object) {
-    const ctx = await this._def.contextBuilder({
-      request: request,
-      ...contextParams,
-    });
+    try {
+      const ctx = await this._def.contextBuilder({
+        request: request,
+        ...contextParams,
+      });
 
-    const parsedRequestBody = await parseRequest({
-      request,
-      compiler: this._def.compiler,
-    });
+      const parsedRequestBody = await parseRequest({
+        request,
+        compiler: this._def.compiler,
+      });
 
-    const response = await this._def.router.call({
-      route: parsedRequestBody.route.split('.'),
-      index: 0,
-      type: parsedRequestBody.type,
-      meta: {
-        input: parsedRequestBody.input,
-        route: parsedRequestBody.route,
+      const response = await this._def.router.call({
+        route: parsedRequestBody.route.split('.'),
+        index: 0,
         type: parsedRequestBody.type,
-      },
-      ctx,
-    });
+        meta: {
+          input: parsedRequestBody.input,
+          route: parsedRequestBody.route,
+          type: parsedRequestBody.type,
+        },
+        ctx,
+      });
 
-    return response;
+      return response;
+    } catch (error) {
+      return Middleware.createResponse({
+        ok: false,
+        ctx: {},
+        error: PtsqError.isPtsqError(error)
+          ? error
+          : new PtsqError({
+              code: 'INTERNAL_SERVER_ERROR',
+              info: error,
+            }),
+      });
+    }
   }
 
   introspection() {
-    return new MiddlewareResponse({
+    return Middleware.createResponse({
       ctx: {},
       ok: true,
       data: {
