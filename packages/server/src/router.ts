@@ -22,7 +22,10 @@ export class Router<TRoutes extends Routes> {
   };
 
   constructor(routerOptions: { routes: TRoutes }) {
-    this._def = { ...routerOptions, nodeType: 'router' };
+    this._def = {
+      ...routerOptions,
+      nodeType: 'router',
+    };
   }
 
   /**

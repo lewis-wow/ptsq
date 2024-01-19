@@ -3,7 +3,7 @@ import type { Context } from './context';
 import type { ErrorFormatter } from './errorFormatter';
 import { PtsqError } from './ptsqError';
 import type { ResolverSchema } from './resolver';
-import type { MaybePromise, ResolverType } from './types';
+import type { ResolverType } from './types';
 
 /**
  * @internal
@@ -58,21 +58,24 @@ export class Middleware<TArgs, TContext extends Context> {
    *
    * The last middleware that is called is always the resolve function.
    */
-  static async recursiveCall(options: {
+  static async recursiveCall({
+    ctx,
+    meta,
+    index,
+    middlewares,
+  }: {
     ctx: Context;
     meta: MiddlewareMeta;
     index: number;
     middlewares: AnyMiddleware[];
   }): Promise<AnyMiddlewareResponse> {
     try {
-      const compiledParser = options.middlewares[
-        options.index
-      ]._def.compiler.getParser(
-        options.middlewares[options.index]._def.argsSchema,
+      const compiledParser = middlewares[index]._def.compiler.getParser(
+        middlewares[index]._def.argsSchema,
       );
 
       const parseResult = compiledParser.parse({
-        value: options.meta.input,
+        value: meta.input,
         mode: 'decode',
       });
 
@@ -83,22 +86,24 @@ export class Middleware<TArgs, TContext extends Context> {
           info: parseResult.errors,
         });
 
-      return options.middlewares[options.index]._def.middlewareFunction({
+      const response = await middlewares[index]._def.middlewareFunction({
         input: parseResult.data,
-        meta: options.meta,
-        ctx: options.ctx,
+        meta: meta,
+        ctx: ctx,
         next: ((nextContext) =>
           Middleware.recursiveCall({
-            ctx: { ...options.ctx, ...nextContext },
-            meta: options.meta,
-            index: options.index + 1,
-            middlewares: options.middlewares,
+            ctx: { ...ctx, ...nextContext },
+            meta: meta,
+            index: index + 1,
+            middlewares: middlewares,
           })) as NextFunction<Context>,
       });
+
+      return response;
     } catch (error) {
       return new MiddlewareResponse({
         ok: false,
-        ctx: options.ctx,
+        ctx: ctx,
         error: PtsqError.isPtsqError(error)
           ? error
           : new PtsqError({
@@ -121,7 +126,7 @@ export type AnyRawMiddlewareReponse = RawMiddlewareReponse<Context>;
 export class MiddlewareResponse<TContext extends Context> {
   constructor(public _def: RawMiddlewareReponse<TContext>) {}
 
-  toResponse(errorFormatter?: ErrorFormatter): MaybePromise<Response> {
+  async toResponse(errorFormatter?: ErrorFormatter): Promise<Response> {
     if (this._def.ok) return Response.json(this._def.data);
 
     return this._def.error.toResponse(errorFormatter);

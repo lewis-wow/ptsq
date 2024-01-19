@@ -103,15 +103,11 @@ export class Route<
         new Middleware({
           argsSchema: this._def.argsSchema,
           compiler: this._def.compiler,
-          middlewareFunction: async ({
-            ctx: finalContext,
-            input,
-            meta: finalMeta,
-          }) => {
+          middlewareFunction: async (resolveFunctionParams) => {
             const resolverResult = await this._def.resolveFunction({
-              input,
-              ctx: finalContext,
-              meta: finalMeta,
+              input: resolveFunctionParams.input,
+              ctx: resolveFunctionParams.ctx,
+              meta: resolveFunctionParams.meta,
             });
 
             const compiledParser = this._def.compiler.getParser(
@@ -127,11 +123,13 @@ export class Route<
                 info: parseResult.errors,
               });
 
-            return new MiddlewareResponse({
+            const response = new MiddlewareResponse({
               ok: true,
               data: parseResult.data,
-              ctx: finalContext,
+              ctx: resolveFunctionParams.ctx,
             });
+
+            return response;
           },
         }),
       ],

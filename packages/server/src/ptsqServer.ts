@@ -1,8 +1,7 @@
 import type { Compiler } from './compiler';
 import type { ContextBuilder } from './context';
 import { MiddlewareResponse } from './middleware';
-import { PtsqError } from './ptsqError';
-import { requestBodySchema } from './requestBodySchema';
+import { parseRequest } from './parseRequest';
 import type { AnyRouter } from './router';
 
 export class PtsqServer {
@@ -21,56 +20,29 @@ export class PtsqServer {
   }
 
   async serve(request: Request, contextParams: object) {
-    try {
-      const body = await request.json();
+    const ctx = await this._def.contextBuilder({
+      request: request,
+      ...contextParams,
+    });
 
-      const ctx = await this._def.contextBuilder({
-        request: request,
-        ...contextParams,
-      });
+    const parsedRequestBody = await parseRequest({
+      request,
+      compiler: this._def.compiler,
+    });
 
-      const requestBodySchemaParser =
-        this._def.compiler.getParser(requestBodySchema);
+    const response = await this._def.router.call({
+      route: parsedRequestBody.route.split('.'),
+      index: 0,
+      type: parsedRequestBody.type,
+      meta: {
+        input: parsedRequestBody.input,
+        route: parsedRequestBody.route,
+        type: parsedRequestBody.type,
+      },
+      ctx,
+    });
 
-      const parsedRequestBody = requestBodySchemaParser.parse({
-        value: body,
-        mode: 'decode',
-      });
-
-      if (!parsedRequestBody.ok)
-        return new MiddlewareResponse({
-          ok: false,
-          ctx,
-          error: new PtsqError({
-            code: 'BAD_REQUEST',
-            message: 'Parsing request body failed.',
-            info: parsedRequestBody.errors,
-          }),
-        });
-
-      return this._def.router.call({
-        route: parsedRequestBody.data.route.split('.'),
-        index: 0,
-        type: parsedRequestBody.data.type,
-        meta: {
-          input: parsedRequestBody.data.input,
-          route: parsedRequestBody.data.route,
-          type: parsedRequestBody.data.type,
-        },
-        ctx,
-      });
-    } catch (error) {
-      return new MiddlewareResponse({
-        ok: false,
-        ctx: {},
-        error: PtsqError.isPtsqError(error)
-          ? error
-          : new PtsqError({
-              code: 'INTERNAL_SERVER_ERROR',
-              info: error,
-            }),
-      });
-    }
+    return response;
   }
 
   introspection() {
