@@ -1,6 +1,5 @@
 import type { Compiler } from './compiler';
 import type { Context } from './context';
-import type { ErrorFormatter } from './errorFormatter';
 import { PtsqError } from './ptsqError';
 import type { ResolverSchema } from './resolver';
 import type { ResolverType } from './types';
@@ -117,16 +116,7 @@ export class Middleware<TArgs, TContext extends Context> {
   static createResponse<TContext extends Context>(
     response: MiddlewareResponse<TContext>,
   ) {
-    return {
-      ...response,
-      toResponse: async (
-        errorFormatter?: ErrorFormatter,
-      ): Promise<Response> => {
-        if (response.ok) return Response.json(response.data);
-
-        return response.error.toResponse(errorFormatter);
-      },
-    };
+    return response;
   }
 }
 
