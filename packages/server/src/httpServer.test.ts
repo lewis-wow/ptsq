@@ -1,8 +1,8 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { Compiler } from './compiler';
 import { HttpServer } from './httpServer';
 import { PtsqError } from './ptsqError';
+import { PtsqServer } from './ptsqServer';
 import { Resolver } from './resolver';
 import { Router } from './router';
 
@@ -15,8 +15,7 @@ test('Should create HttpServer and serve with bad body format', async () => {
           .query(() => null),
       },
     }),
-    compiler: new Compiler(),
-    contextBuilder: () => ({}),
+    ptsqServer: PtsqServer.init(),
   });
 
   expect(
@@ -104,8 +103,7 @@ test('Should create HttpServer and introspectate', () => {
           .query(() => null),
       },
     }),
-    compiler: new Compiler(),
-    contextBuilder: () => ({}),
+    ptsqServer: PtsqServer.init(),
   });
 
   expect(server.introspection()).toMatchInlineSnapshot(`

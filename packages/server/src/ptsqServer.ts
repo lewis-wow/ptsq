@@ -5,8 +5,8 @@ import {
 } from '@whatwg-node/server';
 import { Compiler } from './compiler';
 import type {
+  AnyContextBuilder,
   Context,
-  ContextBuilder,
   inferContextFromContextBuilder,
   inferContextParamsFromContextBuilder,
 } from './context';
@@ -28,7 +28,7 @@ import type { ShallowMerge, Simplify } from './types';
  * @internal
  */
 export type CreateServerOptions<
-  TContextBuilder extends ContextBuilder | undefined = undefined,
+  TContextBuilder extends AnyContextBuilder | undefined = undefined,
 > = {
   ctx?: TContextBuilder;
   fetchAPI?: FetchAPI;
@@ -41,7 +41,7 @@ export type CreateServerOptions<
 };
 
 export class PtsqServer<
-  TContextBuilder extends ContextBuilder | undefined,
+  TContextBuilder extends AnyContextBuilder | undefined,
   TServerRootContext extends Context,
 > {
   _def: {
@@ -168,8 +168,7 @@ export class PtsqServer<
     const serve = (baseRouter: AnyRouter) => {
       const httpServer = new HttpServer({
         router: baseRouter,
-        contextBuilder: def.ctx,
-        compiler: def.compiler,
+        ptsqServer: this,
       });
 
       return createServerAdapter<
@@ -229,12 +228,14 @@ export class PtsqServer<
   /**
    * Creates ptsq server instance
    */
-  static init<TContextBuilder extends ContextBuilder | undefined = undefined>(
-    options?: CreateServerOptions<TContextBuilder>,
-  ) {
+  static init<
+    TContextBuilder extends AnyContextBuilder | undefined = undefined,
+  >(options?: CreateServerOptions<TContextBuilder>) {
     return new PtsqServer<
       TContextBuilder,
       inferContextFromContextBuilder<TContextBuilder>
     >(options ?? {});
   }
 }
+
+export type AnyPtsqServer = PtsqServer<AnyContextBuilder | undefined, any>;

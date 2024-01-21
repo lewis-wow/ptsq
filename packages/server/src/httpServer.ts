@@ -1,29 +1,26 @@
-import type { Compiler } from './compiler';
-import type { ContextBuilder } from './context';
 import { Middleware } from './middleware';
 import { parseRequest } from './parseRequest';
 import { PtsqError } from './ptsqError';
+import type { AnyPtsqServer } from './ptsqServer';
 import type { AnyRouter } from './router';
 
 export class HttpServer {
   _def: {
     router: AnyRouter;
-    contextBuilder: ContextBuilder | undefined;
-    compiler: Compiler;
+    ptsqServer: AnyPtsqServer;
   };
 
-  constructor(options: {
+  constructor(httpServerOptions: {
     router: AnyRouter;
-    contextBuilder: ContextBuilder | undefined;
-    compiler: Compiler;
+    ptsqServer: AnyPtsqServer;
   }) {
-    this._def = options;
+    this._def = httpServerOptions;
   }
 
   async serve(request: Request, contextParams: object) {
     try {
-      const ctx = this._def.contextBuilder
-        ? await this._def.contextBuilder({
+      const ctx = this._def.ptsqServer._def.ctx
+        ? await this._def.ptsqServer._def.ctx({
             request: request,
             ...contextParams,
           })
@@ -31,7 +28,7 @@ export class HttpServer {
 
       const parsedRequestBody = await parseRequest({
         request,
-        compiler: this._def.compiler,
+        compiler: this._def.ptsqServer._def.compiler,
       });
 
       const response = await this._def.router.call({
