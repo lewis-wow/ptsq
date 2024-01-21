@@ -100,8 +100,7 @@ export class Middleware<TArgs, TContext extends Context> {
 
       return response;
     } catch (error) {
-      return Middleware.createResponse({
-        ok: false,
+      return Middleware.createFailureResponse({
         ctx: ctx,
         error: PtsqError.isPtsqError(error)
           ? error
@@ -113,10 +112,24 @@ export class Middleware<TArgs, TContext extends Context> {
     }
   }
 
-  static createResponse<TContext extends Context>(
-    response: MiddlewareResponse<TContext>,
-  ) {
-    return response;
+  static createSuccessResponse<TContext extends Context>(responseFragment: {
+    data: unknown;
+    ctx: TContext;
+  }): MiddlewareResponse<TContext> {
+    return {
+      ok: true,
+      ...responseFragment,
+    };
+  }
+
+  static createFailureResponse<TContext extends Context>(responseFragment: {
+    error: PtsqError;
+    ctx: TContext;
+  }): MiddlewareResponse<TContext> {
+    return {
+      ok: false,
+      ...responseFragment,
+    };
   }
 }
 

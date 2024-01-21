@@ -48,8 +48,7 @@ export class HttpServer {
 
       return response;
     } catch (error) {
-      return Middleware.createResponse({
-        ok: false,
+      return Middleware.createFailureResponse({
         ctx: {},
         error: PtsqError.isPtsqError(error)
           ? error
@@ -62,9 +61,8 @@ export class HttpServer {
   }
 
   introspection() {
-    return Middleware.createResponse({
+    return Middleware.createSuccessResponse({
       ctx: {},
-      ok: true,
       data: {
         title: 'BaseRouter',
         $schema: 'https://json-schema.org/draft/2019-09/schema#',

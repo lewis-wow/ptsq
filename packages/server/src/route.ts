@@ -119,8 +119,7 @@ export class Route<
                 info: parseResult.errors,
               });
 
-            const response = Middleware.createResponse({
-              ok: true,
+            const response = Middleware.createSuccessResponse({
               data: parseResult.data,
               ctx: resolveFunctionParams.ctx,
             });
