@@ -1,12 +1,12 @@
-import { createServer } from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 
 test('Should instropectate simple http server', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver
@@ -116,9 +116,9 @@ test('Should instropectate simple http server', async () => {
 });
 
 test('Should instropectate simple http server with empty query', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver.output(Type.Null()).query(() => null),
@@ -210,9 +210,9 @@ test('Should instropectate simple http server with empty query', async () => {
 });
 
 test('Should instropectate simple http server with nested routers', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: router({

@@ -1,18 +1,17 @@
 import type { Compiler } from './compiler';
 import type { Context } from './context';
-import type { ErrorFormatter } from './errorFormatter';
 import { PtsqError } from './ptsqError';
 import type { ResolverSchema } from './resolver';
-import type { MaybePromise, ResolverType } from './types';
+import type { ResolverType } from './types';
 
 /**
  * @internal
  */
 export type NextFunction<TContext extends Context> = {
-  (): Promise<RawMiddlewareReponse<TContext>>;
+  (): Promise<MiddlewareResponse<TContext>>;
   <TNextContext extends Context>(
     nextContext: TNextContext,
-  ): Promise<RawMiddlewareReponse<TNextContext>>;
+  ): Promise<MiddlewareResponse<TNextContext>>;
 };
 
 /**
@@ -58,21 +57,24 @@ export class Middleware<TArgs, TContext extends Context> {
    *
    * The last middleware that is called is always the resolve function.
    */
-  static async recursiveCall(options: {
+  static async recursiveCall({
+    ctx,
+    meta,
+    index,
+    middlewares,
+  }: {
     ctx: Context;
     meta: MiddlewareMeta;
     index: number;
     middlewares: AnyMiddleware[];
-  }): Promise<AnyRawMiddlewareReponse> {
+  }): Promise<AnyMiddlewareResponse> {
     try {
-      const compiledParser = options.middlewares[
-        options.index
-      ]._def.compiler.getParser(
-        options.middlewares[options.index]._def.argsSchema,
+      const compiledParser = middlewares[index]._def.compiler.getParser(
+        middlewares[index]._def.argsSchema,
       );
 
       const parseResult = compiledParser.parse({
-        value: options.meta.input,
+        value: meta.input,
         mode: 'decode',
       });
 
@@ -83,22 +85,23 @@ export class Middleware<TArgs, TContext extends Context> {
           info: parseResult.errors,
         });
 
-      return await options.middlewares[options.index]._def.middlewareFunction({
+      const response = await middlewares[index]._def.middlewareFunction({
         input: parseResult.data,
-        meta: options.meta,
-        ctx: options.ctx,
-        next: ((nextContext) => {
-          return Middleware.recursiveCall({
-            ctx: { ...options.ctx, ...nextContext },
-            meta: options.meta,
-            index: options.index + 1,
-            middlewares: options.middlewares,
-          });
-        }) as NextFunction<Context>,
+        meta: meta,
+        ctx: ctx,
+        next: ((nextContext) =>
+          Middleware.recursiveCall({
+            ctx: { ...ctx, ...nextContext },
+            meta: meta,
+            index: index + 1,
+            middlewares: middlewares,
+          })) as NextFunction<Context>,
       });
+
+      return response;
     } catch (error) {
-      return MiddlewareResponse.createRawFailureResponse({
-        ctx: options.ctx,
+      return Middleware.createFailureResponse({
+        ctx: ctx,
         error: PtsqError.isPtsqError(error)
           ? error
           : new PtsqError({
@@ -108,46 +111,60 @@ export class Middleware<TArgs, TContext extends Context> {
       });
     }
   }
+
+  static createSuccessResponse<TContext extends Context>(responseFragment: {
+    data: unknown;
+    ctx: TContext;
+  }): MiddlewareResponse<TContext> {
+    return {
+      ok: true,
+      ...responseFragment,
+    };
+  }
+
+  static createFailureResponse<TContext extends Context>(responseFragment: {
+    error: PtsqError;
+    ctx: TContext;
+  }): MiddlewareResponse<TContext> {
+    return {
+      ok: false,
+      ...responseFragment,
+    };
+  }
 }
 
 export type AnyMiddleware = Middleware<unknown, Context>;
 
-export type RawMiddlewareReponse<TContext extends Context> =
+export type MiddlewareResponse<TContext extends Context> =
   | { ok: true; data: unknown; ctx: TContext }
   | { ok: false; error: PtsqError; ctx: TContext };
 
-export type AnyRawMiddlewareReponse = RawMiddlewareReponse<Context>;
-
-export class MiddlewareResponse<TContext extends Context> {
-  constructor(public _def: RawMiddlewareReponse<TContext>) {}
-
-  toResponse(errorFormatter?: ErrorFormatter): MaybePromise<Response> {
-    if (this._def.ok) return Response.json(this._def.data);
-
-    return this._def.error.toResponse(errorFormatter);
-  }
-
-  static createRawFailureResponse(options: {
-    error: PtsqError;
-    ctx: Context;
-  }): AnyRawMiddlewareReponse {
-    return {
-      ok: false,
-      error: options.error,
-      ctx: options.ctx,
-    };
-  }
-
-  static createRawSuccessResponse(options: {
-    data: unknown;
-    ctx: Context;
-  }): AnyRawMiddlewareReponse {
-    return {
-      ok: true,
-      data: options.data,
-      ctx: options.ctx,
-    };
-  }
-}
-
 export type AnyMiddlewareResponse = MiddlewareResponse<Context>;
+
+/**
+ * Creates standalone middleware
+ *
+ * Caution: You should not use the second type argument!
+ */
+export const middleware = <
+  TMiddlewareOptions extends {
+    ctx?: Context;
+    input?: unknown;
+  } = {
+    ctx: object;
+    input: unknown;
+  },
+  TMiddlewareFunction extends MiddlewareFunction<
+    TMiddlewareOptions['input'],
+    TMiddlewareOptions['ctx'] extends object
+      ? TMiddlewareOptions['ctx']
+      : object
+  > = MiddlewareFunction<
+    TMiddlewareOptions['input'],
+    TMiddlewareOptions['ctx'] extends object
+      ? TMiddlewareOptions['ctx']
+      : object
+  >,
+>(
+  middlewareFunction: TMiddlewareFunction,
+) => middlewareFunction;

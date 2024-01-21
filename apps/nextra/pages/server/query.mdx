@@ -11,7 +11,7 @@ If the output validation failed, then the `PtsqError` throws `INTERNAL_SERVER_ER
 Those errors are trown with the `info` property as a `zod` validation schema error result.
 
 ```ts copy
-import { createServer } from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 import express, { Request, Response } from 'express';
 
@@ -22,9 +22,9 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => ({
   res,
 });
 
-const { resolver, router, serve } = createServer({
+const { resolver, router, serve } = PtsqServer.init({
   ctx: createContext,
-});
+}).create();
 
 const testQuery = resolver
   .args(Type.Object({ name: Type.String() }))

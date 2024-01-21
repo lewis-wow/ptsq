@@ -2,12 +2,8 @@ import { Type, type TSchema } from '@sinclair/typebox';
 import type { Compiler } from './compiler';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
-import {
-  Middleware,
-  MiddlewareResponse,
-  type MiddlewareMeta,
-} from './middleware';
-import type { AnyMiddleware, AnyRawMiddlewareReponse } from './middleware';
+import { Middleware, type MiddlewareMeta } from './middleware';
+import type { AnyMiddleware, AnyMiddlewareResponse } from './middleware';
 import { PtsqError } from './ptsqError';
 import type { AnyResolveFunction } from './resolver';
 import type { inferStaticInput, ResolverType } from './types';
@@ -93,8 +89,8 @@ export class Route<
   }: {
     ctx: Context;
     meta: MiddlewareMeta;
-  }): Promise<AnyRawMiddlewareReponse> {
-    const response = await Middleware.recursiveCall({
+  }): Promise<AnyMiddlewareResponse> {
+    return Middleware.recursiveCall({
       ctx,
       meta,
       index: 0,
@@ -103,15 +99,11 @@ export class Route<
         new Middleware({
           argsSchema: this._def.argsSchema,
           compiler: this._def.compiler,
-          middlewareFunction: async ({
-            ctx: finalContext,
-            input,
-            meta: finalMeta,
-          }) => {
+          middlewareFunction: async (resolveFunctionParams) => {
             const resolverResult = await this._def.resolveFunction({
-              input,
-              ctx: finalContext,
-              meta: finalMeta,
+              input: resolveFunctionParams.input,
+              ctx: resolveFunctionParams.ctx,
+              meta: resolveFunctionParams.meta,
             });
 
             const compiledParser = this._def.compiler.getParser(
@@ -127,16 +119,16 @@ export class Route<
                 info: parseResult.errors,
               });
 
-            return MiddlewareResponse.createRawSuccessResponse({
+            const response = Middleware.createSuccessResponse({
               data: parseResult.data,
-              ctx: finalContext,
+              ctx: resolveFunctionParams.ctx,
             });
+
+            return response;
           },
         }),
       ],
     });
-
-    return response;
   }
 
   resolve(resolveFunctionOptions: {

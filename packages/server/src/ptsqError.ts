@@ -1,4 +1,5 @@
-import type { ErrorFormatter } from './errorFormatter';
+import type { Context } from './context';
+import type { MiddlewareResponse } from './middleware';
 
 /**
  * @internal
@@ -42,18 +43,18 @@ export class PtsqError extends Error {
     };
   }
 
-  async toResponse(errorFormatter?: ErrorFormatter) {
-    if (!errorFormatter)
-      return Response.json(this.toJSON(), { status: this.getHTTPErrorCode() });
+  toMiddlewareResponse<TContext extends Context>(
+    ctx: TContext,
+  ): MiddlewareResponse<TContext> {
+    return {
+      ok: false,
+      error: this,
+      ctx,
+    };
+  }
 
-    const formattedError = await errorFormatter(this);
-
-    if (!PtsqError.isPtsqError(formattedError))
-      return Response.json(formattedError, { status: this.getHTTPErrorCode() });
-
-    return Response.json(formattedError.toJSON(), {
-      status: this.getHTTPErrorCode(),
-    });
+  toResponse() {
+    return Response.json(this.toJSON(), { status: this.getHTTPErrorCode() });
   }
 
   getHTTPErrorCode() {

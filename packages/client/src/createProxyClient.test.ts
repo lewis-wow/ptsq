@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'http';
-import { createServer } from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
@@ -11,9 +11,9 @@ type HttpAdapterContext = {
 };
 
 test('Should create simple http server with proxy client', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver
@@ -42,9 +42,9 @@ test('Should create simple http server with proxy client', async () => {
 });
 
 test('Should create simple http server with proxy client and request bad route', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver
@@ -77,9 +77,9 @@ test('Should create simple http server with proxy client and request bad route',
 });
 
 test('Should create simple http server with proxy client and request bad route', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver
@@ -112,9 +112,9 @@ test('Should create simple http server with proxy client and request bad route',
 });
 
 test('Should create simple http server with proxy client and creates request with bad resolver type', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver
@@ -146,9 +146,9 @@ test('Should create simple http server with proxy client and creates request wit
 });
 
 test('Should create simple http server with proxy client without query input', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver.output(Type.String()).query(() => 'Hello world!'),
@@ -168,9 +168,9 @@ test('Should create simple http server with proxy client without query input', a
 });
 
 test('Should create simple http server with proxy client without mutation input', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver.output(Type.String()).mutation(() => 'Hello world!'),
@@ -190,11 +190,11 @@ test('Should create simple http server with proxy client without mutation input'
 });
 
 test('Should create simple http server with Authorization header', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: ({ req }: HttpAdapterContext) => ({
       auth: req.headers.authorization,
     }),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver
@@ -221,9 +221,9 @@ test('Should create simple http server with Authorization header', async () => {
 });
 
 test('Should create simple http server with proxy client and creates request with bad action type that should be catched on client', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver

@@ -21,7 +21,6 @@
     "@ptsq/client": "*",
     "@ptsq/server": "*",
     "@sinclair/typebox": "^0.31.28",
-    "express": "^4.18.2",
-    "zod": "^3.22.2"
+    "express": "^4.18.2"
   }
 }

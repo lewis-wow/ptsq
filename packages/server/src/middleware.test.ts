@@ -1,16 +1,16 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { createServer } from './createServer';
 import { PtsqError } from './ptsqError';
+import { PtsqServer } from './ptsqServer';
 
 test('Should create middleware with query and serverSideQuery', async () => {
   let contextBuilderResult = {
     state: 'invalid' as 'valid' | 'invalid',
   };
 
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => contextBuilderResult,
-  });
+  }).create();
 
   const validResolver = resolver.use(({ ctx, next }) => {
     if (ctx.state === 'invalid') throw new PtsqError({ code: 'BAD_REQUEST' });
@@ -86,9 +86,9 @@ test('Should create middleware with mutation and serverSideMutation', async () =
     state: 'invalid' as 'valid' | 'invalid',
   };
 
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => contextBuilderResult,
-  });
+  }).create();
 
   const validResolver = resolver.use(({ ctx, next }) => {
     if (ctx.state === 'invalid') throw new PtsqError({ code: 'BAD_REQUEST' });
@@ -162,9 +162,9 @@ test('Should create middleware with mutation and serverSideMutation', async () =
 });
 
 test('Should create middleware with measuring time', async () => {
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   let middlewareWasCalled = false;
   let middlewareMeasuredTime = 0; // ms
@@ -211,9 +211,9 @@ test('Should create middleware with measuring time', async () => {
 });
 
 test('Should create two nested middlewares', async () => {
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   let outerMiddlewareWasCalled = false;
   let innerMiddlewareWasCalled = false;
@@ -294,9 +294,9 @@ test('Should create nested middlewares with query', async () => {
     state: 'invalid' as 'valid' | 'invalid' | null,
   };
 
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => contextBuilderResult,
-  });
+  }).create();
 
   const dummyResolver = resolver.use(({ ctx, next }) => {
     if (ctx.state === null) throw new PtsqError({ code: 'BAD_REQUEST' });
@@ -384,9 +384,9 @@ test('Should create nested middlewares with mutation', async () => {
     state: 'invalid' as 'valid' | 'invalid' | null,
   };
 
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => contextBuilderResult,
-  });
+  }).create();
 
   const dummyResolver = resolver.use(({ ctx, next }) => {
     if (ctx.state === null) throw new PtsqError({ code: 'BAD_REQUEST' });
@@ -470,9 +470,9 @@ test('Should create nested middlewares with mutation', async () => {
 });
 
 test('Should create nested middlewares with query with args chaining', async () => {
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const stringSchema = Type.String();
 
@@ -532,6 +532,177 @@ test('Should create nested middlewares with query with args chaining', async () 
   ).toStrictEqual({
     ctx: { name: 'John', lastName: 'Doe' },
     data: 'John Doe',
+    ok: true,
+  });
+});
+
+test('Should create nested middlewares with query and returns response recursivelly', async () => {
+  const { resolver } = PtsqServer.init({
+    ctx: () => ({}),
+  }).create();
+
+  const middlewareState = {
+    firstRequest: false,
+    firstReponse: false,
+    secondRequest: false,
+    secondResponse: false,
+  };
+
+  const query = resolver
+    .use(async ({ next }) => {
+      expect(middlewareState).toStrictEqual({
+        firstRequest: false,
+        firstReponse: false,
+        secondRequest: false,
+        secondResponse: false,
+      });
+      middlewareState.firstRequest = true;
+      const response = await next();
+      middlewareState.firstReponse = true;
+      expect(middlewareState).toStrictEqual({
+        firstRequest: true,
+        firstReponse: true,
+        secondRequest: true,
+        secondResponse: true,
+      });
+
+      expect(response).toStrictEqual({
+        ok: true,
+        data: 'Hello',
+        ctx: {},
+      });
+
+      return response;
+    })
+    .use(async ({ next }) => {
+      expect(middlewareState).toStrictEqual({
+        firstRequest: true,
+        firstReponse: false,
+        secondRequest: false,
+        secondResponse: false,
+      });
+      middlewareState.secondRequest = true;
+      const response = await next();
+      middlewareState.secondResponse = true;
+      expect(middlewareState).toStrictEqual({
+        firstRequest: true,
+        firstReponse: false,
+        secondRequest: true,
+        secondResponse: true,
+      });
+
+      expect(response).toStrictEqual({
+        ok: true,
+        data: 'Hello',
+        ctx: {},
+      });
+
+      return response;
+    })
+    .output(Type.String())
+    .query(() => 'Hello');
+
+  expect(
+    await query.call({
+      meta: {
+        type: 'query',
+        input: undefined,
+        route: 'dummy.route',
+      },
+      ctx: {},
+    }),
+  ).toStrictEqual({
+    ctx: {},
+    data: 'Hello',
+    ok: true,
+  });
+});
+
+test('Should create nested middlewares with query and returns response recursivelly but call the router', async () => {
+  const { resolver, router } = PtsqServer.init({
+    ctx: () => ({}),
+  }).create();
+
+  const middlewareState = {
+    firstRequest: false,
+    firstReponse: false,
+    secondRequest: false,
+    secondResponse: false,
+  };
+
+  const query = resolver
+    .use(async ({ next }) => {
+      expect(middlewareState).toStrictEqual({
+        firstRequest: false,
+        firstReponse: false,
+        secondRequest: false,
+        secondResponse: false,
+      });
+      middlewareState.firstRequest = true;
+      const response = await next();
+      middlewareState.firstReponse = true;
+      expect(middlewareState).toStrictEqual({
+        firstRequest: true,
+        firstReponse: true,
+        secondRequest: true,
+        secondResponse: true,
+      });
+
+      expect(response).toStrictEqual({
+        ok: true,
+        data: 'Hello',
+        ctx: {},
+      });
+
+      return response;
+    })
+    .use(async ({ next }) => {
+      expect(middlewareState).toStrictEqual({
+        firstRequest: true,
+        firstReponse: false,
+        secondRequest: false,
+        secondResponse: false,
+      });
+      middlewareState.secondRequest = true;
+      const response = await next();
+      middlewareState.secondResponse = true;
+      expect(middlewareState).toStrictEqual({
+        firstRequest: true,
+        firstReponse: false,
+        secondRequest: true,
+        secondResponse: true,
+      });
+
+      expect(response).toStrictEqual({
+        ok: true,
+        data: 'Hello',
+        ctx: {},
+      });
+
+      return response;
+    })
+    .output(Type.String())
+    .query(() => Promise.resolve('Hello'));
+
+  const baseRouter = router({
+    test: query,
+  });
+
+  expect(
+    await baseRouter.call({
+      route: ['test'],
+      index: 0,
+      type: 'query',
+      meta: {
+        type: 'query',
+        input: undefined,
+        route: 'dummy.route',
+      },
+      ctx: {},
+    }),
+  ).toStrictEqual({
+    ctx: {},
+    data: 'Hello',
     ok: true,
   });
 });

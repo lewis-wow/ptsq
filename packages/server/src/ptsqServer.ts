@@ -1,89 +1,241 @@
-import type { Compiler } from './compiler';
-import type { ContextBuilder } from './context';
-import { MiddlewareResponse } from './middleware';
+import {
+  createServerAdapter,
+  type FetchAPI,
+  type ServerAdapterPlugin,
+} from '@whatwg-node/server';
+import { Compiler } from './compiler';
+import type {
+  AnyContextBuilder,
+  Context,
+  inferContextFromContextBuilder,
+  inferContextParamsFromContextBuilder,
+} from './context';
+import { Envelope } from './envelope';
+import type { ErrorFormatter } from './errorFormatter';
+import { HttpServer } from './httpServer';
+import {
+  Middleware,
+  type AnyMiddleware,
+  type AnyMiddlewareResponse,
+  type MiddlewareFunction,
+} from './middleware';
 import { PtsqError } from './ptsqError';
-import { requestBodySchema } from './requestBodySchema';
-import type { AnyRouter } from './router';
+import { Resolver } from './resolver';
+import { Router, type AnyRouter, type Routes } from './router';
+import type { ShallowMerge, Simplify } from './types';
 
-export class PtsqServer {
+/**
+ * @internal
+ */
+export type CreateServerOptions<
+  TContextBuilder extends AnyContextBuilder | undefined = undefined,
+> = {
+  ctx?: TContextBuilder;
+  fetchAPI?: FetchAPI;
+  root?: string;
+  endpoint?: string;
+  errorFormatter?: ErrorFormatter;
+  compiler?: Compiler;
+  plugins?: ServerAdapterPlugin<any>[];
+  middlewares?: AnyMiddleware[];
+};
+
+export class PtsqServer<
+  TContextBuilder extends AnyContextBuilder | undefined,
+  TServerRootContext extends Context,
+> {
   _def: {
-    router: AnyRouter;
-    contextBuilder: ContextBuilder;
+    ctx: TContextBuilder;
+    fetchAPI?: FetchAPI;
+    root: string;
+    endpoint: string;
+    errorFormatter: ErrorFormatter;
     compiler: Compiler;
+    plugins: ServerAdapterPlugin<any>[];
+    middlewares: AnyMiddleware[];
   };
 
-  constructor(options: {
-    router: AnyRouter;
-    contextBuilder: ContextBuilder;
-    compiler: Compiler;
-  }) {
-    this._def = options;
+  constructor({
+    ctx,
+    fetchAPI,
+    root = '',
+    endpoint = '/ptsq',
+    errorFormatter = (error) => error,
+    compiler = new Compiler(),
+    plugins = [],
+    middlewares = [],
+  }: CreateServerOptions<TContextBuilder>) {
+    this._def = {
+      ctx: ctx as TContextBuilder,
+      fetchAPI,
+      root,
+      endpoint,
+      errorFormatter,
+      compiler,
+      plugins,
+      middlewares,
+    };
   }
 
-  async serve(request: Request, contextParams: object) {
-    try {
-      const body = await request.json();
-
-      const ctx = await this._def.contextBuilder({
-        request: request,
-        ...contextParams,
-      });
-
-      const requestBodySchemaParser =
-        this._def.compiler.getParser(requestBodySchema);
-
-      const parsedRequestBody = requestBodySchemaParser.parse({
-        value: body,
-        mode: 'decode',
-      });
-
-      if (!parsedRequestBody.ok)
-        return new MiddlewareResponse({
-          ok: false,
-          ctx,
-          error: new PtsqError({
-            code: 'BAD_REQUEST',
-            message: 'Parsing request body failed.',
-            info: parsedRequestBody.errors,
-          }),
-        });
-
-      const rawResponse = await this._def.router.call({
-        route: parsedRequestBody.data.route.split('.'),
-        index: 0,
-        type: parsedRequestBody.data.type,
-        meta: {
-          input: parsedRequestBody.data.input,
-          route: parsedRequestBody.data.route,
-          type: parsedRequestBody.data.type,
-        },
-        ctx,
-      });
-
-      return new MiddlewareResponse(rawResponse);
-    } catch (error) {
-      return new MiddlewareResponse({
-        ok: false,
-        ctx: {},
-        error: PtsqError.isPtsqError(error)
-          ? error
-          : new PtsqError({
-              code: 'INTERNAL_SERVER_ERROR',
-              info: error,
-            }),
-      });
-    }
-  }
-
-  introspection() {
-    return new MiddlewareResponse({
-      ctx: {},
-      ok: true,
-      data: {
-        title: 'BaseRouter',
-        $schema: 'https://json-schema.org/draft/2019-09/schema#',
-        ...this._def.router.getJsonSchema(),
-      },
+  /**
+   * Adds a middleware to the whole server
+   */
+  use<
+    TMiddlewareFunction extends MiddlewareFunction<unknown, TServerRootContext>,
+  >(middleware: TMiddlewareFunction) {
+    return new PtsqServer<
+      TContextBuilder,
+      Simplify<
+        ShallowMerge<
+          TServerRootContext,
+          Awaited<ReturnType<TMiddlewareFunction>>['ctx']
+        >
+      >
+    >({
+      ...this._def,
+      middlewares: [
+        ...this._def.middlewares,
+        new Middleware({
+          argsSchema: undefined,
+          middlewareFunction: middleware,
+          compiler: this._def.compiler,
+        }),
+      ] as AnyMiddleware[],
     });
   }
+
+  /**
+   * Creates ptsq server
+   */
+  create() {
+    const def = { ...this._def };
+
+    const path = `${def.root.replace(/\/$/, '')}/${def.endpoint.replace(
+      /^\/|\/$/g,
+      '',
+    )}`;
+
+    const envelopedResponse = new Envelope(
+      async (middlewareResponse: AnyMiddlewareResponse) => {
+        if (middlewareResponse.ok) return middlewareResponse;
+
+        const formattedError = await this._def.errorFormatter(
+          middlewareResponse.error,
+        );
+
+        return {
+          ...middlewareResponse,
+          error: formattedError,
+        };
+      },
+    );
+
+    /**
+     * Creates a queries or mutations
+     *
+     * resolvers can use middlewares to create like protected resolver
+     *
+     * @example
+     * ```ts
+     * resolver.query(({ input, ctx }) => `Hello, ${input.name}!`);
+     * ```
+     */
+    const resolver = Resolver.createRoot<TServerRootContext>({
+      compiler: def.compiler,
+    });
+
+    /**
+     * Creates a fully typed router
+     * routers can be merged as you want, they creates sdk-like structure
+     *
+     * @example
+     * ```ts
+     * router({
+     *   user: router({
+     *     create: resolver.mutation({
+     *       // ...
+     *     })
+     *   })
+     * })
+     * ```
+     */
+    const router = <TRoutes extends Routes>(routes: TRoutes) =>
+      new Router({ routes });
+
+    /**
+     * Serves the ptsq application
+     */
+    const serve = (baseRouter: AnyRouter) => {
+      const httpServer = new HttpServer({
+        router: baseRouter,
+        ptsqServer: this,
+      });
+
+      return createServerAdapter<
+        inferContextParamsFromContextBuilder<TContextBuilder>
+      >(
+        async (request, contextParams) => {
+          const url = new URL(request.url);
+          const method = request.method;
+
+          if (url.pathname === path && method === 'POST') {
+            const middlewareResponse = await httpServer.serve(
+              request,
+              contextParams,
+            );
+
+            return envelopedResponse.createResponse(middlewareResponse);
+          }
+
+          if (url.pathname === `${path}/introspection` && method === 'GET') {
+            const introspectionResponse = httpServer.introspection();
+            return envelopedResponse.createResponse(introspectionResponse);
+          }
+
+          if (
+            !['GET', 'POST'].includes(method) ||
+            (url.pathname === `${path}/introspection` && method !== 'GET') ||
+            (url.pathname === path && method !== 'POST')
+          )
+            return envelopedResponse.createResponse(
+              new PtsqError({
+                code: 'METHOD_NOT_SUPPORTED',
+                message: `Method ${method} is not supported by Ptsq server.`,
+              }).toMiddlewareResponse({}),
+            );
+
+          return envelopedResponse.createResponse(
+            new PtsqError({
+              code: 'NOT_FOUND',
+              message: `Http pathname ${path} is not supported by Ptsq server, supported are POST ${path} and GET ${path}/introspection.`,
+            }).toMiddlewareResponse({}),
+          );
+        },
+        {
+          plugins: def.plugins,
+          fetchAPI: def.fetchAPI,
+        },
+      );
+    };
+
+    return {
+      resolver,
+      router,
+      serve,
+    };
+  }
+
+  /**
+   * Creates ptsq server instance
+   */
+  static init<
+    TContextBuilder extends AnyContextBuilder | undefined = undefined,
+  >(options?: CreateServerOptions<TContextBuilder>) {
+    return new PtsqServer<
+      TContextBuilder,
+      inferContextFromContextBuilder<TContextBuilder>
+    >(options ?? {});
+  }
 }
+
+export type AnyPtsqServer = PtsqServer<AnyContextBuilder | undefined, any>;

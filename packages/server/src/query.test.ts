@@ -1,15 +1,15 @@
 import { Type } from '@sinclair/typebox';
 import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
-import { createServer } from './createServer';
 import { PtsqError } from './ptsqError';
+import { PtsqServer } from './ptsqServer';
 
 test('Should create query', async () => {
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),
-  });
+  }).create();
 
   const argsSchema = Type.Object({ name: Type.String() });
   const outputValidationSchema = Type.String();
@@ -125,11 +125,11 @@ test('Should create query', async () => {
 });
 
 test('Should create query without args', async () => {
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),
-  });
+  }).create();
 
   const validationSchema = Type.String();
 
@@ -227,11 +227,11 @@ test('Should create query without args', async () => {
 });
 
 test('Should create query with twice chain', async () => {
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),
-  });
+  }).create();
 
   const firstSchemaInArgumentChain = Type.Object({ firstName: Type.String() });
   const secondSchemaInArgumentChain = Type.Object({ lastName: Type.String() });
@@ -393,11 +393,11 @@ test('Should create query with twice chain', async () => {
 });
 
 test('Should create query with optional args chain', async () => {
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),
-  });
+  }).create();
 
   const firstSchemaInArgumentChain = Type.Union([
     Type.Object({

@@ -46,12 +46,12 @@ export class Resolver<
     argsSchema: TArgsSchema;
     outputSchema: TOutputSchema;
     middlewares: AnyMiddleware[];
-    description?: TDescription;
+    description: TDescription;
     compiler: Compiler;
   }) {
     this._def = {
       ...resolverOptions,
-      description: resolverOptions.description as TDescription,
+      description: resolverOptions.description,
       context: {} as TContext,
       rootContext: {} as TRootContext,
     };

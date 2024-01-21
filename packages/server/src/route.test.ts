@@ -1,6 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { Compiler } from './compiler';
+import { PtsqError } from './ptsqError';
 import { Route } from './route';
 
 test('Should create query route', async () => {
@@ -201,4 +202,60 @@ test('Should create mutation route', async () => {
       "type": "object",
     }
   `);
+});
+
+test('Should create query route and throw error inside resolve function', async () => {
+  const query = new Route({
+    type: 'query',
+    argsSchema: undefined,
+    outputSchema: Type.String(),
+    resolveFunction: ({ ctx }: { ctx: { test: boolean } }) => {
+      if (ctx.test) throw new Error('Test error');
+      return 'test';
+    },
+    middlewares: [],
+    description: undefined,
+    compiler: new Compiler(),
+  });
+
+  expect(
+    await query.call({
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
+      ctx: { test: true },
+    }),
+  ).toStrictEqual({
+    ok: false,
+    ctx: {
+      test: true,
+    },
+    error: new PtsqError({ code: 'INTERNAL_SERVER_ERROR' }),
+  });
+});
+
+test('Should create mutation route and throw error inside resolve function', async () => {
+  const mutation = new Route({
+    type: 'mutation',
+    argsSchema: undefined,
+    outputSchema: Type.String(),
+    resolveFunction: ({ ctx }: { ctx: { test: boolean } }) => {
+      if (ctx.test) throw new Error('Test error');
+      return 'test';
+    },
+    middlewares: [],
+    description: undefined,
+    compiler: new Compiler(),
+  });
+
+  expect(
+    await mutation.call({
+      meta: { type: 'mutation', input: undefined, route: 'dummy.route' },
+      ctx: { test: true },
+    }),
+  ).toStrictEqual({
+    ok: false,
+    ctx: {
+      test: true,
+    },
+    error: new PtsqError({ code: 'INTERNAL_SERVER_ERROR' }),
+  });
 });

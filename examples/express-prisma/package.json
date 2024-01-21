@@ -1,0 +1,29 @@
+{
+  "name": "@ptsq/example-express-prisma",
+  "version": "0.0.1",
+  "private": true,
+  "main": "src/server.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "server": "dotenv -e .env -- ts-node --esm src/server.ts",
+    "client": "ts-node --esm src/client.ts",
+    "introspection": "introspection-cli --url='http://localhost:4000/ptsq'",
+    "introspection-raw": "introspection-cli --url='http://localhost:4000/ptsq' --lang='raw'"
+  },
+  "devDependencies": {
+    "@ptsq/introspection-cli": "*",
+    "@types/express": "^4.17.18",
+    "@types/node": "^20.7.0",
+    "dotenv-cli": "^7.3.0",
+    "prisma": "5.8.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@prisma/client": "5.8.1",
+    "@ptsq/client": "*",
+    "@ptsq/server": "*",
+    "@sinclair/typebox": "^0.31.28",
+    "express": "^4.18.2"
+  }
+}

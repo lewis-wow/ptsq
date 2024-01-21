@@ -1,12 +1,12 @@
-import { createServer } from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 
 test('Should create simple http server', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver
@@ -35,11 +35,11 @@ test('Should create simple http server', async () => {
 });
 
 test('Should create simple http server with context', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({
       number: 42 as const,
     }),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver
@@ -79,11 +79,11 @@ test('Should create simple http server with context', async () => {
 });
 
 test('Should create simple http server with middleware', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({
       number: 42 as const,
     }),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver
@@ -128,11 +128,11 @@ test('Should create simple http server with 2 nested middlewares', async () => {
     secondEnded: false,
   };
 
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({
       number: 42 as const,
     }),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver
@@ -195,9 +195,9 @@ test('Should create simple http server with 2 nested middlewares', async () => {
 });
 
 test('Should introspectate the server with http adapter', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver
@@ -307,9 +307,9 @@ test('Should introspectate the server with http adapter', async () => {
 });
 
 test('Should create simple http server and return BAD_REQUEST response', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver
@@ -338,9 +338,9 @@ test('Should create simple http server and return BAD_REQUEST response', async (
 });
 
 test('Should create simple http server and return BAD_REQUEST response with bad resolver type', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver.output(Type.Null()).query(() => null),
@@ -362,9 +362,9 @@ test('Should create simple http server and return BAD_REQUEST response with bad 
 });
 
 test('Should create simple http server and return INTERNAL_SERVER_ERROR response', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver

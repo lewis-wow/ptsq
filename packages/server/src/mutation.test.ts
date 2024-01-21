@@ -1,15 +1,15 @@
 import { Type } from '@sinclair/typebox';
 import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
-import { createServer } from './createServer';
 import { PtsqError } from './ptsqError';
+import { PtsqServer } from './ptsqServer';
 
 test('Should create mutation', async () => {
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),
-  });
+  }).create();
 
   const resolveFunction = ({
     input,
@@ -129,11 +129,11 @@ test('Should create mutation', async () => {
 });
 
 test('Should create mutation without args', async () => {
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),
-  });
+  }).create();
 
   const resolveFunction = ({
     ctx,
@@ -237,11 +237,11 @@ test('Should create mutation without args', async () => {
 });
 
 test('Should create mutation with twice chain', async () => {
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),
-  });
+  }).create();
 
   const validationSchema = Type.String();
 
@@ -400,11 +400,11 @@ test('Should create mutation with twice chain', async () => {
 });
 
 test('Should create mutation with optional args chain', async () => {
-  const { resolver } = createServer({
+  const { resolver } = PtsqServer.init({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),
-  });
+  }).create();
 
   const firstSchemaInArgumentChain = Type.Union([
     Type.Object({

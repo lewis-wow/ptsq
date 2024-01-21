@@ -1,9 +1,9 @@
-export { createServer } from './createServer';
+export { PtsqServer } from './ptsqServer';
 export { PtsqError } from './ptsqError';
 
 export { Resolver, type ResolveFunction } from './resolver';
 
-export { Middleware, type AnyMiddleware } from './middleware';
+export { Middleware, middleware, type AnyMiddleware } from './middleware';
 export type { Query, AnyQuery } from './query';
 export type { Mutation, AnyMutation } from './mutation';
 

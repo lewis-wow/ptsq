@@ -6,18 +6,15 @@ You can integrate `ptsq` with multiple backend rest api frameworks such as Expre
 
 ```ts
 import { createServer, IncommingMessage, ServerResponse } from 'http';
-import {
-  createServer as createPtsqServer,
-  HttpAdapterContext,
-} from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 
-const { router, resolver, serve } = createPtsqServer({
+const { router, resolver, serve } = PtsqServer.init({
   ctx: ({ req, res }: { req: IncommingMessage; res: ServerResponse }) => ({
     req,
     res,
   }),
-});
+}).create();
 
 const baseRouter = router({
   greetings: resolver
@@ -38,18 +35,18 @@ export type BaseRouter = typeof baseRouter;
 ## Express
 
 ```ts copy
-import { createServer } from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 import express, { Request, Response } from 'express';
 
 const app = express();
 
-const { router, resolver, serve } = createServer({
+const { router, resolver, serve } = PtsqServer.init({
   ctx: ({ req, res }: { req: Request; res: Response }) => ({
     req,
     res,
   }),
-});
+}).create();
 
 const baseRouter = router({
   greetings: resolver
@@ -70,17 +67,17 @@ export type BaseRouter = typeof baseRouter;
 ## Koa
 
 ```ts copy
-import { createServer, KoaAdapterContext } from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 import Koa, { Context } from 'koa';
 
 const app = new Koa();
 
-const { router, resolver, serve } = createServer({
+const { router, resolver, serve } = PtsqServer.init({
   ctx: ({ koa }: { koa: Context }) => ({
     koa,
   }),
-});
+}).create();
 
 const baseRouter = router({
   greetings: resolver
@@ -113,18 +110,18 @@ export type BaseRouter = typeof baseRouter;
 ## Fastify
 
 ```ts copy
-import { createServer } from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 import fastify, { FastifyReply, FastifyRequest } from 'fastify';
 
 const app = fastify();
 
-const { router, resolver, serve } = createServer({
+const { router, resolver, serve } = PtsqServer.init({
   ctx: ({ req, reply }: { req: FastifyRequest; reply: FastifyReply }) => ({
     req,
     reply,
   }),
-});
+}).create();
 
 const baseRouter = router({
   greetings: resolver
@@ -182,12 +179,12 @@ export default serve(baseRouter);
 ## Sveltekit
 
 ```ts copy
-import { createServer } from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 
-const { router, resolver, serve } = createServer({
+const { router, resolver, serve } = PtsqServer.init({
   ctx: () => ({}),
-});
+}).create();
 
 const baseRouter = router({
   greetings: resolver
@@ -206,12 +203,12 @@ export { server as POST, server as GET };
 ## Bun
 
 ```ts copy
-import { createServer } from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 
-const { router, resolver, serve } = createServer({
+const { router, resolver, serve } = PtsqServer.init({
   ctx: () => ({}),
-});
+}).create();
 
 const baseRouter = router({
   greetings: resolver

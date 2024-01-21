@@ -19,7 +19,7 @@ npm i -D @ptsq/introspection-cli
 ```
 
 ```ts title="server.ts"
-import { createServer } from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 import express, { Request, Response } from 'express';
 
@@ -30,9 +30,9 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => ({
   res,
 });
 
-const { resolver, router, serve } = createServer({
+const { resolver, router, serve } = PtsqServer.init({
   ctx: createContext,
-});
+}).create();
 
 const testQuery = resolver
   .args(Type.Object({ name: Type.String() }))

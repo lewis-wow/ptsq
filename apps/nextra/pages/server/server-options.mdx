@@ -1,6 +1,6 @@
 # Server options
 
-There are a few `createServer` options and this chapter describes them.
+There are a few `PtsqServer.init` options and this chapter describes them.
 
 ## Context and CORS
 
@@ -15,7 +15,7 @@ If you are using for example Next.js, typically you have your API in the `/api` 
 You have to mount `ptsq` application by using the `root` option, so the server knows its root path.
 
 ```ts
-const { resolver, router, serve } = createServer({
+PtsqServer.init({
   //...,
   root: '/api',
 });
@@ -26,7 +26,7 @@ const { resolver, router, serve } = createServer({
 If you want to customize the `ptsq` path, you can use the endpoint option.
 
 ```ts
-const { resolver, router, serve } = createServer({
+PtsqServer.init({
   //...,
   endpoint: '/my-ptsq-server',
 });
@@ -35,7 +35,7 @@ const { resolver, router, serve } = createServer({
 You can also use the combination of root and endpoint options of course.
 
 ```ts
-const { resolver, router, serve } = createServer({
+PtsqServer.init({
   //...,
   root: '/api',
   endpoint: '/my-ptsq-server',
@@ -45,7 +45,7 @@ const { resolver, router, serve } = createServer({
 All trailing slashes are removed, so you don't have to care about them.
 
 ```ts
-const { resolver, router, serve } = createServer({
+PtsqServer.init({
   //...,
   root: '/api/',
   endpoint: '/my-ptsq-server/',
@@ -57,7 +57,7 @@ const { resolver, router, serve } = createServer({
 The fetchAPI option is for defining which API you will use for the request and response.
 
 ```ts
-const { resolver, router, serve } = createServer({
+PtsqServer.init({
   //...,
   fetchAPI: {
     Request: Request,
@@ -71,7 +71,7 @@ It's very useful if you are using some integration that has its own request or r
 ### Sveltekit example
 
 ```ts
-const { resolver, router, serve } = createServer({
+PtsqServer.init({
   //...,
 
   // now ptsq knows, that you are using those fetch request and response objects
