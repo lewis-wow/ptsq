@@ -31,16 +31,36 @@ export class HttpServer {
         compiler: this._def.ptsqServer._def.compiler,
       });
 
-      const response = await this._def.router.call({
-        route: parsedRequestBody.route.split('.'),
-        index: 0,
+      const middlewareMeta = {
+        input: parsedRequestBody.input,
+        route: parsedRequestBody.route,
         type: parsedRequestBody.type,
-        meta: {
-          input: parsedRequestBody.input,
-          route: parsedRequestBody.route,
-          type: parsedRequestBody.type,
-        },
-        ctx,
+      };
+
+      const response = await Middleware.recursiveCall({
+        ctx: ctx,
+        meta: middlewareMeta,
+        index: 0,
+        middlewares: [
+          ...this._def.ptsqServer._def.middlewares,
+          new Middleware({
+            argsSchema: undefined,
+            compiler: this._def.ptsqServer._def.compiler,
+            middlewareFunction: () => {
+              return this._def.router.call({
+                route: parsedRequestBody.route.split('.'),
+                index: 0,
+                type: parsedRequestBody.type,
+                meta: {
+                  input: parsedRequestBody.input,
+                  route: parsedRequestBody.route,
+                  type: parsedRequestBody.type,
+                },
+                ctx,
+              });
+            },
+          }),
+        ],
       });
 
       return response;
