@@ -1,4 +1,4 @@
-import { createServer } from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 import express, { Request, Response } from 'express';
 
@@ -11,9 +11,9 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => {
   };
 };
 
-const { router, resolver, serve } = createServer({
+const { router, resolver, serve } = PtsqServer.init({
   ctx: createContext,
-});
+}).create();
 
 const greetings = resolver
   .description(`Greetings`)

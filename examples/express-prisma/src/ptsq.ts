@@ -1,6 +1,6 @@
-import { createServer } from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import { createContext } from './context';
 
-export const { router, resolver, serve } = createServer({
+export const { router, resolver, serve } = PtsqServer.init({
   ctx: createContext,
-});
+}).create();

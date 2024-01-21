@@ -12,9 +12,9 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => {
   };
 };
 
-const { resolver, router, serve } = createServer({
+const { resolver, router, serve } = PtsqServer.init({
   ctx: createContext,
-});
+}).create();
 ```
 
 Context types like context input and output are automatically inferred, so you don't have to care about them.
@@ -36,9 +36,9 @@ const createContext = async ({ req, res }: { req: Request; res: Response }) => {
   };
 };
 
-const { resolver, router, serve } = createServer({
+const { resolver, router, serve } = PtsqServer.init({
   ctx: createContext,
-});
+}).create();
 ```
 
 ## Global variables
@@ -58,9 +58,9 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => {
   };
 };
 
-const { resolver, router, serve } = createServer({
+const { resolver, router, serve } = PtsqServer.init({
   ctx: createContext,
-});
+}).create();
 ```
 
 In the example, there is a `Prisma` ORM database connection that is passed into the context, so you can then access the Prisma connection anywhere in the routes.

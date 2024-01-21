@@ -4,7 +4,7 @@ The Middleware function runs before every route call (query, mutation) that the 
 The `next` function determines when the next middleware will start.
 
 ```ts copy
-import { createServer } from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import express, { Request, Response } from 'express';
 import { getUserFromJWT } from './getUserFromJWT';
 import { userRouter } from './userRouter';
@@ -21,9 +21,9 @@ const createContext = async ({ req, res }: { req: Request; res: Response }) => {
   };
 };
 
-const { resolver, router } = createServer({
+const { resolver, router } = PtsqServer.init({
   ctx: createContext,
-});
+}).create();
 
 const protectedResolver = resolver.use(({ ctx, next }) => {
   if (!ctx.user) throw new Error('Must be logged in!');
@@ -182,3 +182,87 @@ Middleware<{ user: User | null }, { user: User }>;
 // the mutation with a resolver that uses the piped middleware
 Mutation<{ user: User }>;
 ```
+
+## Standalone middleware
+
+Standalone middleware allows you to create a middleware that is out of the server.
+
+```ts filename="middleware/isAuthed.ts" copy
+import { middleware } from '@ptsq/server';
+
+export const isAuthed = middelware<{
+  ctx: {
+    user?: User;
+  };
+}>(({ ctx /* { user?: User | undefined } */, next }) => {
+  if (!ctx.user) throw new PtsqError({ code: 'UNAUTHORIZED' });
+
+  return next({
+    user: ctx.user,
+  });
+});
+```
+
+As you can see we can define which context is required for the standalone middleware, then we can you the middleware as any other middleware.
+
+```ts filename="ptsq.ts" copy
+const createContext = async ({ req }: { req: Request }) => {
+  const user = await getUserFromJWT(req);
+
+  return {
+    user,
+  };
+};
+
+export const { resolver, router, serve } = PtsqServer.init({
+  ctx: createContext,
+});
+```
+
+```ts filename="resolvers/isAuthed.ts"
+export const isAuthedResolver = resolver.use(isAuthed);
+```
+
+You can also define which input the standalone middleware requires
+
+```ts copy
+import { middleware } from '@ptsq/server';
+
+export const hasPermission = middelware<{
+  ctx: {
+    user: User;
+  };
+  input: {
+    roomId: string;
+  };
+}>(({ input /* { roomId: string } */, ctx /* { user: User } */, next }) => {
+  if (!ctx.hasRoomPermissions(input.roomId, ctx.user))
+    throw new PtsqError({ code: 'UNAUTHORIZED' });
+
+  return next();
+});
+```
+
+## Server middlewares
+
+You can add middleware to the resolver, which calls them when the query or mutation created by that resolver will be called.
+
+What if you want to run middleware no matter if the route is found or the resolver type (query or mutation) is correctly set?
+
+```ts
+export const { resolver, router, serve } = PtsqServer.init()
+  .use(async ({ next, meta }) => {
+    console.log('request: ', meta);
+
+    const response = await next();
+
+    console.log('response: ', response);
+
+    return response;
+  })
+  .create();
+```
+
+The middleware that the server uses in the example will be called on every request, no matter if the route was found and the resolver type was correctly set.
+
+It is very good for logging and something like that.

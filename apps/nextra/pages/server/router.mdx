@@ -9,7 +9,7 @@ Routers can be merged across files, so you can define routers somewhere and then
 It is recommended to export `type` of the `Base` router because then you can specify your server as a `devDependency` on the client if you are using monorepo project structure.
 
 ```ts copy
-import { createServer } from '@ptsq/server';
+import { PtsqServer } from '@ptsq/server';
 import express, { Request, Response } from 'express';
 import { userRouter } from './userRouter';
 
@@ -20,9 +20,9 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => ({
   res,
 });
 
-const { resolver, router, serve } = createServer({
+const { resolver, router, serve } = PtsqServer.init({
   ctx: createContext,
-});
+}).create();
 
 // routers can be merged as you want
 const baseRouter = router({
