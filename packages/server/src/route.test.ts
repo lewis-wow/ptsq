@@ -1,7 +1,6 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { Compiler } from './compiler';
-import { MiddlewareResponse } from './middleware';
 import { PtsqError } from './ptsqError';
 import { Route } from './route';
 
@@ -44,15 +43,13 @@ test('Should create query route', async () => {
       meta: { type: 'query', input: { name: 'John' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
-  ).toStrictEqual(
-    new MiddlewareResponse({
-      data: 'John',
-      ok: true,
-      ctx: {
-        greetingsPrefix: 'Hello',
-      },
-    }),
-  );
+  ).toStrictEqual({
+    data: 'John',
+    ok: true,
+    ctx: {
+      greetingsPrefix: 'Hello',
+    },
+  });
 
   expect(query.getJsonSchema()).toMatchInlineSnapshot(`
     {
@@ -146,15 +143,13 @@ test('Should create mutation route', async () => {
       meta: { type: 'query', input: { name: 'John' }, route: 'dummy.route' },
       ctx: { greetingsPrefix: 'Hello' as const },
     }),
-  ).toStrictEqual(
-    new MiddlewareResponse({
-      data: 'John',
-      ok: true,
-      ctx: {
-        greetingsPrefix: 'Hello',
-      },
-    }),
-  );
+  ).toStrictEqual({
+    data: 'John',
+    ok: true,
+    ctx: {
+      greetingsPrefix: 'Hello',
+    },
+  });
 
   expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
     {
@@ -228,15 +223,13 @@ test('Should create query route and throw error inside resolve function', async 
       meta: { type: 'query', input: undefined, route: 'dummy.route' },
       ctx: { test: true },
     }),
-  ).toStrictEqual(
-    new MiddlewareResponse({
-      ok: false,
-      ctx: {
-        test: true,
-      },
-      error: new PtsqError({ code: 'INTERNAL_SERVER_ERROR' }),
-    }),
-  );
+  ).toStrictEqual({
+    ok: false,
+    ctx: {
+      test: true,
+    },
+    error: new PtsqError({ code: 'INTERNAL_SERVER_ERROR' }),
+  });
 });
 
 test('Should create mutation route and throw error inside resolve function', async () => {
@@ -258,13 +251,11 @@ test('Should create mutation route and throw error inside resolve function', asy
       meta: { type: 'mutation', input: undefined, route: 'dummy.route' },
       ctx: { test: true },
     }),
-  ).toStrictEqual(
-    new MiddlewareResponse({
-      ok: false,
-      ctx: {
-        test: true,
-      },
-      error: new PtsqError({ code: 'INTERNAL_SERVER_ERROR' }),
-    }),
-  );
+  ).toStrictEqual({
+    ok: false,
+    ctx: {
+      test: true,
+    },
+    error: new PtsqError({ code: 'INTERNAL_SERVER_ERROR' }),
+  });
 });

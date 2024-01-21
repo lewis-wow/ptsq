@@ -1,19 +1,31 @@
-import type { ErrorFormatter } from './errorFormatter';
 import type { AnyMiddlewareResponse } from './middleware';
+import type { MaybePromise } from './types';
 
 export class Envelope {
   _def: {
-    middlewareResponse: AnyMiddlewareResponse;
+    envelope?: (
+      response: AnyMiddlewareResponse,
+    ) => MaybePromise<AnyMiddlewareResponse>;
   };
 
-  constructor(options: { middlewareResponse: AnyMiddlewareResponse }) {
-    this._def = options;
+  constructor(
+    envelope?: (
+      response: AnyMiddlewareResponse,
+    ) => MaybePromise<AnyMiddlewareResponse>,
+  ) {
+    this._def = { envelope };
   }
 
-  async toResponse(errorFormatter?: ErrorFormatter): Promise<Response> {
-    if (this._def.middlewareResponse.ok)
-      return Response.json(this._def.middlewareResponse.data);
+  async createResponse(
+    middlewareResponse: AnyMiddlewareResponse,
+  ): Promise<Response> {
+    const envelopedMiddlewareResponse = this._def.envelope
+      ? await this._def.envelope(middlewareResponse)
+      : middlewareResponse;
 
-    return this._def.middlewareResponse.error.toResponse(errorFormatter);
+    if (envelopedMiddlewareResponse.ok)
+      return Response.json(envelopedMiddlewareResponse.data);
+
+    return envelopedMiddlewareResponse.error.toResponse();
   }
 }

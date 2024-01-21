@@ -127,3 +127,31 @@ export type MiddlewareResponse<TContext extends Context> =
   | { ok: false; error: PtsqError; ctx: TContext };
 
 export type AnyMiddlewareResponse = MiddlewareResponse<Context>;
+
+/**
+ * Creates standalone middleware
+ *
+ * Caution: You should not use the second type argument!
+ */
+export const middleware = <
+  TMiddlewareOptions extends {
+    ctx?: Context;
+    input?: unknown;
+  } = {
+    ctx: object;
+    input: unknown;
+  },
+  TMiddlewareFunction extends MiddlewareFunction<
+    TMiddlewareOptions['input'],
+    TMiddlewareOptions['ctx'] extends object
+      ? TMiddlewareOptions['ctx']
+      : object
+  > = MiddlewareFunction<
+    TMiddlewareOptions['input'],
+    TMiddlewareOptions['ctx'] extends object
+      ? TMiddlewareOptions['ctx']
+      : object
+  >,
+>(
+  middlewareFunction: TMiddlewareFunction,
+) => middlewareFunction;

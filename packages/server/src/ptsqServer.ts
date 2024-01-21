@@ -12,12 +12,13 @@ import type {
 } from './context';
 import { Envelope } from './envelope';
 import type { ErrorFormatter } from './errorFormatter';
+import { HttpServer } from './httpServer';
 import {
   Middleware,
   type AnyMiddleware,
+  type AnyMiddlewareResponse,
   type MiddlewareFunction,
 } from './middleware';
-import { parseRequest } from './parseRequest';
 import { PtsqError } from './ptsqError';
 import { Resolver } from './resolver';
 import { Router, type AnyRouter, type Routes } from './router';
@@ -48,7 +49,7 @@ export class PtsqServer<
     fetchAPI?: FetchAPI;
     root: string;
     endpoint: string;
-    errorFormatter?: ErrorFormatter;
+    errorFormatter: ErrorFormatter;
     compiler: Compiler;
     plugins: ServerAdapterPlugin<any>[];
     middlewares: AnyMiddleware[];
@@ -76,6 +77,9 @@ export class PtsqServer<
     };
   }
 
+  /**
+   * Adds a middleware to the whole server
+   */
   use<
     TMiddlewareFunction extends MiddlewareFunction<unknown, TServerRootContext>,
   >(middleware: TMiddlewareFunction) {
@@ -100,6 +104,9 @@ export class PtsqServer<
     });
   }
 
+  /**
+   * Creates ptsq server
+   */
   create() {
     const def = { ...this._def };
 
@@ -107,6 +114,21 @@ export class PtsqServer<
       /^\/|\/$/g,
       '',
     )}`;
+
+    const envelopedResponse = new Envelope(
+      async (middlewareResponse: AnyMiddlewareResponse) => {
+        if (middlewareResponse.ok) return middlewareResponse;
+
+        const formattedError = await this._def.errorFormatter(
+          middlewareResponse.error,
+        );
+
+        return {
+          ...middlewareResponse,
+          error: formattedError,
+        };
+      },
+    );
 
     /**
      * Creates a queries or mutations
@@ -140,8 +162,11 @@ export class PtsqServer<
     const router = <TRoutes extends Routes>(routes: TRoutes) =>
       new Router({ routes });
 
+    /**
+     * Serves the ptsq application
+     */
     const serve = (baseRouter: AnyRouter) => {
-      const ptsqServer = new PtsqServer_({
+      const httpServer = new HttpServer({
         router: baseRouter,
         contextBuilder: def.ctx,
         compiler: def.compiler,
@@ -155,22 +180,17 @@ export class PtsqServer<
           const method = request.method;
 
           if (url.pathname === path && method === 'POST') {
-            const middlewareResponse = await ptsqServer.serve(
+            const middlewareResponse = await httpServer.serve(
               request,
               contextParams,
             );
 
-            const envelopedResponse = new Envelope({ middlewareResponse });
-
-            return envelopedResponse.toResponse(def.errorFormatter);
+            return envelopedResponse.createResponse(middlewareResponse);
           }
 
           if (url.pathname === `${path}/introspection` && method === 'GET') {
-            const introspectionResponse = ptsqServer.introspection();
-            const envelopedResponse = new Envelope({
-              middlewareResponse: introspectionResponse,
-            });
-            return envelopedResponse.toResponse(def.errorFormatter);
+            const introspectionResponse = httpServer.introspection();
+            return envelopedResponse.createResponse(introspectionResponse);
           }
 
           if (
@@ -178,15 +198,19 @@ export class PtsqServer<
             (url.pathname === `${path}/introspection` && method !== 'GET') ||
             (url.pathname === path && method !== 'POST')
           )
-            return new PtsqError({
-              code: 'METHOD_NOT_SUPPORTED',
-              message: `Method ${method} is not supported by Ptsq server.`,
-            }).toResponse(def.errorFormatter);
+            return envelopedResponse.createResponse(
+              new PtsqError({
+                code: 'METHOD_NOT_SUPPORTED',
+                message: `Method ${method} is not supported by Ptsq server.`,
+              }).toMiddlewareResponse({}),
+            );
 
-          return new PtsqError({
-            code: 'NOT_FOUND',
-            message: `Http pathname ${path} is not supported by Ptsq server, supported are POST ${path} and GET ${path}/introspection.`,
-          }).toResponse(def.errorFormatter);
+          return envelopedResponse.createResponse(
+            new PtsqError({
+              code: 'NOT_FOUND',
+              message: `Http pathname ${path} is not supported by Ptsq server, supported are POST ${path} and GET ${path}/introspection.`,
+            }).toMiddlewareResponse({}),
+          );
         },
         {
           plugins: def.plugins,
@@ -202,6 +226,9 @@ export class PtsqServer<
     };
   }
 
+  /**
+   * Creates ptsq server instance
+   */
   static init<TContextBuilder extends ContextBuilder | undefined = undefined>(
     options?: CreateServerOptions<TContextBuilder>,
   ) {
@@ -209,74 +236,5 @@ export class PtsqServer<
       TContextBuilder,
       inferContextFromContextBuilder<TContextBuilder>
     >(options ?? {});
-  }
-}
-
-export class PtsqServer_ {
-  _def: {
-    router: AnyRouter;
-    contextBuilder: ContextBuilder | undefined;
-    compiler: Compiler;
-  };
-
-  constructor(options: {
-    router: AnyRouter;
-    contextBuilder: ContextBuilder | undefined;
-    compiler: Compiler;
-  }) {
-    this._def = options;
-  }
-
-  async serve(request: Request, contextParams: object) {
-    try {
-      const ctx = this._def.contextBuilder
-        ? await this._def.contextBuilder({
-            request: request,
-            ...contextParams,
-          })
-        : {};
-
-      const parsedRequestBody = await parseRequest({
-        request,
-        compiler: this._def.compiler,
-      });
-
-      const response = await this._def.router.call({
-        route: parsedRequestBody.route.split('.'),
-        index: 0,
-        type: parsedRequestBody.type,
-        meta: {
-          input: parsedRequestBody.input,
-          route: parsedRequestBody.route,
-          type: parsedRequestBody.type,
-        },
-        ctx,
-      });
-
-      return response;
-    } catch (error) {
-      return Middleware.createResponse({
-        ok: false,
-        ctx: {},
-        error: PtsqError.isPtsqError(error)
-          ? error
-          : new PtsqError({
-              code: 'INTERNAL_SERVER_ERROR',
-              info: error,
-            }),
-      });
-    }
-  }
-
-  introspection() {
-    return Middleware.createResponse({
-      ctx: {},
-      ok: true,
-      data: {
-        title: 'BaseRouter',
-        $schema: 'https://json-schema.org/draft/2019-09/schema#',
-        ...this._def.router.getJsonSchema(),
-      },
-    });
   }
 }

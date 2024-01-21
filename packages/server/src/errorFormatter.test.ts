@@ -1,13 +1,13 @@
 import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { createServer } from './createServer';
 import { PtsqError } from './ptsqError';
+import { PtsqServer } from './ptsqServer';
 
 test('Should create server without error formatter and return the error', async () => {
-  const { router, resolver, serve } = createServer({
+  const { router, resolver, serve } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver.output(Type.Null()).query(() => {
@@ -35,72 +35,10 @@ test('Should create server without error formatter and return the error', async 
 });
 
 test('Should create server without error formatter and return null as error', async () => {
-  const { router, resolver, serve } = createServer({
+  const { router, resolver, serve } = PtsqServer.init({
     ctx: () => ({}),
-    errorFormatter: (_error) => null,
-  });
-
-  const baseRouter = router({
-    test: resolver.output(Type.Null()).query(() => {
-      throw new PtsqError({ code: 'BAD_REQUEST', message: 'message...' });
-    }),
-  });
-
-  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
-
-  await expect(() =>
-    fetch({
-      route: 'test',
-      type: 'query',
-    }),
-  ).rejects.toMatchObject({
-    response: {
-      data: null,
-    },
-  });
-
-  await $disconnect();
-});
-
-test('Should create server without error formatter and return custom object as error', async () => {
-  const { router, resolver, serve } = createServer({
-    ctx: () => ({}),
-    errorFormatter: (_error) => ({
-      a: 1,
-      b: 2,
-    }),
-  });
-
-  const baseRouter = router({
-    test: resolver.output(Type.Null()).query(() => {
-      throw new PtsqError({ code: 'BAD_REQUEST', message: 'message...' });
-    }),
-  });
-
-  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
-
-  await expect(() =>
-    fetch({
-      route: 'test',
-      type: 'query',
-    }),
-  ).rejects.toMatchObject({
-    response: {
-      data: {
-        a: 1,
-        b: 2,
-      },
-    },
-  });
-
-  await $disconnect();
-});
-
-test('Should create server with error formatter and return empty object on error', async () => {
-  const { router, resolver, serve } = createServer({
-    ctx: () => ({}),
-    errorFormatter: (_error) => ({}),
-  });
+    errorFormatter: (_error) => new PtsqError({ code: 'BAD_REQUEST' }),
+  }).create();
 
   const baseRouter = router({
     test: resolver.output(Type.Null()).query(() => {
@@ -124,11 +62,82 @@ test('Should create server with error formatter and return empty object on error
   await $disconnect();
 });
 
+test('Should create server without error formatter and return custom object as error', async () => {
+  const { router, resolver, serve } = PtsqServer.init({
+    ctx: () => ({}),
+    errorFormatter: (_error) =>
+      new PtsqError({
+        code: 'BAD_REQUEST',
+        info: {
+          a: 1,
+          b: 2,
+        },
+      }),
+  }).create();
+
+  const baseRouter = router({
+    test: resolver.output(Type.Null()).query(() => {
+      throw new PtsqError({ code: 'BAD_REQUEST', message: 'message...' });
+    }),
+  });
+
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
+
+  await expect(() =>
+    fetch({
+      route: 'test',
+      type: 'query',
+    }),
+  ).rejects.toMatchObject({
+    response: {
+      data: {
+        name: 'PtsqError',
+        info: {
+          a: 1,
+          b: 2,
+        },
+      },
+    },
+  });
+
+  await $disconnect();
+});
+
+test('Should create server with error formatter and return empty object on error', async () => {
+  const { router, resolver, serve } = PtsqServer.init({
+    ctx: () => ({}),
+    errorFormatter: (_error) => new PtsqError({ code: 'BAD_REQUEST' }),
+  }).create();
+
+  const baseRouter = router({
+    test: resolver.output(Type.Null()).query(() => {
+      throw new PtsqError({ code: 'BAD_REQUEST', message: 'message...' });
+    }),
+  });
+
+  const { fetch, $disconnect } = await createHttpTestServer(serve(baseRouter));
+
+  await expect(() =>
+    fetch({
+      route: 'test',
+      type: 'query',
+    }),
+  ).rejects.toMatchObject({
+    response: {
+      data: {
+        name: 'PtsqError',
+      },
+    },
+  });
+
+  await $disconnect();
+});
+
 test('Should create server with error formatter and keep the original error', async () => {
-  const { router, resolver, serve } = createServer({
+  const { router, resolver, serve } = PtsqServer.init({
     ctx: () => ({}),
     errorFormatter: (error) => error,
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver.output(Type.Null()).query(() => {
@@ -156,14 +165,14 @@ test('Should create server with error formatter and keep the original error', as
 });
 
 test('Should create server with error formatter and change the http error', async () => {
-  const { router, resolver, serve } = createServer({
+  const { router, resolver, serve } = PtsqServer.init({
     ctx: () => ({}),
     errorFormatter: (_error) =>
       new PtsqError({
         code: 'CONFLICT',
         message: 'Hello',
       }),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver.output(Type.Null()).query(() => {
@@ -191,7 +200,7 @@ test('Should create server with error formatter and change the http error', asyn
 });
 
 test('Should create server with error formatter and keep the original error with info', async () => {
-  const { router, resolver, serve } = createServer({
+  const { router, resolver, serve } = PtsqServer.init({
     ctx: () => ({}),
     errorFormatter: (error) =>
       new PtsqError({
@@ -199,7 +208,7 @@ test('Should create server with error formatter and keep the original error with
         message: error.message,
         info: 'my info...',
       }),
-  });
+  }).create();
 
   const baseRouter = router({
     test: resolver.output(Type.Null()).query(() => {

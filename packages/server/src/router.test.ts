@@ -1,13 +1,12 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { createServer } from './createServer';
-import { MiddlewareResponse } from './middleware';
 import { PtsqError } from './ptsqError';
+import { PtsqServer } from './ptsqServer';
 
 test('Should merge two routers', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const query = resolver.output(Type.Null()).query(() => null);
 
@@ -33,13 +32,11 @@ test('Should merge two routers', async () => {
         type: 'query',
       },
     }),
-  ).toStrictEqual(
-    new MiddlewareResponse({
-      ctx: {},
-      data: null,
-      ok: true,
-    }),
-  );
+  ).toStrictEqual({
+    ctx: {},
+    data: null,
+    ok: true,
+  });
 
   expect(
     await mergedRouter.call({
@@ -53,19 +50,17 @@ test('Should merge two routers', async () => {
         type: 'query',
       },
     }),
-  ).toStrictEqual(
-    new MiddlewareResponse({
-      ctx: {},
-      data: null,
-      ok: true,
-    }),
-  );
+  ).toStrictEqual({
+    ctx: {},
+    data: null,
+    ok: true,
+  });
 });
 
 test('Should merge two routers deeply', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const query = resolver.output(Type.Null()).query(() => null);
 
@@ -95,13 +90,11 @@ test('Should merge two routers deeply', async () => {
         type: 'query',
       },
     }),
-  ).toStrictEqual(
-    new MiddlewareResponse({
-      ctx: {},
-      data: null,
-      ok: true,
-    }),
-  );
+  ).toStrictEqual({
+    ctx: {},
+    data: null,
+    ok: true,
+  });
 
   expect(
     await mergedRouter.call({
@@ -115,19 +108,17 @@ test('Should merge two routers deeply', async () => {
         type: 'query',
       },
     }),
-  ).toStrictEqual(
-    new MiddlewareResponse({
-      ctx: {},
-      data: null,
-      ok: true,
-    }),
-  );
+  ).toStrictEqual({
+    ctx: {},
+    data: null,
+    ok: true,
+  });
 });
 
 test('Should merge two routers with overwrite', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const query = resolver.output(Type.Null()).query(() => null);
   const mutation = resolver.output(Type.Null()).mutation(() => null);
@@ -154,19 +145,17 @@ test('Should merge two routers with overwrite', async () => {
         type: 'mutation',
       },
     }),
-  ).toStrictEqual(
-    new MiddlewareResponse({
-      ctx: {},
-      data: null,
-      ok: true,
-    }),
-  );
+  ).toStrictEqual({
+    ctx: {},
+    data: null,
+    ok: true,
+  });
 });
 
 test('Should not call wrong route', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const query = resolver.output(Type.Null()).query(() => null);
 
@@ -192,9 +181,9 @@ test('Should not call wrong route', async () => {
 });
 
 test('Should not call wrong method', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const query = resolver.output(Type.Null()).query(() => null);
 
@@ -224,9 +213,9 @@ test('Should not call wrong method', async () => {
 });
 
 test('Should not call if route excess correct route path', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const query = resolver.output(Type.Null()).query(() => null);
 
@@ -256,9 +245,9 @@ test('Should not call if route excess correct route path', async () => {
 });
 
 test('Should not call if route not fit correct route path', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const query = resolver.output(Type.Null()).query(() => null);
 
@@ -290,9 +279,9 @@ test('Should not call if route not fit correct route path', async () => {
 });
 
 test('Should merge two routers and get json schema', () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = PtsqServer.init({
     ctx: () => ({}),
-  });
+  }).create();
 
   const query = resolver.output(Type.Null()).query(() => null);
 
