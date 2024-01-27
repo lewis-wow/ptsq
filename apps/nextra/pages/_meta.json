@@ -1,4 +1,11 @@
 {
+  "tryit": {
+    "type": "page",
+    "title": "Try it!",
+    "theme": {
+      "layout": "raw"
+    }
+  },
   "index": "Introduction",
   "installation": "Installation",
   "validations": "Validations",
