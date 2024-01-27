@@ -1,23 +1,30 @@
-import { searchParams } from '../utils/searchParams';
+# Introduction
 
-# Try it!
+Welcome to ptsq!
 
-<section style={{ width: '90vw', margin: 'auto' }}>
-  <iframe
-    src={`https://stackblitz.com/github/lewis-wow/ptsq/tree/master/examples/basic?${searchParams(
-      {
-        embed: '1',
-        file: ['src/server.ts', 'src/client.ts'],
-        hideNavigation: '1',
-        terminalHeight: '1',
-        showSidebar: '0',
-        view: 'editor',
-      },
-    )}`}
-    style={{
-      width: '100%',
-      height: 'auto',
-      aspectRatio: '16 / 9',
-    }}
-  />
-</section>
+A Public type-safe query is a library for creating type-safe API with TS backend and any language client.
+
+It offers introspection of API schema and allows you to easily create type-safe queries, mutations, middlewares and so on.
+
+## Motivation
+
+The motivation is that [tRPC](https://trpc.io/) allows you to create a type-safe backend but does not offer some kind of introspection, so it cannot be used for type-safe open API.
+On the other hand [GraphQL](https://graphql.org/) offers the schema introspection for type-safe open API, but setting up the project and writing GraphQL resolvers is much harder.
+
+This library combines the best of those two worlds.
+
+## Requirements
+
+You have to enable `strictNullChecks` or use `strict` mode which includes `strictNullChecks`. Otherwise Typebox cannot correctly infer the types of your schemas.
+
+```json copy filename="tsconfig.json"
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  //...
+  "compilerOptions": {
+    "strictNullChecks": true // <- must be true
+    //...
+  }
+  //...
+}
+```

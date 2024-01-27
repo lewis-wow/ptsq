@@ -1,14 +1,18 @@
 {
-  "index": {
+  "tryit": {
     "type": "page",
-    "title": "Nextra",
-    "display": "hidden",
+    "title": "Try it!",
     "theme": {
       "layout": "raw"
     }
   },
-  "docs": {
-    "type": "page",
-    "title": "Documentation"
-  }
+  "index": "Introduction",
+  "installation": "Installation",
+  "validations": "Validations",
+  "server": "Server",
+  "client": "Client",
+  "introspection": "Introspection",
+  "integration": "Integration",
+  "examples": "Examples",
+  "comparison": "Comparison"
 }
