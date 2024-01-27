@@ -1,0 +1,11 @@
+{
+  "index": "Introduction",
+  "installation": "Installation",
+  "validations": "Validations",
+  "server": "Server",
+  "client": "Client",
+  "introspection": "Introspection",
+  "integration": "Integration",
+  "examples": "Examples",
+  "comparison": "Comparison"
+}
