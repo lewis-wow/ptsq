@@ -5,5 +5,5 @@
     "rootDir": "src",
     "outDir": "dist"
   },
-  "include": ["./src/**/*", "../test-utils/src/createHttpTestServer.ts"]
+  "include": ["./src/**/*"]
 }
