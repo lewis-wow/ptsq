@@ -4,6 +4,10 @@ import type { Context } from './context';
 import type { AnyMiddleware } from './middleware';
 import type { AnyResolveFunction } from './resolver';
 import { Route } from './route';
+import type {
+  inferClientResolverArgs,
+  inferClientResolverOutput,
+} from './types';
 
 /**
  * @internal
@@ -37,11 +41,32 @@ export class Mutation<
       ...options,
     });
   }
+
+  createServerSideMutation(options: { ctx: any; route: string }) {
+    return {
+      mutate: async (
+        input: inferClientResolverArgs<TArgsSchema>,
+      ): Promise<inferClientResolverOutput<TOutputSchema>> => {
+        const response = await this.call({
+          ctx: options.ctx,
+          meta: {
+            input: input as unknown,
+            type: 'mutation',
+            route: options.route,
+          },
+        });
+
+        if (!response.ok) throw response.error;
+
+        return response.data as inferClientResolverOutput<TOutputSchema>;
+      },
+    };
+  }
 }
 
 export type AnyMutation = Mutation<
-  TSchema | undefined,
-  TSchema,
+  any,
+  any,
   any,
   AnyResolveFunction,
   string | undefined

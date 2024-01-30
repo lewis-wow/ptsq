@@ -17,6 +17,13 @@ const baseRouter = router({
   greetings: greetingsQuery,
 });
 
+const test = baseRouter
+  .createServerSideCaller({
+    ctx: {},
+    route: [],
+  })
+  .greetings.query({ name: '' });
+
 const server = createServer(serve(baseRouter));
 
 server.listen(4000, () => {

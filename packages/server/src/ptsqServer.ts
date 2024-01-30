@@ -160,7 +160,7 @@ export class PtsqServer<
      * ```
      */
     const router = <TRoutes extends Routes>(routes: TRoutes) =>
-      new Router({ routes });
+      new Router<TRoutes, TServerRootContext>({ routes });
 
     /**
      * Serves the ptsq application

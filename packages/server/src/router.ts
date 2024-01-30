@@ -4,7 +4,12 @@ import { type AnyMiddlewareResponse, type MiddlewareMeta } from './middleware';
 import type { AnyMutation } from './mutation';
 import { PtsqError } from './ptsqError';
 import type { AnyQuery } from './query';
-import type { ResolverType, ShallowMerge } from './types';
+import type {
+  ErrorMessage,
+  ResolverType,
+  ShallowMerge,
+  Simplify,
+} from './types';
 
 export type Routes = {
   [Key: string]: AnyQuery | AnyMutation | AnyRouter;
@@ -15,16 +20,18 @@ export type Routes = {
  *
  * Creates a router that can be nested.
  */
-export class Router<TRoutes extends Routes> {
+export class Router<TRoutes extends Routes, TContext extends Context> {
   _def: {
     routes: TRoutes;
     nodeType: 'router';
+    context: TContext;
   };
 
   constructor(routerOptions: { routes: TRoutes }) {
     this._def = {
       ...routerOptions,
       nodeType: 'router',
+      context: {} as TContext,
     };
   }
 
@@ -101,14 +108,60 @@ export class Router<TRoutes extends Routes> {
     return nextNode.call(options);
   }
 
-  merge<TRouter extends AnyRouter>(router: TRouter) {
-    return new Router<ShallowMerge<TRoutes, TRouter['_def']['routes']>>({
+  createServerSideCaller(options: {
+    ctx: TContext;
+    route: string[];
+  }): ServerSideCaller<TRoutes> {
+    return new Proxy(this._def.routes, {
+      get: (target, prop: string) => {
+        const node = target[prop];
+
+        if (node._def.nodeType === 'router')
+          return (node as AnyRouter).createServerSideCaller({
+            ctx: options.ctx,
+            route: [...options.route, prop],
+          });
+
+        if (node._def.type === 'query')
+          return (node as AnyQuery).createServerSideQuery({
+            ctx: options.ctx,
+            route: [...options.route, prop].join('.'),
+          });
+
+        return (node as AnyMutation).createServerSideMutation({
+          ctx: options.ctx,
+          route: [...options.route, prop].join('.'),
+        });
+      },
+    }) as ServerSideCaller<TRoutes>;
+  }
+
+  static merge<TRouterA extends AnyRouter, TRouterB extends AnyRouter>(
+    routerA: TRouterA,
+    routerB: TRouterB['_def']['context'] extends TRouterA['_def']['context']
+      ? TRouterB
+      : ErrorMessage<`Router B cannot be merged with router A, because the context of router B does not extends context of router A.`>,
+  ) {
+    return new Router<
+      ShallowMerge<TRouterA['_def']['routes'], TRouterB['_def']['routes']>,
+      Simplify<TRouterA['_def']['context'] & TRouterB['_def']['context']>
+    >({
       routes: {
-        ...this._def.routes,
-        ...router._def.routes,
-      } as ShallowMerge<TRoutes, TRouter['_def']['routes']>,
+        ...routerA._def.routes,
+        ...(routerB as TRouterB)._def.routes,
+      } as ShallowMerge<TRouterA['_def']['routes'], TRouterB['_def']['routes']>,
     });
   }
 }
 
-export type AnyRouter = Router<Routes>;
+export type AnyRouter = Router<Routes, any>;
+
+export type ServerSideCaller<TRoutes extends Routes> = {
+  [K in keyof TRoutes]: TRoutes[K] extends AnyRouter
+    ? ServerSideCaller<TRoutes[K]['_def']['routes']>
+    : TRoutes[K] extends AnyQuery
+    ? ReturnType<TRoutes[K]['createServerSideQuery']>
+    : TRoutes[K] extends AnyMutation
+    ? ReturnType<TRoutes[K]['createServerSideMutation']>
+    : never;
+};

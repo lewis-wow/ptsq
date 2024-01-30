@@ -2,6 +2,7 @@ import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { PtsqError } from './ptsqError';
 import { PtsqServer } from './ptsqServer';
+import { Router } from './router';
 
 test('Should merge two routers', async () => {
   const { router, resolver } = PtsqServer.init({
@@ -18,7 +19,7 @@ test('Should merge two routers', async () => {
     b: query,
   });
 
-  const mergedRouter = routerA.merge(routerB);
+  const mergedRouter = Router.merge(routerA, routerB);
 
   expect(
     await mergedRouter.call({
@@ -76,7 +77,7 @@ test('Should merge two routers deeply', async () => {
     }),
   });
 
-  const mergedRouter = routerA.merge(routerB);
+  const mergedRouter = Router.merge(routerA, routerB);
 
   expect(
     await mergedRouter.call({
@@ -131,7 +132,7 @@ test('Should merge two routers with overwrite', async () => {
     a: mutation,
   });
 
-  const mergedRouter = routerA.merge(routerB);
+  const mergedRouter = Router.merge(routerA, routerB);
 
   expect(
     await mergedRouter.call({
@@ -293,7 +294,7 @@ test('Should merge two routers and get json schema', () => {
     b: query,
   });
 
-  const mergedRouter = routerA.merge(routerB);
+  const mergedRouter = Router.merge(routerA, routerB);
 
   expect(mergedRouter.getJsonSchema()).toMatchInlineSnapshot(`
     {
