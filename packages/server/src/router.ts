@@ -108,7 +108,14 @@ export class Router<TRoutes extends Routes, TContext extends Context> {
     return nextNode.call(options);
   }
 
-  createServerSideCaller(options: {
+  createServerSideCaller(ctx: TContext) {
+    return this._createServerSideCaller({
+      ctx,
+      route: [],
+    });
+  }
+
+  _createServerSideCaller(options: {
     ctx: TContext;
     route: string[];
   }): ServerSideCaller<TRoutes> {
