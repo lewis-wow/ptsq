@@ -1,5 +1,6 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
+import { middleware } from './middleware';
 import { PtsqError } from './ptsqError';
 import { PtsqServer } from './ptsqServer';
 
@@ -703,6 +704,90 @@ test('Should create nested middlewares with query and returns response recursive
   ).toStrictEqual({
     ctx: {},
     data: 'Hello',
+    ok: true,
+  });
+});
+
+test('Should create standalone middleware with query', async () => {
+  let contextBuilderResult = {
+    state: 'invalid' as 'valid' | 'invalid',
+  };
+
+  const { resolver } = PtsqServer.init({
+    ctx: () => contextBuilderResult,
+  }).create();
+
+  const standaloneMiddleware = middleware<{
+    ctx: {
+      state: 'valid' | 'invalid';
+    };
+  }>(({ ctx, next }) => {
+    if (ctx.state === 'invalid') throw new PtsqError({ code: 'BAD_REQUEST' });
+
+    return next({
+      ...ctx,
+      state: ctx.state,
+    });
+  });
+
+  const validResolver = resolver.use(standaloneMiddleware);
+
+  const query = resolver.output(Type.String()).query(({ ctx }) => ctx.state);
+
+  const validOnlyQuery = validResolver
+    .output(Type.String())
+    .query(({ ctx }) => ctx.state);
+
+  expect(query._def.middlewares.length).toBe(0);
+
+  expect(validOnlyQuery._def.middlewares.length).toBe(1);
+  expect(validOnlyQuery._def.middlewares[0]._def.argsSchema).toBe(undefined);
+
+  expect(
+    await query.call({
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
+      ctx: contextBuilderResult,
+    }),
+  ).toStrictEqual({
+    ctx: contextBuilderResult,
+    data: 'invalid',
+    ok: true,
+  });
+
+  expect(
+    await validOnlyQuery.call({
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
+      ctx: contextBuilderResult,
+    }),
+  ).toStrictEqual({
+    ctx: contextBuilderResult,
+    error: new PtsqError({ code: 'BAD_REQUEST' }),
+    ok: false,
+  });
+
+  contextBuilderResult = {
+    state: 'valid' as 'valid' | 'invalid',
+  };
+
+  expect(
+    await query.call({
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
+      ctx: contextBuilderResult,
+    }),
+  ).toStrictEqual({
+    ctx: contextBuilderResult,
+    data: 'valid',
+    ok: true,
+  });
+
+  expect(
+    await validOnlyQuery.call({
+      meta: { type: 'query', input: undefined, route: 'dummy.route' },
+      ctx: contextBuilderResult,
+    }),
+  ).toStrictEqual({
+    ctx: contextBuilderResult,
+    data: 'valid',
     ok: true,
   });
 });

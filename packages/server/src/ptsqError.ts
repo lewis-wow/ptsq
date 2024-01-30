@@ -23,9 +23,6 @@ export class PtsqError extends Error {
   info: unknown;
 
   constructor({ code, message, info }: PtsqErrorOptions) {
-    if (typeof code === 'number' && code >= 200 && code <= 299)
-      throw new TypeError('PtsqError code cannot be 2xx.');
-
     super(message);
 
     this.code = code;

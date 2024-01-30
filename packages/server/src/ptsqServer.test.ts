@@ -1,5 +1,6 @@
 import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
+import axios from 'axios';
 import { expect, test } from 'vitest';
 import { PtsqError } from './ptsqError';
 import { PtsqServer } from './ptsqServer';
@@ -168,6 +169,165 @@ test('Should create server with middleware that runs before and after invalid ty
   });
 
   expect(wasCheckedByMiddelware).toBe(true);
+
+  await $disconnect();
+});
+
+test('Should create server introspection', async () => {
+  const { resolver, router, serve } = PtsqServer.init().create();
+
+  const baseRouter = router({
+    test: resolver.output(Type.String()).query(() => 'Hello'),
+  });
+
+  const { introspectate, $disconnect } = await createHttpTestServer(
+    serve(baseRouter),
+  );
+
+  const response = await introspectate();
+
+  expect(response.data).toMatchInlineSnapshot(`
+    {
+      "$schema": "https://json-schema.org/draft/2019-09/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "_def": {
+          "additionalProperties": false,
+          "properties": {
+            "nodeType": {
+              "enum": [
+                "router",
+              ],
+              "type": "string",
+            },
+            "routes": {
+              "additionalProperties": false,
+              "properties": {
+                "test": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "_def": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "nodeType": {
+                          "enum": [
+                            "route",
+                          ],
+                          "type": "string",
+                        },
+                        "outputSchema": {
+                          "type": "string",
+                        },
+                        "type": {
+                          "enum": [
+                            "query",
+                          ],
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "type",
+                        "nodeType",
+                        "argsSchema",
+                        "outputSchema",
+                        "description",
+                      ],
+                      "type": "object",
+                    },
+                  },
+                  "required": [
+                    "_def",
+                  ],
+                  "type": "object",
+                },
+              },
+              "required": [
+                "test",
+              ],
+              "type": "object",
+            },
+          },
+          "required": [
+            "nodeType",
+            "routes",
+          ],
+          "type": "object",
+        },
+      },
+      "required": [
+        "_def",
+      ],
+      "title": "BaseRouter",
+      "type": "object",
+    }
+  `);
+
+  await $disconnect();
+});
+
+test('Should not fetch server with wrong method', async () => {
+  const { resolver, router, serve } = PtsqServer.init().create();
+
+  const baseRouter = router({
+    test: resolver.output(Type.String()).query(() => 'Hello'),
+  });
+
+  const { $disconnect, url } = await createHttpTestServer(serve(baseRouter));
+
+  await expect(axios.get(url)).rejects.toMatchObject({
+    response: {
+      data: {
+        name: 'PtsqError',
+        message: 'Method GET is not supported by Ptsq server.',
+      },
+    },
+  });
+
+  await $disconnect();
+});
+
+test('Should not fetch server introspection with wrong method', async () => {
+  const { resolver, router, serve } = PtsqServer.init().create();
+
+  const baseRouter = router({
+    test: resolver.output(Type.String()).query(() => 'Hello'),
+  });
+
+  const { $disconnect, url } = await createHttpTestServer(serve(baseRouter));
+
+  await expect(axios.post(`${url}/introspection`)).rejects.toMatchObject({
+    response: {
+      data: {
+        name: 'PtsqError',
+        message: 'Method POST is not supported by Ptsq server.',
+      },
+    },
+  });
+
+  await $disconnect();
+});
+
+test('Should not fetch server introspection with wrong route', async () => {
+  const { resolver, router, serve } = PtsqServer.init().create();
+
+  const baseRouter = router({
+    test: resolver.output(Type.String()).query(() => 'Hello'),
+  });
+
+  const { $disconnect, url } = await createHttpTestServer(serve(baseRouter));
+
+  await expect(axios.post(`${url}/wrong-route`)).rejects.toMatchObject({
+    response: {
+      data: {
+        name: 'PtsqError',
+        message: `Http pathname ${
+          new URL(url).pathname
+        }/wrong-route is not supported by Ptsq server, supported are POST ${
+          new URL(url).pathname
+        } and GET ${new URL(url).pathname}/introspection.`,
+      },
+    },
+  });
 
   await $disconnect();
 });

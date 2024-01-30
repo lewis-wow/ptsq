@@ -527,3 +527,26 @@ test('Should merge two routers and create server side caller on merged router', 
 
   expect(await caller.b.query('John')).toBe('Hello John');
 });
+
+test('Should create server side caller with nested router', async () => {
+  const { router, resolver } = PtsqServer.init({
+    ctx: () => ({}),
+  }).create();
+
+  const query = resolver
+    .args(Type.String())
+    .output(Type.String())
+    .query(({ input }) => `Hello ${input}`);
+
+  const baseRouter = router({
+    a: router({
+      b: router({
+        c: query,
+      }),
+    }),
+  });
+
+  const caller = baseRouter.createServerSideCaller({});
+
+  expect(await caller.a.b.c.query('John')).toBe('Hello John');
+});
