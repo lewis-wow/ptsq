@@ -9,6 +9,9 @@ export type PtsqClientErrorOptions = {
   info?: PtsqError['info'];
 };
 
+/**
+ * Client error for throwing the error that comes from server on the client side
+ */
 export class HTTPClientError extends Error {
   code: PtsqError['code'];
   info: unknown;

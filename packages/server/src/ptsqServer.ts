@@ -79,6 +79,8 @@ export class PtsqServer<
 
   /**
    * Adds a middleware to the whole server
+   *
+   * This middleware will be called on any request without depends on route
    */
   use<
     TMiddlewareFunction extends MiddlewareFunction<unknown, TServerRootContext>,

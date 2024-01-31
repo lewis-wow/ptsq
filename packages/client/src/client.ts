@@ -15,6 +15,9 @@ export type RequestOptions = {
   signal?: AbortSignal;
 };
 
+/**
+ * Creates client fetcher
+ */
 export class Client {
   _def: {
     route: ClientOptions['route'];

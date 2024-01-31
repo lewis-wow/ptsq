@@ -4,6 +4,11 @@ import { PtsqError } from './ptsqError';
 import type { AnyPtsqServer } from './ptsqServer';
 import type { AnyRouter } from './router';
 
+/**
+ * @internal
+ *
+ * Serves the server and introspection endpoints
+ */
 export class HttpServer {
   _def: {
     router: AnyRouter;
