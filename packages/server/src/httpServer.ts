@@ -70,6 +70,8 @@ export class HttpServer {
 
       return response;
     } catch (error) {
+      console.error(error);
+
       return Middleware.createFailureResponse({
         ctx: {},
         error: PtsqError.isPtsqError(error)
