@@ -1,6 +1,6 @@
-import { type RequestOptions } from './client';
+import type { RequestOptions } from './createProxyClient';
 
-export type ClientQuery<
+export type Mutation<
   TDescription extends string | undefined,
   TDefinition extends {
     args?: any;
@@ -11,7 +11,7 @@ export type ClientQuery<
     description: TDescription;
   };
 
-  query: (
+  mutate: (
     requestInput: TDefinition['args'],
     requestOptions?: RequestOptions,
   ) => Promise<TDefinition['output']>;

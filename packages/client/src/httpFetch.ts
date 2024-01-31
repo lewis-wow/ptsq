@@ -8,7 +8,7 @@ export type HttpFetchArgs = {
     input: RequestInfo | URL,
     init?: RequestInit | undefined,
   ) => Promise<Response>;
-  signal: AbortSignal;
+  signal?: AbortSignal;
 };
 
 export const httpFetch = async ({

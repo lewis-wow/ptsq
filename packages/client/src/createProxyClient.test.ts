@@ -70,7 +70,7 @@ test('Should create simple http server with proxy client and request bad route',
       name: 'John',
     }),
   ).rejects.toMatchInlineSnapshot(
-    '[AxiosError: Request failed with status code 404]',
+    '[PtsqClientError: The route continues, but should be terminated by query or mutate.]',
   );
 
   await $disconnect();
@@ -105,7 +105,7 @@ test('Should create simple http server with proxy client and request bad route',
       name: 'John',
     }),
   ).rejects.toMatchInlineSnapshot(
-    '[AxiosError: Request failed with status code 404]',
+    '[PtsqClientError: The route was invalid.]',
   );
 
   await $disconnect();
@@ -139,7 +139,7 @@ test('Should create simple http server with proxy client and creates request wit
       name: 'John',
     }),
   ).rejects.toMatchInlineSnapshot(
-    '[AxiosError: Request failed with status code 400]',
+    '[PtsqClientError: The route type is invalid, it should be query and it is mutation.]',
   );
 
   await $disconnect();

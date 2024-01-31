@@ -1,18 +1,18 @@
-export type ProxyClientArgs = {
+export type ProxyClientArgs<TArgs extends readonly unknown[]> = {
   route: string[];
   resolveType: (rawResolverType: string) => 'query' | 'mutation';
   fetch: (options: {
     route: string;
     type: 'query' | 'mutation';
-    args: unknown[];
-  }) => unknown;
+    args: TArgs;
+  }) => Promise<unknown>;
 };
 
-export const createProxyUntypedClient = ({
+export const createProxyUntypedClient = <TArgs extends readonly unknown[]>({
   route,
   resolveType,
   fetch,
-}: ProxyClientArgs): unknown => {
+}: ProxyClientArgs<TArgs>): unknown => {
   /**
    * assign noop function to proxy to create only appliable proxy handler
    * the noop function is never called in proxy
@@ -31,7 +31,7 @@ export const createProxyUntypedClient = ({
       return fetch({
         route: route.join('.'),
         type: resolverType,
-        args: argumentsList,
+        args: argumentsList as unknown as TArgs,
       });
     },
   });
