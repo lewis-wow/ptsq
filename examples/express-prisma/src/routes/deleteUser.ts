@@ -1,11 +1,12 @@
-import { loggingResolver } from '../resolvers/loggingResolver';
+import { prisma } from '../prisma';
+import { publicResolver } from '../resolvers/publicResolver';
 import { deleteUserSchema, UserSchema } from '../validation';
 
-export const deleteUser = loggingResolver
+export const deleteUser = publicResolver
   .args(deleteUserSchema)
   .output(UserSchema)
-  .mutation(async ({ input, ctx }) => {
-    const user = await ctx.prisma.user.delete({
+  .mutation(async ({ input }) => {
+    const user = await prisma.user.delete({
       where: {
         id: input.id,
       },

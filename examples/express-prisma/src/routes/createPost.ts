@@ -1,11 +1,12 @@
-import { loggingResolver } from '../resolvers/loggingResolver';
+import { prisma } from '../prisma';
+import { publicResolver } from '../resolvers/publicResolver';
 import { createPostSchema, PostSchema } from '../validation';
 
-export const createPost = loggingResolver
+export const createPost = publicResolver
   .args(createPostSchema)
   .output(PostSchema)
-  .mutation(async ({ input, ctx }) => {
-    const post = await ctx.prisma.post.create({
+  .mutation(async ({ input }) => {
+    const post = await prisma.post.create({
       data: {
         title: input.title,
         content: input.content,

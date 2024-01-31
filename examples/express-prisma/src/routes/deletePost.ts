@@ -1,11 +1,12 @@
-import { loggingResolver } from '../resolvers/loggingResolver';
+import { prisma } from '../prisma';
+import { publicResolver } from '../resolvers/publicResolver';
 import { deletePostSchema, PostSchema } from '../validation';
 
-export const deletePost = loggingResolver
+export const deletePost = publicResolver
   .args(deletePostSchema)
   .output(PostSchema)
-  .mutation(async ({ input, ctx }) => {
-    const post = await ctx.prisma.post.delete({
+  .mutation(async ({ input }) => {
+    const post = await prisma.post.delete({
       where: {
         id: input.id,
       },
