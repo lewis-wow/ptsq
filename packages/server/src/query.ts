@@ -4,6 +4,10 @@ import type { Context } from './context';
 import type { AnyMiddleware } from './middleware';
 import type { AnyResolveFunction } from './resolver';
 import { Route } from './route';
+import type {
+  inferClientResolverArgs,
+  inferClientResolverOutput,
+} from './types';
 
 /**
  * @internal
@@ -37,11 +41,32 @@ export class Query<
       ...options,
     });
   }
+
+  createServerSideQuery(options: { ctx: any; route: string }) {
+    return {
+      query: async (
+        input: inferClientResolverArgs<TArgsSchema>,
+      ): Promise<inferClientResolverOutput<TOutputSchema>> => {
+        const response = await this.call({
+          ctx: options.ctx,
+          meta: {
+            input: input as unknown,
+            type: 'query',
+            route: options.route,
+          },
+        });
+
+        if (!response.ok) throw response.error;
+
+        return response.data as inferClientResolverOutput<TOutputSchema>;
+      },
+    };
+  }
 }
 
 export type AnyQuery = Query<
-  TSchema | undefined,
-  TSchema,
+  any,
+  any,
   any,
   AnyResolveFunction,
   string | undefined

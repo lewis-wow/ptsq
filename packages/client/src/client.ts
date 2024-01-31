@@ -52,7 +52,7 @@ export class Client {
   }): Promise<any> {
     const headers = await this.getHeader();
 
-    const result = await axios.post<string>(
+    const result = await axios.post(
       this._def.options.url,
       {
         type: fetchOptions.resolverType,
@@ -66,6 +66,6 @@ export class Client {
       },
     );
 
-    return result.data;
+    return result.data as unknown;
   }
 }

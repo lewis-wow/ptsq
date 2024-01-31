@@ -160,7 +160,7 @@ export class PtsqServer<
      * ```
      */
     const router = <TRoutes extends Routes>(routes: TRoutes) =>
-      new Router({ routes });
+      new Router<TRoutes, TServerRootContext>({ routes });
 
     /**
      * Serves the ptsq application
@@ -207,7 +207,7 @@ export class PtsqServer<
           return envelopedResponse.createResponse(
             new PtsqError({
               code: 'NOT_FOUND',
-              message: `Http pathname ${path} is not supported by Ptsq server, supported are POST ${path} and GET ${path}/introspection.`,
+              message: `Http pathname ${url.pathname} is not supported by Ptsq server, supported are POST ${path} and GET ${path}/introspection.`,
             }).toMiddlewareResponse({}),
           );
         },
