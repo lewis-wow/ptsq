@@ -33,7 +33,7 @@ test('Should merge 2 resolvers', () => {
   const resolverA = Resolver.createRoot<{ a: 1; b: 2 }>();
   const resolverB = Resolver.createRoot<{ a: 1 }>(); // context has to extends { a: 1, b: 2 }
 
-  const mergedResolver = resolverA.merge(resolverB);
+  const mergedResolver = Resolver.merge(resolverA, resolverB);
 
   expect(mergedResolver).toBeInstanceOf(Resolver);
 });
@@ -51,7 +51,7 @@ test('Should merge 2 resolvers with args', () => {
     }),
   );
 
-  const mergedResolver = resolverA.merge(resolverB);
+  const mergedResolver = Resolver.merge(resolverA, resolverB);
 
   expect(mergedResolver._def.argsSchema).toStrictEqual(
     Type.Intersect([
@@ -78,7 +78,7 @@ test('Should merge 2 resolvers with output schema', () => {
     }),
   );
 
-  const mergedResolver = resolverA.merge(resolverB);
+  const mergedResolver = Resolver.merge(resolverA, resolverB);
 
   expect(mergedResolver._def.outputSchema).toStrictEqual(
     Type.Intersect([
@@ -97,7 +97,7 @@ test('Should merge 2 resolvers with description', () => {
 
   const resolverB = Resolver.createRoot<{ a: 1 }>().description('B');
 
-  const mergedResolver = resolverA.merge(resolverB);
+  const mergedResolver = Resolver.merge(resolverA, resolverB);
 
   expect(mergedResolver._def.description).toBe('A');
 });
