@@ -3,7 +3,7 @@ import type {
   UseMutationResult,
 } from '@tanstack/react-query';
 
-export type ReactClientMutation<
+export type ReactMutation<
   TDescription extends string | undefined,
   TDefinition extends {
     args?: any;

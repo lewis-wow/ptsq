@@ -40,7 +40,11 @@
     "@ptsq/server": "*",
     "@ptsq/test-utils": "*",
     "@sinclair/typebox": "^0.31.28",
+    "@testing-library/react": "^14.2.0",
+    "@testing-library/react-hooks": "^8.0.1",
     "@types/node": "^20.7.0",
+    "jsdom": "^24.0.0",
+    "react-test-renderer": "^18.2.0",
     "typescript": "^5.2.2"
   },
   "dependencies": {

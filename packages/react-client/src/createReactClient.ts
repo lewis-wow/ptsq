@@ -1,7 +1,8 @@
 import {
-  Client,
-  type ClientOptions,
+  createProxyUntypedClient,
+  httpFetch,
   type Router as ClientRouter,
+  type CreateProxyClientArgs,
 } from '@ptsq/client';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import type { ReactClientRouter } from './types';
@@ -19,60 +20,48 @@ import type { ReactClientRouter } from './types';
  * ```
  */
 export const createReactClient = <TRouter extends ClientRouter>(
-  options: ClientOptions['options'],
-): ReactClientRouter<TRouter> => {
-  const createRouteProxyClient = (route: string[]) => {
-    const proxyHandler: ProxyHandler<ReactClientRouter<TRouter>> = {
-      get: (_target, key: string) => createRouteProxyClient([...route, key]),
-      apply: (_target, _thisArg, argumentsList) => {
-        const client = new Client({ route, options });
+  options: CreateProxyClientArgs,
+): ReactClientRouter<TRouter> =>
+  createProxyUntypedClient<[any, any]>({
+    route: [],
+    resolveType: (rawResolverType) => {
+      if (rawResolverType === 'useQuery') return 'query';
+      if (rawResolverType === 'useMutation') return 'mutation';
 
-        const resolverType = client.getResolverType({
-          pop: true,
-          map: {
-            useQuery: 'query',
-            useMutation: 'mutation',
-          },
-        });
-
-        if (resolverType === 'query')
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return useQuery({
-            queryKey: route,
-            queryFn: async (context) =>
-              client.fetch({
-                requestInput: argumentsList[0],
-                resolverType: resolverType,
-                requestOptions: { signal: context.signal },
-              }),
-            ...argumentsList[1],
-          });
-
+      throw new TypeError(`This action (${rawResolverType}) is not defined.`);
+    },
+    fetch: ({ route, type, args }) => {
+      if (type === 'query') {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        return useMutation({
-          mutationKey: route,
-          mutationFn: (variables: any) =>
-            client.fetch({
-              requestInput: variables,
-              resolverType: resolverType,
+        return useQuery({
+          queryKey: [route],
+          queryFn: (context) =>
+            httpFetch({
+              ...options,
+              body: {
+                route,
+                type,
+                input: args[0],
+              },
+              signal: context.signal,
             }),
-          ...argumentsList[0],
+          ...args[1],
         });
-      },
-    };
+      }
 
-    /**
-     * assign noop function to proxy to create only appliable proxy handler
-     * the noop function is never called in proxy
-     */
-    return new Proxy(
-      noop as unknown as ReactClientRouter<TRouter>,
-      proxyHandler,
-    );
-  };
-
-  return createRouteProxyClient([]);
-};
-
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = () => {};
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      return useMutation({
+        mutationKey: [route],
+        mutationFn: (variables: any) =>
+          httpFetch({
+            ...options,
+            body: {
+              route,
+              type,
+              input: variables,
+            },
+          }),
+        ...args[0],
+      });
+    },
+  }) as ReactClientRouter<TRouter>;

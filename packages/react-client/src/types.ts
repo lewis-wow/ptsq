@@ -7,8 +7,8 @@ import type {
   inferClientResolverOutput,
   Simplify,
 } from '@ptsq/server';
-import type { ReactClientMutation } from './reactClientMutation';
-import type { ReactClientQuery } from './reactClientQuery';
+import type { ReactMutation } from './reactMutation';
+import type { ReactQuery } from './reactQuery';
 
 /**
  * @internal
@@ -19,7 +19,7 @@ export type ReactClientRouter<TRouter extends ClientRouter> = {
   [K in keyof TRouter['_def']['routes']]: TRouter['_def']['routes'][K] extends ClientRouter
     ? ReactClientRouter<TRouter['_def']['routes'][K]>
     : TRouter['_def']['routes'][K] extends ClientRoute<'query'>
-    ? ReactClientQuery<
+    ? ReactQuery<
         TRouter['_def']['routes'][K]['_def']['description'] extends string
           ? TRouter['_def']['routes'][K]['_def']['description']
           : undefined,
@@ -37,7 +37,7 @@ export type ReactClientRouter<TRouter extends ClientRouter> = {
         }
       >
     : TRouter['_def']['routes'][K] extends ClientRoute<'mutation'>
-    ? ReactClientMutation<
+    ? ReactMutation<
         TRouter['_def']['routes'][K]['_def']['description'] extends string
           ? TRouter['_def']['routes'][K]['_def']['description']
           : undefined,

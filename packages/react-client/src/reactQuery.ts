@@ -1,6 +1,6 @@
 import type { UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 
-export type ReactClientQuery<
+export type ReactQuery<
   TDescription extends string | undefined,
   TDefinition extends {
     args?: any;

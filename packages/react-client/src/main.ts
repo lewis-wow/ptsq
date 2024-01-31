@@ -1,4 +1,4 @@
 export { createReactClient } from './createReactClient';
 
-export type { ReactClientQuery as ReactQuery } from './reactClientQuery';
-export type { ReactClientMutation as ReactMutation } from './reactClientMutation';
+export type { ReactQuery } from './reactQuery';
+export type { ReactMutation } from './reactMutation';

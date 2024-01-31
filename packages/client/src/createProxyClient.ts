@@ -4,7 +4,6 @@ import type { ClientRouter, ProxyClientRouter } from './types';
 
 export type CreateProxyClientArgs = {
   url: RequestInfo | URL;
-  headers?: HeadersInit | (() => HeadersInit | Promise<HeadersInit>);
   fetch?: (
     input: RequestInfo | URL,
     init?: RequestInit | undefined,
@@ -34,7 +33,7 @@ export const createProxyClient = <TRouter extends ClientRouter>(
       if (rawResolverType === 'query') return 'query';
       if (rawResolverType === 'mutate') return 'mutation';
 
-      throw new TypeError('Action is not in action map.');
+      throw new TypeError(`This action (${rawResolverType}) is not defined.`);
     },
     fetch: ({ route, type, args }) => {
       return httpFetch({
