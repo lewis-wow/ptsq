@@ -37,7 +37,15 @@ export class Resolver<
     argsSchema: TArgsSchema;
     outputSchema: TOutputSchema;
     description: TDescription;
+    /**
+     * @internal
+     * type only - cannot access context while creating resolver
+     */
     context: TContext;
+    /**
+     * @internal
+     * type only - cannot access context while creating resolver
+     */
     rootContext: TRootContext;
     compiler: Compiler;
   };

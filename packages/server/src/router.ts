@@ -24,6 +24,10 @@ export class Router<TRoutes extends Routes, TContext extends Context> {
   _def: {
     routes: TRoutes;
     nodeType: 'router';
+    /**
+     * @internal
+     * type only - cannot access context while creating resolver
+     */
     context: TContext;
   };
 
@@ -108,6 +112,11 @@ export class Router<TRoutes extends Routes, TContext extends Context> {
     return nextNode.call(options);
   }
 
+  /**
+   * Creates server side caller to call the request right from the server
+   *
+   * It can be used for testing
+   */
   createServerSideCaller(ctx: TContext) {
     return this._createServerSideCaller({
       ctx,

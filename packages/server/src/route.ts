@@ -6,7 +6,7 @@ import { Middleware, type MiddlewareMeta } from './middleware';
 import type { AnyMiddleware, AnyMiddlewareResponse } from './middleware';
 import { PtsqError } from './ptsqError';
 import type { AnyResolveFunction } from './resolver';
-import type { inferStaticInput, ResolverType } from './types';
+import type { inferClientResolverArgs, ResolverType } from './types';
 
 /**
  * @internal
@@ -131,9 +131,12 @@ export class Route<
     });
   }
 
+  /**
+   * Calls the route resolve function without calling any middleware or validation connected to this route
+   */
   resolve(resolveFunctionOptions: {
     ctx: TContext;
-    input: inferStaticInput<TArgsSchema>;
+    input: inferClientResolverArgs<TArgsSchema>;
     meta: MiddlewareMeta;
   }): ReturnType<TResolveFunction> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return

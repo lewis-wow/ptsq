@@ -7,6 +7,11 @@ type ParseRequestArgs = {
   compiler: Compiler;
 };
 
+/**
+ * @internal
+ *
+ * Parse the request and validate a request body structure
+ */
 export const parseRequest = async ({ request, compiler }: ParseRequestArgs) => {
   const body = await request.json();
 

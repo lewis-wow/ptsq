@@ -2,6 +2,9 @@ import { type TSchema } from '@sinclair/typebox';
 import { TypeCompiler, type TypeCheck } from '@sinclair/typebox/compiler';
 import { Parser } from './parser';
 
+/**
+ * Creates a Typebox validation schema compiler with cache per schema instance
+ */
 export class Compiler {
   _def: {
     hits: number;

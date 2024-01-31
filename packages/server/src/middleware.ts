@@ -24,7 +24,7 @@ export type MiddlewareFunction<TArgs, TContext extends Context> = (options: {
   next: NextFunction<TContext>;
 }) => ReturnType<typeof options.next>;
 
-export type AnyMiddlewareCallback = MiddlewareFunction<unknown, Context>;
+export type AnyMiddlewareFunction = MiddlewareFunction<unknown, Context>;
 
 export type MiddlewareMeta = {
   input: unknown;
@@ -53,7 +53,7 @@ export class Middleware<TArgs, TContext extends Context> {
   /**
    * @internal
    *
-   * Call all middlewares recursivelly depends on the `next` function call.
+   * Calls all middlewares recursivelly depends on the `next` function call.
    *
    * The last middleware that is called is always the resolve function.
    */

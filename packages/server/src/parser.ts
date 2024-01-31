@@ -25,6 +25,12 @@ export type SchemaParserEncodePayload<T extends TSchema> =
     }
   | SchemaParserErrorPayload;
 
+/**
+ * @internal
+ *
+ * Parses the input and output
+ * Automatically encode/decode the values
+ */
 export class Parser<TValidationSchema extends TSchema> {
   _def: {
     schema?: TValidationSchema;

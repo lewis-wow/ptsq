@@ -1,6 +1,9 @@
 import type { AnyMiddlewareResponse } from './middleware';
 import type { MaybePromise } from './types';
 
+/**
+ * Creates envelope of response, allows you to edit the response right before sending the response to client
+ */
 export class Envelope {
   _def: {
     envelope?: (
