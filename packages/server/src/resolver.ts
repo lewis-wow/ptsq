@@ -120,66 +120,6 @@ export class Resolver<
     });
   }
 
-  merge<
-    TResolver extends Resolver<
-      TSchema | undefined,
-      TSchema | undefined,
-      any,
-      any,
-      string | undefined
-    >,
-  >(
-    resolver: TContext extends TResolver['_def']['rootContext']
-      ? TResolver
-      : never,
-  ) {
-    const nextArgsSchema =
-      this._def.argsSchema === undefined &&
-      resolver._def.argsSchema === undefined
-        ? undefined
-        : this._def.argsSchema === undefined
-        ? resolver._def.argsSchema
-        : resolver._def.argsSchema === undefined
-        ? this._def.argsSchema
-        : Type.Intersect([this._def.argsSchema, resolver._def.argsSchema]);
-
-    type NextArgsSchema = TArgsSchema extends TSchema
-      ? TResolver['_def']['argsSchema'] extends TSchema
-        ? TIntersect<[TArgsSchema, TResolver['_def']['argsSchema']]>
-        : TArgsSchema
-      : TResolver['_def']['argsSchema'];
-
-    const nextOutputSchema =
-      this._def.outputSchema === undefined &&
-      resolver._def.outputSchema === undefined
-        ? undefined
-        : this._def.outputSchema === undefined
-        ? resolver._def.outputSchema
-        : resolver._def.outputSchema === undefined
-        ? this._def.outputSchema
-        : Type.Intersect([this._def.outputSchema, resolver._def.outputSchema]);
-
-    type NextOutputSchema = TArgsSchema extends TSchema
-      ? TResolver['_def']['outputSchema'] extends TSchema
-        ? TIntersect<[TArgsSchema, TResolver['_def']['outputSchema']]>
-        : TArgsSchema
-      : TResolver['_def']['outputSchema'];
-
-    return new Resolver<
-      NextArgsSchema,
-      NextOutputSchema,
-      TRootContext,
-      Simplify<ShallowMerge<TContext, TResolver['_def']['context']>>,
-      TDescription
-    >({
-      argsSchema: nextArgsSchema as NextArgsSchema,
-      outputSchema: nextOutputSchema as NextOutputSchema,
-      middlewares: [...this._def.middlewares, ...resolver._def.middlewares],
-      description: this._def.description,
-      compiler: this._def.compiler,
-    });
-  }
-
   /**
    * Add additional arguments by the validation schema to the resolver
    *
@@ -374,6 +314,85 @@ export class Resolver<
       middlewares: [],
       description: undefined,
       compiler: rootResolverOptions?.compiler ?? new Compiler(),
+    });
+  }
+
+  static merge<
+    TResolverA extends Resolver<any, any, any, any, string | undefined>,
+    TResolverB extends Resolver<any, any, any, any, string | undefined>,
+  >(
+    resolverA: TResolverA,
+    resolverB: TResolverA['_def']['context'] extends TResolverB['_def']['rootContext']
+      ? TResolverB
+      : ErrorMessage<`Context of resolver B have to extends context of resolver A.`>,
+  ) {
+    const _resolverB = resolverB as TResolverB;
+
+    const nextArgsSchema =
+      resolverA._def.argsSchema === undefined &&
+      _resolverB._def.argsSchema === undefined
+        ? undefined
+        : resolverA._def.argsSchema === undefined
+        ? _resolverB._def.argsSchema
+        : _resolverB._def.argsSchema === undefined
+        ? resolverA._def.argsSchema
+        : Type.Intersect([
+            resolverA._def.argsSchema,
+            _resolverB._def.argsSchema,
+          ]);
+
+    type NextArgsSchema = TResolverA['_def']['argsSchema'] extends TSchema
+      ? TResolverB['_def']['argsSchema'] extends TSchema
+        ? TIntersect<
+            [TResolverA['_def']['argsSchema'], TResolverB['_def']['argsSchema']]
+          >
+        : TResolverA['_def']['argsSchema']
+      : TResolverB['_def']['argsSchema'];
+
+    const nextOutputSchema =
+      resolverA._def.outputSchema === undefined &&
+      _resolverB._def.outputSchema === undefined
+        ? undefined
+        : resolverA._def.outputSchema === undefined
+        ? _resolverB._def.outputSchema
+        : _resolverB._def.outputSchema === undefined
+        ? resolverA._def.outputSchema
+        : Type.Intersect([
+            resolverA._def.outputSchema,
+            _resolverB._def.outputSchema,
+          ]);
+
+    type NextOutputSchema = TResolverA['_def']['outputSchema'] extends TSchema
+      ? TResolverB['_def']['outputSchema'] extends TSchema
+        ? TIntersect<
+            [
+              TResolverA['_def']['outputSchema'],
+              TResolverB['_def']['outputSchema'],
+            ]
+          >
+        : TResolverA['_def']['outputSchema']
+      : TResolverB['_def']['outputSchema'];
+
+    return new Resolver<
+      NextArgsSchema,
+      NextOutputSchema,
+      TResolverA['_def']['rootContext'],
+      Simplify<
+        ShallowMerge<
+          TResolverA['_def']['context'],
+          TResolverB['_def']['context']
+        >
+      >,
+      TResolverB['_def']['description']
+    >({
+      argsSchema: nextArgsSchema as NextArgsSchema,
+      outputSchema: nextOutputSchema as NextOutputSchema,
+      middlewares: [
+        ...resolverA._def.middlewares,
+        ..._resolverB._def.middlewares,
+      ],
+      description: _resolverB._def.description,
+      compiler: resolverA._def.compiler,
     });
   }
 }
