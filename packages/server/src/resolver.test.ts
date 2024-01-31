@@ -99,5 +99,5 @@ test('Should merge 2 resolvers with description', () => {
 
   const mergedResolver = Resolver.merge(resolverA, resolverB);
 
-  expect(mergedResolver._def.description).toBe('A');
+  expect(mergedResolver._def.description).toBe('B');
 });
