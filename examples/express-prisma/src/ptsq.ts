@@ -3,4 +3,14 @@ import { createContext } from './context';
 
 export const { router, resolver, serve } = PtsqServer.init({
   ctx: createContext,
-}).create();
+})
+  .use(async ({ next, meta }) => {
+    console.log('request: ', meta);
+
+    const response = await next();
+
+    console.log('response: ', response);
+
+    return response;
+  })
+  .create();
