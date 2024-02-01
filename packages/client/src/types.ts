@@ -44,9 +44,7 @@ export type ProxyClientRouter<TRouter extends ClientRouter> = {
     ? ProxyClientRouter<TRouter['_def']['routes'][K]>
     : TRouter['_def']['routes'][K] extends ClientRoute<'query'>
     ? Query<
-        TRouter['_def']['routes'][K]['_def']['description'] extends string
-          ? TRouter['_def']['routes'][K]['_def']['description']
-          : undefined,
+        TRouter['_def']['routes'][K]['_def']['description'],
         {
           args: Simplify<
             inferClientResolverArgs<
@@ -62,9 +60,7 @@ export type ProxyClientRouter<TRouter extends ClientRouter> = {
       >
     : TRouter['_def']['routes'][K] extends ClientRoute<'mutation'>
     ? Mutation<
-        TRouter['_def']['routes'][K]['_def']['description'] extends string
-          ? TRouter['_def']['routes'][K]['_def']['description']
-          : undefined,
+        TRouter['_def']['routes'][K]['_def']['description'],
         {
           args: Simplify<
             inferClientResolverArgs<

@@ -5,16 +5,12 @@ import type {
 } from '@tanstack/svelte-query';
 
 export type SvelteMutation<
-  TDescription extends string | undefined,
+  _TDescription extends string | undefined,
   TDefinition extends {
     args?: any;
     output: any;
   },
 > = {
-  _def: {
-    description: TDescription;
-  };
-
   createMutation: (
     mutationOptions?: Omit<CreateMutationOptions, 'mutationFn' | 'mutationKey'>,
   ) => CreateMutationResult<

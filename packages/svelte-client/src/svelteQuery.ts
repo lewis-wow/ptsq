@@ -7,16 +7,12 @@ import type {
 } from '@tanstack/svelte-query';
 
 export type SvelteQuery<
-  TDescription extends string | undefined,
+  _TDescription extends string | undefined,
   TDefinition extends {
     args?: any;
     output: any;
   },
 > = {
-  _def: {
-    description: TDescription;
-  };
-
   createQuery: (
     requestInput: TDefinition['args'],
     queryOptions?: Omit<CreateQueryOptions, 'queryFn' | 'queryKey'>,

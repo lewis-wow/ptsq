@@ -9,16 +9,12 @@ import type {
 } from '@tanstack/react-query';
 
 export type ReactQuery<
-  TDescription extends string | undefined,
+  _TDescription extends string | undefined,
   TDefinition extends {
     args?: any;
     output: any;
   },
 > = {
-  _def: {
-    description: TDescription;
-  };
-
   useQuery: (
     requestInput: TDefinition['args'],
     queryOptions?: Omit<UseQueryOptions, 'queryFn' | 'queryKey'>,

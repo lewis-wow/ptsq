@@ -5,16 +5,12 @@ import type {
 } from '@tanstack/react-query';
 
 export type ReactMutation<
-  TDescription extends string | undefined,
+  _TDescription extends string | undefined,
   TDefinition extends {
     args?: any;
     output: any;
   },
 > = {
-  _def: {
-    description: TDescription;
-  };
-
   useMutation: (
     mutationOptions?: Omit<UseMutationOptions, 'mutationFn' | 'mutationKey'>,
   ) => UseMutationResult<

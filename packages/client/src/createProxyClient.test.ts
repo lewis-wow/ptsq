@@ -235,6 +235,7 @@ test('Should create simple http server with proxy client and creates request wit
         }),
       )
       .output(Type.String())
+      .description('Description...')
       .query(({ input }) => input.name),
   });
 
