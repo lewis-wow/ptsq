@@ -1,5 +1,4 @@
-import { PtsqServer } from '@ptsq/server';
-import { Type } from '@sinclair/typebox';
+import { PtsqServer, Type } from '@ptsq/server';
 import express, { Request, Response } from 'express';
 
 const app = express();

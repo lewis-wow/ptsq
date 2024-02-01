@@ -1,6 +1,5 @@
 import { createServer } from 'http';
-import { PtsqServer } from '@ptsq/server';
-import { Type } from '@sinclair/typebox';
+import { PtsqServer, Type } from '@ptsq/server';
 
 const { resolver, router, serve } = PtsqServer.init().create();
 

@@ -64,6 +64,8 @@ axios
         );
     }
 
+    if (!outFile) throw new Error('Out file is not defined.');
+
     await writeFile(outFile, schema!, 'utf8');
 
     console.log(`Schema generated into ${resolve(outFile)}`);

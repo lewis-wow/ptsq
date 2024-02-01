@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox';
+import { Type } from '@ptsq/server';
 import { Nullable } from './types/nullable';
 
 /**

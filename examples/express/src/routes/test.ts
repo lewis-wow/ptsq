@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox';
+import { Type } from '@ptsq/server';
 import { loggingResolver } from '../resolvers/loggingResolver';
 
 const schema = Type.Object({

@@ -11,7 +11,6 @@
   "dependencies": {
     "@ptsq/react-client": "*",
     "@ptsq/server": "*",
-    "@sinclair/typebox": "^0.31.28",
     "next": "14.1.0",
     "react": "^18",
     "react-dom": "^18"
