@@ -28,9 +28,15 @@ export type ReactQuery<
     requestInput: TDefinition['args'],
     queryOptions?: Omit<UseSuspenseQueryOptions, 'queryFn' | 'queryKey'>,
   ) => UseSuspenseQueryResult<TDefinition['output'], PtsqClientError>;
-
-  useInfiniteQuery: (
-    requestInput: TDefinition['args'],
-    queryOptions?: Omit<UseInfiniteQueryOptions, 'queryFn' | 'queryKey'>,
-  ) => UseInfiniteQueryResult<TDefinition['output'], PtsqClientError>;
-};
+} & (TDefinition['args'] extends object
+  ? 'cursor' extends keyof TDefinition['args']
+    ? {
+        useInfiniteQuery: (
+          requestInput: Omit<TDefinition['args'], 'cursor'>,
+          queryOptions?: Omit<UseInfiniteQueryOptions, 'queryFn' | 'queryKey'>,
+        ) => UseInfiniteQueryResult<TDefinition['output'], PtsqClientError>;
+      }
+    : // eslint-disable-next-line @typescript-eslint/ban-types
+      {}
+  : // eslint-disable-next-line @typescript-eslint/ban-types
+    {});
