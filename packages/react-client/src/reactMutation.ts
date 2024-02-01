@@ -1,3 +1,4 @@
+import type { PtsqClientError } from '@ptsq/client';
 import type {
   UseMutationOptions,
   UseMutationResult,
@@ -16,5 +17,9 @@ export type ReactMutation<
 
   useMutation: (
     mutationOptions?: Omit<UseMutationOptions, 'mutationFn' | 'mutationKey'>,
-  ) => UseMutationResult<TDefinition['output'], Error, TDefinition['args']>;
+  ) => UseMutationResult<
+    TDefinition['output'],
+    PtsqClientError,
+    TDefinition['args']
+  >;
 };

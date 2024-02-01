@@ -1,5 +1,6 @@
 import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
+import { useCORS } from '@whatwg-node/server';
 import axios from 'axios';
 import { expect, test } from 'vitest';
 import { PtsqError } from './ptsqError';
@@ -13,7 +14,9 @@ test('Should create server with 2 nested middlewares that runs before and after 
     secondResponse: false,
   };
 
-  const { resolver, router, serve } = PtsqServer.init()
+  const { resolver, router, serve } = PtsqServer.init({
+    plugins: [useCORS({ origin: '*' })],
+  })
     .use(async ({ next }) => {
       expect(serverMiddlewareState).toStrictEqual({
         firstRequest: false,
@@ -80,7 +83,9 @@ test('Should create server with 2 nested middlewares that runs before and after 
 test('Should create server with middleware that runs before and after invalid route call, where the error is thrown by a router', async () => {
   let wasCheckedByMiddelware = false;
 
-  const { resolver, router, serve } = PtsqServer.init()
+  const { resolver, router, serve } = PtsqServer.init({
+    plugins: [useCORS({ origin: '*' })],
+  })
     .use(async ({ next }) => {
       const response = await next();
 
@@ -127,7 +132,9 @@ test('Should create server with middleware that runs before and after invalid ro
 test('Should create server with middleware that runs before and after invalid type call, where the error is thrown by a router', async () => {
   let wasCheckedByMiddelware = false;
 
-  const { resolver, router, serve } = PtsqServer.init()
+  const { resolver, router, serve } = PtsqServer.init({
+    plugins: [useCORS({ origin: '*' })],
+  })
     .use(async ({ next }) => {
       const response = await next();
 
@@ -174,7 +181,9 @@ test('Should create server with middleware that runs before and after invalid ty
 });
 
 test('Should create server introspection', async () => {
-  const { resolver, router, serve } = PtsqServer.init().create();
+  const { resolver, router, serve } = PtsqServer.init({
+    plugins: [useCORS({ origin: '*' })],
+  }).create();
 
   const baseRouter = router({
     test: resolver.output(Type.String()).query(() => 'Hello'),
@@ -266,7 +275,9 @@ test('Should create server introspection', async () => {
 });
 
 test('Should not fetch server with wrong method', async () => {
-  const { resolver, router, serve } = PtsqServer.init().create();
+  const { resolver, router, serve } = PtsqServer.init({
+    plugins: [useCORS({ origin: '*' })],
+  }).create();
 
   const baseRouter = router({
     test: resolver.output(Type.String()).query(() => 'Hello'),
@@ -287,7 +298,9 @@ test('Should not fetch server with wrong method', async () => {
 });
 
 test('Should not fetch server introspection with wrong method', async () => {
-  const { resolver, router, serve } = PtsqServer.init().create();
+  const { resolver, router, serve } = PtsqServer.init({
+    plugins: [useCORS({ origin: '*' })],
+  }).create();
 
   const baseRouter = router({
     test: resolver.output(Type.String()).query(() => 'Hello'),
@@ -308,7 +321,9 @@ test('Should not fetch server introspection with wrong method', async () => {
 });
 
 test('Should not fetch server introspection with wrong route', async () => {
-  const { resolver, router, serve } = PtsqServer.init().create();
+  const { resolver, router, serve } = PtsqServer.init({
+    plugins: [useCORS({ origin: '*' })],
+  }).create();
 
   const baseRouter = router({
     test: resolver.output(Type.String()).query(() => 'Hello'),

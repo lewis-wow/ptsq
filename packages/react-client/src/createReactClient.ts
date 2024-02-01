@@ -25,7 +25,9 @@ export const createReactClient = <TRouter extends ClientRouter>(
   createProxyUntypedClient<[any, any]>({
     route: [],
     resolveType: (rawResolverType) => {
-      if (rawResolverType === 'useQuery') return 'query';
+      if (['useQuery', 'useSuspenseQuery'].includes(rawResolverType))
+        return 'query';
+
       if (rawResolverType === 'useMutation') return 'mutation';
 
       throw new TypeError(`This action (${rawResolverType}) is not defined.`);

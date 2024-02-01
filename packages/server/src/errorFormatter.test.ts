@@ -1,5 +1,6 @@
 import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
+import { useCORS } from '@whatwg-node/server';
 import { expect, test } from 'vitest';
 import { PtsqError } from './ptsqError';
 import { PtsqServer } from './ptsqServer';
@@ -7,6 +8,7 @@ import { PtsqServer } from './ptsqServer';
 test('Should create server without error formatter and return the error', async () => {
   const { router, resolver, serve } = PtsqServer.init({
     ctx: () => ({}),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -38,6 +40,7 @@ test('Should create server without error formatter and return null as error', as
   const { router, resolver, serve } = PtsqServer.init({
     ctx: () => ({}),
     errorFormatter: (_error) => new PtsqError({ code: 'BAD_REQUEST' }),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -73,6 +76,7 @@ test('Should create server without error formatter and return custom object as e
           b: 2,
         },
       }),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -107,6 +111,7 @@ test('Should create server with error formatter and return empty object on error
   const { router, resolver, serve } = PtsqServer.init({
     ctx: () => ({}),
     errorFormatter: (_error) => new PtsqError({ code: 'BAD_REQUEST' }),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -137,6 +142,7 @@ test('Should create server with error formatter and keep the original error', as
   const { router, resolver, serve } = PtsqServer.init({
     ctx: () => ({}),
     errorFormatter: (error) => error,
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -172,6 +178,7 @@ test('Should create server with error formatter and change the http error', asyn
         code: 'CONFLICT',
         message: 'Hello',
       }),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -208,6 +215,7 @@ test('Should create server with error formatter and keep the original error with
         message: error.message,
         info: 'my info...',
       }),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({

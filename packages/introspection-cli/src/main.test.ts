@@ -1,4 +1,4 @@
-import { PtsqServer } from '@ptsq/server';
+import { PtsqServer, useCORS } from '@ptsq/server';
 import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
@@ -6,6 +6,7 @@ import { expect, test } from 'vitest';
 test('Should instropectate simple http server', async () => {
   const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -118,6 +119,7 @@ test('Should instropectate simple http server', async () => {
 test('Should instropectate simple http server with empty query', async () => {
   const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -212,6 +214,7 @@ test('Should instropectate simple http server with empty query', async () => {
 test('Should instropectate simple http server with nested routers', async () => {
   const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({

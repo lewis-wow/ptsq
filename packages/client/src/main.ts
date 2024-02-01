@@ -10,6 +10,8 @@ export {
 
 export { httpFetch, type HttpFetchArgs } from './httpFetch';
 
+export { PtsqClientError } from './ptsqClientError';
+
 export type {
   ClientRoute as Route,
   ClientRouter as Router,
