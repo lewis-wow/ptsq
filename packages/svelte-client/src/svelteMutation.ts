@@ -1,8 +1,8 @@
 import type { PtsqClientError } from '@ptsq/client';
 import type {
-  UseMutationOptions,
-  UseMutationResult,
-} from '@tanstack/react-query';
+  CreateMutationOptions,
+  CreateMutationResult,
+} from '@tanstack/svelte-query';
 
 export type SvelteMutation<
   TDescription extends string | undefined,
@@ -15,9 +15,9 @@ export type SvelteMutation<
     description: TDescription;
   };
 
-  useMutation: (
-    mutationOptions?: Omit<UseMutationOptions, 'mutationFn' | 'mutationKey'>,
-  ) => UseMutationResult<
+  createMutation: (
+    mutationOptions?: Omit<CreateMutationOptions, 'mutationFn' | 'mutationKey'>,
+  ) => CreateMutationResult<
     TDefinition['output'],
     PtsqClientError,
     TDefinition['args']

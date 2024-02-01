@@ -7,19 +7,19 @@ import type {
   inferClientResolverOutput,
   Simplify,
 } from '@ptsq/server';
-import type { ReactMutation } from './svelteMutation';
-import type { ReactQuery } from './svelteQuery';
+import type { SvelteMutation } from './svelteMutation.js';
+import type { SvelteQuery } from './svelteQuery.js';
 
 /**
  * @internal
  *
  * React client type for casting proxy client to correct types
  */
-export type ReactClientRouter<TRouter extends ClientRouter> = {
+export type SvelteClientRouter<TRouter extends ClientRouter> = {
   [K in keyof TRouter['_def']['routes']]: TRouter['_def']['routes'][K] extends ClientRouter
-    ? ReactClientRouter<TRouter['_def']['routes'][K]>
+    ? SvelteClientRouter<TRouter['_def']['routes'][K]>
     : TRouter['_def']['routes'][K] extends ClientRoute<'query'>
-    ? ReactQuery<
+    ? SvelteQuery<
         TRouter['_def']['routes'][K]['_def']['description'] extends string
           ? TRouter['_def']['routes'][K]['_def']['description']
           : undefined,
@@ -37,7 +37,7 @@ export type ReactClientRouter<TRouter extends ClientRouter> = {
         }
       >
     : TRouter['_def']['routes'][K] extends ClientRoute<'mutation'>
-    ? ReactMutation<
+    ? SvelteMutation<
         TRouter['_def']['routes'][K]['_def']['description'] extends string
           ? TRouter['_def']['routes'][K]['_def']['description']
           : undefined,

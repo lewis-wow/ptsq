@@ -1,4 +1,4 @@
-export { createReactClient } from './createSvelteClient';
+export { createSvelteClient } from './createSvelteClient.js';
 
-export type { ReactQuery } from './svelteQuery';
-export type { ReactMutation } from './svelteMutation';
+export type { SvelteQuery } from './svelteQuery.js';
+export type { SvelteMutation } from './svelteMutation.js';

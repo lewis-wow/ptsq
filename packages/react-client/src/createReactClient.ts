@@ -4,7 +4,12 @@ import {
   type Router as ClientRouter,
   type CreateProxyClientArgs,
 } from '@ptsq/client';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
 import type { ReactClientRouter } from './types';
 
 /**
@@ -24,46 +29,73 @@ export const createReactClient = <TRouter extends ClientRouter>(
 ): ReactClientRouter<TRouter> =>
   createProxyUntypedClient<[any, any]>({
     route: [],
-    resolveType: (rawResolverType) => {
-      if (['useQuery', 'useSuspenseQuery'].includes(rawResolverType))
-        return 'query';
-
-      if (rawResolverType === 'useMutation') return 'mutation';
-
-      throw new TypeError(`This action (${rawResolverType}) is not defined.`);
-    },
     fetch: ({ route, type, args }) => {
-      if (type === 'query') {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        return useQuery({
-          queryKey: [route],
-          queryFn: (context) =>
-            httpFetch({
-              ...options,
-              body: {
-                route,
-                type,
-                input: args[0],
-              },
-              signal: context.signal,
-            }),
-          ...args[1],
-        });
+      switch (type) {
+        case 'useQuery':
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          return useQuery({
+            queryKey: [route],
+            queryFn: (context) =>
+              httpFetch({
+                ...options,
+                body: {
+                  route,
+                  type: 'query',
+                  input: args[0],
+                },
+                signal: context.signal,
+              }),
+            ...args[1],
+          });
+        case 'useSuspenseQuery':
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          return useSuspenseQuery({
+            queryKey: [route],
+            queryFn: (context) =>
+              httpFetch({
+                ...options,
+                body: {
+                  route,
+                  type: 'query',
+                  input: args[0],
+                },
+                signal: context.signal,
+              }),
+            ...args[1],
+          });
+        case 'useInfiniteQuery':
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          return useInfiniteQuery({
+            queryKey: [route],
+            queryFn: (context) =>
+              httpFetch({
+                ...options,
+                body: {
+                  route,
+                  type: 'query',
+                  input: args[0],
+                },
+                signal: context.signal,
+              }),
+            ...args[1],
+          });
+        case 'useMutation':
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          return useMutation({
+            mutationKey: [route],
+            mutationFn: (variables: any) =>
+              httpFetch({
+                ...options,
+                body: {
+                  route,
+                  type: 'mutation',
+                  input: variables,
+                },
+              }),
+            ...args[0],
+          });
+        default:
+          throw new TypeError('This action is not defined.');
       }
-
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      return useMutation({
-        mutationKey: [route],
-        mutationFn: (variables: any) =>
-          httpFetch({
-            ...options,
-            body: {
-              route,
-              type,
-              input: variables,
-            },
-          }),
-        ...args[0],
-      });
     },
   }) as ReactClientRouter<TRouter>;
