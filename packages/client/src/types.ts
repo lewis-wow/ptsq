@@ -4,8 +4,8 @@ import type {
   ResolverType,
   Simplify,
 } from '@ptsq/server';
-import type { ClientMutation } from './clientMutation';
-import type { ClientQuery } from './clientQuery';
+import type { Mutation } from './mutation';
+import type { Query } from './query';
 
 /**
  * more general route type than in server package, because of introspection result
@@ -43,7 +43,7 @@ export type ProxyClientRouter<TRouter extends ClientRouter> = {
   [K in keyof TRouter['_def']['routes']]: TRouter['_def']['routes'][K] extends ClientRouter
     ? ProxyClientRouter<TRouter['_def']['routes'][K]>
     : TRouter['_def']['routes'][K] extends ClientRoute<'query'>
-    ? ClientQuery<
+    ? Query<
         TRouter['_def']['routes'][K]['_def']['description'] extends string
           ? TRouter['_def']['routes'][K]['_def']['description']
           : undefined,
@@ -61,7 +61,7 @@ export type ProxyClientRouter<TRouter extends ClientRouter> = {
         }
       >
     : TRouter['_def']['routes'][K] extends ClientRoute<'mutation'>
-    ? ClientMutation<
+    ? Mutation<
         TRouter['_def']['routes'][K]['_def']['description'] extends string
           ? TRouter['_def']['routes'][K]['_def']['description']
           : undefined,

@@ -1,9 +1,10 @@
+import type { PtsqClientError } from '@ptsq/client';
 import type {
   UseMutationOptions,
   UseMutationResult,
 } from '@tanstack/react-query';
 
-export type ReactClientMutation<
+export type ReactMutation<
   TDescription extends string | undefined,
   TDefinition extends {
     args?: any;
@@ -16,5 +17,9 @@ export type ReactClientMutation<
 
   useMutation: (
     mutationOptions?: Omit<UseMutationOptions, 'mutationFn' | 'mutationKey'>,
-  ) => UseMutationResult<TDefinition['output'], Error, TDefinition['args']>;
+  ) => UseMutationResult<
+    TDefinition['output'],
+    PtsqClientError,
+    TDefinition['args']
+  >;
 };

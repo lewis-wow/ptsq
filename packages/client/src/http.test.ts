@@ -1,4 +1,4 @@
-import { PtsqServer } from '@ptsq/server';
+import { PtsqServer, useCORS } from '@ptsq/server';
 import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
@@ -6,6 +6,7 @@ import { expect, test } from 'vitest';
 test('Should create simple http server', async () => {
   const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -39,6 +40,7 @@ test('Should create simple http server with context', async () => {
     ctx: () => ({
       number: 42 as const,
     }),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -83,6 +85,7 @@ test('Should create simple http server with middleware', async () => {
     ctx: () => ({
       number: 42 as const,
     }),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -132,6 +135,7 @@ test('Should create simple http server with 2 nested middlewares', async () => {
     ctx: () => ({
       number: 42 as const,
     }),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -197,6 +201,7 @@ test('Should create simple http server with 2 nested middlewares', async () => {
 test('Should introspectate the server with http adapter', async () => {
   const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -309,6 +314,7 @@ test('Should introspectate the server with http adapter', async () => {
 test('Should create simple http server and return BAD_REQUEST response', async () => {
   const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -340,6 +346,7 @@ test('Should create simple http server and return BAD_REQUEST response', async (
 test('Should create simple http server and return BAD_REQUEST response with bad resolver type', async () => {
   const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({
@@ -364,6 +371,7 @@ test('Should create simple http server and return BAD_REQUEST response with bad 
 test('Should create simple http server and return INTERNAL_SERVER_ERROR response', async () => {
   const { resolver, router, serve } = PtsqServer.init({
     ctx: () => ({}),
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const baseRouter = router({

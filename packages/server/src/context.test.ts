@@ -1,6 +1,7 @@
 import { IncomingMessage, ServerResponse } from 'http';
 import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
+import { useCORS } from '@whatwg-node/server';
 import { expect, test } from 'vitest';
 import { PtsqServer } from './ptsqServer';
 
@@ -15,6 +16,7 @@ test('Should create context with Request object that should be injected', async 
 
   const { router, serve, resolver } = PtsqServer.init({
     ctx: createContext,
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const server = serve(
@@ -52,6 +54,7 @@ test('Should create context with req and res object that should be injected', as
 
   const { router, serve, resolver } = PtsqServer.init({
     ctx: createContext,
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const server = serve(
@@ -81,6 +84,7 @@ test('Should create context with custom param that should not be injected', asyn
 
   const { router, serve, resolver } = PtsqServer.init({
     ctx: createContext,
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const server = serve(
@@ -110,6 +114,7 @@ test('Should create context with custom param that should not be injected but pa
 
   const { router, serve, resolver } = PtsqServer.init({
     ctx: createContext,
+    plugins: [useCORS({ origin: '*' })],
   }).create();
 
   const server = serve(

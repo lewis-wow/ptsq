@@ -6,6 +6,7 @@ import {
 } from 'http';
 import axios from 'axios';
 import type { AxiosResponse } from 'axios';
+import { killable } from './killable';
 
 type CreateHttpTestServerPayload = {
   fetch: (data: unknown) => Promise<AxiosResponse>;
@@ -20,9 +21,11 @@ export const createHttpTestServer = (
     | ((req: IncomingMessage, res: ServerResponse) => Promise<void>),
 ) => {
   return new Promise<CreateHttpTestServerPayload>((resolve) => {
-    const server = createServer((req, res) => {
-      listener(req, res);
-    });
+    const { server, kill } = killable(
+      createServer((req, res) => {
+        listener(req, res);
+      }),
+    );
 
     server.listen(0, () => {
       const address = server.address();
@@ -40,12 +43,11 @@ export const createHttpTestServer = (
         fetch: (data: unknown) => axios.post(`${serverURL}/ptsq`, data),
         introspectate: () => axios.get(`${serverURL}/ptsq/introspection`),
         url: `${serverURL}/ptsq`,
-        $disconnect: () =>
-          new Promise((disconnectResolve) =>
-            server.close(() => {
-              disconnectResolve();
-            }),
-          ),
+        $disconnect: () => {
+          return new Promise((disconnectResolve) => {
+            kill(disconnectResolve);
+          });
+        },
       });
     });
   });

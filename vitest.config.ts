@@ -3,6 +3,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     teardownTimeout: 1000,
+    environment: 'jsdom',
     coverage: {
       provider: 'istanbul',
       include: [

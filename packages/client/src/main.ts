@@ -1,11 +1,21 @@
-export { createProxyClient } from './createProxyClient';
+export {
+  createProxyClient,
+  type CreateProxyClientArgs,
+} from './createProxyClient';
 
-export type { RequestHeaders } from './headers';
+export {
+  createProxyUntypedClient,
+  type CreateProxyUntypedClientArgs,
+} from './createProxyUntypedClient';
+
+export { httpFetch, type HttpFetchArgs } from './httpFetch';
+
+export { PtsqClientError } from './ptsqClientError';
+
 export type {
   ClientRoute as Route,
   ClientRouter as Router,
   AnyClientRoute as AnyRoute,
 } from './types';
-export type { ClientQuery } from './clientQuery';
-export type { ClientMutation } from './clientMutation';
-export { Client, type ClientOptions } from './client';
+export type { Query } from './query';
+export type { Mutation } from './mutation';
