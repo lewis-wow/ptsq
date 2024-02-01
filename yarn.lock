@@ -1513,12 +1513,24 @@
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.14.2.tgz#ef0c1a93e142d5cce90b0ac2d0333a88fc0fbb95"
   integrity sha512-QmoJvC72sSWs3hgGis8JdmlDvqLfYGWUK4UG6OR9Q6t28JMN9m2FDwKPqoSJ9YVocELCSjMt/FGjEiLfk8000Q==
 
+"@tanstack/query-core@5.18.0":
+  version "5.18.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.18.0.tgz#445a0cbf94b49d57132255c74570cfb63cf444c2"
+  integrity sha512-8c6nxeAnGHxIDZIyDmHdmgFt4D+LprAQaJmjsnM4szcIjsWOyFlzxdqQUuQ/XuQRvUgqYaqlJTtDADlSS7pTPQ==
+
 "@tanstack/react-query@^5.14.2":
   version "5.14.2"
   resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.14.2.tgz#b66c9710609118c07bfe6fca0147c6735a4c95a5"
   integrity sha512-SbOzV7UBW8ED3tOnyn6kqNGscnOAfoxShYlbvaQo/5528mDZKpvrwoL/1du1/ukSC6RMAiKmx95SrYqlwPzWDw==
   dependencies:
     "@tanstack/query-core" "5.14.2"
+
+"@tanstack/svelte-query@^5.18.0":
+  version "5.18.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/svelte-query/-/svelte-query-5.18.0.tgz#ce460420cb089e2274983d6fbadc19a48510f61d"
+  integrity sha512-XDgJaGwSOD8gCD2rATSm16N2UfiztDA8aLsQ3mtj/isBEW4DG5DpXzlxYKc2WuGtQVYFELoPIh1wqIt6wHbSbw==
+  dependencies:
+    "@tanstack/query-core" "5.18.0"
 
 "@testing-library/dom@^9.0.0":
   version "9.3.4"
