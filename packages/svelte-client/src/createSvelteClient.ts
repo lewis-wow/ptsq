@@ -6,37 +6,36 @@ import {
   type CreateProxyClientArgs,
 } from '@ptsq/client';
 import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useSuspenseQuery,
-} from '@tanstack/react-query';
-import type { ReactClientRouter } from './types';
+  createInfiniteQuery,
+  createMutation,
+  createQuery,
+} from '@tanstack/svelte-query';
+import type { SvelteClientRouter } from './types';
 
 /**
- * Creates React client
+ * Creates Svelte client
  *
  * @example
  * ```ts
- * const client = createReactClient<BaseRouter>({
+ * const client = createSvelteClient<BaseRouter>({
  *   url: 'http://localhost:4000/ptsq/'
  * });
  *
- * const currentUser = await client.user.getCurrent.useQuery();
+ * const currentUser = await client.user.getCurrent.createQuery();
  * ```
  */
-export const createReactClient = <TRouter extends ClientRouter>(
+export const createSvelteClient = <TRouter extends ClientRouter>(
   options: CreateProxyClientArgs,
-): ReactClientRouter<TRouter> =>
+): SvelteClientRouter<TRouter> =>
   createProxyUntypedClient<[any, any]>({
     route: [],
     fetch: ({ route, type, args }) => {
       switch (type) {
-        case 'useQuery':
+        case 'createQuery':
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return useQuery({
+          return createQuery({
             queryKey: [route],
-            queryFn: (context) =>
+            queryFn: () =>
               httpFetch({
                 ...options,
                 body: {
@@ -44,15 +43,14 @@ export const createReactClient = <TRouter extends ClientRouter>(
                   type: 'query',
                   input: args[0],
                 },
-                signal: context.signal,
               }),
             ...args[1],
           });
-        case 'useSuspenseQuery':
+        case 'createInfiniteQuery':
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return useSuspenseQuery({
+          return createInfiniteQuery({
             queryKey: [route],
-            queryFn: (context) =>
+            queryFn: () =>
               httpFetch({
                 ...options,
                 body: {
@@ -60,29 +58,12 @@ export const createReactClient = <TRouter extends ClientRouter>(
                   type: 'query',
                   input: args[0],
                 },
-                signal: context.signal,
               }),
             ...args[1],
           });
-        case 'useInfiniteQuery':
+        case 'createMutation':
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return useInfiniteQuery({
-            queryKey: [route],
-            queryFn: (context) =>
-              httpFetch({
-                ...options,
-                body: {
-                  route,
-                  type: 'query',
-                  input: args[0],
-                },
-                signal: context.signal,
-              }),
-            ...args[1],
-          });
-        case 'useMutation':
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return useMutation({
+          return createMutation({
             mutationKey: [route],
             mutationFn: (variables: any) =>
               httpFetch({
@@ -99,4 +80,4 @@ export const createReactClient = <TRouter extends ClientRouter>(
           throw new UndefinedAction();
       }
     },
-  }) as ReactClientRouter<TRouter>;
+  }) as SvelteClientRouter<TRouter>;

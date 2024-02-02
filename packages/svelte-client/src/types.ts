@@ -1,49 +1,25 @@
 import type {
+  Route as ClientRoute,
+  Router as ClientRouter,
+} from '@ptsq/client';
+import type {
   inferClientResolverArgs,
   inferClientResolverOutput,
-  ResolverType,
   Simplify,
 } from '@ptsq/server';
-import type { Mutation } from './mutation';
-import type { Query } from './query';
-
-/**
- * more general route type than in server package, because of introspection result
- */
-export type ClientRoute<TType extends ResolverType> = {
-  _def: {
-    nodeType: 'route';
-    type: TType;
-    argsSchema?: any;
-    outputSchema: any;
-    description?: string;
-  };
-};
-
-export type AnyClientRoute = ClientRoute<ResolverType>;
-
-/**
- * more general router type than in server package, because of introspection result
- */
-export type ClientRouter = {
-  _def: {
-    nodeType: 'router';
-    routes: {
-      [key: string]: ClientRouter | AnyClientRoute;
-    };
-  };
-};
+import type { SvelteMutation } from './svelteMutation.js';
+import type { SvelteQuery } from './svelteQuery.js';
 
 /**
  * @internal
  *
- * Client type for casting proxy client to correct types
+ * Svelte client type for casting proxy client to correct types
  */
-export type ProxyClientRouter<TRouter extends ClientRouter> = {
+export type SvelteClientRouter<TRouter extends ClientRouter> = {
   [K in keyof TRouter['_def']['routes']]: TRouter['_def']['routes'][K] extends ClientRouter
-    ? ProxyClientRouter<TRouter['_def']['routes'][K]>
+    ? SvelteClientRouter<TRouter['_def']['routes'][K]>
     : TRouter['_def']['routes'][K] extends ClientRoute<'query'>
-    ? Query<
+    ? SvelteQuery<
         TRouter['_def']['routes'][K]['_def']['description'],
         {
           args: Simplify<
@@ -59,7 +35,7 @@ export type ProxyClientRouter<TRouter extends ClientRouter> = {
         }
       >
     : TRouter['_def']['routes'][K] extends ClientRoute<'mutation'>
-    ? Mutation<
+    ? SvelteMutation<
         TRouter['_def']['routes'][K]['_def']['description'],
         {
           args: Simplify<

@@ -20,9 +20,7 @@ export type ReactClientRouter<TRouter extends ClientRouter> = {
     ? ReactClientRouter<TRouter['_def']['routes'][K]>
     : TRouter['_def']['routes'][K] extends ClientRoute<'query'>
     ? ReactQuery<
-        TRouter['_def']['routes'][K]['_def']['description'] extends string
-          ? TRouter['_def']['routes'][K]['_def']['description']
-          : undefined,
+        TRouter['_def']['routes'][K]['_def']['description'],
         {
           args: Simplify<
             inferClientResolverArgs<
@@ -38,9 +36,7 @@ export type ReactClientRouter<TRouter extends ClientRouter> = {
       >
     : TRouter['_def']['routes'][K] extends ClientRoute<'mutation'>
     ? ReactMutation<
-        TRouter['_def']['routes'][K]['_def']['description'] extends string
-          ? TRouter['_def']['routes'][K]['_def']['description']
-          : undefined,
+        TRouter['_def']['routes'][K]['_def']['description'],
         {
           args: Simplify<
             inferClientResolverArgs<

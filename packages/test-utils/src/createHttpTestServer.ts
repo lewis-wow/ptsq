@@ -8,7 +8,7 @@ import axios from 'axios';
 import type { AxiosResponse } from 'axios';
 import { killable } from './killable';
 
-type CreateHttpTestServerPayload = {
+export type CreateHttpTestServerPayload = {
   fetch: (data: unknown) => Promise<AxiosResponse>;
   introspectate: () => Promise<AxiosResponse>;
   url: string;

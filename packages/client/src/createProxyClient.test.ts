@@ -235,6 +235,7 @@ test('Should create simple http server with proxy client and creates request wit
         }),
       )
       .output(Type.String())
+      .description('Description...')
       .query(({ input }) => input.name),
   });
 
@@ -249,7 +250,7 @@ test('Should create simple http server with proxy client and creates request wit
     client.test.method({
       name: 'John',
     }),
-  ).toThrowError(new TypeError('This action (method) is not defined.'));
+  ).toThrowError(new TypeError('This action is not defined.'));
 
   await $disconnect();
 });

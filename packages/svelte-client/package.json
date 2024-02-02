@@ -1,27 +1,32 @@
 {
-  "name": "@ptsq/server",
+  "name": "@ptsq/svelte-client",
   "version": "0.3.5",
   "homepage": "https://ptsq.vercel.app/",
   "author": "lewis-wow",
   "license": "MIT",
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lewis-wow/ptsq.git",
-    "directory": "packages/server"
+    "directory": "packages/client"
   },
   "scripts": {
     "prebuild": "rm -rf dist",
     "build": "rollup --config rollup.config.ts --bundleConfigAsCjs",
     "lint": "eslint",
-    "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "test": "vitest"
   },
-  "main": "dist/main.js",
-  "module": "dist/main.mjs",
-  "typings": "dist/main.d.ts",
   "publishConfig": {
     "access": "public"
+  },
+  "main": "dist/main.mjs",
+  "typings": "dist/main.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./dist/main.mjs",
+      "require": "./dist/main.js",
+      "default": "./dist/main.js"
+    }
   },
   "files": [
     "dist",
@@ -31,15 +36,15 @@
     "!**/*.test.*"
   ],
   "devDependencies": {
+    "@ptsq/server": "*",
+    "@ptsq/test-utils": "*",
+    "@testing-library/svelte": "^4.1.0",
     "@types/node": "^20.7.0",
-    "@types/uuid": "^9.0.7",
-    "axios": "^1.5.1",
-    "typescript": "^5.2.2",
-    "uuid": "^9.0.1",
-    "@ptsq/test-utils": "*"
+    "svelte": "^4.2.9",
+    "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@sinclair/typebox": "^0.31.28",
-    "@whatwg-node/server": "^0.9.23"
+    "@ptsq/client": "*",
+    "@tanstack/svelte-query": "^5.18.0"
   }
 }

@@ -1,6 +1,7 @@
 import { createProxyUntypedClient } from './createProxyUntypedClient';
 import { httpFetch } from './httpFetch';
 import type { ClientRouter, ProxyClientRouter } from './types';
+import { UndefinedAction } from './undefinedAction';
 
 export type CreateProxyClientArgs = {
   url: RequestInfo | URL;
@@ -29,21 +30,30 @@ export const createProxyClient = <TRouter extends ClientRouter>(
 ): ProxyClientRouter<TRouter> =>
   createProxyUntypedClient<[unknown, RequestOptions | undefined]>({
     route: [],
-    resolveType: (rawResolverType) => {
-      if (rawResolverType === 'query') return 'query';
-      if (rawResolverType === 'mutate') return 'mutation';
-
-      throw new TypeError(`This action (${rawResolverType}) is not defined.`);
-    },
     fetch: ({ route, type, args }) => {
-      return httpFetch({
-        ...options,
-        body: {
-          route,
-          type,
-          input: args[0],
-        },
-        signal: args[1]?.signal,
-      });
+      switch (type) {
+        case 'query':
+          return httpFetch({
+            ...options,
+            body: {
+              route,
+              type: 'query',
+              input: args[0],
+            },
+            signal: args[1]?.signal,
+          });
+        case 'mutate':
+          return httpFetch({
+            ...options,
+            body: {
+              route,
+              type: 'mutation',
+              input: args[0],
+            },
+            signal: args[1]?.signal,
+          });
+        default:
+          throw new UndefinedAction();
+      }
     },
   }) as ProxyClientRouter<TRouter>;
