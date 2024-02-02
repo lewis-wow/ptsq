@@ -1,0 +1,54 @@
+# Svelte client
+
+Svelte client is a very thin wrapper of [svelte query](https://tanstack.com/query/latest).
+
+```ts copy filename="client.ts"
+import { createSvelteClient } from '@ptsq/svelte-client';
+import type { BaseRouter } from './server';
+
+const client = createSvelteClient<BaseRouter>({
+  url: 'http://localhost:4000/ptsq',
+});
+```
+
+## Query
+
+```tsx copy filename="Component.svelte"
+<script lang="ts">
+  const response = client.test.createQuery({
+    name: /* string */ 'John',
+  });
+</script>
+
+{#if $response.isFetching}
+	<p>Loading...</p>
+{:else if $reponse.data}
+	<p>{$response.data /* string */}</p>
+{:else}
+	<p>{$response.error.message /* PtsqClientError */}</p>
+{/if}
+```
+
+## Mutation
+
+```tsx copy filename="Component.svelte"
+<script lang="ts">
+  const response = client.test.createMutation();
+</script>
+
+<button on:click={() =>
+  $reponse.mutate({
+    name: /* string */ 'John'
+  })
+}>
+  Mutate
+</button>
+
+{#if $response.isPending}
+	<p>Loading...</p>
+{:else if $reponse.data}
+	<p>{$response.data /* string */}</p>
+{:else}
+	<p>{$response.error.message /* PtsqClientError */}</p>
+{/if}
+```

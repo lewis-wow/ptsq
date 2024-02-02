@@ -2,5 +2,7 @@
   "proxy-client": "Proxy client",
   "query": "Query",
   "mutation": "Mutation",
-  "react-client": "React client"
+  "react-client": "React client",
+  "svelte-client": "Svelte client",
+  "custom-client": "Custom client"
 }
