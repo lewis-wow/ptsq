@@ -9,7 +9,13 @@ export const PostSchema = Type.Object({
 });
 
 export const createPostSchema = Type.Object({
-  title: Type.String(),
+  title: Type.String({
+    minLength: 4,
+  }),
   content: Type.Optional(Type.String()),
   published: Type.Boolean(),
+});
+
+export const deletePostSchema = Type.Object({
+  id: Type.String(),
 });

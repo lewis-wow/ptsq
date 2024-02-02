@@ -4,7 +4,6 @@
   "homepage": "https://ptsq.vercel.app/",
   "author": "lewis-wow",
   "license": "MIT",
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lewis-wow/ptsq.git",
