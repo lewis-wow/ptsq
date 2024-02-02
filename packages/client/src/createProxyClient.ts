@@ -1,5 +1,6 @@
 import { createProxyUntypedClient } from './createProxyUntypedClient';
 import { httpFetch } from './httpFetch';
+import type { PtsqLink } from './ptsqLink';
 import type { ClientRouter, ProxyClientRouter } from './types';
 import { UndefinedAction } from './undefinedAction';
 
@@ -9,6 +10,7 @@ export type CreateProxyClientArgs = {
     input: RequestInfo | URL,
     init?: RequestInit | undefined,
   ) => Promise<Response>;
+  links?: PtsqLink[];
 };
 
 export type RequestOptions = { signal: AbortSignal };
@@ -35,7 +37,8 @@ export const createProxyClient = <TRouter extends ClientRouter>(
         case 'query':
           return httpFetch({
             ...options,
-            body: {
+            links: options.links ?? [],
+            meta: {
               route,
               type: 'query',
               input: args[0],
@@ -45,7 +48,8 @@ export const createProxyClient = <TRouter extends ClientRouter>(
         case 'mutate':
           return httpFetch({
             ...options,
-            body: {
+            links: options.links ?? [],
+            meta: {
               route,
               type: 'mutation',
               input: args[0],
