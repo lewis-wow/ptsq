@@ -1,6 +1,7 @@
 import { createProxyUntypedClient } from './createProxyUntypedClient';
 import { httpFetch } from './httpFetch';
 import type { ClientRouter, ProxyClientRouter } from './types';
+import { UndefinedAction } from './undefinedAction';
 
 export type CreateProxyClientArgs = {
   url: RequestInfo | URL;
@@ -52,7 +53,7 @@ export const createProxyClient = <TRouter extends ClientRouter>(
             signal: args[1]?.signal,
           });
         default:
-          throw new TypeError('This action is not defined.');
+          throw new UndefinedAction();
       }
     },
   }) as ProxyClientRouter<TRouter>;

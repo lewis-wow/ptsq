@@ -1,6 +1,7 @@
 import {
   createProxyUntypedClient,
   httpFetch,
+  UndefinedAction,
   type Router as ClientRouter,
   type CreateProxyClientArgs,
 } from '@ptsq/client';
@@ -95,7 +96,7 @@ export const createReactClient = <TRouter extends ClientRouter>(
             ...args[0],
           });
         default:
-          throw new TypeError('This action is not defined.');
+          throw new UndefinedAction();
       }
     },
   }) as ReactClientRouter<TRouter>;

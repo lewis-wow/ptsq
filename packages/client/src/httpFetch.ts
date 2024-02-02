@@ -3,7 +3,6 @@ import { PtsqClientError, PtsqErrorCode } from './ptsqClientError';
 export type HttpFetchArgs = {
   url: RequestInfo | URL;
   body?: unknown;
-  headers?: HeadersInit | (() => HeadersInit | Promise<HeadersInit>);
   fetch?: (
     input: RequestInfo | URL,
     init?: RequestInit | undefined,
@@ -14,19 +13,14 @@ export type HttpFetchArgs = {
 export const httpFetch = async ({
   url,
   body,
-  headers,
   signal,
   fetch = globalThis.fetch,
 }: HttpFetchArgs): Promise<unknown> => {
-  const headersInit = new Headers(
-    typeof headers === 'function' ? await headers() : headers,
-  );
-
-  headersInit.set('Content-Type', 'application/json');
-
   const response = await fetch(url, {
     method: 'POST',
-    headers: headersInit,
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(body),
     signal,
   });

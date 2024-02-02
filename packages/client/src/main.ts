@@ -12,6 +12,8 @@ export { httpFetch, type HttpFetchArgs } from './httpFetch';
 
 export { PtsqClientError } from './ptsqClientError';
 
+export { UndefinedAction } from './undefinedAction';
+
 export type {
   ClientRoute as Route,
   ClientRouter as Router,
