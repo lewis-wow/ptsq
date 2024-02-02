@@ -1,22 +1,4 @@
-import { PtsqServer, Type } from '@ptsq/server';
-
-const { resolver, router, serve } = PtsqServer.init({
-  root: '/api',
-}).create();
-
-const greetingsQuery = resolver
-  .args(
-    Type.Object({
-      name: Type.String(),
-    }),
-  )
-  .output(Type.TemplateLiteral('Hello, ${string}!'))
-  .query(({ input }) => `Hello, ${input.name}!`);
-
-const baseRouter = router({
-  greetings: greetingsQuery,
-});
-
-export type BaseRouter = typeof baseRouter;
+import { serve } from '@/server/ptsq';
+import { baseRouter } from '@/server/routers';
 
 export default serve(baseRouter);

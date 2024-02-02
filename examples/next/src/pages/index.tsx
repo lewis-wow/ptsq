@@ -1,18 +1,28 @@
-import { ptsq } from '@/ptsq';
+import { api } from '@/api';
 
 export default function Home() {
-  const greetingsQuery = ptsq.greetings.useQuery(
-    { name: 'John' },
-    { enabled: false },
-  );
+  const listPostsQuery = api.post.list.useQuery();
+  const createPostMutation = api.post.create.useMutation();
+
+  if (listPostsQuery.isFetching) return <p>Loading...</p>;
 
   return (
     <main>
-      <button onClick={() => greetingsQuery.refetch()}>Refetch</button>
-      <div>
-        state: <pre>{JSON.stringify(greetingsQuery)}</pre>
-      </div>
-      <div>result: {greetingsQuery.data}</div>
+      <button
+        onClick={() =>
+          createPostMutation.mutate({
+            title: 'Test',
+            published: false,
+          })
+        }
+      >
+        Create post
+      </button>
+      <ul>
+        {listPostsQuery.data?.map((post) => (
+          <li key={post.id}>{post.title}</li>
+        ))}
+      </ul>
     </main>
   );
 }
