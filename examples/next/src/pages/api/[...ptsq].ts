@@ -1,8 +1,27 @@
-import { PtsqServer, Type } from '@ptsq/server';
+import { middleware, PtsqError, PtsqServer, Type } from '@ptsq/server';
+import type { MaybePromise } from '../../../../../packages/server/dist/types';
 
-const { resolver, router, serve } = PtsqServer.init({
+const errorFormatter = (fn: (error: PtsqError) => MaybePromise<PtsqError>) =>
+  middleware(async ({ next }) => {
+    const response = await next();
+
+    if (response.ok) return response;
+
+    return {
+      ...response,
+      error: await fn(response.error),
+    };
+  });
+
+const { resolver, router, serve } = new PtsqServer({
   root: '/api',
-}).create();
+})
+  .use(
+    errorFormatter((error) => {
+      return new PtsqError({ code: 'BAD_REQUEST' });
+    }),
+  )
+  .create();
 
 const greetingsQuery = resolver
   .args(

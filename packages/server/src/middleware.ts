@@ -7,12 +7,12 @@ import type { ResolverType } from './types';
 /**
  * @internal
  */
-export type NextFunction<TContext extends Context> = {
-  (): Promise<MiddlewareResponse<TContext>>;
-  <TNextContext extends Context>(
-    nextContext: TNextContext,
-  ): Promise<MiddlewareResponse<TNextContext>>;
-};
+export type NextFunction<TContext extends Context> = <
+  TNextContext extends Context = TContext,
+>(options?: {
+  ctx?: TNextContext;
+  rawInput?: unknown;
+}) => Promise<MiddlewareResponse<TNextContext>>;
 
 /**
  * @internal
@@ -22,7 +22,7 @@ export type MiddlewareFunction<TArgs, TContext extends Context> = (options: {
   meta: MiddlewareMeta;
   ctx: TContext;
   next: NextFunction<TContext>;
-}) => ReturnType<typeof options.next>;
+}) => ReturnType<NextFunction<TContext>>;
 
 export type AnyMiddlewareFunction = MiddlewareFunction<unknown, Context>;
 
@@ -89,10 +89,13 @@ export class Middleware<TArgs, TContext extends Context> {
         input: parseResult.data,
         meta: meta,
         ctx: ctx,
-        next: ((nextContext) =>
+        next: ((nextOptions) =>
           Middleware.recursiveCall({
-            ctx: { ...ctx, ...nextContext },
-            meta: meta,
+            ctx: { ...ctx, ...nextOptions?.ctx },
+            meta: {
+              ...meta,
+              input: nextOptions?.rawInput ?? meta.input,
+            },
             index: index + 1,
             middlewares: middlewares,
           })) as NextFunction<Context>,

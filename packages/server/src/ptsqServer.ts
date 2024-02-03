@@ -7,19 +7,18 @@ import { Compiler } from './compiler';
 import type {
   AnyContextBuilder,
   Context,
+  ContextBuilder,
   inferContextFromContextBuilder,
   inferContextParamsFromContextBuilder,
+  RootContext,
 } from './context';
 import { Envelope } from './envelope';
-import type { ErrorFormatter } from './errorFormatter';
 import { HttpServer } from './httpServer';
 import {
   Middleware,
   type AnyMiddleware,
-  type AnyMiddlewareResponse,
   type MiddlewareFunction,
 } from './middleware';
-import { PtsqError } from './ptsqError';
 import { Resolver } from './resolver';
 import { Router, type AnyRouter, type Routes } from './router';
 import type { ShallowMerge, Simplify } from './types';
@@ -27,54 +26,71 @@ import type { ShallowMerge, Simplify } from './types';
 /**
  * @internal
  */
-export type CreateServerOptions<
-  TContextBuilder extends AnyContextBuilder | undefined = undefined,
-> = {
-  ctx?: TContextBuilder;
+export type PtsqServerOptions = {
   fetchAPI?: FetchAPI;
   root?: string;
   endpoint?: string;
-  errorFormatter?: ErrorFormatter;
   compiler?: Compiler;
   plugins?: ServerAdapterPlugin<any>[];
   middlewares?: AnyMiddleware[];
 };
 
+type T = { a: 'a' } extends Record<string, never> ? true : false;
+
 export class PtsqServer<
-  TContextBuilder extends AnyContextBuilder | undefined,
-  TServerRootContext extends Context,
+  TContextParams extends Context = {},
+  TContext extends Context = RootContext,
+  TContextBuilder extends AnyContextBuilder | undefined = undefined,
 > {
   _def: {
-    ctx: TContextBuilder;
     fetchAPI?: FetchAPI;
     root: string;
     endpoint: string;
-    errorFormatter: ErrorFormatter;
     compiler: Compiler;
     plugins: ServerAdapterPlugin<any>[];
     middlewares: AnyMiddleware[];
   };
 
   constructor({
-    ctx,
     fetchAPI,
     root = '',
     endpoint = '/ptsq',
-    errorFormatter = (error) => error,
     compiler = new Compiler(),
     plugins = [],
     middlewares = [],
-  }: CreateServerOptions<TContextBuilder>) {
+  }: PtsqServerOptions) {
     this._def = {
-      ctx: ctx as TContextBuilder,
       fetchAPI,
       root,
       endpoint,
-      errorFormatter,
       compiler,
       plugins,
       middlewares,
     };
+  }
+
+  context<TNextContextBuilder extends ContextBuilder<TContextParams extends Record<string, never> : RootContext, any>>(
+    contextBuilder: TNextContextBuilder,
+  ) {
+    return new PtsqServer<
+      inferContextFromContextBuilder<TNextContextBuilder>,
+      TNextContextBuilder
+    >({
+      ...this._def,
+      middlewares: [
+        new Middleware<undefined, TServerRootContext>({
+          argsSchema: undefined,
+          middlewareFunction: async ({ next, ctx }) => {
+            const nextCtx: inferContextFromContextBuilder<TNextContextBuilder> =
+              await contextBuilder(ctx);
+
+            return next(nextCtx);
+          },
+          compiler: this._def.compiler,
+        }),
+        ...this._def.middlewares,
+      ] as AnyMiddleware[],
+    });
   }
 
   /**
@@ -86,13 +102,13 @@ export class PtsqServer<
     TMiddlewareFunction extends MiddlewareFunction<unknown, TServerRootContext>,
   >(middleware: TMiddlewareFunction) {
     return new PtsqServer<
-      TContextBuilder,
       Simplify<
         ShallowMerge<
           TServerRootContext,
           Awaited<ReturnType<TMiddlewareFunction>>['ctx']
         >
-      >
+      >,
+      TContextBuilder
     >({
       ...this._def,
       middlewares: [
@@ -117,20 +133,7 @@ export class PtsqServer<
       '',
     )}`;
 
-    const envelopedResponse = new Envelope(
-      async (middlewareResponse: AnyMiddlewareResponse) => {
-        if (middlewareResponse.ok) return middlewareResponse;
-
-        const formattedError = await this._def.errorFormatter(
-          middlewareResponse.error,
-        );
-
-        return {
-          ...middlewareResponse,
-          error: formattedError,
-        };
-      },
-    );
+    const envelope = new Envelope();
 
     /**
      * Creates a queries or mutations
@@ -186,12 +189,12 @@ export class PtsqServer<
               contextParams,
             );
 
-            return envelopedResponse.createResponse(middlewareResponse);
+            return envelope.createResponse(middlewareResponse);
           }
 
           if (url.pathname === `${path}/introspection` && method === 'GET') {
             const introspectionResponse = httpServer.introspection();
-            return envelopedResponse.createResponse(introspectionResponse);
+            return envelope.createResponse(introspectionResponse);
           }
 
           if (
@@ -199,18 +202,18 @@ export class PtsqServer<
             (url.pathname === `${path}/introspection` && method !== 'GET') ||
             (url.pathname === path && method !== 'POST')
           )
-            return envelopedResponse.createResponse(
-              new PtsqError({
-                code: 'METHOD_NOT_SUPPORTED',
+            return Response.json(
+              {
                 message: `Method ${method} is not supported by Ptsq server.`,
-              }).toMiddlewareResponse({}),
+              },
+              { status: 405 },
             );
 
-          return envelopedResponse.createResponse(
-            new PtsqError({
-              code: 'NOT_FOUND',
+          return Response.json(
+            {
               message: `Http pathname ${url.pathname} is not supported by Ptsq server, supported are POST ${path} and GET ${path}/introspection.`,
-            }).toMiddlewareResponse({}),
+            },
+            { status: 404 },
           );
         },
         {
@@ -226,18 +229,6 @@ export class PtsqServer<
       serve,
     };
   }
-
-  /**
-   * Creates ptsq server instance
-   */
-  static init<
-    TContextBuilder extends AnyContextBuilder | undefined = undefined,
-  >(options?: CreateServerOptions<TContextBuilder>) {
-    return new PtsqServer<
-      TContextBuilder,
-      inferContextFromContextBuilder<TContextBuilder>
-    >(options ?? {});
-  }
 }
 
-export type AnyPtsqServer = PtsqServer<AnyContextBuilder | undefined, any>;
+export type AnyPtsqServer = PtsqServer<any, AnyContextBuilder | undefined>;

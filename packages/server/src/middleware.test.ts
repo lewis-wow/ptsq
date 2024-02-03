@@ -17,8 +17,10 @@ test('Should create middleware with query and serverSideQuery', async () => {
     if (ctx.state === 'invalid') throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({
-      ...ctx,
-      state: ctx.state,
+      ctx: {
+        ...ctx,
+        state: ctx.state,
+      },
     });
   });
 
@@ -95,8 +97,10 @@ test('Should create middleware with mutation and serverSideMutation', async () =
     if (ctx.state === 'invalid') throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({
-      ...ctx,
-      state: ctx.state,
+      ctx: {
+        ...ctx,
+        state: ctx.state,
+      },
     });
   });
 
@@ -303,8 +307,10 @@ test('Should create nested middlewares with query', async () => {
     if (ctx.state === null) throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({
-      ...ctx,
-      state: ctx.state,
+      ctx: {
+        ...ctx,
+        state: ctx.state,
+      },
     });
   });
 
@@ -312,8 +318,10 @@ test('Should create nested middlewares with query', async () => {
     if (ctx.state === 'invalid') throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({
-      ...ctx,
-      state: ctx.state,
+      ctx: {
+        ...ctx,
+        state: ctx.state,
+      },
     });
   });
 
@@ -393,8 +401,10 @@ test('Should create nested middlewares with mutation', async () => {
     if (ctx.state === null) throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({
-      ...ctx,
-      state: ctx.state,
+      ctx: {
+        ...ctx,
+        state: ctx.state,
+      },
     });
   });
 
@@ -402,8 +412,10 @@ test('Should create nested middlewares with mutation', async () => {
     if (ctx.state === 'invalid') throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({
-      ...ctx,
-      state: ctx.state,
+      ctx: {
+        ...ctx,
+        state: ctx.state,
+      },
     });
   });
 
@@ -492,8 +504,10 @@ test('Should create nested middlewares with query with args chaining', async () 
     ({ ctx, input, next }) => {
       // can log the input for example!
       return next({
-        ...ctx,
-        name: input.name,
+        ctx: {
+          ...ctx,
+          name: input.name,
+        },
       });
     },
   );
@@ -505,9 +519,11 @@ test('Should create nested middlewares with query with args chaining', async () 
     resolverWithNameChainAndLastName.use(({ ctx, input, next }) => {
       // can log the input for example!
       return next({
-        ...ctx,
-        name: input.name,
-        lastName: input.lastName,
+        ctx: {
+          ...ctx,
+          name: input.name,
+          lastName: input.lastName,
+        },
       });
     });
 
@@ -725,8 +741,10 @@ test('Should create standalone middleware with query', async () => {
     if (ctx.state === 'invalid') throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({
-      ...ctx,
-      state: ctx.state,
+      ctx: {
+        ...ctx,
+        state: ctx.state,
+      },
     });
   });
 

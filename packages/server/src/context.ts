@@ -2,14 +2,19 @@ import type { MaybePromise } from './types';
 
 export type Context = object;
 
+export type RootContext = {
+  request: Request;
+};
+
 /**
  * @internal
  */
-export type ContextBuilder<TContext extends Context> = (
-  params: any,
-) => MaybePromise<TContext>;
+export type ContextBuilder<
+  TParams extends Context,
+  TContext extends Context,
+> = (params: TParams) => MaybePromise<TContext>;
 
-export type AnyContextBuilder = ContextBuilder<Context>;
+export type AnyContextBuilder = ContextBuilder<any, any>;
 
 /**
  * @internal
