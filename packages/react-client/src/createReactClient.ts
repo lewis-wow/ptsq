@@ -25,42 +25,55 @@ import type { ReactClientRouter } from './types';
  * const currentUser = await client.user.getCurrent.useQuery();
  * ```
  */
-export const createReactClient = <TRouter extends ClientRouter>(
-  options: CreateProxyClientArgs,
-): ReactClientRouter<TRouter> =>
+export const createReactClient = <TRouter extends ClientRouter>({
+  url,
+  links = [],
+  fetch = globalThis.fetch,
+}: CreateProxyClientArgs): ReactClientRouter<TRouter> =>
   createProxyUntypedClient<[any, any]>({
-    route: [],
-    fetch: ({ route, type, args }) => {
-      switch (type) {
+    fetch: ({ route, action, args }) => {
+      switch (action) {
         case 'useQuery':
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           return useQuery({
-            queryKey: [route],
+            queryKey: [...route],
             queryFn: (context) =>
               httpFetch({
-                ...options,
-                body: {
-                  route,
+                url,
+                links,
+                meta: {
+                  route: route.join('.'),
                   type: 'query',
                   input: args[0],
                 },
-                signal: context.signal,
+                fetch: (input, init) => {
+                  return fetch(input, {
+                    ...init,
+                    signal: context.signal,
+                  });
+                },
               }),
             ...args[1],
           });
         case 'useSuspenseQuery':
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           return useSuspenseQuery({
-            queryKey: [route],
+            queryKey: [...route],
             queryFn: (context) =>
               httpFetch({
-                ...options,
-                body: {
-                  route,
+                url,
+                links,
+                meta: {
+                  route: route.join('.'),
                   type: 'query',
                   input: args[0],
                 },
-                signal: context.signal,
+                fetch: (input, init) => {
+                  return fetch(input, {
+                    ...init,
+                    signal: context.signal,
+                  });
+                },
               }),
             ...args[1],
           });
@@ -70,13 +83,19 @@ export const createReactClient = <TRouter extends ClientRouter>(
             queryKey: [route],
             queryFn: (context) =>
               httpFetch({
-                ...options,
-                body: {
-                  route,
+                url,
+                links,
+                meta: {
+                  route: route.join('.'),
                   type: 'query',
                   input: args[0],
                 },
-                signal: context.signal,
+                fetch: (input, init) => {
+                  return fetch(input, {
+                    ...init,
+                    signal: context.signal,
+                  });
+                },
               }),
             ...args[1],
           });
@@ -86,11 +105,17 @@ export const createReactClient = <TRouter extends ClientRouter>(
             mutationKey: [route],
             mutationFn: (variables: any) =>
               httpFetch({
-                ...options,
-                body: {
-                  route,
+                url,
+                links,
+                meta: {
+                  route: route.join('.'),
                   type: 'mutation',
                   input: variables,
+                },
+                fetch: (input, init) => {
+                  return fetch(input, {
+                    ...init,
+                  });
                 },
               }),
             ...args[0],

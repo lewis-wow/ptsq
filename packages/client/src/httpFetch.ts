@@ -4,19 +4,17 @@ import { PtsqLink, type LinkMeta } from './ptsqLink';
 export type HttpFetchArgs = {
   url: RequestInfo | URL;
   meta: LinkMeta;
-  links: PtsqLink[];
+  links?: PtsqLink[];
   fetch?: (
     input: RequestInfo | URL,
     init?: RequestInit | undefined,
   ) => Promise<Response>;
-  signal?: AbortSignal;
 };
 
 export const httpFetch = async ({
   url,
   meta,
-  signal,
-  links,
+  links = [],
   fetch = globalThis.fetch,
 }: HttpFetchArgs): Promise<unknown> => {
   const linkResponse = await PtsqLink.recursiveCall({
@@ -31,7 +29,6 @@ export const httpFetch = async ({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(finalMeta),
-          signal,
         });
 
         if (!response.ok) {
