@@ -24,24 +24,32 @@ import type { SvelteClientRouter } from './types';
  * const currentUser = await client.user.getCurrent.createQuery();
  * ```
  */
-export const createSvelteClient = <TRouter extends ClientRouter>(
-  options: CreateProxyClientArgs,
-): SvelteClientRouter<TRouter> =>
+export const createSvelteClient = <TRouter extends ClientRouter>({
+  url,
+  links = [],
+  fetch = globalThis.fetch,
+}: CreateProxyClientArgs): SvelteClientRouter<TRouter> =>
   createProxyUntypedClient<[any, any]>({
-    route: [],
-    fetch: ({ route, type, args }) => {
-      switch (type) {
+    fetch: ({ route, action, args }) => {
+      switch (action) {
         case 'createQuery':
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           return createQuery({
-            queryKey: [route],
-            queryFn: () =>
+            queryKey: [...route],
+            queryFn: (context) =>
               httpFetch({
-                ...options,
-                body: {
-                  route,
+                url,
+                links,
+                meta: {
+                  route: route.join('.'),
                   type: 'query',
                   input: args[0],
+                },
+                fetch: (input, init) => {
+                  return fetch(input, {
+                    ...init,
+                    signal: context.signal,
+                  });
                 },
               }),
             ...args[1],
@@ -49,14 +57,21 @@ export const createSvelteClient = <TRouter extends ClientRouter>(
         case 'createInfiniteQuery':
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           return createInfiniteQuery({
-            queryKey: [route],
-            queryFn: () =>
+            queryKey: [...route],
+            queryFn: (context) =>
               httpFetch({
-                ...options,
-                body: {
-                  route,
+                url,
+                links,
+                meta: {
+                  route: route.join('.'),
                   type: 'query',
                   input: args[0],
+                },
+                fetch: (input, init) => {
+                  return fetch(input, {
+                    ...init,
+                    signal: context.signal,
+                  });
                 },
               }),
             ...args[1],
@@ -64,14 +79,20 @@ export const createSvelteClient = <TRouter extends ClientRouter>(
         case 'createMutation':
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           return createMutation({
-            mutationKey: [route],
-            mutationFn: (variables: any) =>
+            mutationKey: [...route],
+            mutationFn: (variables: unknown) =>
               httpFetch({
-                ...options,
-                body: {
-                  route,
+                url,
+                links,
+                meta: {
+                  route: route.join('.'),
                   type: 'mutation',
                   input: variables,
+                },
+                fetch: (input, init) => {
+                  return fetch(input, {
+                    ...init,
+                  });
                 },
               }),
             ...args[0],

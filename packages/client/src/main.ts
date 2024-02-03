@@ -19,5 +19,11 @@ export type {
   ClientRouter as Router,
   AnyClientRoute as AnyRoute,
 } from './types';
+
 export type { Query } from './query';
 export type { Mutation } from './mutation';
+
+export type {
+  inferClientResolverArgs,
+  inferClientResolverOutput,
+} from '@ptsq/server';

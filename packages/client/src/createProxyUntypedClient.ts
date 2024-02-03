@@ -1,12 +1,19 @@
 export type CreateProxyUntypedClientArgs<TArgs extends readonly unknown[]> = {
-  route: string[];
-  fetch: (options: { route: string; type: string; args: TArgs }) => unknown;
+  fetch: (options: { route: string[]; action: string; args: TArgs }) => unknown;
 };
 
 export const createProxyUntypedClient = <TArgs extends readonly unknown[]>({
+  fetch,
+}: CreateProxyUntypedClientArgs<TArgs>): unknown =>
+  _createProxyUntypedClient({
+    route: [],
+    fetch,
+  });
+
+const _createProxyUntypedClient = <TArgs extends readonly unknown[]>({
   route,
   fetch,
-}: CreateProxyUntypedClientArgs<TArgs>): unknown => {
+}: CreateProxyUntypedClientArgs<TArgs> & { route: string[] }): unknown => {
   /**
    * assign noop function to proxy to create only appliable proxy handler
    * the noop function is never called in proxy
@@ -15,14 +22,14 @@ export const createProxyUntypedClient = <TArgs extends readonly unknown[]>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   return new Proxy(() => {}, {
     get: (_target, key: string) =>
-      createProxyUntypedClient({ route: [...route, key], fetch }),
+      _createProxyUntypedClient({ route: [...route, key], fetch }),
     apply: (_target, _thisArg, argumentsList) => {
-      const type = route.pop();
-      if (!type) throw new TypeError();
+      const action = route.pop();
+      if (!action) throw new TypeError('Action is not defined.');
 
       return fetch({
-        route: route.join('.'),
-        type: type,
+        route,
+        action,
         args: argumentsList as unknown as TArgs,
       });
     },

@@ -1,50 +1,71 @@
 import { PtsqClientError, PtsqErrorCode } from './ptsqClientError';
+import { PtsqLink, type LinkMeta } from './ptsqLink';
 
 export type HttpFetchArgs = {
   url: RequestInfo | URL;
-  body?: unknown;
+  meta: LinkMeta;
+  links?: PtsqLink[];
   fetch?: (
     input: RequestInfo | URL,
     init?: RequestInit | undefined,
   ) => Promise<Response>;
-  signal?: AbortSignal;
 };
 
 export const httpFetch = async ({
   url,
-  body,
-  signal,
+  meta,
+  links = [],
   fetch = globalThis.fetch,
 }: HttpFetchArgs): Promise<unknown> => {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-    signal,
+  const linkResponse = await PtsqLink.recursiveCall({
+    meta,
+    index: 0,
+    links: [
+      ...links,
+      new PtsqLink(async ({ meta: finalMeta }) => {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(finalMeta),
+        });
+
+        if (!response.ok) {
+          const json = (await response.json()) as {
+            name: string;
+            info?: unknown;
+            message?: string;
+          };
+
+          if (!('name' in json) || json.name !== 'PtsqError') {
+            console.error(json);
+            throw new TypeError('The response error is not from PTSQ server.');
+          }
+
+          return {
+            ok: false,
+            error: new PtsqClientError({
+              code: PtsqErrorCode[
+                response.status as keyof typeof PtsqErrorCode
+              ],
+              message: json.message,
+              info: json.info,
+            }),
+          };
+        }
+
+        const json = (await response.json()) as unknown;
+
+        return {
+          ok: true,
+          data: json,
+        };
+      }),
+    ],
   });
 
-  if (!response.ok) {
-    const json = (await response.json()) as {
-      name: string;
-      info?: unknown;
-      message?: string;
-    };
+  if (!linkResponse.ok) throw linkResponse.error;
 
-    if (!('name' in json) || json.name !== 'PtsqError') {
-      console.error(json);
-      throw new TypeError('The response error is not from PTSQ server.');
-    }
-
-    throw new PtsqClientError({
-      code: PtsqErrorCode[response.status as keyof typeof PtsqErrorCode],
-      message: json.message,
-      info: json.info,
-    });
-  }
-
-  const json = (await response.json()) as unknown;
-
-  return json;
+  return linkResponse.data;
 };

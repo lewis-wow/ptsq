@@ -1,5 +1,6 @@
 import { createProxyUntypedClient } from './createProxyUntypedClient';
 import { httpFetch } from './httpFetch';
+import type { PtsqLink } from './ptsqLink';
 import type { ClientRouter, ProxyClientRouter } from './types';
 import { UndefinedAction } from './undefinedAction';
 
@@ -9,6 +10,7 @@ export type CreateProxyClientArgs = {
     input: RequestInfo | URL,
     init?: RequestInit | undefined,
   ) => Promise<Response>;
+  links?: PtsqLink[];
 };
 
 export type RequestOptions = { signal: AbortSignal };
@@ -25,32 +27,45 @@ export type RequestOptions = { signal: AbortSignal };
  * const currentUser = await client.user.getCurrent.query();
  * ```
  */
-export const createProxyClient = <TRouter extends ClientRouter>(
-  options: CreateProxyClientArgs,
-): ProxyClientRouter<TRouter> =>
+export const createProxyClient = <TRouter extends ClientRouter>({
+  url,
+  links = [],
+  fetch = globalThis.fetch,
+}: CreateProxyClientArgs): ProxyClientRouter<TRouter> =>
   createProxyUntypedClient<[unknown, RequestOptions | undefined]>({
-    route: [],
-    fetch: ({ route, type, args }) => {
-      switch (type) {
+    fetch: ({ route, action, args }) => {
+      switch (action) {
         case 'query':
           return httpFetch({
-            ...options,
-            body: {
-              route,
+            url,
+            links,
+            meta: {
+              route: route.join('.'),
               type: 'query',
               input: args[0],
             },
-            signal: args[1]?.signal,
+            fetch: (input, init) => {
+              return fetch(input, {
+                ...init,
+                signal: args[1]?.signal,
+              });
+            },
           });
         case 'mutate':
           return httpFetch({
-            ...options,
-            body: {
-              route,
+            url,
+            links,
+            meta: {
+              route: route.join('.'),
               type: 'mutation',
               input: args[0],
             },
-            signal: args[1]?.signal,
+            fetch: (input, init) => {
+              return fetch(input, {
+                ...init,
+                signal: args[1]?.signal,
+              });
+            },
           });
         default:
           throw new UndefinedAction();
