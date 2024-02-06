@@ -1,7 +1,25 @@
 import { createServer } from 'http';
-import { PtsqServer, Type } from '@ptsq/server';
+import { middleware, PtsqError, PtsqServer, Type } from '@ptsq/server';
 
-const { resolver, router, serve } = PtsqServer.init().create();
+const { resolver, router, serve } = PtsqServer.init({
+  ctx: () => ({
+    a: '' as 'a' | 'b',
+  }),
+}).create();
+
+const m = middleware<{
+  ctx: {
+    a: 'a' | 'b';
+  };
+}>().create(({ ctx, next }) => {
+  if (ctx.a === 'a') throw new PtsqError({ code: 'BAD_REQUEST' });
+
+  return next({
+    a: ctx.a,
+  });
+});
+
+type T = ReturnType<typeof m>;
 
 const greetingsQuery = resolver
   .args(
@@ -15,13 +33,6 @@ const greetingsQuery = resolver
 const baseRouter = router({
   greetings: greetingsQuery,
 });
-
-const test = baseRouter
-  .createServerSideCaller({
-    ctx: {},
-    route: [],
-  })
-  .greetings.query({ name: '' });
 
 const server = createServer(serve(baseRouter));
 
