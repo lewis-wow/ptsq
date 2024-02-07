@@ -1,10 +1,19 @@
 import { api } from '@/api';
-import { TextField } from '@/components/TextField';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { createPostSchema } from '@/validation';
 import { typeboxResolver } from '@hookform/resolvers/typebox';
 import { Static } from '@ptsq/server';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, Card, Table } from 'flowbite-react';
 import { Controller, useForm } from 'react-hook-form';
 
 export default function Home() {
@@ -49,14 +58,18 @@ export default function Home() {
               control={control}
               name="title"
               defaultValue={''}
-              render={({ field }) => <TextField {...field} label="Title" />}
+              render={({ field }) => (
+                <Input type="text" {...field} placeholder="Title" />
+              )}
             />
 
             <Controller
               control={control}
               name="content"
               defaultValue={''}
-              render={({ field }) => <TextField {...field} label="Content" />}
+              render={({ field }) => (
+                <Input type="text" {...field} placeholder="Content" />
+              )}
             />
 
             <Button type="submit">Submit</Button>
@@ -65,17 +78,17 @@ export default function Home() {
       </section>
 
       <Table>
-        <Table.Head>
-          <Table.HeadCell>Title</Table.HeadCell>
-          <Table.HeadCell>Content</Table.HeadCell>
-          <Table.HeadCell>Action</Table.HeadCell>
-        </Table.Head>
-        <Table.Body>
+        <TableHeader>
+          <TableHead>Title</TableHead>
+          <TableHead>Content</TableHead>
+          <TableHead>Action</TableHead>
+        </TableHeader>
+        <TableBody>
           {listPostsQuery.data?.map((post) => (
-            <Table.Row key={post.id}>
-              <Table.Cell>{post.title}</Table.Cell>
-              <Table.Cell>{post.content}</Table.Cell>
-              <Table.Cell>
+            <TableRow key={post.id}>
+              <TableCell>{post.title}</TableCell>
+              <TableCell>{post.content}</TableCell>
+              <TableCell>
                 <Button
                   onClick={() =>
                     deletePostMutation.mutate({
@@ -85,10 +98,10 @@ export default function Home() {
                 >
                   Delete
                 </Button>
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
           ))}
-        </Table.Body>
+        </TableBody>
       </Table>
     </main>
   );
