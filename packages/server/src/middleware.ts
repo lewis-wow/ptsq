@@ -145,8 +145,6 @@ export type AnyMiddlewareResponse = MiddlewareResponse<Context>;
 
 /**
  * Creates standalone middleware
- *
- * Caution: You should not use the second type argument!
  */
 export const middleware = <
   TMiddlewareOptions extends {
@@ -156,17 +154,15 @@ export const middleware = <
     ctx: object;
     input: unknown;
   },
-  TMiddlewareFunction extends MiddlewareFunction<
-    TMiddlewareOptions['input'],
-    TMiddlewareOptions['ctx'] extends object
-      ? TMiddlewareOptions['ctx']
-      : object
-  > = MiddlewareFunction<
-    TMiddlewareOptions['input'],
-    TMiddlewareOptions['ctx'] extends object
-      ? TMiddlewareOptions['ctx']
-      : object
-  >,
->(
-  middlewareFunction: TMiddlewareFunction,
-) => middlewareFunction;
+>() => ({
+  create: <
+    TMiddlewareFunction extends MiddlewareFunction<
+      TMiddlewareOptions['input'],
+      TMiddlewareOptions['ctx'] extends object
+        ? TMiddlewareOptions['ctx']
+        : object
+    >,
+  >(
+    middlewareFunction: TMiddlewareFunction,
+  ) => middlewareFunction,
+});
