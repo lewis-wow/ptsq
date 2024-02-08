@@ -1,9 +1,11 @@
 {
   "extends": "../tsconfig/base.json",
   "compilerOptions": {
+    "moduleResolution": "node",
     "rootDir": "src",
     "outDir": "dist",
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "baseUrl": "."
   },
   "include": ["src/**/*", "../../global.d.ts"]
 }
