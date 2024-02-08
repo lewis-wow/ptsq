@@ -4,6 +4,8 @@
   "private": true,
   "main": "src/server.ts",
   "scripts": {
+    "prebuild": "prisma generate",
+    "postinstall": "prisma generate",
     "build": "tsc --build",
     "server": "dotenv -e .env -- ts-node --esm src/server.ts",
     "client": "ts-node --esm src/client.ts",

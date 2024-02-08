@@ -27,16 +27,16 @@ jobs:
           node-version: ${{ matrix.node }}
 
       - name: Install dependencies
-        run: yarn
+        run: pnpm install
 
       - name: Build packages
-        run: yarn build
+        run: pnpm build
 
       - name: Run tests
-        run: yarn test
+        run: pnpm test
 
       - name: Run coverage
-        run: yarn coverage
+        run: pnpm coverage
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3

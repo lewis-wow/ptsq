@@ -21,6 +21,7 @@ export type {
 } from './types';
 export type { Serializable } from './serializable';
 
-export { useCORS } from '@whatwg-node/server';
+//export { useCORS } from '@whatwg-node/server';
 
 export * from '@sinclair/typebox';
+export * from '@whatwg-node/server';
