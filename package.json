@@ -1,7 +1,9 @@
 {
   "name": "ptsq",
   "private": true,
+  "packageManager": "pnpm@8.15.1",
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
@@ -33,10 +35,10 @@
     "turbo": "latest",
     "vitest": "^0.34.6"
   },
-  "packageManager": "yarn@1.22.19",
-  "workspaces": [
-    "packages/*",
-    "apps/*",
-    "examples/*"
-  ]
+  "pnpm": {
+    "overrides": {
+      "@ptsq/example-next>@prisma/client": "https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-next",
+      "@ptsq/example-express-prisma>@prisma/client": "https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-express-prisma"
+    }
+  }
 }

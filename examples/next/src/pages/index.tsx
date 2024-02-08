@@ -35,16 +35,13 @@ export default function Home() {
       },
     });
 
-  const {
-    handleSubmit: handleSubmitUpdatePost,
-    control: controlUpdatePost,
-    formState: { errors: errorsUpdatePost },
-  } = useForm<Static<typeof updatePostSchema>>({
-    resolver: typeboxResolver(updatePostSchema),
-    defaultValues: {
-      published: false,
-    },
-  });
+  const { handleSubmit: handleSubmitUpdatePost, control: controlUpdatePost } =
+    useForm<Static<typeof updatePostSchema>>({
+      resolver: typeboxResolver(updatePostSchema),
+      defaultValues: {
+        published: false,
+      },
+    });
 
   const listPostsQuery = api.post.list.useQuery();
 

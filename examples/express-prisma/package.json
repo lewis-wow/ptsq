@@ -20,7 +20,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@prisma/client": "5.8.1",
+    "@prisma/client": "5.9.1",
     "@ptsq/client": "*",
     "@ptsq/server": "*",
     "express": "^4.18.2"
