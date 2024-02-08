@@ -7,13 +7,14 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
-    PTSQ_URL: z.string(),
   },
-  client: {},
+  client: {
+    NEXT_PUBLIC_PTSQ_URL: z.string(),
+  },
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
-    PTSQ_URL: process.env.PTSQ_URL,
+    NEXT_PUBLIC_PTSQ_URL: process.env.NEXT_PUBLIC_PTSQ_URL,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
 });

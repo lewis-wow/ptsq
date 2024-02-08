@@ -6,6 +6,6 @@ import { BaseRouter } from './server/routers';
 const { fetch } = fetchPonyfill();
 
 export const api = createReactClient<BaseRouter>({
-  url: env.PTSQ_URL,
+  url: env.NEXT_PUBLIC_PTSQ_URL,
   fetch: fetch,
 });
