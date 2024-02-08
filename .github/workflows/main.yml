@@ -18,6 +18,8 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
+      - uses: pnpm/action-setup@v3
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -25,6 +27,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install
