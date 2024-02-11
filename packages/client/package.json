@@ -13,7 +13,8 @@
     "prebuild": "rm -rf dist",
     "build": "rollup --config rollup.config.ts --bundleConfigAsCjs",
     "lint": "eslint",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "coverage": "vitest run --coverage"
   },
   "publishConfig": {
