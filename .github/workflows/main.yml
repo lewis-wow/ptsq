@@ -18,7 +18,11 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-      - uses: pnpm/action-setup@v3
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
 
       - name: Checkout repository
         uses: actions/checkout@v4
