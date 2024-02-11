@@ -80,7 +80,7 @@ export const createReactClient = <TRouter extends ClientRouter>({
         case 'useInfiniteQuery':
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           return useInfiniteQuery({
-            queryKey: [route],
+            queryKey: [...route],
             queryFn: (context) =>
               httpFetch({
                 url,
@@ -102,7 +102,7 @@ export const createReactClient = <TRouter extends ClientRouter>({
         case 'useMutation':
           // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           return useMutation({
-            mutationKey: [route],
+            mutationKey: [...route],
             mutationFn: (variables: any) =>
               httpFetch({
                 url,

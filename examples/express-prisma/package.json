@@ -4,6 +4,8 @@
   "private": true,
   "main": "src/server.ts",
   "scripts": {
+    "prebuild": "prisma generate",
+    "postinstall": "prisma generate",
     "build": "tsc --build",
     "server": "dotenv -e .env -- ts-node --esm src/server.ts",
     "client": "ts-node --esm src/client.ts",
@@ -20,7 +22,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@prisma/client": "5.8.1",
+    "@prisma/client": "5.9.1",
     "@ptsq/client": "*",
     "@ptsq/server": "*",
     "express": "^4.18.2"

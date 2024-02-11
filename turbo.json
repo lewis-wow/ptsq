@@ -11,11 +11,12 @@
       "cache": false,
       "persistent": true
     },
-    "test": {
-      "outputs": ["coverage/**"]
-    },
+    "test": {},
     "test:watch": {
       "cache": false
+    },
+    "coverage": {
+      "outputs": ["coverage/**"]
     }
   }
 }

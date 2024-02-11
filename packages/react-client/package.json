@@ -13,7 +13,9 @@
     "prebuild": "rm -rf dist",
     "build": "rollup --config rollup.config.ts --bundleConfigAsCjs",
     "lint": "eslint",
-    "test": "vitest"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "publishConfig": {
     "access": "public"
@@ -43,7 +45,11 @@
     "@testing-library/react": "^14.2.0",
     "@testing-library/react-hooks": "^8.0.1",
     "@types/node": "^20.7.0",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
     "jsdom": "^24.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-test-renderer": "^18.2.0",
     "typescript": "^5.2.2"
   },

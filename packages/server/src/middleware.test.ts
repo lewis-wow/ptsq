@@ -721,7 +721,7 @@ test('Should create standalone middleware with query', async () => {
     ctx: {
       state: 'valid' | 'invalid';
     };
-  }>(({ ctx, next }) => {
+  }>().create(({ ctx, next }) => {
     if (ctx.state === 'invalid') throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({

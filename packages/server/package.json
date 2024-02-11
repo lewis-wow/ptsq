@@ -4,7 +4,6 @@
   "homepage": "https://ptsq.vercel.app/",
   "author": "lewis-wow",
   "license": "MIT",
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lewis-wow/ptsq.git",
@@ -14,7 +13,8 @@
     "prebuild": "rm -rf dist",
     "build": "rollup --config rollup.config.ts --bundleConfigAsCjs",
     "lint": "eslint",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "coverage": "vitest run --coverage"
   },
   "main": "dist/main.js",
@@ -31,12 +31,13 @@
     "!**/*.test.*"
   ],
   "devDependencies": {
+    "@ptsq/test-utils": "*",
     "@types/node": "^20.7.0",
     "@types/uuid": "^9.0.7",
     "axios": "^1.5.1",
     "typescript": "^5.2.2",
     "uuid": "^9.0.1",
-    "@ptsq/test-utils": "*"
+    "vitest": "^0.34.6"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.31.28",
