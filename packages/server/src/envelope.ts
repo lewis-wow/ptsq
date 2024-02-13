@@ -29,10 +29,6 @@ export class Envelope {
     if (envelopedMiddlewareResponse.ok)
       return Response.json(envelopedMiddlewareResponse.data);
 
-    const response = envelopedMiddlewareResponse.error.toResponse();
-
-    console.log('response', response);
-
-    return response;
+    return envelopedMiddlewareResponse.error.toResponse();
   }
 }

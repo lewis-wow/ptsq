@@ -1,3 +1,4 @@
+import { ShallowMerge } from '../dist/types';
 import type { Compiler } from './compiler';
 import type { Context } from './context';
 import { PtsqError } from './ptsqError';
@@ -13,7 +14,12 @@ export type NextFunction<TContext extends Context> = {
     ctx?: TNextContext;
     meta?: MiddlewareMeta;
   }): Promise<
-    MiddlewareResponse<TNextContext extends Context ? TNextContext : TContext>
+    MiddlewareResponse<
+      ShallowMerge<
+        TContext,
+        TNextContext extends Context ? TNextContext : TContext
+      >
+    >
   >;
 };
 

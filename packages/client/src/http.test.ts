@@ -95,7 +95,7 @@ test('Should create simple http server with middleware', async () => {
           name: Type.String(),
         }),
       )
-      .use(({ input, ctx, next }) => next({ ...ctx, ...input }))
+      .use(({ input, ctx, next }) => next({ ctx: { ...ctx, ...input } }))
       .output(
         Type.Object({
           name: Type.String(),
@@ -149,7 +149,7 @@ test('Should create simple http server with 2 nested middlewares', async () => {
         });
 
         middlewareState.firstStarted = true;
-        const result = await next(ctx);
+        const result = await next({ ctx });
         middlewareState.firstEnded = true;
 
         expect(middlewareState).toStrictEqual({
@@ -170,7 +170,7 @@ test('Should create simple http server with 2 nested middlewares', async () => {
         });
 
         middlewareState.secondStarted = true;
-        const result = await next(ctx);
+        const result = await next({ ctx });
         middlewareState.secondEnded = true;
 
         expect(middlewareState).toStrictEqual({

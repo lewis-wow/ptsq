@@ -108,9 +108,7 @@ export class Resolver<
       TArgsSchema,
       TOutputSchema,
       TRootContext,
-      Simplify<
-        ShallowMerge<TContext, Awaited<ReturnType<TMiddlewareFunction>>['ctx']>
-      >,
+      Awaited<ReturnType<TMiddlewareFunction>>['ctx'],
       TDescription
     >({
       argsSchema: this._def.argsSchema,
@@ -341,13 +339,13 @@ export class Resolver<
       _resolverB._def.argsSchema === undefined
         ? undefined
         : resolverA._def.argsSchema === undefined
-        ? _resolverB._def.argsSchema
-        : _resolverB._def.argsSchema === undefined
-        ? resolverA._def.argsSchema
-        : Type.Intersect([
-            resolverA._def.argsSchema,
-            _resolverB._def.argsSchema,
-          ]);
+          ? _resolverB._def.argsSchema
+          : _resolverB._def.argsSchema === undefined
+            ? resolverA._def.argsSchema
+            : Type.Intersect([
+                resolverA._def.argsSchema,
+                _resolverB._def.argsSchema,
+              ]);
 
     type NextArgsSchema = TResolverA['_def']['argsSchema'] extends TSchema
       ? TResolverB['_def']['argsSchema'] extends TSchema
@@ -362,13 +360,13 @@ export class Resolver<
       _resolverB._def.outputSchema === undefined
         ? undefined
         : resolverA._def.outputSchema === undefined
-        ? _resolverB._def.outputSchema
-        : _resolverB._def.outputSchema === undefined
-        ? resolverA._def.outputSchema
-        : Type.Intersect([
-            resolverA._def.outputSchema,
-            _resolverB._def.outputSchema,
-          ]);
+          ? _resolverB._def.outputSchema
+          : _resolverB._def.outputSchema === undefined
+            ? resolverA._def.outputSchema
+            : Type.Intersect([
+                resolverA._def.outputSchema,
+                _resolverB._def.outputSchema,
+              ]);
 
     type NextOutputSchema = TResolverA['_def']['outputSchema'] extends TSchema
       ? TResolverB['_def']['outputSchema'] extends TSchema

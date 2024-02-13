@@ -11,7 +11,6 @@ import type {
   inferContextParamsFromContextBuilder,
 } from './context';
 import { Envelope } from './envelope';
-import type { ErrorFormatter } from './errorFormatter';
 import { HttpServer } from './httpServer';
 import {
   Middleware,
@@ -33,7 +32,6 @@ export type CreateServerOptions<
   fetchAPI?: FetchAPI;
   root?: string;
   endpoint?: string;
-  errorFormatter?: ErrorFormatter;
   compiler?: Compiler;
   plugins?: ServerAdapterPlugin<any>[];
   middlewares?: AnyMiddleware[];
@@ -48,7 +46,6 @@ export class PtsqServer<
     fetchAPI?: FetchAPI;
     root: string;
     endpoint: string;
-    errorFormatter: ErrorFormatter;
     compiler: Compiler;
     plugins: ServerAdapterPlugin<any>[];
     middlewares: AnyMiddleware[];
@@ -59,7 +56,6 @@ export class PtsqServer<
     fetchAPI,
     root = '',
     endpoint = '/ptsq',
-    errorFormatter = (error) => error,
     compiler = new Compiler(),
     plugins = [],
     middlewares = [],
@@ -69,7 +65,6 @@ export class PtsqServer<
       fetchAPI,
       root,
       endpoint,
-      errorFormatter,
       compiler,
       plugins,
       middlewares,
