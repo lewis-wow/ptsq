@@ -101,10 +101,10 @@ importers:
   examples/basic:
     dependencies:
       '@ptsq/client':
-        specifier: 0.3.5
+        specifier: latest
         version: link:../../packages/client
       '@ptsq/server':
-        specifier: 0.3.5
+        specifier: latest
         version: link:../../packages/server
     devDependencies:
       '@types/node':
