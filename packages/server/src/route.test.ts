@@ -47,9 +47,6 @@ test('Should create query route', async () => {
   ).toStrictEqual({
     data: 'John',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(query.getJsonSchema()).toMatchInlineSnapshot(`
@@ -147,9 +144,6 @@ test('Should create mutation route', async () => {
   ).toStrictEqual({
     data: 'John',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
@@ -226,9 +220,6 @@ test('Should create query route and throw error inside resolve function', async 
     }),
   ).toStrictEqual({
     ok: false,
-    ctx: {
-      test: true,
-    },
     error: new PtsqError({ code: 'INTERNAL_SERVER_ERROR' }),
   });
 });
@@ -254,9 +245,6 @@ test('Should create mutation route and throw error inside resolve function', asy
     }),
   ).toStrictEqual({
     ok: false,
-    ctx: {
-      test: true,
-    },
     error: new PtsqError({ code: 'INTERNAL_SERVER_ERROR' }),
   });
 });
@@ -295,9 +283,6 @@ test('Should create query route and return wrong type', async () => {
       message: 'Output validation error',
     }),
     ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 });
 

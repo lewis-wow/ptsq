@@ -104,7 +104,6 @@ test('Should create HttpServer and introspectate', () => {
 
   expect(server.introspection()).toMatchInlineSnapshot(`
     {
-      "ctx": {},
       "data": {
         "$schema": "https://json-schema.org/draft/2019-09/schema#",
         "additionalProperties": false,

@@ -34,7 +34,6 @@ test('Should merge two routers', async () => {
       },
     }),
   ).toStrictEqual({
-    ctx: {},
     data: null,
     ok: true,
   });
@@ -52,7 +51,6 @@ test('Should merge two routers', async () => {
       },
     }),
   ).toStrictEqual({
-    ctx: {},
     data: null,
     ok: true,
   });
@@ -92,7 +90,6 @@ test('Should merge two routers deeply', async () => {
       },
     }),
   ).toStrictEqual({
-    ctx: {},
     data: null,
     ok: true,
   });
@@ -110,7 +107,6 @@ test('Should merge two routers deeply', async () => {
       },
     }),
   ).toStrictEqual({
-    ctx: {},
     data: null,
     ok: true,
   });
@@ -147,7 +143,6 @@ test('Should merge two routers with overwrite', async () => {
       },
     }),
   ).toStrictEqual({
-    ctx: {},
     data: null,
     ok: true,
   });

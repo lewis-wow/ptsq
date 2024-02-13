@@ -95,7 +95,6 @@ test('Should create server with middleware that runs before and after invalid ro
           code: 'NOT_FOUND',
           message: 'The route was invalid.',
         }),
-        ctx: {},
       });
 
       wasCheckedByMiddelware = true;
@@ -146,7 +145,6 @@ test('Should create server with middleware that runs before and after invalid ty
           code: 'BAD_REQUEST',
           message: `The route type is invalid, it should be query and it is mutation.`,
         }),
-        ctx: {},
       });
 
       wasCheckedByMiddelware = true;

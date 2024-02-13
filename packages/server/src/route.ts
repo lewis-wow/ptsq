@@ -123,10 +123,7 @@ export class Route<
               data: parseResult.data,
             });
 
-            return {
-              ...response,
-              ctx: resolveFunctionParams.ctx,
-            };
+            return response;
           },
         }),
       ],

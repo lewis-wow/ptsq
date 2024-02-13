@@ -50,9 +50,6 @@ test('Should create query', async () => {
   ).toStrictEqual({
     data: 'Hello John',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -66,9 +63,6 @@ test('Should create query', async () => {
       message: 'Args validation error.',
     }),
     ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(query.getJsonSchema()).toMatchInlineSnapshot(`
@@ -165,9 +159,6 @@ test('Should create query without args', async () => {
   ).toStrictEqual({
     data: 'Hello',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -178,9 +169,6 @@ test('Should create query without args', async () => {
   ).toStrictEqual({
     data: 'Hello',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(query.getJsonSchema()).toMatchInlineSnapshot(`
@@ -278,9 +266,6 @@ test('Should create query with twice chain', async () => {
   ).toStrictEqual({
     data: 'Hello John Doe',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -298,9 +283,6 @@ test('Should create query with twice chain', async () => {
       message: 'Args validation error.',
     }),
     ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -318,9 +300,6 @@ test('Should create query with twice chain', async () => {
       message: 'Args validation error.',
     }),
     ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(query.getJsonSchema()).toMatchInlineSnapshot(`
@@ -458,9 +437,6 @@ test('Should create query with optional args chain', async () => {
   ).toStrictEqual({
     data: 'Hello John Doe',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -475,9 +451,6 @@ test('Should create query with optional args chain', async () => {
   ).toStrictEqual({
     data: 'Hello John UNDEFINED',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -492,9 +465,6 @@ test('Should create query with optional args chain', async () => {
   ).toStrictEqual({
     data: 'Hello UNDEFINED Doe',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -505,9 +475,6 @@ test('Should create query with optional args chain', async () => {
   ).toStrictEqual({
     data: 'Hello UNDEFINED UNDEFINED',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -522,9 +489,6 @@ test('Should create query with optional args chain', async () => {
   ).toStrictEqual({
     data: 'Hello UNDEFINED UNDEFINED',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(query.getJsonSchema()).toMatchInlineSnapshot(`
