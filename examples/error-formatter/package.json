@@ -14,7 +14,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@ptsq/client": "latest",
-    "@ptsq/server": "latest"
+    "@ptsq/client": "*",
+    "@ptsq/server": "*"
   }
 }

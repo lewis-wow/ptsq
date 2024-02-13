@@ -13,6 +13,7 @@ import type {
 import { Envelope } from './envelope';
 import { HttpServer } from './httpServer';
 import {
+  inferContextFromMiddlewareResponse,
   Middleware,
   type AnyMiddleware,
   type MiddlewareFunction,
@@ -20,7 +21,6 @@ import {
 import { PtsqError } from './ptsqError';
 import { Resolver } from './resolver';
 import { Router, type AnyRouter, type Routes } from './router';
-import type { ShallowMerge, Simplify } from './types';
 
 /**
  * @internal
@@ -79,15 +79,11 @@ export class PtsqServer<
   use<
     TMiddlewareFunction extends MiddlewareFunction<unknown, TServerRootContext>,
   >(middleware: TMiddlewareFunction) {
-    return new PtsqServer<
-      TContextBuilder,
-      Simplify<
-        ShallowMerge<
-          TServerRootContext,
-          Awaited<ReturnType<TMiddlewareFunction>>['ctx']
-        >
-      >
-    >({
+    type NextContext = inferContextFromMiddlewareResponse<
+      Awaited<ReturnType<TMiddlewareFunction>>
+    >;
+
+    return new PtsqServer<TContextBuilder, NextContext>({
       ...this._def,
       middlewares: [
         ...this._def.middlewares,
@@ -184,14 +180,14 @@ export class PtsqServer<
               new PtsqError({
                 code: 'METHOD_NOT_SUPPORTED',
                 message: `Method ${method} is not supported by Ptsq server.`,
-              }).toMiddlewareResponse({}),
+              }).toMiddlewareResponse(),
             );
 
           return envelopedResponse.createResponse(
             new PtsqError({
               code: 'NOT_FOUND',
               message: `Http pathname ${url.pathname} is not supported by Ptsq server, supported are POST ${path} and GET ${path}/introspection.`,
-            }).toMiddlewareResponse({}),
+            }).toMiddlewareResponse(),
           );
         },
         {

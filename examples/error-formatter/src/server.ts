@@ -1,7 +1,7 @@
 import { createServer } from 'http';
 import { middleware, PtsqError, PtsqServer, Type } from '@ptsq/server';
 
-const errorFormatter = middleware().create(async ({ next, meta }) => {
+const errorFormatter = middleware().create(async ({ next }) => {
   const response = await next();
 
   if (response.ok) return response;

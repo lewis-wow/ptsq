@@ -76,7 +76,6 @@ export class HttpServer {
 
   introspection() {
     return Middleware.createSuccessResponse({
-      ctx: {},
       data: {
         title: 'BaseRouter',
         $schema: 'https://json-schema.org/draft/2019-09/schema#',

@@ -121,10 +121,12 @@ export class Route<
 
             const response = Middleware.createSuccessResponse({
               data: parseResult.data,
-              ctx: resolveFunctionParams.ctx,
             });
 
-            return response;
+            return {
+              ...response,
+              ctx: resolveFunctionParams.ctx,
+            };
           },
         }),
       ],

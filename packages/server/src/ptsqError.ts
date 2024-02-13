@@ -1,5 +1,4 @@
-import type { Context } from './context';
-import type { MiddlewareResponse } from './middleware';
+import type { AnyMiddlewareResponse } from './middleware';
 
 /**
  * @internal
@@ -40,13 +39,10 @@ export class PtsqError extends Error {
     };
   }
 
-  toMiddlewareResponse<TContext extends Context>(
-    ctx: TContext,
-  ): MiddlewareResponse<TContext> {
+  toMiddlewareResponse(): AnyMiddlewareResponse {
     return {
       ok: false,
       error: this,
-      ctx,
     };
   }
 

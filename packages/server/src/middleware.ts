@@ -31,7 +31,7 @@ export type MiddlewareFunction<TArgs, TContext extends Context> = (options: {
   meta: MiddlewareMeta;
   ctx: TContext;
   next: NextFunction<TContext>;
-}) => ReturnType<typeof options.next>;
+}) => ReturnType<NextFunction<TContext>>;
 
 export type AnyMiddlewareFunction = MiddlewareFunction<unknown, Context>;
 
@@ -113,7 +113,6 @@ export class Middleware<TArgs, TContext extends Context> {
       console.error(error);
 
       return Middleware.createFailureResponse({
-        ctx: ctx,
         error: PtsqError.isPtsqError(error)
           ? error
           : new PtsqError({
@@ -124,20 +123,18 @@ export class Middleware<TArgs, TContext extends Context> {
     }
   }
 
-  static createSuccessResponse<TContext extends Context>(responseFragment: {
+  static createSuccessResponse(responseFragment: {
     data: unknown;
-    ctx: TContext;
-  }): MiddlewareResponse<TContext> {
+  }): AnyMiddlewareResponse {
     return {
       ok: true,
       ...responseFragment,
     };
   }
 
-  static createFailureResponse<TContext extends Context>(responseFragment: {
+  static createFailureResponse(responseFragment: {
     error: PtsqError;
-    ctx: TContext;
-  }): MiddlewareResponse<TContext> {
+  }): AnyMiddlewareResponse {
     return {
       ok: false,
       ...responseFragment,
@@ -147,11 +144,26 @@ export class Middleware<TArgs, TContext extends Context> {
 
 export type AnyMiddleware = Middleware<unknown, Context>;
 
-export type MiddlewareResponse<TContext extends Context> =
-  | { ok: true; data: unknown; ctx: TContext }
-  | { ok: false; error: PtsqError; ctx: TContext };
+interface MiddlewareOkResponse<_Tcontext> {
+  ok: true;
+  data: unknown;
+}
+
+interface MiddlewareErrorResponse<_Tcontext> {
+  ok: false;
+  error: PtsqError;
+}
+
+export type MiddlewareResponse<_TContext> =
+  | MiddlewareOkResponse<_TContext>
+  | MiddlewareErrorResponse<_TContext>;
 
 export type AnyMiddlewareResponse = MiddlewareResponse<Context>;
+
+export type inferContextFromMiddlewareResponse<TMiddlewareResponse> =
+  TMiddlewareResponse extends MiddlewareResponse<infer iContext>
+    ? iContext
+    : never;
 
 /**
  * Creates standalone middleware

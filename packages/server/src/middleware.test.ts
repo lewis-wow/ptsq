@@ -40,7 +40,6 @@ test('Should create middleware with query and serverSideQuery', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'invalid',
     ok: true,
   });
@@ -51,7 +50,6 @@ test('Should create middleware with query and serverSideQuery', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     error: new PtsqError({ code: 'BAD_REQUEST' }),
     ok: false,
   });
@@ -66,7 +64,6 @@ test('Should create middleware with query and serverSideQuery', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'valid',
     ok: true,
   });
@@ -77,7 +74,6 @@ test('Should create middleware with query and serverSideQuery', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'valid',
     ok: true,
   });

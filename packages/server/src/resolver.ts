@@ -2,6 +2,7 @@ import { Type, type TIntersect, type TSchema } from '@sinclair/typebox';
 import { Compiler } from './compiler';
 import type { Context } from './context';
 import {
+  inferContextFromMiddlewareResponse,
   Middleware,
   type AnyMiddleware,
   type MiddlewareFunction,
@@ -104,11 +105,15 @@ export class Resolver<
       TContext
     >,
   >(middleware: TMiddlewareFunction) {
+    type NextContext = inferContextFromMiddlewareResponse<
+      Awaited<ReturnType<TMiddlewareFunction>>
+    >;
+
     return new Resolver<
       TArgsSchema,
       TOutputSchema,
       TRootContext,
-      Awaited<ReturnType<TMiddlewareFunction>>['ctx'],
+      NextContext,
       TDescription
     >({
       argsSchema: this._def.argsSchema,
