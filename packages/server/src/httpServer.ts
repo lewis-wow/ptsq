@@ -1,8 +1,8 @@
-import { Middleware } from './middleware';
+import { Middleware, MiddlewareMeta } from './middleware';
 import { parseRequest } from './parseRequest';
-import { PtsqError } from './ptsqError';
 import type { AnyPtsqServer } from './ptsqServer';
 import type { AnyRouter } from './router';
+import { ResolverType } from './types';
 
 /**
  * @internal
@@ -23,65 +23,55 @@ export class HttpServer {
   }
 
   async serve(request: Request, contextParams: object) {
-    try {
-      const ctx = this._def.ptsqServer._def.ctx
-        ? await this._def.ptsqServer._def.ctx({
-            request: request,
-            ...contextParams,
-          })
-        : {};
+    return await Middleware.recursiveCall({
+      ctx: {},
+      meta: {
+        route: undefined as unknown,
+        input: undefined,
+        type: undefined as unknown as ResolverType,
+      } as MiddlewareMeta,
+      index: 0,
+      middlewares: [
+        new Middleware<unknown, {}>({
+          argsSchema: undefined,
+          compiler: this._def.ptsqServer._def.compiler,
+          middlewareFunction: async ({ next }) => {
+            const parsedRequestBody = await parseRequest({
+              request: request,
+              compiler: this._def.ptsqServer._def.compiler,
+            });
 
-      const parsedRequestBody = await parseRequest({
-        request,
-        compiler: this._def.ptsqServer._def.compiler,
-      });
+            const middlewareMeta = {
+              input: parsedRequestBody.input,
+              route: parsedRequestBody.route,
+              type: parsedRequestBody.type,
+            };
 
-      const middlewareMeta = {
-        input: parsedRequestBody.input,
-        route: parsedRequestBody.route,
-        type: parsedRequestBody.type,
-      };
+            const nextCtx = this._def.ptsqServer._def.ctx
+              ? await this._def.ptsqServer._def.ctx({
+                  request,
+                  ...contextParams,
+                })
+              : {};
 
-      const response = await Middleware.recursiveCall({
-        ctx: ctx,
-        meta: middlewareMeta,
-        index: 0,
-        middlewares: [
-          ...this._def.ptsqServer._def.middlewares,
-          new Middleware({
-            argsSchema: undefined,
-            compiler: this._def.ptsqServer._def.compiler,
-            middlewareFunction: () => {
-              return this._def.router.call({
-                route: parsedRequestBody.route.split('.'),
-                index: 0,
-                type: parsedRequestBody.type,
-                meta: {
-                  input: parsedRequestBody.input,
-                  route: parsedRequestBody.route,
-                  type: parsedRequestBody.type,
-                },
-                ctx,
-              });
-            },
-          }),
-        ],
-      });
-
-      return response;
-    } catch (error) {
-      console.error(error);
-
-      return Middleware.createFailureResponse({
-        ctx: {},
-        error: PtsqError.isPtsqError(error)
-          ? error
-          : new PtsqError({
-              code: 'INTERNAL_SERVER_ERROR',
-              info: error,
+            return next({ meta: middlewareMeta, ctx: nextCtx });
+          },
+        }),
+        ...this._def.ptsqServer._def.middlewares,
+        new Middleware({
+          argsSchema: undefined,
+          compiler: this._def.ptsqServer._def.compiler,
+          middlewareFunction: ({ meta, ctx }) =>
+            this._def.router.call({
+              route: meta.route.split('.'),
+              index: 0,
+              type: meta.type,
+              meta,
+              ctx,
             }),
-      });
-    }
+        }),
+      ],
+    });
   }
 
   introspection() {

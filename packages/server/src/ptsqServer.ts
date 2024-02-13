@@ -16,7 +16,6 @@ import { HttpServer } from './httpServer';
 import {
   Middleware,
   type AnyMiddleware,
-  type AnyMiddlewareResponse,
   type MiddlewareFunction,
 } from './middleware';
 import { PtsqError } from './ptsqError';
@@ -117,20 +116,7 @@ export class PtsqServer<
       '',
     )}`;
 
-    const envelopedResponse = new Envelope(
-      async (middlewareResponse: AnyMiddlewareResponse) => {
-        if (middlewareResponse.ok) return middlewareResponse;
-
-        const formattedError = await this._def.errorFormatter(
-          middlewareResponse.error,
-        );
-
-        return {
-          ...middlewareResponse,
-          error: formattedError,
-        };
-      },
-    );
+    const envelopedResponse = new Envelope();
 
     /**
      * Creates a queries or mutations

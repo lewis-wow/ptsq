@@ -117,6 +117,25 @@ importers:
         specifier: ^5.2.2
         version: 5.3.3
 
+  examples/error-formatter:
+    dependencies:
+      '@ptsq/client':
+        specifier: latest
+        version: link:../../packages/client
+      '@ptsq/server':
+        specifier: latest
+        version: link:../../packages/server
+    devDependencies:
+      '@types/node':
+        specifier: ^20.7.0
+        version: 20.11.16
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.2(@types/node@20.11.16)(typescript@5.3.3)
+      typescript:
+        specifier: ^5.2.2
+        version: 5.3.3
+
   examples/express:
     dependencies:
       '@ptsq/client':

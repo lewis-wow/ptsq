@@ -9,9 +9,12 @@ import type { ResolverType } from './types';
  */
 export type NextFunction<TContext extends Context> = {
   (): Promise<MiddlewareResponse<TContext>>;
-  <TNextContext extends Context>(
-    nextContext: TNextContext,
-  ): Promise<MiddlewareResponse<TNextContext>>;
+  <TNextContext extends Context | undefined = undefined>(options?: {
+    ctx?: TNextContext;
+    meta?: MiddlewareMeta;
+  }): Promise<
+    MiddlewareResponse<TNextContext extends Context ? TNextContext : TContext>
+  >;
 };
 
 /**
@@ -89,13 +92,14 @@ export class Middleware<TArgs, TContext extends Context> {
         input: parseResult.data,
         meta: meta,
         ctx: ctx,
-        next: ((nextContext) =>
-          Middleware.recursiveCall({
-            ctx: { ...ctx, ...nextContext },
-            meta: meta,
+        next: ((options) => {
+          return Middleware.recursiveCall({
+            ctx: { ...ctx, ...options?.ctx },
+            meta: options?.meta ?? meta,
             index: index + 1,
             middlewares: middlewares,
-          })) as NextFunction<Context>,
+          });
+        }) as NextFunction<Context>,
       });
 
       return response;
