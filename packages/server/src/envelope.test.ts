@@ -21,7 +21,6 @@ test('Should create simple envelope of success response', async () => {
     data: {
       greetings: 'Hello, Dave!',
     },
-    ctx: {},
   });
 
   const responseBody = await envelopedData.json();
@@ -37,7 +36,6 @@ test('Should create simple envelope of success response', async () => {
   const envelopedFailureData = await envelope.createResponse({
     ok: false,
     error: new PtsqError({ code: 'BAD_REQUEST', message: 'Message...' }),
-    ctx: {},
   });
 
   const failureResponseBody = await envelopedFailureData.json();
@@ -75,7 +73,6 @@ test('Should create simple envelope of failure response', async () => {
         description: 'ORM error description...',
       },
     }),
-    ctx: {},
   });
 
   const responseBody = await envelopedData.json();
@@ -97,7 +94,6 @@ test('Should create simple envelope of failure response', async () => {
     data: {
       greetings: 'Hello, Dave!',
     },
-    ctx: {},
   });
 
   const successResponseBody = await envelopedSuccessData.json();

@@ -28,7 +28,6 @@ test('Should create HttpServer and serve with bad body format', async () => {
     ),
   ).toMatchObject({
     ok: false,
-    ctx: {},
     error: new PtsqError({
       code: 'BAD_REQUEST',
       message: 'Parsing request body failed.',
@@ -47,7 +46,6 @@ test('Should create HttpServer and serve with bad body format', async () => {
     ),
   ).toMatchObject({
     ok: false,
-    ctx: {},
     error: new PtsqError({
       code: 'BAD_REQUEST',
       message: 'Parsing request body failed.',
@@ -66,7 +64,6 @@ test('Should create HttpServer and serve with bad body format', async () => {
     ),
   ).toMatchObject({
     ok: false,
-    ctx: {},
     error: new PtsqError({
       code: 'BAD_REQUEST',
       message: 'Parsing request body failed.',
@@ -86,7 +83,6 @@ test('Should create HttpServer and serve with bad body format', async () => {
     ),
   ).toMatchObject({
     ok: false,
-    ctx: {},
     error: new PtsqError({
       code: 'BAD_REQUEST',
       message: 'Parsing request body failed.',

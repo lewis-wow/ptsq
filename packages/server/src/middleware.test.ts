@@ -117,7 +117,6 @@ test('Should create middleware with mutation and serverSideMutation', async () =
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'invalid',
     ok: true,
   });
@@ -128,7 +127,6 @@ test('Should create middleware with mutation and serverSideMutation', async () =
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     error: new PtsqError({ code: 'BAD_REQUEST' }),
     ok: false,
   });
@@ -143,7 +141,6 @@ test('Should create middleware with mutation and serverSideMutation', async () =
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'valid',
     ok: true,
   });
@@ -154,7 +151,6 @@ test('Should create middleware with mutation and serverSideMutation', async () =
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'valid',
     ok: true,
   });
@@ -200,7 +196,6 @@ test('Should create middleware with measuring time', async () => {
       ctx: {},
     }),
   ).toStrictEqual({
-    ctx: {},
     data: 'Hello',
     ok: true,
   });
@@ -221,7 +216,6 @@ test('Should create two nested middlewares', async () => {
   const resolverDelay = 1000; // ms
 
   const resolverResponse = {
-    ctx: {},
     data: 'Hello',
     ok: true,
   };
@@ -278,7 +272,6 @@ test('Should create two nested middlewares', async () => {
       ctx: {},
     }),
   ).toStrictEqual({
-    ctx: {},
     data: 'Hello',
     ok: true,
   });
@@ -337,7 +330,6 @@ test('Should create nested middlewares with query', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'invalid',
     ok: true,
   });
@@ -348,7 +340,6 @@ test('Should create nested middlewares with query', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     error: new PtsqError({ code: 'BAD_REQUEST' }),
     ok: false,
   });
@@ -363,7 +354,6 @@ test('Should create nested middlewares with query', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'valid',
     ok: true,
   });
@@ -374,7 +364,6 @@ test('Should create nested middlewares with query', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'valid',
     ok: true,
   });
@@ -429,7 +418,6 @@ test('Should create nested middlewares with mutation', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'invalid',
     ok: true,
   });
@@ -440,7 +428,6 @@ test('Should create nested middlewares with mutation', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     error: new PtsqError({ code: 'BAD_REQUEST' }),
     ok: false,
   });
@@ -455,7 +442,6 @@ test('Should create nested middlewares with mutation', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'valid',
     ok: true,
   });
@@ -466,7 +452,6 @@ test('Should create nested middlewares with mutation', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'valid',
     ok: true,
   });
@@ -535,7 +520,6 @@ test('Should create nested middlewares with query with args chaining', async () 
       ctx: {},
     }),
   ).toStrictEqual({
-    ctx: { name: 'John', lastName: 'Doe' },
     data: 'John Doe',
     ok: true,
   });
@@ -574,7 +558,6 @@ test('Should create nested middlewares with query and returns response recursive
       expect(response).toStrictEqual({
         ok: true,
         data: 'Hello',
-        ctx: {},
       });
 
       return response;
@@ -599,7 +582,6 @@ test('Should create nested middlewares with query and returns response recursive
       expect(response).toStrictEqual({
         ok: true,
         data: 'Hello',
-        ctx: {},
       });
 
       return response;
@@ -617,7 +599,6 @@ test('Should create nested middlewares with query and returns response recursive
       ctx: {},
     }),
   ).toStrictEqual({
-    ctx: {},
     data: 'Hello',
     ok: true,
   });
@@ -656,7 +637,6 @@ test('Should create nested middlewares with query and returns response recursive
       expect(response).toStrictEqual({
         ok: true,
         data: 'Hello',
-        ctx: {},
       });
 
       return response;
@@ -681,7 +661,6 @@ test('Should create nested middlewares with query and returns response recursive
       expect(response).toStrictEqual({
         ok: true,
         data: 'Hello',
-        ctx: {},
       });
 
       return response;
@@ -706,7 +685,6 @@ test('Should create nested middlewares with query and returns response recursive
       ctx: {},
     }),
   ).toStrictEqual({
-    ctx: {},
     data: 'Hello',
     ok: true,
   });
@@ -754,7 +732,6 @@ test('Should create standalone middleware with query', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'invalid',
     ok: true,
   });
@@ -765,7 +742,6 @@ test('Should create standalone middleware with query', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     error: new PtsqError({ code: 'BAD_REQUEST' }),
     ok: false,
   });
@@ -780,7 +756,6 @@ test('Should create standalone middleware with query', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'valid',
     ok: true,
   });
@@ -791,7 +766,6 @@ test('Should create standalone middleware with query', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    ctx: contextBuilderResult,
     data: 'valid',
     ok: true,
   });
