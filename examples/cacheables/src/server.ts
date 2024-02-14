@@ -1,24 +1,23 @@
 import { createServer } from 'http';
-import {
-  middleware,
-  PtsqError,
-  PtsqErrorCode,
-  PtsqServer,
-  Type,
-} from '@ptsq/server';
+import { middleware, PtsqServer, Type } from '@ptsq/server';
+import { Cacheables } from 'cacheables';
 
-const errorFormatter = middleware().create(async ({ next }) => {
-  const response = await next();
+const cache = new Cacheables();
 
-  if (response.ok) return response;
+const cacheables = middleware().create(async ({ next, meta }) => {
+  /**
+   * because the input in the meta must be serializable for transfer, we can use safely JSON.stringify
+   */
+  const response = await cache.cacheable(
+    () => next(),
+    Cacheables.key(...meta.route.split('.'), JSON.stringify(meta.input)),
+    {
+      cachePolicy: 'max-age',
+      maxAge: 5 * 1000, // 5sec
+    },
+  );
 
-  return {
-    ...response,
-    error: new PtsqError({
-      code: PtsqErrorCode.BAD_REQUEST_400,
-      message: 'Masked error',
-    }),
-  };
+  return response;
 });
 
 const { resolver, router, serve } = PtsqServer.init({
@@ -26,7 +25,7 @@ const { resolver, router, serve } = PtsqServer.init({
     a: '' as 'a' | 'b',
   }),
 })
-  .use(errorFormatter)
+  .use(cacheables)
   .create();
 
 const greetingsQuery = resolver
@@ -37,7 +36,7 @@ const greetingsQuery = resolver
   )
   .output(Type.TemplateLiteral('Hello, ${string}!'))
   .query(({ input }) => {
-    throw new Error('Error...');
+    console.log('Not hit cache!');
 
     return `Hello, ${input.name}!`;
   });

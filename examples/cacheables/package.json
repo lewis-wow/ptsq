@@ -1,0 +1,21 @@
+{
+  "name": "@ptsq/example-error-formatter",
+  "version": "0.0.1",
+  "private": true,
+  "main": "src/server.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "start:server": "ts-node src/server.ts",
+    "start:client": "ts-node src/client.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.7.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@ptsq/client": "*",
+    "@ptsq/server": "*",
+    "cacheables": "^1.2.2"
+  }
+}
