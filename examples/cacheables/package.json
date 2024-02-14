@@ -1,5 +1,5 @@
 {
-  "name": "@ptsq/example-error-formatter",
+  "name": "@ptsq/example-cacheables",
   "version": "0.0.1",
   "private": true,
   "main": "src/server.ts",
