@@ -209,7 +209,7 @@ export class PtsqServer<
    */
   static init<
     TContextBuilder extends AnyContextBuilder | undefined = undefined,
-  >(options?: CreateServerOptions<TContextBuilder>) {
+  >(options?: Omit<CreateServerOptions<TContextBuilder>, 'middlewares'>) {
     return new PtsqServer<
       TContextBuilder,
       inferContextFromContextBuilder<TContextBuilder>
