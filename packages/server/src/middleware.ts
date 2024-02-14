@@ -1,7 +1,7 @@
 import { Simplify } from '../dist/types';
 import type { Compiler } from './compiler';
 import type { Context } from './context';
-import { PtsqError } from './ptsqError';
+import { PtsqError, PtsqErrorCode } from './ptsqError';
 import type { ResolverSchema } from './resolver';
 import { ShallowMerge } from './types';
 import type { ResolverType } from './types';
@@ -92,7 +92,7 @@ export class Middleware<TArgs, TContext extends Context> {
 
       if (!parseResult.ok)
         throw new PtsqError({
-          code: 'BAD_REQUEST',
+          code: PtsqErrorCode.BAD_REQUEST_400,
           message: 'Args validation error.',
           info: parseResult.errors,
         });
@@ -119,7 +119,7 @@ export class Middleware<TArgs, TContext extends Context> {
         error: PtsqError.isPtsqError(error)
           ? error
           : new PtsqError({
-              code: 'INTERNAL_SERVER_ERROR',
+              code: PtsqErrorCode.INTERNAL_SERVER_ERROR_500,
               info: error,
             }),
       });

@@ -18,7 +18,7 @@ import {
   type AnyMiddleware,
   type MiddlewareFunction,
 } from './middleware';
-import { PtsqError } from './ptsqError';
+import { PtsqError, PtsqErrorCode } from './ptsqError';
 import { Resolver } from './resolver';
 import { Router, type AnyRouter, type Routes } from './router';
 
@@ -116,7 +116,7 @@ export class PtsqServer<
      *
      * @example
      * ```ts
-     * resolver.query(({ input, ctx }) => `Hello, ${input.name}!`);
+     * resolver.output(...).query(({ input, ctx }) => `Hello, ${input.name}!`);
      * ```
      */
     const resolver = Resolver.createRoot<TServerRootContext>({
@@ -178,14 +178,14 @@ export class PtsqServer<
           )
             return envelopedResponse.createResponse(
               new PtsqError({
-                code: 'METHOD_NOT_SUPPORTED',
-                message: `Method ${method} is not supported by Ptsq server.`,
+                code: PtsqErrorCode.METHOD_NOT_ALLOWED_405,
+                message: `Method ${method} is not allowed by Ptsq server.`,
               }).toMiddlewareResponse(),
             );
 
           return envelopedResponse.createResponse(
             new PtsqError({
-              code: 'NOT_FOUND',
+              code: PtsqErrorCode.NOT_FOUND_404,
               message: `Http pathname ${url.pathname} is not supported by Ptsq server, supported are POST ${path} and GET ${path}/introspection.`,
             }).toMiddlewareResponse(),
           );

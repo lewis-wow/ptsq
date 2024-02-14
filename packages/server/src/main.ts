@@ -1,5 +1,5 @@
 export { PtsqServer } from './ptsqServer';
-export { PtsqError } from './ptsqError';
+export { PtsqError, PtsqErrorCode } from './ptsqError';
 
 export { Resolver, type ResolveFunction } from './resolver';
 

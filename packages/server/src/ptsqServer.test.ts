@@ -3,7 +3,7 @@ import { Type } from '@sinclair/typebox';
 import { useCORS } from '@whatwg-node/server';
 import axios from 'axios';
 import { expect, test } from 'vitest';
-import { PtsqError } from './ptsqError';
+import { PtsqError, PtsqErrorCode } from './ptsqError';
 import { PtsqServer } from './ptsqServer';
 
 test('Should create server with 2 nested middlewares that runs before and after call', async () => {
@@ -92,7 +92,7 @@ test('Should create server with middleware that runs before and after invalid ro
       expect(response).toStrictEqual({
         ok: false,
         error: new PtsqError({
-          code: 'NOT_FOUND',
+          code: PtsqErrorCode.NOT_FOUND_404,
           message: 'The route was invalid.',
         }),
       });
@@ -137,12 +137,10 @@ test('Should create server with middleware that runs before and after invalid ty
     .use(async ({ next }) => {
       const response = await next();
 
-      console.log(response);
-
       expect(response).toStrictEqual({
         ok: false,
         error: new PtsqError({
-          code: 'BAD_REQUEST',
+          code: PtsqErrorCode.NOT_FOUND_404,
           message: `The route type is invalid, it should be query and it is mutation.`,
         }),
       });
@@ -287,7 +285,7 @@ test('Should not fetch server with wrong method', async () => {
     response: {
       data: {
         name: 'PtsqError',
-        message: 'Method GET is not supported by Ptsq server.',
+        message: 'Method GET is not allowed by Ptsq server.',
       },
     },
   });
@@ -310,7 +308,7 @@ test('Should not fetch server introspection with wrong method', async () => {
     response: {
       data: {
         name: 'PtsqError',
-        message: 'Method POST is not supported by Ptsq server.',
+        message: 'Method POST is not allowed by Ptsq server.',
       },
     },
   });

@@ -2,7 +2,7 @@ import type { Context } from './context';
 import { createSchemaRoot, type SchemaRoot } from './createSchemaRoot';
 import { type AnyMiddlewareResponse, type MiddlewareMeta } from './middleware';
 import type { AnyMutation } from './mutation';
-import { PtsqError } from './ptsqError';
+import { PtsqError, PtsqErrorCode } from './ptsqError';
 import type { AnyQuery } from './query';
 import type {
   ErrorMessage,
@@ -80,14 +80,14 @@ export class Router<TRoutes extends Routes, TContext extends Context> {
 
     if (!currentRoute)
       throw new PtsqError({
-        code: 'NOT_FOUND',
+        code: PtsqErrorCode.NOT_FOUND_404,
         message:
           'The route was terminated by query or mutate but should continue.',
       });
 
     if (!(currentRoute in this._def.routes))
       throw new PtsqError({
-        code: 'NOT_FOUND',
+        code: PtsqErrorCode.NOT_FOUND_404,
         message: 'The route was invalid.',
       });
 
@@ -98,14 +98,14 @@ export class Router<TRoutes extends Routes, TContext extends Context> {
 
     if (options.index !== options.route.length - 1)
       throw new PtsqError({
-        code: 'NOT_FOUND',
+        code: PtsqErrorCode.NOT_FOUND_404,
         message:
           'The route continues, but should be terminated by query or mutate.',
       });
 
     if (nextNode._def.type !== options.type)
       throw new PtsqError({
-        code: 'BAD_REQUEST',
+        code: PtsqErrorCode.BAD_REQUEST_400,
         message: `The route type is invalid, it should be ${nextNode._def.type} and it is ${options.type}.`,
       });
 
@@ -176,8 +176,8 @@ export type ServerSideCaller<TRoutes extends Routes> = {
   [K in keyof TRoutes]: TRoutes[K] extends AnyRouter
     ? ServerSideCaller<TRoutes[K]['_def']['routes']>
     : TRoutes[K] extends AnyQuery
-    ? ReturnType<TRoutes[K]['createServerSideQuery']>
-    : TRoutes[K] extends AnyMutation
-    ? ReturnType<TRoutes[K]['createServerSideMutation']>
-    : never;
+      ? ReturnType<TRoutes[K]['createServerSideQuery']>
+      : TRoutes[K] extends AnyMutation
+        ? ReturnType<TRoutes[K]['createServerSideMutation']>
+        : never;
 };

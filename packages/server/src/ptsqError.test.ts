@@ -1,14 +1,16 @@
 import { expect, test } from 'vitest';
-import { PtsqError } from './ptsqError';
+import { PtsqError, PtsqErrorCode } from './ptsqError';
 
 test('Should throw PtsqError', async () => {
   await expect(async () => {
     await Promise.resolve(1);
-    throw new PtsqError({ code: 'BAD_REQUEST' });
-  }).rejects.toThrowError(new PtsqError({ code: 'BAD_REQUEST' }));
+    throw new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 });
+  }).rejects.toThrowError(
+    new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 }),
+  );
 });
 
 test('Should throw PtsqError and return true for isPtsqError', () => {
-  const error = new PtsqError({ code: 'BAD_REQUEST' });
+  const error = new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 });
   expect(PtsqError.isPtsqError(error)).toBe(true);
 });

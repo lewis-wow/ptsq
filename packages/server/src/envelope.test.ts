@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { Envelope } from './envelope';
-import { PtsqError } from './ptsqError';
+import { PtsqError, PtsqErrorCode } from './ptsqError';
 
 test('Should create simple envelope of success response', async () => {
   const envelope = new Envelope((response) => {
@@ -35,7 +35,10 @@ test('Should create simple envelope of success response', async () => {
 
   const envelopedFailureData = await envelope.createResponse({
     ok: false,
-    error: new PtsqError({ code: 'BAD_REQUEST', message: 'Message...' }),
+    error: new PtsqError({
+      code: PtsqErrorCode.BAD_REQUEST_400,
+      message: 'Message...',
+    }),
   });
 
   const failureResponseBody = await envelopedFailureData.json();
@@ -67,7 +70,7 @@ test('Should create simple envelope of failure response', async () => {
   const envelopedData = await envelope.createResponse({
     ok: false,
     error: new PtsqError({
-      code: 'BAD_REQUEST',
+      code: PtsqErrorCode.BAD_REQUEST_400,
       message: 'Random message...',
       info: {
         description: 'ORM error description...',

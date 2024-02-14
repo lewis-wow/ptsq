@@ -1,7 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { HttpServer } from './httpServer';
-import { PtsqError } from './ptsqError';
+import { PtsqError, PtsqErrorCode } from './ptsqError';
 import { PtsqServer } from './ptsqServer';
 import { Resolver } from './resolver';
 import { Router } from './router';
@@ -29,7 +29,7 @@ test('Should create HttpServer and serve with bad body format', async () => {
   ).toMatchObject({
     ok: false,
     error: new PtsqError({
-      code: 'BAD_REQUEST',
+      code: PtsqErrorCode.BAD_REQUEST_400,
       message: 'Parsing request body failed.',
     }),
   });
@@ -47,7 +47,7 @@ test('Should create HttpServer and serve with bad body format', async () => {
   ).toMatchObject({
     ok: false,
     error: new PtsqError({
-      code: 'BAD_REQUEST',
+      code: PtsqErrorCode.BAD_REQUEST_400,
       message: 'Parsing request body failed.',
     }),
   });
@@ -65,7 +65,7 @@ test('Should create HttpServer and serve with bad body format', async () => {
   ).toMatchObject({
     ok: false,
     error: new PtsqError({
-      code: 'BAD_REQUEST',
+      code: PtsqErrorCode.BAD_REQUEST_400,
       message: 'Parsing request body failed.',
     }),
   });
@@ -84,7 +84,7 @@ test('Should create HttpServer and serve with bad body format', async () => {
   ).toMatchObject({
     ok: false,
     error: new PtsqError({
-      code: 'BAD_REQUEST',
+      code: PtsqErrorCode.BAD_REQUEST_400,
       message: 'Parsing request body failed.',
     }),
   });

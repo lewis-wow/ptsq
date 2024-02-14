@@ -1,10 +1,10 @@
-import type { PtsqError } from '@ptsq/server';
+import { type PtsqError, type PtsqErrorCode } from '@ptsq/server';
 
 /**
  * @internal
  */
 export type PtsqClientErrorOptions = {
-  code: PtsqError['code'];
+  code: PtsqErrorCode;
   message?: PtsqError['message'];
   info?: PtsqError['info'];
 };
@@ -13,8 +13,8 @@ export type PtsqClientErrorOptions = {
  * Client error for throwing the error that comes from server on the client side
  */
 export class PtsqClientError extends Error {
-  code: PtsqError['code'];
-  info: unknown;
+  code: PtsqErrorCode;
+  info?: PtsqError['info'];
 
   constructor({ code, message, info }: PtsqClientErrorOptions) {
     super(message);
@@ -29,18 +29,3 @@ export class PtsqClientError extends Error {
   static isPtsqClientError = (error: unknown): error is PtsqClientError =>
     error instanceof PtsqClientError;
 }
-
-export const PtsqErrorCode = {
-  400: 'BAD_REQUEST',
-  401: 'UNAUTHORIZED',
-  403: 'FORBIDDEN',
-  404: 'NOT_FOUND',
-  405: 'METHOD_NOT_SUPPORTED',
-  408: 'TIMEOUT',
-  409: 'CONFLICT',
-  412: 'PRECONDITION_FAILED',
-  413: 'PAYLOAD_TOO_LARGE',
-  422: 'UNPROCESSABLE_CONTENT',
-  429: 'TOO_MANY_REQUESTS',
-  500: 'INTERNAL_SERVER_ERROR',
-} as const;
