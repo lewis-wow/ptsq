@@ -1,4 +1,4 @@
-import { Middleware, MiddlewareMeta } from './middleware';
+import { Middleware } from './middleware';
 import { parseRequest } from './parseRequest';
 import type { AnyPtsqServer } from './ptsqServer';
 import type { AnyRouter } from './router';
@@ -26,10 +26,10 @@ export class HttpServer {
     return await Middleware.recursiveCall({
       ctx: {},
       meta: {
-        route: undefined as unknown,
+        route: '',
         input: undefined,
         type: undefined as unknown as ResolverType,
-      } as MiddlewareMeta,
+      },
       index: 0,
       middlewares: [
         new Middleware<unknown, {}>({
@@ -47,12 +47,10 @@ export class HttpServer {
               type: parsedRequestBody.type,
             };
 
-            const nextCtx = this._def.ptsqServer._def.ctx
-              ? await this._def.ptsqServer._def.ctx({
-                  request,
-                  ...contextParams,
-                })
-              : {};
+            const nextCtx = await this._def.ptsqServer._def.ctx?.({
+              request,
+              ...contextParams,
+            });
 
             return next({ meta: middlewareMeta, ctx: nextCtx });
           },
