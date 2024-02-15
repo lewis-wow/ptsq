@@ -2,7 +2,7 @@ import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { Compiler } from './compiler';
 import { Middleware } from './middleware';
-import { PtsqError } from './ptsqError';
+import { PtsqError, PtsqErrorCode } from './ptsqError';
 import { Route } from './route';
 
 test('Should create query route', async () => {
@@ -47,9 +47,6 @@ test('Should create query route', async () => {
   ).toStrictEqual({
     data: 'John',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(query.getJsonSchema()).toMatchInlineSnapshot(`
@@ -147,9 +144,6 @@ test('Should create mutation route', async () => {
   ).toStrictEqual({
     data: 'John',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
@@ -226,10 +220,7 @@ test('Should create query route and throw error inside resolve function', async 
     }),
   ).toStrictEqual({
     ok: false,
-    ctx: {
-      test: true,
-    },
-    error: new PtsqError({ code: 'INTERNAL_SERVER_ERROR' }),
+    error: new PtsqError({ code: PtsqErrorCode.INTERNAL_SERVER_ERROR_500 }),
   });
 });
 
@@ -254,10 +245,7 @@ test('Should create mutation route and throw error inside resolve function', asy
     }),
   ).toStrictEqual({
     ok: false,
-    ctx: {
-      test: true,
-    },
-    error: new PtsqError({ code: 'INTERNAL_SERVER_ERROR' }),
+    error: new PtsqError({ code: PtsqErrorCode.INTERNAL_SERVER_ERROR_500 }),
   });
 });
 
@@ -291,13 +279,10 @@ test('Should create query route and return wrong type', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: 'INTERNAL_SERVER_ERROR',
+      code: PtsqErrorCode.INTERNAL_SERVER_ERROR_500,
       message: 'Output validation error',
     }),
     ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 });
 

@@ -2,6 +2,7 @@ import { Type, type TIntersect, type TSchema } from '@sinclair/typebox';
 import { Compiler } from './compiler';
 import type { Context } from './context';
 import {
+  inferContextFromMiddlewareResponse,
   Middleware,
   type AnyMiddleware,
   type MiddlewareFunction,
@@ -37,16 +38,6 @@ export class Resolver<
     argsSchema: TArgsSchema;
     outputSchema: TOutputSchema;
     description: TDescription;
-    /**
-     * @internal
-     * type only - cannot access context while creating resolver
-     */
-    context: TContext;
-    /**
-     * @internal
-     * type only - cannot access context while creating resolver
-     */
-    rootContext: TRootContext;
     compiler: Compiler;
   };
 
@@ -57,12 +48,7 @@ export class Resolver<
     description: TDescription;
     compiler: Compiler;
   }) {
-    this._def = {
-      ...resolverOptions,
-      description: resolverOptions.description,
-      context: {} as TContext,
-      rootContext: {} as TRootContext,
-    };
+    this._def = resolverOptions;
   }
 
   description<TNextDescription extends string>(description: TNextDescription) {
@@ -104,13 +90,15 @@ export class Resolver<
       TContext
     >,
   >(middleware: TMiddlewareFunction) {
+    type NextContext = inferContextFromMiddlewareResponse<
+      Awaited<ReturnType<TMiddlewareFunction>>
+    >;
+
     return new Resolver<
       TArgsSchema,
       TOutputSchema,
       TRootContext,
-      Simplify<
-        ShallowMerge<TContext, Awaited<ReturnType<TMiddlewareFunction>>['ctx']>
-      >,
+      NextContext,
       TDescription
     >({
       argsSchema: this._def.argsSchema,
@@ -130,17 +118,6 @@ export class Resolver<
 
   /**
    * Add additional arguments by the validation schema to the resolver
-   *
-   * The next validation schema must extends the previous one
-   *
-   * @example
-   * ```ts
-   * .args(z.object({ firstName: z.string() }))
-   * // ...
-   * .args(z.object({ firstName: z.string(), lastName: z.string() }))
-   * .output(...)
-   * .query(...)
-   * ```
    */
   args<TNextSchemaArgs extends ResolverSchema>(
     nextSchemaArgs: SerializableSchema<TNextSchemaArgs>,
@@ -174,16 +151,6 @@ export class Resolver<
 
   /**
    * Add output validation schema
-   *
-   * The next output validation schema must extends the previous one
-   *
-   * @example
-   * ```ts
-   * .output(z.object({ firstName: z.string() }))
-   * // ...
-   * .output(z.object({ firstName: z.string(), lastName: z.string() }))
-   * .query(...)
-   * ```
    */
   output<TNextSchemaOutput extends ResolverSchema>(
     nextSchemaOutput: SerializableSchema<TNextSchemaOutput>,
@@ -330,7 +297,7 @@ export class Resolver<
     TResolverB extends Resolver<any, any, any, any, string | undefined>,
   >(
     resolverA: TResolverA,
-    resolverB: TResolverA['_def']['context'] extends TResolverB['_def']['rootContext']
+    resolverB: inferResolverContextType<TResolverA> extends inferResolverRootContextType<TResolverB>
       ? TResolverB
       : ErrorMessage<`Context of resolver B have to extends context of resolver A.`>,
   ) {
@@ -341,13 +308,13 @@ export class Resolver<
       _resolverB._def.argsSchema === undefined
         ? undefined
         : resolverA._def.argsSchema === undefined
-        ? _resolverB._def.argsSchema
-        : _resolverB._def.argsSchema === undefined
-        ? resolverA._def.argsSchema
-        : Type.Intersect([
-            resolverA._def.argsSchema,
-            _resolverB._def.argsSchema,
-          ]);
+          ? _resolverB._def.argsSchema
+          : _resolverB._def.argsSchema === undefined
+            ? resolverA._def.argsSchema
+            : Type.Intersect([
+                resolverA._def.argsSchema,
+                _resolverB._def.argsSchema,
+              ]);
 
     type NextArgsSchema = TResolverA['_def']['argsSchema'] extends TSchema
       ? TResolverB['_def']['argsSchema'] extends TSchema
@@ -362,13 +329,13 @@ export class Resolver<
       _resolverB._def.outputSchema === undefined
         ? undefined
         : resolverA._def.outputSchema === undefined
-        ? _resolverB._def.outputSchema
-        : _resolverB._def.outputSchema === undefined
-        ? resolverA._def.outputSchema
-        : Type.Intersect([
-            resolverA._def.outputSchema,
-            _resolverB._def.outputSchema,
-          ]);
+          ? _resolverB._def.outputSchema
+          : _resolverB._def.outputSchema === undefined
+            ? resolverA._def.outputSchema
+            : Type.Intersect([
+                resolverA._def.outputSchema,
+                _resolverB._def.outputSchema,
+              ]);
 
     type NextOutputSchema = TResolverA['_def']['outputSchema'] extends TSchema
       ? TResolverB['_def']['outputSchema'] extends TSchema
@@ -384,11 +351,11 @@ export class Resolver<
     return new Resolver<
       NextArgsSchema,
       NextOutputSchema,
-      TResolverA['_def']['rootContext'],
+      inferResolverRootContextType<TResolverA>,
       Simplify<
         ShallowMerge<
-          TResolverA['_def']['context'],
-          TResolverB['_def']['context']
+          inferResolverContextType<TResolverA>,
+          inferResolverContextType<TResolverB>
         >
       >,
       TResolverB['_def']['description']
@@ -416,3 +383,19 @@ export type ResolveFunction<
 }) => MaybePromise<TOutput>;
 
 export type AnyResolveFunction = ResolveFunction<any, any, any>;
+
+export type inferResolverRootContextType<TResolver> =
+  TResolver extends Resolver<
+    any,
+    any,
+    infer RootContext,
+    any,
+    string | undefined
+  >
+    ? RootContext
+    : never;
+
+export type inferResolverContextType<TResolver> =
+  TResolver extends Resolver<any, any, any, infer Context, string | undefined>
+    ? Context
+    : never;

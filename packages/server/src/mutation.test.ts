@@ -1,7 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
-import { PtsqError } from './ptsqError';
+import { PtsqError, PtsqErrorCode } from './ptsqError';
 import { PtsqServer } from './ptsqServer';
 
 test('Should create mutation', async () => {
@@ -50,9 +50,6 @@ test('Should create mutation', async () => {
   ).toStrictEqual({
     data: 'Hello John',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -66,13 +63,10 @@ test('Should create mutation', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: 'BAD_REQUEST',
+      code: PtsqErrorCode.BAD_REQUEST_400,
       message: 'Args validation error.',
     }),
     ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
@@ -171,9 +165,6 @@ test('Should create mutation without args', async () => {
   ).toStrictEqual({
     data: 'Hello',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -188,9 +179,6 @@ test('Should create mutation without args', async () => {
   ).toStrictEqual({
     data: 'Hello',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
@@ -285,9 +273,6 @@ test('Should create mutation with twice chain', async () => {
   ).toStrictEqual({
     data: 'Hello John Doe',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -301,13 +286,10 @@ test('Should create mutation with twice chain', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: 'BAD_REQUEST',
+      code: PtsqErrorCode.BAD_REQUEST_400,
       message: 'Args validation error.',
     }),
     ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -321,13 +303,10 @@ test('Should create mutation with twice chain', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: 'BAD_REQUEST',
+      code: PtsqErrorCode.BAD_REQUEST_400,
       message: 'Args validation error.',
     }),
     ok: false,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
@@ -465,9 +444,6 @@ test('Should create mutation with optional args chain', async () => {
   ).toStrictEqual({
     data: 'Hello John Doe',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -482,9 +458,6 @@ test('Should create mutation with optional args chain', async () => {
   ).toStrictEqual({
     data: 'Hello John UNDEFINED',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -499,9 +472,6 @@ test('Should create mutation with optional args chain', async () => {
   ).toStrictEqual({
     data: 'Hello UNDEFINED Doe',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -512,9 +482,6 @@ test('Should create mutation with optional args chain', async () => {
   ).toStrictEqual({
     data: 'Hello UNDEFINED UNDEFINED',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(
@@ -529,9 +496,6 @@ test('Should create mutation with optional args chain', async () => {
   ).toStrictEqual({
     data: 'Hello UNDEFINED UNDEFINED',
     ok: true,
-    ctx: {
-      greetingsPrefix: 'Hello',
-    },
   });
 
   expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`

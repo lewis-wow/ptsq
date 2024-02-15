@@ -1,5 +1,5 @@
 import type { Compiler } from './compiler';
-import { PtsqError } from './ptsqError';
+import { PtsqError, PtsqErrorCode } from './ptsqError';
 import { requestBodySchema } from './requestBodySchema';
 
 type ParseRequestArgs = {
@@ -24,7 +24,7 @@ export const parseRequest = async ({ request, compiler }: ParseRequestArgs) => {
 
   if (!parsedRequestBody.ok)
     throw new PtsqError({
-      code: 'BAD_REQUEST',
+      code: PtsqErrorCode.BAD_REQUEST_400,
       message: 'Parsing request body failed.',
       info: parsedRequestBody.errors,
     });

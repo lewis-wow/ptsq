@@ -4,7 +4,7 @@ import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { Middleware, type MiddlewareMeta } from './middleware';
 import type { AnyMiddleware, AnyMiddlewareResponse } from './middleware';
-import { PtsqError } from './ptsqError';
+import { PtsqError, PtsqErrorCode } from './ptsqError';
 import type { AnyResolveFunction } from './resolver';
 import type { inferClientResolverArgs, ResolverType } from './types';
 
@@ -114,14 +114,13 @@ export class Route<
 
             if (!parseResult.ok)
               throw new PtsqError({
-                code: 'INTERNAL_SERVER_ERROR',
+                code: PtsqErrorCode.INTERNAL_SERVER_ERROR_500,
                 message: 'Output validation error',
                 info: parseResult.errors,
               });
 
             const response = Middleware.createSuccessResponse({
               data: parseResult.data,
-              ctx: resolveFunctionParams.ctx,
             });
 
             return response;
