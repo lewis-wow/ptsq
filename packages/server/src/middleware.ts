@@ -1,10 +1,9 @@
-import { Simplify } from '../dist/types';
 import type { Compiler } from './compiler';
 import type { Context } from './context';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
 import type { ResolverSchema } from './resolver';
 import { ShallowMerge } from './types';
-import type { ResolverType } from './types';
+import type { ResolverType, Simplify } from './types';
 
 /**
  * @internal
