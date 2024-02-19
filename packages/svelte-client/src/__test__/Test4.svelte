@@ -25,5 +25,9 @@
   });
 </script>
 
+<button data-testid="fetchNextPage" on:click={() => $result?.fetchNextPage()}>
+  fetchNextPage
+</button>
+
 <div data-testid="isFetching">{$result?.isFetching}</div>
-<div data-testid="data">{$result?.data}</div>
+<div data-testid="data">{JSON.stringify($result?.data)}</div>
