@@ -1,3 +1,5 @@
+import { UndefinedAction } from './undefinedAction';
+
 export type CreateProxyUntypedClientArgs<TArgs extends readonly unknown[]> = {
   fetch: (options: { route: string[]; action: string; args: TArgs }) => unknown;
 };
@@ -25,7 +27,7 @@ const _createProxyUntypedClient = <TArgs extends readonly unknown[]>({
       _createProxyUntypedClient({ route: [...route, key], fetch }),
     apply: (_target, _thisArg, argumentsList) => {
       const action = route.pop();
-      if (!action) throw new TypeError('Action is not defined.');
+      if (!action) throw new UndefinedAction();
 
       return fetch({
         route,

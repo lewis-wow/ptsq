@@ -4,6 +4,7 @@ import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { createProxyClient } from './createProxyClient';
+import { UndefinedAction } from './undefinedAction';
 
 type HttpAdapterContext = {
   req: IncomingMessage;
@@ -251,6 +252,34 @@ test('Should create simple http server with proxy client and creates request wit
       name: 'John',
     }),
   ).toThrowError(new TypeError('This action is not defined.'));
+
+  await $disconnect();
+});
+
+test('Should not create proxy client without any action', async () => {
+  const { resolver, router, serve } = PtsqServer.init({
+    ctx: () => ({}),
+  }).create();
+
+  const baseRouter = router({
+    test: resolver
+      .args(
+        Type.Object({
+          name: Type.String(),
+        }),
+      )
+      .output(Type.String())
+      .query(({ input }) => input.name),
+  });
+
+  const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
+
+  const client = createProxyClient<typeof baseRouter>({
+    url,
+  });
+
+  // @ts-expect-error - test purposes
+  expect(() => client()).toThrow(new UndefinedAction());
 
   await $disconnect();
 });

@@ -58,10 +58,7 @@ export class PtsqLink {
       return response;
     } catch (error) {
       if (PtsqClientError.isPtsqClientError(error)) {
-        return {
-          ok: false,
-          error: error,
-        };
+        return PtsqLink.createFailureResponse(error);
       }
 
       throw error;
