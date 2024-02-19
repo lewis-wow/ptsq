@@ -1,0 +1,20 @@
+# Testing
+
+You can test your ptsq application by creating a server side caller.
+
+```ts copy filename="server.test.ts"
+const testBaseRouter = baseRouter.createServerSideCaller({
+  /* ctx */,
+  req: {} as any,
+  res: {} as any,
+  user: new User({ admin: true }) // fake or seeded user for testing
+});
+
+/**
+ * Access queries and mutations as with the client but without any server creation and http calls
+ */
+const response /* string */ = await testBaseRouter.greetings.query({
+  /* type-safe as client */
+  name: /* string */ 'John'
+});
+```

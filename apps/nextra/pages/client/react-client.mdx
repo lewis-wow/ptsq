@@ -48,7 +48,7 @@ export const App = () => {
 }
 ```
 
-### Query without immediately call
+### Query without immediate call
 
 ```tsx copy filename="component.tsx"
 export const App = () => {
@@ -69,4 +69,51 @@ export const App = () => {
     </main>
   )
 }
+```
+
+## Infinite query
+
+the `useInfiniteQuery` is exposed only if your server accepts `pageParam` property with any type. That means the input has to extends `{ pageParam: any }`.
+
+```ts copy filename="server.ts"
+resolver
+  .args(
+    Type.Object({
+      pageParam: Type.Integer(),
+    }),
+  )
+  .output(
+    Type.Object({
+      data: Type.Array(Type.String()),
+      nextCursor: Type.Integer(),
+    }),
+  )
+  .query(({ input }) => {
+    return {
+      data: data.slice(
+        input.pageParam * pageSize,
+        (input.pageParam + 1) * pageSize,
+      ),
+      nextCursor: input.pageParam + 1,
+    };
+  });
+```
+
+```tsx copy filename="component.tsx"
+export const App = () => {
+  const infiniteQuery = client.test.useInfiniteQuery(
+    {}, // pageParam is automatically passed by the infinite query, you should not have it in the input
+    {
+      initialPageParam: 0,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
+
+  return (
+    <div>
+      <p>data: {JSON.stringify(infiniteQuery.data)}</p>
+      <button onClick={() => infiniteQuery.fetchNextPage()}>load next</button>
+    </div>
+  );
+};
 ```

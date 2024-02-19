@@ -52,3 +52,48 @@ const client = createSvelteClient<BaseRouter>({
 	<p>{$response.error.message /* PtsqClientError */}</p>
 {/if}
 ```
+
+## Infinite query
+
+the `createInfiniteQuery` is exposed only if your server accepts `pageParam` property with any type. That means the input has to extends `{ pageParam: any }`.
+
+```ts copy filename="server.ts"
+resolver
+  .args(
+    Type.Object({
+      pageParam: Type.Integer(),
+    }),
+  )
+  .output(
+    Type.Object({
+      data: Type.Array(Type.String()),
+      nextCursor: Type.Integer(),
+    }),
+  )
+  .query(({ input }) => {
+    return {
+      data: data.slice(
+        input.pageParam * pageSize,
+        (input.pageParam + 1) * pageSize,
+      ),
+      nextCursor: input.pageParam + 1,
+    };
+  });
+```
+
+```tsx copy filename="Component.svelte"
+<script lang="ts">
+  const response = client.test.createInfiniteQuery(
+    {}, // pageParam is automatically passed by the infinite query, you should not have it in the input
+    {
+      initialPageParam: 0,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
+  );
+</script>
+
+<div>
+  <p>data: {JSON.stringify($response.data)}</p>
+  <button onClick={() => $response.fetchNextPage()}>load next</button>
+</div>
+```

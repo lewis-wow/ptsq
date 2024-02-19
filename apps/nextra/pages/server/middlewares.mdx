@@ -249,7 +249,7 @@ You can add middleware to the resolver, which calls them when the query or mutat
 
 What if you want to run middleware no matter if the route is found or the resolver type (query or mutation) is correctly set?
 
-```ts
+```ts copy
 export const { resolver, router, serve } = PtsqServer.init()
   .use(async ({ next, meta }) => {
     console.log('request: ', meta);
