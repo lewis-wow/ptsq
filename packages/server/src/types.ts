@@ -43,8 +43,8 @@ export type inferClientResolverArgs<TResolverArgs> = TResolverArgs extends
   ? // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
     undefined | void
   : TResolverArgs extends TSchema
-  ? Static<TResolverArgs>
-  : TResolverArgs;
+    ? Static<TResolverArgs>
+    : TResolverArgs;
 
 /**
  * Infers the output type of the zod validation schema or the introspected schema

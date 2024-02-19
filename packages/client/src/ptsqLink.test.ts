@@ -1,8 +1,9 @@
-import { PtsqServer } from '@ptsq/server';
+import { PtsqErrorCode, PtsqServer } from '@ptsq/server';
 import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { createProxyClient } from './createProxyClient';
+import { PtsqClientError } from './ptsqClientError';
 import { PtsqLink } from './ptsqLink';
 
 test('Should create simple http server with proxy client', async () => {
@@ -95,6 +96,80 @@ test('Should create simple http server with proxy client and link that edits the
   });
 
   expect(response).toBe('Eva');
+
+  await $disconnect();
+});
+
+test('Should catch error inside link', async () => {
+  const { resolver, router, serve } = PtsqServer.init({
+    ctx: () => ({}),
+  }).create();
+
+  const baseRouter = router({
+    test: resolver
+      .args(
+        Type.Object({
+          name: Type.String(),
+        }),
+      )
+      .output(Type.String())
+      .query(({ input }) => input.name),
+  });
+
+  const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
+
+  const link = new PtsqLink(({ forward }) => {
+    throw new Error('error');
+    return forward();
+  });
+
+  const client = createProxyClient<typeof baseRouter>({
+    url,
+    links: [link],
+  });
+
+  await expect(
+    client.test.query({
+      name: 'John',
+    }),
+  ).rejects.toThrow(new Error('error'));
+
+  await $disconnect();
+});
+
+test('Should catch PtsqClientError inside link', async () => {
+  const { resolver, router, serve } = PtsqServer.init({
+    ctx: () => ({}),
+  }).create();
+
+  const baseRouter = router({
+    test: resolver
+      .args(
+        Type.Object({
+          name: Type.String(),
+        }),
+      )
+      .output(Type.String())
+      .query(({ input }) => input.name),
+  });
+
+  const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
+
+  const link = new PtsqLink(({ forward }) => {
+    throw new PtsqClientError({ code: PtsqErrorCode.GONE_410 });
+    return forward();
+  });
+
+  const client = createProxyClient<typeof baseRouter>({
+    url,
+    links: [link],
+  });
+
+  await expect(
+    client.test.query({
+      name: 'John',
+    }),
+  ).rejects.toThrow(new PtsqClientError({ code: PtsqErrorCode.GONE_410 }));
 
   await $disconnect();
 });

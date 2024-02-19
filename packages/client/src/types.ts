@@ -43,36 +43,36 @@ export type ProxyClientRouter<TRouter extends ClientRouter> = {
   [K in keyof TRouter['_def']['routes']]: TRouter['_def']['routes'][K] extends ClientRouter
     ? ProxyClientRouter<TRouter['_def']['routes'][K]>
     : TRouter['_def']['routes'][K] extends ClientRoute<'query'>
-    ? Query<
-        TRouter['_def']['routes'][K]['_def']['description'],
-        {
-          args: Simplify<
-            inferClientResolverArgs<
-              TRouter['_def']['routes'][K]['_def']['argsSchema']
-            >
-          >;
-          output: Simplify<
-            inferClientResolverOutput<
-              TRouter['_def']['routes'][K]['_def']['outputSchema']
-            >
-          >;
-        }
-      >
-    : TRouter['_def']['routes'][K] extends ClientRoute<'mutation'>
-    ? Mutation<
-        TRouter['_def']['routes'][K]['_def']['description'],
-        {
-          args: Simplify<
-            inferClientResolverArgs<
-              TRouter['_def']['routes'][K]['_def']['argsSchema']
-            >
-          >;
-          output: Simplify<
-            inferClientResolverOutput<
-              TRouter['_def']['routes'][K]['_def']['outputSchema']
-            >
-          >;
-        }
-      >
-    : never;
+      ? Query<
+          TRouter['_def']['routes'][K]['_def']['description'],
+          {
+            args: Simplify<
+              inferClientResolverArgs<
+                TRouter['_def']['routes'][K]['_def']['argsSchema']
+              >
+            >;
+            output: Simplify<
+              inferClientResolverOutput<
+                TRouter['_def']['routes'][K]['_def']['outputSchema']
+              >
+            >;
+          }
+        >
+      : TRouter['_def']['routes'][K] extends ClientRoute<'mutation'>
+        ? Mutation<
+            TRouter['_def']['routes'][K]['_def']['description'],
+            {
+              args: Simplify<
+                inferClientResolverArgs<
+                  TRouter['_def']['routes'][K]['_def']['argsSchema']
+                >
+              >;
+              output: Simplify<
+                inferClientResolverOutput<
+                  TRouter['_def']['routes'][K]['_def']['outputSchema']
+                >
+              >;
+            }
+          >
+        : never;
 };

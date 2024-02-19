@@ -5,7 +5,12 @@ export default defineConfig({
     globals: true,
     coverage: {
       provider: 'istanbul',
-      exclude: ['**/node_modules/**', '**/dist/**'],
+      exclude: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/__test__/**',
+        'packages/test-utils/**',
+      ],
     },
   },
 });
