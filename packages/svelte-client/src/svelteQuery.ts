@@ -1,4 +1,5 @@
 import type { PtsqClientError } from '@ptsq/client';
+import { Simplify } from '@ptsq/server';
 import type {
   CreateInfiniteQueryOptions,
   CreateInfiniteQueryResult,
@@ -17,18 +18,19 @@ export type SvelteQuery<
     requestInput: TDefinition['args'],
     queryOptions?: Omit<CreateQueryOptions, 'queryFn' | 'queryKey'>,
   ) => CreateQueryResult<TDefinition['output'], PtsqClientError>;
-} & (TDefinition['args'] extends object
-  ? 'cursor' extends keyof TDefinition['args']
-    ? {
-        createInfiniteQuery: (
-          requestInput: Omit<TDefinition['args'], 'cursor'>,
-          queryOptions?: Omit<
-            CreateInfiniteQueryOptions,
-            'queryFn' | 'queryKey'
+} & (TDefinition['args'] extends { pageParam: any }
+  ? {
+      createInfiniteQuery: (
+        requestInput: Simplify<Omit<TDefinition['args'], 'pageParam'>>,
+        queryOptions?: Omit<
+          CreateInfiniteQueryOptions<
+            TDefinition['output'],
+            PtsqClientError,
+            TDefinition['output'],
+            TDefinition['output']
           >,
-        ) => CreateInfiniteQueryResult<TDefinition['output'], PtsqClientError>;
-      }
-    : // eslint-disable-next-line @typescript-eslint/ban-types
-      {}
-  : // eslint-disable-next-line @typescript-eslint/ban-types
-    {});
+          'queryFn' | 'queryKey'
+        >,
+      ) => CreateInfiniteQueryResult<TDefinition['output'], PtsqClientError>;
+    }
+  : {});

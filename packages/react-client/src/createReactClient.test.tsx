@@ -242,14 +242,6 @@ test('Should create simple http server with react client infinite query', async 
         }),
       )
       .query(({ input }) => {
-        console.log(
-          'data',
-          data.slice(
-            input.pageParam * pageSize,
-            (input.pageParam + 1) * pageSize,
-          ),
-        );
-
         return {
           data: data.slice(
             input.pageParam * pageSize,

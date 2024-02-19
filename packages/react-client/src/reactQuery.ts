@@ -1,6 +1,6 @@
 import type { PtsqClientError } from '@ptsq/client';
+import { Simplify } from '@ptsq/server';
 import type {
-  QueryKey,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
   UseQueryOptions,
@@ -28,14 +28,13 @@ export type ReactQuery<
 } & (TDefinition['args'] extends { pageParam: any }
   ? {
       useInfiniteQuery: (
-        requestInput: Omit<TDefinition['args'], 'pageParam'>,
+        requestInput: Simplify<Omit<TDefinition['args'], 'pageParam'>>,
         queryOptions?: Omit<
           UseInfiniteQueryOptions<
             TDefinition['output'],
             PtsqClientError,
             TDefinition['output'],
-            TDefinition['output'],
-            QueryKey
+            TDefinition['output']
           >,
           'queryFn' | 'queryKey'
         >,

@@ -16,6 +16,9 @@ export default mergeConfig(
     test: {
       name: '@ptsq/svelte-client',
       environment: 'jsdom',
+      coverage: {
+        exclude: ['**/src/__test__/**'],
+      },
     },
   }),
 );

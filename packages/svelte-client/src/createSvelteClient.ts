@@ -65,7 +65,7 @@ export const createSvelteClient = <TRouter extends ClientRouter>({
                 meta: {
                   route: route.join('.'),
                   type: 'query',
-                  input: args[0],
+                  input: { ...args[0], pageParam: context.pageParam },
                 },
                 fetch: (input, init) => {
                   return fetch(input, {

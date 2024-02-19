@@ -1,9 +1,11 @@
+import { server } from './__test__/test1Server.js';
+import Test1Wrapper from './__test__/Test1Wrapper.svelte';
+import Test2Wrapper from './__test__/Test2Wrapper.svelte';
+import Test3Wrapper from './__test__/Test3Wrapper.svelte';
+import { UndefinedAction } from '@ptsq/client';
 import { type CreateHttpTestServerPayload } from '@ptsq/test-utils';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { expect, test } from 'vitest';
-import { server } from './tests/test1Server.js';
-import Test1Wrapper from './tests/Test1Wrapper.svelte';
-import Test2Wrapper from './tests/Test2Wrapper.svelte';
 
 test('Should create simple http server with svelte client query', async () => {
   const { $disconnect } = await new Promise<CreateHttpTestServerPayload>(
@@ -50,6 +52,16 @@ test('Should create simple http server with svelte client mutation', async () =>
   });
 
   expect(data.innerHTML).toBe('John');
+
+  await $disconnect();
+});
+
+test('Should create simple http server with svelte client and call undefined action', async () => {
+  const { $disconnect } = await new Promise<CreateHttpTestServerPayload>(
+    (resolve) => server.subscribe(resolve),
+  );
+
+  expect(() => render(Test3Wrapper)).toThrow(new UndefinedAction());
 
   await $disconnect();
 });
