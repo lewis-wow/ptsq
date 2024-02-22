@@ -7,7 +7,7 @@ on:
     branches: ['master']
 
 jobs:
-  test:
+  build_and_test:
     timeout-minutes: 10
     name: Build and test on Node ${{ matrix.node }} and ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -49,6 +49,7 @@ jobs:
 
   release:
     name: Release
+    needs: build_and_test
     runs-on: 'ubuntu-latest'
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
