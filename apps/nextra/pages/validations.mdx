@@ -1,13 +1,9 @@
 # Validations
 
-Arguments and output validation are one of the concepts of `ptsq`.
+Validations are a core concept within `ptsq`, encompassing both argument and output validation. These validations are powered by [Typebox](https://github.com/sinclairzx81/typebox), a library known for generating JSON schemas for validation purposes.
 
-For the validation, the library uses [Typebox](https://github.com/sinclairzx81/typebox).
+You might wonder why Typebox is chosen over Zod for validations. The primary reason is the seamless integration with introspection. Typebox generates JSON schemas directly, simplifying the introspection process. In contrast, Zod requires conversion of its schemas into JSON schemas for introspection, adding an extra step and potentially complicating the process.
 
-## Why not Zod?
+Furthermore, Typebox allows `ptsq` to infer TypeScript types directly from the generated JSON schemas, streamlining the development experience and ensuring type safety throughout the application.
 
-The reason is that Typebox creates JSON schemas for validation, so the introspection is then very easy to do.
-
-In Zod, the library has to convert the Zod schema into JSON schema for introspection.
-
-From Typebox, `ptsq` can infer the Typescript type.
+In summary, by leveraging Typebox for validations, `ptsq` benefits from easier introspection, simplified development workflows, and robust type inference capabilities, enhancing the overall developer experience and productivity.

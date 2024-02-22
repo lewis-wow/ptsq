@@ -12,5 +12,7 @@
   "errors": "Errors",
   "server-calls": "Server calls",
   "cors": "Cors",
-  "server-options": "Server options"
+  "server-options": "Server options",
+  "testing": "Testing",
+  "api-versioning": "API versioning"
 }

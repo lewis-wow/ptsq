@@ -1,7 +1,6 @@
 # Middlewares
 
-The Middleware function runs before every route call (query, mutation) that the resolver that uses the middleware creates.
-The `next` function determines when the next middleware will start.
+The Middleware function is executed prior before each route call, whether it's a query or mutation, that utilizes the resolver associated with the middleware. The next function within the middleware determines when to proceed to the next middleware in the chain. This mechanism enables you to execute custom logic, perform validation, or modify the context before the resolver is invoked, ensuring consistent behavior and enforcing any necessary preconditions across your application's routes.
 
 ```ts copy
 import { PtsqServer } from '@ptsq/server';
@@ -52,15 +51,13 @@ protectedResolver.query({
 ```
 
 The `next` function only returns the passed context.
-It is only for keep the context type up to date after e.g. `if` condition.
+It is only for keeping the context type up to date after e.g. `if` condition.
 
 ## Run next function before return
 
-You can also run the next function before the return, so the next middlewares runs before the first middleware ends.
+Running the next function before the return statement allows for the execution of subsequent middlewares before the current middleware completes. This capability is particularly useful for tasks such as measuring response times, as it ensures that the next middleware is triggered before the current one finishes processing.
 
-It can be usefull for measuring the time for response.
-
-The last middleware that runs is the `resolve` function. It always runs as a last middleware.
+Resolve function always runs as the final middleware in the chain. This ensures that the resolver logic is executed last, allowing for any necessary post-processing or finalization steps before sending the response back to the client.
 
 ```ts copy
 const measuredResolver = resolver.use(({ ctx, next }) => {
@@ -82,7 +79,7 @@ const measuredResolver = resolver.use(({ ctx, next }) => {
 });
 ```
 
-As you can see, you still have to return the resolver result, it is for context type inferring and for passing the result up to middlewares that runs before, as you can nest multiple middlewares and the result returns recursively.
+Indeed, returning the resolver result is essential not only for inferring the context type but also for passing the result up the middleware chain. This approach enables the nesting of multiple middlewares, with each subsequent middleware potentially modifying the result before passing it further up the chain. This recursive passing of results ensures that each middleware has the opportunity to intercept and process the data, facilitating a flexible and extensible middleware architecture within your application.
 
 The type of middleware response is
 
@@ -104,7 +101,7 @@ so you have to determine if the `ok` property is `true` or `false` to access the
 
 ## Arguments validation with middleware
 
-You can validate part of arguments before middleware definition, so you can access the properties in the middleware.
+You can validate part of arguments before the middleware definition, so you can access the properties in the middleware.
 
 ```ts copy
 const protectedResolver = resolver
@@ -123,8 +120,9 @@ const protectedResolver = resolver
         throw new Error('Must be logged in with firstName match!');
 
       return next({
-        ...ctx,
-        user: ctx.user,
+        ctx: {
+          user: ctx.user,
+        },
       });
     },
   );
@@ -137,22 +135,26 @@ If middlewares are piped, then all the middlewares run before the route call in 
 ```ts copy
 const protectedResolver = resolver.use(
   ({ ctx /* { user: User<any> | null } */, next }) => {
-    if (!ctx.user) throw new Error('Must be logged in!');
+    if (!ctx.user)
+      throw new PtsqError({ code: PtsqErrorCode.UNAUTHORIZED_401 });
 
     return next({
-      ...ctx,
-      user: ctx.user,
+      ctx: {
+        user: ctx.user,
+      },
     });
   },
 );
 
 const adminResolver = protectedResolver.use(
   ({ ctx /* { user: User<any> } */, next }) => {
-    if (ctx.user.role !== 'admin') throw new Error('Must be an admin!');
+    if (ctx.user.role !== 'admin')
+      throw new PtsqError({ code: PtsqErrorCode.FORBIDDEN_403 });
 
     return next({
-      ...ctx,
-      user: ctx.user,
+      ctx: {
+        user: ctx.user,
+      },
     });
   },
 );
@@ -194,8 +196,8 @@ export const isAuthed = middelware<{
   ctx: {
     user?: User;
   };
-}>(({ ctx /* { user?: User | undefined } */, next }) => {
-  if (!ctx.user) throw new PtsqError({ code: 'UNAUTHORIZED' });
+}>().create(({ ctx /* { user?: User | undefined } */, next }) => {
+  if (!ctx.user) throw new PtsqError({ code: PtsqErrorCode.UNAUTHORIZED_401 });
 
   return next({
     user: ctx.user,
@@ -249,7 +251,7 @@ You can add middleware to the resolver, which calls them when the query or mutat
 
 What if you want to run middleware no matter if the route is found or the resolver type (query or mutation) is correctly set?
 
-```ts
+```ts copy
 export const { resolver, router, serve } = PtsqServer.init()
   .use(async ({ next, meta }) => {
     console.log('request: ', meta);

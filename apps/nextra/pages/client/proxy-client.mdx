@@ -53,9 +53,7 @@ type CreateProxyClientArgs = {
 ```
 
 The `url` is the URL of ptsq server e.g. `https://example.com/ptsq/'.
-If the credentials option is true, then credentials like cookies are sent to the server with every request.
-You can also specify headers you want to send such as the Authorization header and so on.
-Headers can be defined as callable functions, so for example, you can get cookies like JWT token in the function that is then passed to Authorization header.
+You can also specify the `fetch` function. That will be the place where you can customize fetch options or/and use [fetch ponyfill](https://www.npmjs.com/package/fetch-ponyfill) for client use in the node environment.
 
 ```ts
 import { createProxyClient } from '@ptsq/client';
@@ -63,14 +61,17 @@ import type { BaseRouter } from './server';
 
 const client = createProxyClient<BaseRouter>({
   url: 'http://localhost:4000/ptsq',
-  headers: async () => {
+  fetch: async (input, requestInit) => {
     const jwt = await cookies.get('jwt');
 
-    return {
-      Authorization: `Bearer ${jwt}`,
-    };
+    return fetch(input, {
+      ...requestInit,
+      headers: {
+        ...requestInit.headers,
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
   },
-  credentials: true,
 });
 
 const result /* string */ = await client.test.query({

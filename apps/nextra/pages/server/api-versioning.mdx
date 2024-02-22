@@ -1,0 +1,27 @@
+# API versioning
+
+You have the flexibility to version your API just like you would with a traditional REST API.
+
+```ts copy filename="server.ts"
+import { baseRouterV1 } from 'baseRouterV1';
+import { baseRouterV2 } from 'baseRouterV2';
+
+export const baseRouter = router({
+  v1: baseRouterV1,
+  v2: baseRouterV2,
+});
+```
+
+Subsequently, you can retrieve your API version within the client by accessing it as part of the route.
+
+```ts copy filename="client.ts"
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/ptsq',
+});
+
+client /* v1 | v2 */.v1.user
+  .query();
+
+client /* v1 | v2 */.v2.user
+  .query();
+```

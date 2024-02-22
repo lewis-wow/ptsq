@@ -1,6 +1,8 @@
 ## Client query
 
-On the client side, the `query` can be requested by a `query` method on the route.
+On the client side, initiating a query can be achieved by invoking a query method specific to the route. This method facilitates the execution of the query and handles the communication with the server to fetch the requested data.
+
+By calling the query method on the route corresponding to the desired query, clients can seamlessly interact with the backend API. This approach abstracts away the complexities of making HTTP requests and parsing responses, providing a simplified and intuitive interface for querying data from the server.
 
 ```ts copy
 import { createProxyClient } from '@ptsq/client';

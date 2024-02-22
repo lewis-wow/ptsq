@@ -1,12 +1,10 @@
 # Router
 
-Routers describe the API interface.
+Routers serve as blueprints for defining the API interface, offering a structured way to organize and manage endpoints. One notable feature of this model is the ability to nest routers within a single `Base` router, providing a hierarchical structure that reflects the logical organization of your API.
 
-The strength of this model lies in the nesting of routers into one `Base` router.
+Moreover, routers can be merged seamlessly across files, allowing you to define routers independently and then consolidate them into a unified `Base` router. This modular approach enhances code organization and maintainability, facilitating better scalability and extensibility of your API.
 
-Routers can be merged across files, so you can define routers somewhere and then merge them into one `Base` router.
-
-It is recommended to export `type` of the `Base` router because then you can specify your server as a `devDependency` on the client if you are using monorepo project structure.
+Exporting the `type` of the `Base` router is recommended as it enables clients, particularly in a monorepo project structure, to specify the server as a `devDependency`. This promotes better dependency management and version control, ensuring consistency and compatibility across different parts of your project.
 
 ```ts copy
 import { PtsqServer } from '@ptsq/server';

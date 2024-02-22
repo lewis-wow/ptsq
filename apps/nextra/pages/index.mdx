@@ -2,16 +2,17 @@
 
 Welcome to ptsq!
 
-A Public type-safe query is a library for creating type-safe API with TS backend and any language client.
+Ptsq, short for Public Type-Safe Query, is a powerful library designed for building type-safe APIs with TypeScript on the backend and clients in any language.
 
-It offers introspection of API schema and allows you to easily create type-safe queries, mutations, middlewares and so on.
+With Ptsq, you gain access to advanced features like introspection of your API schema, making it effortless to create type-safe queries, mutations, middlewares, and more. This ensures that your API interactions are robust, predictable, and maintainable, regardless of the programming language used on the client side.
+
+Whether you're working with complex data structures or integrating multiple services, Ptsq streamlines the development process, empowering you to build scalable and reliable APIs with ease.
 
 ## Motivation
 
-The motivation is that [tRPC](https://trpc.io/) allows you to create a type-safe backend but does not offer some kind of introspection, so it cannot be used for type-safe open API.
-On the other hand [GraphQL](https://graphql.org/) offers the schema introspection for type-safe open API, but setting up the project and writing GraphQL resolvers is much harder.
+Both [tRPC](https://trpc.io/) and [GraphQL](https://graphql.org/) offer compelling features for building type-safe backends, but each has its limitations. While tRPC provides type safety, it lacks schema introspection, making it unsuitable for creating type-safe open APIs. Conversely, GraphQL offers schema introspection, enabling type-safe open APIs, but setting up projects and writing resolvers can be complex.
 
-This library combines the best of those two worlds.
+This library, however, bridges the gap between these two worlds by combining the best features of both approaches. It provides the type safety of tRPC while also offering schema introspection capabilities akin to GraphQL. With this library, developers can enjoy the ease of use and simplicity of tRPC while benefiting from the flexibility and openness of GraphQL's schema introspection, resulting in a powerful and versatile solution for building type-safe APIs.
 
 ## Requirements
 

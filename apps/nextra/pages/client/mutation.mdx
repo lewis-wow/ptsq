@@ -1,6 +1,8 @@
 ## Client mutation
 
-On the client side, the `mutation` can be requested by a `mutate` method on the route.
+On the client side, triggering a mutation can be accomplished by invoking a mutate method specific to the route associated with the desired mutation. This method facilitates the execution of the mutation and manages the communication with the server to perform the requested data manipulation.
+
+By calling the mutate method on the appropriate route, clients can seamlessly interact with the backend API to update, create, or delete data. This abstraction simplifies the process of making HTTP requests and handling responses, providing a straightforward and intuitive interface for performing mutations on the server.
 
 ```ts copy
 import { createProxyClient } from '@ptsq/client';

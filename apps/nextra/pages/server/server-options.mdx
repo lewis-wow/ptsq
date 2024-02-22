@@ -6,13 +6,13 @@ There are a few `PtsqServer.init` options and this chapter describes them.
 
 Both [context](/context) and [CORS](/cors) are described in other chapters.
 
-## Root
+## Root and endpoint
 
-Root and endpoint server options are for serving the `ptsq` application in the right endpoint.
+The `root` and `endpoint` server options are crucial for serving the `ptsq` application at the correct endpoint within your server infrastructure.
 
-If you are using for example Next.js, typically you have your API in the `/api` directory in pages.
+In scenarios such as using Next.js, where the API resides in the `/api` directory within the pages directory, configuring the `root` option becomes essential. By specifying the root path using this option, the server understands where to mount the `ptsq` application within the server's routing hierarchy. This ensures that requests directed to the appropriate endpoint, such as `/api`, are properly routed to the `ptsq` application for processing.
 
-You have to mount `ptsq` application by using the `root` option, so the server knows its root path.
+In summary, leveraging the `root` option is vital for integrating the `ptsq` application seamlessly into your server environment, especially when dealing with complex routing configurations or frameworks like Next.js.
 
 ```ts
 PtsqServer.init({
@@ -21,11 +21,7 @@ PtsqServer.init({
 });
 ```
 
-## Endpoint
-
-If you want to customize the `ptsq` path, you can use the endpoint option.
-
-```ts
+```ts copy filename="endpoint-optin"
 PtsqServer.init({
   //...,
   endpoint: '/my-ptsq-server',
