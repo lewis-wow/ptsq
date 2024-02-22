@@ -6,38 +6,24 @@ There are a few `PtsqServer.init` options and this chapter describes them.
 
 Both [context](/context) and [CORS](/cors) are described in other chapters.
 
-## Root
+## Root and endpoint
 
-Root and endpoint server options are for serving the `ptsq` application in the right endpoint.
+The `root` and `endpoint` server options are crucial for serving the `ptsq` application at the correct endpoint within your server infrastructure.
 
-If you are using for example Next.js, typically you have your API in the `/api` directory in pages.
+In scenarios such as using Next.js, where the API resides in the `/api` directory within the pages directory, configuring the `root` option becomes essential. By specifying the root path using this option, the server understands where to mount the `ptsq` application within the server's routing hierarchy. This ensures that requests directed to the appropriate endpoint, such as `/api`, are properly routed to the `ptsq` application for processing.
 
-You have to mount `ptsq` application by using the `root` option, so the server knows its root path.
+In summary, leveraging the `root` option is vital for integrating the `ptsq` application seamlessly into your server environment, especially when dealing with complex routing configurations or frameworks like Next.js.
 
-```ts
+```ts copy filename="root-option.ts"
 PtsqServer.init({
   //...,
   root: '/api',
 });
 ```
 
-## Endpoint
-
-If you want to customize the `ptsq` path, you can use the endpoint option.
-
-```ts
+```ts copy filename="endpoint-option.ts"
 PtsqServer.init({
   //...,
-  endpoint: '/my-ptsq-server',
-});
-```
-
-You can also use the combination of root and endpoint options of course.
-
-```ts
-PtsqServer.init({
-  //...,
-  root: '/api',
   endpoint: '/my-ptsq-server',
 });
 ```
@@ -54,7 +40,9 @@ PtsqServer.init({
 
 ## fetchAPI
 
-The fetchAPI option is for defining which API you will use for the request and response.
+The fetchAPI option is used to define the Request and Response objects within your ptsq application. It allows you to specify how requests are made to the server and how responses are handled.
+
+By configuring the fetchAPI option, you can customize the underlying mechanism for sending requests and processing responses according to your specific needs or the requirements of your server environment. This flexibility ensures that the ptsq application seamlessly integrates with various backend infrastructures and communication protocols, providing a versatile solution for building efficient and reliable applications.
 
 ```ts
 PtsqServer.init({

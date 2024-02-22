@@ -1,16 +1,18 @@
 # Query
 
-Query is `POST` request route that should get or list some data, it isn't `GET` because of complex data that can be sent to the server from client.
+In ptsq, queries are handled via POST requests due to the potential complexity of the data being sent from the client to the server.
 
-The `resolve` function gets `{ input, ctx }`, where the input is the actual `input` for that query, and the `ctx` is a context, it can be the root context or some other context if the resolver that creates the `query` uses a middleware.
+When a query is requested from the client, the associated resolve function is called, receiving `{ input, ctx }` parameters. Here, input represents the actual input for the query, while ctx represents the context, which may vary depending on whether the resolver creating the query employs middleware.
 
-The input is validated by the input schema, and the output of the resolver (return from the `resolve` function), is validated by the output schema.
+Input validation is conducted by the input schema, ensuring that the provided data meets specified criteria. Similarly, the output of the resolver, returned from the resolve function, undergoes validation by the output schema.
 
-If the input validation failed, then the `PtsqError` throws `BAD_REQUEST` error.
-If the output validation failed, then the `PtsqError` throws `INTERNAL_SERVER_ERROR` error.
-Those errors are trown with the `info` property as a `zod` validation schema error result.
+If input validation fails, the PtsqError throws a BAD_REQUEST error, providing details about the validation error within the info property as a Typebox validation schema error result.
 
-```ts copy
+Likewise, if output validation fails, the PtsqError throws an INTERNAL_SERVER_ERROR error, including information about the validation error within the info property.
+
+These error-handling mechanisms ensure robust data validation and integrity throughout the query process, enhancing the reliability and consistency of data exchanges between the client and server.
+
+```ts copy filename="query.ts"
 import { PtsqServer } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 import express, { Request, Response } from 'express';

@@ -1,8 +1,6 @@
 # Context
 
-Context holds some information across all resolvers, queries, mutations and middlewares.
-
-The only way to customize context in the runtime is middleware.
+The context retains crucial information across all components such as resolvers, queries, mutations, and middlewares within your application. If you need to customize the context during runtime, middleware is the sole mechanism available to achieve this. By leveraging middleware, you can dynamically adjust the context to suit the specific needs of your application as it progresses through various stages of execution.
 
 ```ts copy
 const createContext = ({ req, res }: { req: Request; res: Response }) => {
@@ -23,7 +21,7 @@ The only argument that context gets is the adapter request and response informat
 
 ## Async context
 
-The context builder function can be async as well, so you can for example wait for database request or wait for JWT token decode.
+The context builder function's ability to be asynchronous provides a powerful tool for handling various runtime tasks. For instance, you can await database requests or JWT token decoding operations within this function. This asynchronous capability ensures that the context is populated with accurate and up-to-date information before continuing with the execution flow of your application.
 
 ```ts copy
 const createContext = async ({ req, res }: { req: Request; res: Response }) => {
@@ -41,30 +39,6 @@ const { resolver, router, serve } = PtsqServer.init({
 }).create();
 ```
 
-## Global variables
-
-In context, there should be also the global variables that you want to have available in every query, mutation or middleware.
-
-A typical global variable in the context can be a database connection.
-
-```ts copy
-import { prisma } from './prisma';
-
-const createContext = ({ req, res }: { req: Request; res: Response }) => {
-  return {
-    req,
-    res,
-    prisma,
-  };
-};
-
-const { resolver, router, serve } = PtsqServer.init({
-  ctx: createContext,
-}).create();
-```
-
-In the example, there is a `Prisma` ORM database connection that is passed into the context, so you can then access the Prisma connection anywhere in the routes.
-
 ## Middlewares
 
 You can also mutate the context. The only place where you can do that is middleware.
@@ -72,8 +46,9 @@ You can also mutate the context. The only place where you can do that is middlew
 ```ts copy
 const resolverWithNewPropInCtx = resolver.use(({ ctx, next }) => {
   return next({
-    ...ctx,
-    newProperty: 'my-new-property',
+    ctx: {
+      newProperty: 'my-new-property',
+    },
   });
 });
 ```
@@ -89,8 +64,9 @@ const authedResolver = resolver.use(({ ctx /* User | undefined */, next }) => {
   if (!ctx.user) throw new PtsqError({ code: 'UNAUTHORIZED' });
 
   return next({
-    ...ctx, // { user: User | undefined }
-    user: ctx.user, // User - because of the check before
+    ctx: {
+      user: ctx.user, // User - because of the check before
+    },
   }); // { user: User }
 });
 ```
@@ -101,18 +77,13 @@ The most important piece of code is this
 
 ```ts
 return next({
-  ...ctx,
-  user: ctx.user,
+  ctx: {
+    user: ctx.user,
+  }
 });
 ```
 
-Thanks to returning the next function and passing the new context, the type can be inferred in the next resolver.
-
-```ts
-user: ctx.user;
-```
-
-This is too very important, cause we checked that the user cannot be falsy in the example, this assignment correctly set the types for the next context user property.
+By returning the next function and passing the updated context, the type can be inferred in the subsequent resolver. This streamlined approach allows for seamless propagation of context information throughout the resolver chain, facilitating type inference and ensuring smooth data flow within your application.
 
 ## Mutation and query
 

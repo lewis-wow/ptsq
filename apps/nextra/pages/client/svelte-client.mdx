@@ -1,6 +1,20 @@
 # Svelte client
 
-Svelte client is a very thin wrapper of [svelte query](https://tanstack.com/query/latest).
+The Svelte client in `ptsq` serves as a lightweight wrapper around [svelte-query](https://tanstack.com/query/latest), a powerful library for managing data fetching and state synchronization in Svelte applications.
+
+By leveraging `svelte-query` under the hood, the Svelte client in `ptsq` inherits a wide range of features and benefits, including:
+
+1. **Data Fetching**: Utilizing `svelte-query`'s stores and utilities, the Svelte client simplifies the process of fetching data from the server and managing the resulting data states within Svelte components.
+
+2. **Caching and Invalidation**: `svelte-query` provides robust caching mechanisms that help optimize data fetching by storing and managing previously fetched data. Additionally, it supports data invalidation strategies to ensure that cached data remains up-to-date.
+
+3. **Pagination and Infinite Loading**: The Svelte client facilitates pagination and infinite loading patterns with ease, thanks to `svelte-query`'s built-in support for paginated data fetching and automatic triggering of additional data fetches as needed.
+
+4. **Mutation Handling**: `svelte-query` simplifies handling of mutations (e.g., updates, creations, deletions) by providing stores for performing mutations and automatically updating the local cache and UI in response to mutation results.
+
+5. **Error and Loading State Handling**: With `svelte-query`, the Svelte client efficiently manages error and loading states, making it easy to display loading spinners, error messages, or retry options based on the current data fetching status.
+
+Overall, by leveraging `svelte-query`, the Svelte client in `ptsq` offers a robust and efficient solution for managing data fetching and state synchronization in Svelte applications, enabling developers to build responsive and dynamic user interfaces with minimal effort.
 
 ```ts copy filename="client.ts"
 import { createSvelteClient } from '@ptsq/svelte-client';

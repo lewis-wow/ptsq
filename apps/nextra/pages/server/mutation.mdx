@@ -1,17 +1,18 @@
 # Mutation
 
-Mutation is `POST` request route that should update, create or delete some data.
-When the `mutation` is requested from the client, then the `resolve` function that is defined in the mutation will be called.
+Mutations respond to POST requests and are responsible for updating, creating, or deleting data. When a mutation is requested from the client, the associated resolve function is invoked.
 
-The `resolve` function gets `{ input, ctx }`, where the input is the actual `input` for that mutation, and the `ctx` is a context, it can be the root context or some other context if the resolver that creates the `mutation` uses a middleware.
+The resolve function receives `{ input, ctx }`, where input represents the actual input for the mutation, and ctx represents the context, which could be the root context or another context if the resolver creating the mutation utilizes middleware.
 
-The input is validated by the input schema, and the output of the resolver (return from the `resolve` function), is validated by the output schema.
+Input validation is performed by the input schema, ensuring that the provided data adheres to specified constraints. Similarly, the output of the resolver, returned from the resolve function, is validated by the output schema.
 
-If the input validation failed, then the `PtsqError` throws `BAD_REQUEST` error.
-If the output validation failed, then the `PtsqError` throws `INTERNAL_SERVER_ERROR` error.
-Those errors are trown with the `info` property as a `zod` validation schema error result.
+If input validation fails, the PtsqError throws a BAD_REQUEST error, providing details about the validation error within the info property as a Typebox validation schema error result.
 
-```ts copy
+Similarly, if output validation fails, the PtsqError throws an INTERNAL_SERVER_ERROR error, again including information about the validation error within the info property.
+
+These error-handling mechanisms ensure robustness and reliability in handling input and output data, allowing for precise identification and reporting of validation errors to clients.
+
+```ts copy filename="mutation.ts"
 import { PtsqServer } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 import express, { Request, Response } from 'express';

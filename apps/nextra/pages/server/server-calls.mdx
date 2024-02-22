@@ -1,8 +1,6 @@
 # Server calls
 
-You can call the route (query or mutation) in another route by `resolve` method.
-
-It can be helpful if you want to split resolve functions for administrator, authenticated and unauthenticated for example.-
+Utilizing the resolve method within one route to call another route can be quite beneficial, especially when aiming to segregate resolver functions based on different access levels or user roles. For instance, you may wish to have separate resolver functions for administrators, authenticated users, and unauthenticated users. By calling the appropriate route using the resolve method within each resolver function, you can ensure that the logic is appropriately segmented and executed based on the user's permissions or authentication status. This approach promotes code modularity, maintainability, and scalability, allowing for more granular control over the behavior of your API endpoints.
 
 ```ts copy
 const dateResolver = resolver.args(dateSchema).output(dateSchema);
@@ -20,4 +18,4 @@ const dateQuery = dateResolver.query(async (opts) => {
 });
 ```
 
-The resolve call does not trigger any middleware or validation, it is just a wrapper around the resolve function call.
+When using the resolve method to call another route within a resolver function, it does not trigger any middleware or validation. Instead, it simply serves as a wrapper around the resolve function call for the specified route. This allows for the reuse of resolver logic without the need to duplicate middleware execution or validation processes. However, it's important to note that any middleware or validation specific to the called route will still be executed as part of the resolve function call within the original resolver.

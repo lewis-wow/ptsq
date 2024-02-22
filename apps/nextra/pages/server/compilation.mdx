@@ -8,7 +8,7 @@ The TypeBox TypeCompiler is a high-performance JIT validation compiler that tran
 
 ## Cold starts
 
-The compilation is done in runtime, so the first call of validation can be slightly slower than the others because of the compilation step.
+Since compilation occurs at runtime, the initial validation call may experience a slight delay compared to subsequent ones due to the compilation step. This delay is a natural part of the process and typically minimally impacts overall performance once the initial compilation is complete.
 
 ```txt
 parsing: 0.706ms
@@ -16,9 +16,7 @@ parsing: 0.018ms
 parsing: 0.042ms
 ```
 
-These stats are from the real application. As you can see, the first parsing process lasts longer than others.
-
-Compilations are automatically cached per instance of validation schema.
+These statistics, derived from real application data, illustrate that the initial parsing process tends to have a longer duration compared to subsequent ones. This discrepancy is attributable to the compilation step, which is automatically cached per instance of the validation schema. As a result, subsequent parsing processes benefit from faster execution times due to the cached compilation.
 
 That means that those two schemas
 
@@ -32,7 +30,7 @@ are both must be compiled, so the compilation process is twice.
 
 ## Compilers sharing
 
-You can share your compilers across the whole application, so the same validation schema would not be compiled twice.
+Sharing compilers across the entire application ensures that the same validation schema is not compiled multiple times. This optimization reduces redundancy and enhances overall performance by leveraging a centralized compilation mechanism for all relevant validation processes.
 
 ```ts copy filename="compiler.ts"
 import { Compiler } from '@ptsq/server';
@@ -123,8 +121,4 @@ Zod schema check: 0.846ms
 
 ### Results
 
-As you can see from those small tests, the Typebox compilation step is almost as fast as the Zod validation.
-
-But the compilation runs only once per whole application deployment, every next validation is cached and validated by a compiled JavaScript function.
-
-It's not complicated schemas, but the tests shows the most used pattern which is intersection of two schemas in `ptsq`
+From these small tests, it's evident that the Typebox compilation step nearly matches the speed of Zod validation. Crucially, this compilation occurs just once per application deployment. Subsequent validations are then expedited by cached and validated JavaScript functions. Although the schemas tested here aren't overly complex, they represent a common pattern, particularly the intersection of two schemas in ptsq. This efficiency demonstrates the effectiveness of optimizing compilation and caching mechanisms to streamline validation processes.

@@ -1,6 +1,6 @@
 # Arguments chaining
 
-Input arguments of the `resolver` can be chained to create a complex type or to know the type before the `resolver` resolve function, for example in the `middleware`.
+Input arguments of the resolver can be chained, enabling the creation of complex types or the determination of types prior to the execution of the resolver function. This capability is particularly useful, for instance, within middleware functions.
 
 ```ts
 const personWithFirstNameResolver = resolver.args(
@@ -26,7 +26,7 @@ The types are merged into one. It is using the `Type.Intersection` in the backgr
 
 ## Using arguments chaining with middleware
 
-You can use the arguments chaining for getting validated input in the `middleware` before the `resolver` run.
+Harnessing argument chaining allows for the validation of input within the middleware, ensuring that inputs are validated before the resolver begins its execution.
 
 ```ts
 const personResolver = resolver.args(
@@ -61,11 +61,9 @@ const testQuery = personWithLogResolver
   );
 ```
 
-As you can see, you can safely access the `input` cause it is validated by the arguments.
+Indeed, the ability to access the input safely stems from its validation through the arguments. In the given illustration, we log the first name and subsequently pass it into a context. This contextual information enables the query to utilize the assigned person's first name seamlessly.
 
-In the example, we log the first name and pass the first name into a context, so the `query` can use the context with the already assigned person's first name.
-
-The future arguments in the args chaining can extend the previous/current validation schema but do not have to.
+It's important to note that while future arguments in the argument chaining sequence can extend the existing validation schema, they are not obligated to do so. This flexibility ensures adaptability to evolving requirements without imposing unnecessary constraints.
 
 ```ts
 import { personSchema } from './validation';

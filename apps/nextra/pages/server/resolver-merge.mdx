@@ -1,12 +1,10 @@
 # Resolver merge
 
-You can merge resolvers by calling the merge method.
+The merge method provides a convenient way to combine resolvers, facilitating the creation of standalone resolvers without needing the PtsqServer.init method. This flexibility allows you to develop resolvers independently and then merge them with your existing resolver set.
 
-Merging allows you to create a standalone resolver without the `PtsqServer.init` method and then merge it with your resolvers.
+When two resolvers are merged, their argument and output validation schemas are intersected, ensuring that the resulting resolver adheres to the combined validation criteria. Additionally, middlewares from the original resolver are integrated with those from the resolver being merged.
 
-When merging two resolvers, args and output validation schema are intersected and middlewares are added into middlewares from the original resolver.
-
-The context of the original resolver has to extend the root context of the resolver you want to merge.
+It's essential to note that the context of the original resolver must extend the root context of the resolver being merged. This ensures that the merged resolver operates within the appropriate context scope, maintaining consistency and coherence across your resolver architecture.
 
 ```ts copy filename="auth.ts"
 import { PtsqError, Resolver } from '@ptsq/server';

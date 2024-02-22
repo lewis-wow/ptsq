@@ -1,6 +1,20 @@
 # React client
 
-React client is a very thin wrapper of [react query](https://tanstack.com/query/latest).
+The React client in `ptsq` serves as a lightweight wrapper around [react-query](https://tanstack.com/query/latest), a powerful library for managing data fetching and state synchronization in React applications.
+
+By leveraging `react-query` under the hood, the React client in `ptsq` inherits a wide range of features and benefits, including:
+
+1. **Data Fetching**: Utilizing `react-query`'s hooks and utilities, the React client simplifies the process of fetching data from the server and managing the resulting data states.
+
+2. **Caching and Invalidation**: `react-query` provides robust caching mechanisms that help optimize data fetching by storing and managing previously fetched data. Additionally, it supports data invalidation strategies to ensure that cached data remains up-to-date.
+
+3. **Pagination and Infinite Loading**: The React client facilitates pagination and infinite loading patterns with ease, thanks to `react-query`'s built-in support for paginated data fetching and automatic triggering of additional data fetches as needed.
+
+4. **Mutation Handling**: `react-query` simplifies handling of mutations (e.g., updates, creations, deletions) by providing hooks for performing mutations and automatically updating the local cache and UI in response to mutation results.
+
+5. **Error and Loading State Handling**: With `react-query`, the React client efficiently manages error and loading states, making it easy to display loading spinners, error messages, or retry options based on the current data fetching status.
+
+Overall, by leveraging `react-query`, the React client in `ptsq` offers a robust and efficient solution for managing data fetching and state synchronization in React applications, enabling developers to build powerful and responsive user interfaces with minimal effort.
 
 ```ts copy filename="client.ts"
 import { createReactClient } from '@ptsq/react-client';
@@ -114,6 +128,86 @@ export const App = () => {
       <p>data: {JSON.stringify(infiniteQuery.data)}</p>
       <button onClick={() => infiniteQuery.fetchNextPage()}>load next</button>
     </div>
+  );
+};
+```
+
+## Query invalidation
+
+Every query path piece is in the query key, so you can easily invalidate the queries to make them fetch again fresh data from the server.
+
+```tsx copy filename="component.tsx"
+export const App = () => {
+  const listPostsQuery = api.post.list.useQuery();
+
+  const createPostMutation = api.post.create.useMutation({
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['post'],
+        /*, ['post', 'list']  will fetch only post.list, ['post'] will refetch every post query (e.g. post.list and post.get) */
+      });
+    },
+  });
+
+  return <main>...</main>;
+};
+```
+
+## React hook form integration
+
+You can simply integrate ptsq hooks with the [React hook form](https://react-hook-form.com/) library.
+
+```tsx copy filename="reactHookForm.tsx"
+import { createPostSchema } from '@/validation';
+import type { Static } from '@ptsq/server';
+
+export const App = () => {
+  const { handleSubmit, control } = useForm<Static<typeof createPostSchema>>({
+    resolver: typeboxResolver(createPostSchema),
+  });
+
+  const createPostMutation = api.post.create.useMutation({
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['post'],
+      });
+    },
+  });
+
+  return (
+    <main>
+      <form
+        onSubmit={handleSubmitCreatePost((data) => {
+          createPostMutation.mutate(data);
+        })}
+      >
+        <div className="flex flex-col gap-y-2">
+          <Controller
+            control={controlCreatePost}
+            name="title"
+            defaultValue={''}
+            render={({ field }) => (
+              <Input type="text" {...field} placeholder="Title" />
+            )}
+          />
+
+          <Controller
+            control={controlCreatePost}
+            name="content"
+            defaultValue={''}
+            render={({ field }) => (
+              <Textarea
+                placeholder="Content"
+                className="resize-none"
+                {...field}
+              />
+            )}
+          />
+
+          <Button type="submit">Submit</Button>
+        </div>
+      </form>
+    </main>
   );
 };
 ```
