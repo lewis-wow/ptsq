@@ -39,9 +39,6 @@ jobs:
       - name: Build packages
         run: pnpm build
 
-      - name: Run tests
-        run: pnpm test
-
       - name: Run coverage
         run: pnpm coverage
 
@@ -49,3 +46,26 @@ jobs:
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  release:
+    name: Release
+    runs-on: 'ubuntu-latest'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    steps:
+      - name: Creating .npmrc
+        run: |
+          cat << EOF > "$HOME/.npmrc"
+            //registry.npmjs.org/:_authToken=$NPM_TOKEN
+          EOF
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          # This expects you to have a script called release which does a build for your packages and calls changeset publish
+          publish: pnpm changeset publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
