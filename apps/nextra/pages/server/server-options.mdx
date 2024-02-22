@@ -14,16 +14,26 @@ In scenarios such as using Next.js, where the API resides in the `/api` director
 
 In summary, leveraging the `root` option is vital for integrating the `ptsq` application seamlessly into your server environment, especially when dealing with complex routing configurations or frameworks like Next.js.
 
-```ts copy filename="root-option.ts"
+```ts
 PtsqServer.init({
   //...,
   root: '/api',
 });
 ```
 
-```ts copy filename="endpoint-option.ts"
+```ts copy filename="endpoint-optin"
 PtsqServer.init({
   //...,
+  endpoint: '/my-ptsq-server',
+});
+```
+
+You can also use the combination of root and endpoint options of course.
+
+```ts
+PtsqServer.init({
+  //...,
+  root: '/api',
   endpoint: '/my-ptsq-server',
 });
 ```
@@ -40,9 +50,7 @@ PtsqServer.init({
 
 ## fetchAPI
 
-The fetchAPI option is used to define the Request and Response objects within your ptsq application. It allows you to specify how requests are made to the server and how responses are handled.
-
-By configuring the fetchAPI option, you can customize the underlying mechanism for sending requests and processing responses according to your specific needs or the requirements of your server environment. This flexibility ensures that the ptsq application seamlessly integrates with various backend infrastructures and communication protocols, providing a versatile solution for building efficient and reliable applications.
+The fetchAPI option is for defining which API you will use for the request and response.
 
 ```ts
 PtsqServer.init({
