@@ -1,5 +1,5 @@
-import { createServer } from 'http';
-import { middleware, PtsqServer, Type } from '@ptsq/server';
+import { createServer as createHttpServer } from 'http';
+import { createServer, middleware, Type } from '@ptsq/server';
 import { Cacheables } from 'cacheables';
 
 const cache = new Cacheables();
@@ -27,7 +27,7 @@ const cacheables = <TContext extends object>() =>
     return response;
   });
 
-const { resolver, router, serve } = PtsqServer.init({
+const { resolver, router, serve } = createServer({
   ctx: createContext,
 })
   .use(cacheables<Context>())
@@ -50,7 +50,7 @@ const baseRouter = router({
   greetings: greetingsQuery,
 });
 
-const server = createServer(serve(baseRouter));
+const server = createHttpServer(serve(baseRouter));
 
 server.listen(4000, () => {
   console.log(`PTSQ server running on http://localhost:4000/ptsq`);

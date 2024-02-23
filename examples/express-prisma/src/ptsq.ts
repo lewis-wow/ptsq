@@ -1,7 +1,7 @@
-import { PtsqServer } from '@ptsq/server';
+import { createServer } from '@ptsq/server';
 import { createContext } from './context';
 
-export const { router, resolver, serve } = PtsqServer.init({
+export const { router, resolver, serve } = createServer({
   ctx: createContext,
 })
   .use(async ({ next, meta }) => {
