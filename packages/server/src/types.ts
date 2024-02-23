@@ -5,7 +5,6 @@ import type {
   TUndefined,
   TVoid,
 } from '@sinclair/typebox';
-import type { ResolverSchema } from './resolver';
 
 export type ResolverType = 'query' | 'mutation';
 
@@ -16,20 +15,14 @@ export type MaybePromise<T> = T | Promise<T>;
 /**
  * @internal
  */
-export type inferStaticInput<
-  TResolverSchema extends ResolverSchema | undefined,
-> = TResolverSchema extends ResolverSchema
-  ? StaticDecode<TResolverSchema>
-  : undefined;
+export type inferStaticInput<TTSchema extends TSchema | undefined> =
+  TTSchema extends TSchema ? StaticDecode<TTSchema> : undefined;
 
 /**
  * @internal
  */
-export type inferStaticOutput<
-  TResolverSchema extends ResolverSchema | undefined,
-> = TResolverSchema extends ResolverSchema
-  ? StaticDecode<TResolverSchema>
-  : undefined;
+export type inferStaticOutput<TTSchema extends TSchema | undefined> =
+  TTSchema extends TSchema ? StaticDecode<TTSchema> : undefined;
 
 /**
  * Infers the arguments type of the zod validation schema or the introspected schema

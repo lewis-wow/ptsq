@@ -1,7 +1,7 @@
-import { createServer } from 'http';
-import { PtsqServer, Type } from '@ptsq/server';
+import { createServer as createHttpServer } from 'http';
+import { createServer, Type } from '@ptsq/server';
 
-const { resolver, router, serve } = PtsqServer.init({
+const { resolver, router, serve } = createServer({
   ctx: () => ({
     a: '' as 'a' | 'b',
   }),
@@ -20,7 +20,7 @@ const baseRouter = router({
   greetings: greetingsQuery,
 });
 
-const server = createServer(serve(baseRouter));
+const server = createHttpServer(serve(baseRouter));
 
 server.listen(4000, () => {
   console.log(`PTSQ server running on http://localhost:4000/ptsq`);

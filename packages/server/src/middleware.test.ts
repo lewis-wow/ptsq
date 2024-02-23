@@ -2,14 +2,14 @@ import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { middleware } from './middleware';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
-import { PtsqServer } from './ptsqServer';
+import { createServer } from './ptsqServerBuilder';
 
 test('Should create middleware with query and serverSideQuery', async () => {
   let contextBuilderResult = {
     state: 'invalid' as 'valid' | 'invalid',
   };
 
-  const { resolver } = PtsqServer.init({
+  const { resolver } = createServer({
     ctx: () => contextBuilderResult,
   }).create();
 
@@ -85,7 +85,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
     state: 'invalid' as 'valid' | 'invalid',
   };
 
-  const { resolver } = PtsqServer.init({
+  const { resolver } = createServer({
     ctx: () => contextBuilderResult,
   }).create();
 
@@ -159,7 +159,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
 });
 
 test('Should create middleware with measuring time', async () => {
-  const { resolver } = PtsqServer.init({
+  const { resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -207,7 +207,7 @@ test('Should create middleware with measuring time', async () => {
 });
 
 test('Should create two nested middlewares', async () => {
-  const { resolver } = PtsqServer.init({
+  const { resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -288,7 +288,7 @@ test('Should create nested middlewares with query', async () => {
     state: 'invalid' as 'valid' | 'invalid' | null,
   };
 
-  const { resolver } = PtsqServer.init({
+  const { resolver } = createServer({
     ctx: () => contextBuilderResult,
   }).create();
 
@@ -378,7 +378,7 @@ test('Should create nested middlewares with mutation', async () => {
     state: 'invalid' as 'valid' | 'invalid' | null,
   };
 
-  const { resolver } = PtsqServer.init({
+  const { resolver } = createServer({
     ctx: () => contextBuilderResult,
   }).create();
 
@@ -464,7 +464,7 @@ test('Should create nested middlewares with mutation', async () => {
 });
 
 test('Should create nested middlewares with query with args chaining', async () => {
-  const { resolver } = PtsqServer.init({
+  const { resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -532,7 +532,7 @@ test('Should create nested middlewares with query with args chaining', async () 
 });
 
 test('Should create nested middlewares with query and returns response recursivelly', async () => {
-  const { resolver } = PtsqServer.init({
+  const { resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -611,7 +611,7 @@ test('Should create nested middlewares with query and returns response recursive
 });
 
 test('Should create nested middlewares with query and returns response recursivelly but call the router', async () => {
-  const { resolver, router } = PtsqServer.init({
+  const { resolver, router } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -701,7 +701,7 @@ test('Should create standalone middleware with query', async () => {
     state: 'invalid' as 'valid' | 'invalid',
   };
 
-  const { resolver } = PtsqServer.init({
+  const { resolver } = createServer({
     ctx: () => contextBuilderResult,
   }).create();
 

@@ -10,8 +10,6 @@ import type {
 } from './types';
 
 /**
- * @internal
- *
  * Query class container
  */
 export class Query<
@@ -42,6 +40,10 @@ export class Query<
     });
   }
 
+  /**
+   * @internal
+   * Creates a callable query
+   */
   createServerSideQuery(options: { ctx: any; route: string }) {
     return {
       query: async (

@@ -4,8 +4,8 @@ import { PtsqLink, type LinkMeta } from './ptsqLink';
 export type HttpFetchArgs = {
   url: RequestInfo | URL;
   meta: LinkMeta;
-  links?: PtsqLink[];
-  fetch?: (
+  links: PtsqLink[];
+  fetch: (
     input: RequestInfo | URL,
     init?: RequestInit | undefined,
   ) => Promise<Response>;
@@ -14,8 +14,8 @@ export type HttpFetchArgs = {
 export const httpFetch = async ({
   url,
   meta,
-  links = [],
-  fetch = globalThis.fetch,
+  links,
+  fetch,
 }: HttpFetchArgs): Promise<unknown> => {
   const linkResponse = await PtsqLink.recursiveCall({
     meta,

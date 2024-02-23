@@ -1,32 +1,39 @@
-import { createServer } from 'http';
+import { createServer as createHttpServer } from 'http';
 import {
+  createServer,
   middleware,
   PtsqError,
   PtsqErrorCode,
-  PtsqServer,
   Type,
 } from '@ptsq/server';
+import { Middleware } from '@ptsq/server/dist/middleware';
 
-const errorFormatter = middleware().create(async ({ next }) => {
-  const response = await next();
+const errorFormatter = <TContext extends object>() =>
+  middleware<{
+    ctx: TContext;
+  }>().create(async ({ next }) => {
+    const response = await next();
 
-  if (response.ok) return response;
+    if (response.ok) return response;
 
-  return {
-    ...response,
-    error: new PtsqError({
-      code: PtsqErrorCode.BAD_REQUEST_400,
-      message: 'Masked error',
-    }),
-  };
+    return Middleware.createFailureResponse({
+      error: new PtsqError({
+        code: PtsqErrorCode.BAD_REQUEST_400,
+        message: 'Masked error',
+      }),
+    });
+  });
+
+const createContext = () => ({
+  a: '' as 'a' | 'b',
 });
 
-const { resolver, router, serve } = PtsqServer.init({
-  ctx: () => ({
-    a: '' as 'a' | 'b',
-  }),
+type Context = Awaited<ReturnType<typeof createContext>>;
+
+const { resolver, router, serve } = createServer({
+  ctx: createContext,
 })
-  .use(errorFormatter)
+  .use(errorFormatter<Context>())
   .create();
 
 const greetingsQuery = resolver
@@ -46,7 +53,7 @@ const baseRouter = router({
   greetings: greetingsQuery,
 });
 
-const server = createServer(serve(baseRouter));
+const server = createHttpServer(serve(baseRouter));
 
 server.listen(4000, () => {
   console.log(`PTSQ server running on http://localhost:4000/ptsq`);

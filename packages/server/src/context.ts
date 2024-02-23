@@ -1,5 +1,8 @@
 import type { MaybePromise } from './types';
 
+/**
+ * Context is a generic object that is passed through the middleware chain
+ */
 export type Context = object;
 
 /**

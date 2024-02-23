@@ -1,7 +1,8 @@
+import { TSchema } from '@sinclair/typebox';
 import type { Compiler } from './compiler';
 import type { Context } from './context';
+import { Parser } from './parser';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
-import type { ResolverSchema } from './resolver';
 import { ShallowMerge } from './types';
 import type { ResolverType, Simplify } from './types';
 
@@ -10,6 +11,7 @@ import type { ResolverType, Simplify } from './types';
  */
 export type NextFunction<TContext extends Context> = {
   (): Promise<MiddlewareResponse<TContext>>;
+
   <TNextContext extends Context | undefined = undefined>(options?: {
     ctx?: TNextContext;
     meta?: MiddlewareMeta;
@@ -35,6 +37,9 @@ export type MiddlewareFunction<TArgs, TContext extends Context> = (options: {
   next: NextFunction<TContext>;
 }) => ReturnType<NextFunction<TContext>>;
 
+/**
+ * @internal
+ */
 export type AnyMiddlewareFunction = MiddlewareFunction<unknown, Context>;
 
 export type MiddlewareMeta = {
@@ -49,12 +54,12 @@ export type MiddlewareMeta = {
 export class Middleware<TArgs, TContext extends Context> {
   _def: {
     middlewareFunction: MiddlewareFunction<TArgs, TContext>;
-    argsSchema: ResolverSchema | undefined;
+    argsSchema: TSchema | undefined;
     compiler: Compiler;
   };
 
   constructor(middlewareOptions: {
-    argsSchema: ResolverSchema | undefined;
+    argsSchema: TSchema | undefined;
     middlewareFunction: MiddlewareFunction<TArgs, TContext>;
     compiler: Compiler;
   }) {
@@ -80,24 +85,33 @@ export class Middleware<TArgs, TContext extends Context> {
     middlewares: AnyMiddleware[];
   }): Promise<AnyMiddlewareResponse> {
     try {
-      const compiledParser = middlewares[index]._def.compiler.getParser(
-        middlewares[index]._def.argsSchema,
-      );
+      const argsSchema = middlewares[index]._def.argsSchema;
 
-      const parseResult = compiledParser.parse({
-        value: meta.input,
-        mode: 'decode',
-      });
+      let middlewareInput = meta.input;
 
-      if (!parseResult.ok)
-        throw new PtsqError({
-          code: PtsqErrorCode.BAD_REQUEST_400,
-          message: 'Args validation error.',
-          info: parseResult.errors,
+      if (argsSchema) {
+        const parser = new Parser({
+          compiler: middlewares[index]._def.compiler,
+          schema: argsSchema,
         });
 
+        const parseResult = parser.parse({
+          value: meta.input,
+          mode: 'decode',
+        });
+
+        if (!parseResult.ok)
+          throw new PtsqError({
+            code: PtsqErrorCode.BAD_REQUEST_400,
+            message: 'Args validation error.',
+            info: parseResult.errors,
+          });
+
+        middlewareInput = parseResult.data;
+      }
+
       const response = await middlewares[index]._def.middlewareFunction({
-        input: parseResult.data,
+        input: middlewareInput,
         meta: meta,
         ctx: ctx,
         next: ((options) => {
@@ -125,18 +139,24 @@ export class Middleware<TArgs, TContext extends Context> {
     }
   }
 
-  static createSuccessResponse(responseFragment: {
-    data: unknown;
-  }): AnyMiddlewareResponse {
+  /**
+   * Creates a success response with correct structure
+   */
+  static createSuccessResponse<
+    TContext extends object = object,
+  >(responseFragment: { data: unknown }): MiddlewareResponse<TContext> {
     return {
       ok: true,
       ...responseFragment,
     };
   }
 
-  static createFailureResponse(responseFragment: {
-    error: PtsqError;
-  }): AnyMiddlewareResponse {
+  /**
+   * Creates a failure response with correct structure
+   */
+  static createFailureResponse<
+    TContext extends object = object,
+  >(responseFragment: { error: PtsqError }): MiddlewareResponse<TContext> {
     return {
       ok: false,
       ...responseFragment,
@@ -146,47 +166,78 @@ export class Middleware<TArgs, TContext extends Context> {
 
 export type AnyMiddleware = Middleware<unknown, Context>;
 
-interface MiddlewareOkResponse<_Tcontext> {
+/**
+ * @internal
+ */
+interface MiddlewareOkResponse<_Tcontext extends Context> {
   ok: true;
   data: unknown;
 }
 
-interface MiddlewareErrorResponse<_Tcontext> {
+/**
+ * @internal
+ */
+interface MiddlewareErrorResponse<_Tcontext extends Context> {
   ok: false;
   error: PtsqError;
 }
 
-export type MiddlewareResponse<_TContext> =
+export type MiddlewareResponse<_TContext extends Context> =
   | MiddlewareOkResponse<_TContext>
   | MiddlewareErrorResponse<_TContext>;
 
 export type AnyMiddlewareResponse = MiddlewareResponse<Context>;
 
+/**
+ * @internal
+ */
 export type inferContextFromMiddlewareResponse<TMiddlewareResponse> =
   TMiddlewareResponse extends MiddlewareResponse<infer iContext>
     ? iContext
     : never;
 
 /**
+ * @internal
+ */
+class StandaloneMiddlewareBuilder<TArgs, TContext extends Context> {
+  create<TMiddlewareFunction extends MiddlewareFunction<TArgs, TContext>>(
+    middlewareFunction: TMiddlewareFunction,
+  ) {
+    return middlewareFunction;
+  }
+}
+
+/**
+ * @internal
+ */
+type StandaloneMiddlewareBuilderFunction = {
+  (): StandaloneMiddlewareBuilder<unknown, Context>;
+
+  <
+    TMiddlewareOptions extends {
+      ctx: Context;
+    },
+  >(): StandaloneMiddlewareBuilder<unknown, TMiddlewareOptions['ctx']>;
+
+  <
+    TMiddlewareOptions extends {
+      input: unknown;
+    },
+  >(): StandaloneMiddlewareBuilder<TMiddlewareOptions['input'], Context>;
+
+  <
+    TMiddlewareOptions extends {
+      ctx: Context;
+      input: unknown;
+    },
+  >(): StandaloneMiddlewareBuilder<
+    TMiddlewareOptions['input'],
+    TMiddlewareOptions['ctx']
+  >;
+};
+
+/**
  * Creates standalone middleware
  */
-export const middleware = <
-  TMiddlewareOptions extends {
-    ctx?: Context;
-    input?: unknown;
-  } = {
-    ctx: object;
-    input: unknown;
-  },
->() => ({
-  create: <
-    TMiddlewareFunction extends MiddlewareFunction<
-      TMiddlewareOptions['input'],
-      TMiddlewareOptions['ctx'] extends object
-        ? TMiddlewareOptions['ctx']
-        : object
-    >,
-  >(
-    middlewareFunction: TMiddlewareFunction,
-  ) => middlewareFunction,
-});
+export const middleware: StandaloneMiddlewareBuilderFunction = () =>
+  new StandaloneMiddlewareBuilder();

@@ -10,7 +10,6 @@ import {
 } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
-import type { SerializableSchema } from './serializable';
 import {
   type ErrorMessage,
   type inferStaticInput,
@@ -20,12 +19,9 @@ import {
   type Simplify,
 } from './types';
 
-export type ResolverSchema = TSchema;
-
 /**
  * Resolver allows you to create queries, mutations and middlewares
  */
-
 export class Resolver<
   TArgsSchema extends TSchema | undefined,
   TOutputSchema extends TSchema | undefined,
@@ -51,6 +47,11 @@ export class Resolver<
     this._def = resolverOptions;
   }
 
+  /**
+   * Add a description to the resolver and routes created from it
+   *
+   * Description is then available on the client side
+   */
   description<TNextDescription extends string>(description: TNextDescription) {
     return new Resolver<
       TArgsSchema,
@@ -70,19 +71,7 @@ export class Resolver<
   /**
    * Add a middleware to the resolver
    *
-   * @example
-   * ```ts
-   * .use(({ ctx, next }) => {
-   *    if(!ctx.user) throw new PtsqError({ code: 'UNAUTHORIZED' });
-   *
-   *    return next({
-   *      ...ctx,
-   *      user: ctx.user
-   *    });
-   * })
-   * .output(...)
-   * .query(...)
-   * ```
+   * Middlewares can update a context, transform output or input, or throw an error if something is wrong
    */
   use<
     TMiddlewareFunction extends MiddlewareFunction<
@@ -117,11 +106,9 @@ export class Resolver<
   }
 
   /**
-   * Add additional arguments by the validation schema to the resolver
+   * Add additional argument validation schema to the resolver
    */
-  args<TNextSchemaArgs extends ResolverSchema>(
-    nextSchemaArgs: SerializableSchema<TNextSchemaArgs>,
-  ) {
+  args<TNextSchemaArgs extends TSchema>(nextSchemaArgs: TNextSchemaArgs) {
     type NextArgsSchema = TArgsSchema extends TSchema
       ? TIntersect<[TArgsSchema, TNextSchemaArgs]>
       : TNextSchemaArgs;
@@ -150,10 +137,10 @@ export class Resolver<
   }
 
   /**
-   * Add output validation schema
+   * Add additional output validation schema to the resolver
    */
-  output<TNextSchemaOutput extends ResolverSchema>(
-    nextSchemaOutput: SerializableSchema<TNextSchemaOutput>,
+  output<TNextSchemaOutput extends TSchema>(
+    nextSchemaOutput: TNextSchemaOutput,
   ) {
     type NextSchemaOutput = TOutputSchema extends TSchema
       ? TIntersect<[TOutputSchema, TNextSchemaOutput]>
@@ -280,6 +267,9 @@ export class Resolver<
       : ErrorMessage<`Query cannot be used without output schema.`>;
   }
 
+  /**
+   * Creates a blank resolver
+   */
   static createRoot<TContext extends Context>(rootResolverOptions?: {
     compiler?: Compiler;
   }) {
@@ -292,6 +282,11 @@ export class Resolver<
     });
   }
 
+  /**
+   * Merges two resolvers into one
+   *
+   * It merges middlewares, arguments and output schemas
+   */
   static merge<
     TResolverA extends Resolver<any, any, any, any, string | undefined>,
     TResolverB extends Resolver<any, any, any, any, string | undefined>,
@@ -372,6 +367,9 @@ export class Resolver<
   }
 }
 
+/**
+ * @internal
+ */
 export type ResolveFunction<
   TInput,
   TOutput,
@@ -382,8 +380,14 @@ export type ResolveFunction<
   meta: MiddlewareMeta;
 }) => MaybePromise<TOutput>;
 
+/**
+ * @internal
+ */
 export type AnyResolveFunction = ResolveFunction<any, any, any>;
 
+/**
+ * @internal
+ */
 export type inferResolverRootContextType<TResolver> =
   TResolver extends Resolver<
     any,
@@ -395,6 +399,9 @@ export type inferResolverRootContextType<TResolver> =
     ? RootContext
     : never;
 
+/**
+ * @internal
+ */
 export type inferResolverContextType<TResolver> =
   TResolver extends Resolver<any, any, any, infer Context, string | undefined>
     ? Context

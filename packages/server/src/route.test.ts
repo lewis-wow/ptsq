@@ -5,7 +5,7 @@ import { Middleware } from './middleware';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
 import { Route } from './route';
 
-test('Should create query route', async () => {
+test('Should create query route without description', async () => {
   const inputSchema = Type.Object({ name: Type.String() });
   const outputSchema = Type.String();
   const resolveFunction = ({
@@ -102,7 +102,7 @@ test('Should create query route', async () => {
   `);
 });
 
-test('Should create mutation route', async () => {
+test('Should create mutation route with description', async () => {
   const inputSchema = Type.Object({ name: Type.String() });
   const outputSchema = Type.String();
   const resolveFunction = ({
@@ -121,7 +121,7 @@ test('Should create mutation route', async () => {
     outputSchema: outputSchema,
     resolveFunction: resolveFunction,
     middlewares: [],
-    description: undefined,
+    description: 'description',
     compiler: compiler,
   });
 
@@ -132,7 +132,7 @@ test('Should create mutation route', async () => {
     argsSchema: inputSchema,
     outputSchema: outputSchema,
     resolveFunction: resolveFunction,
-    description: undefined,
+    description: 'description',
     compiler: compiler,
   });
 
@@ -164,7 +164,12 @@ test('Should create mutation route', async () => {
               ],
               "type": "object",
             },
-            "description": undefined,
+            "description": {
+              "enum": [
+                "description",
+              ],
+              "type": "string",
+            },
             "nodeType": {
               "enum": [
                 "route",

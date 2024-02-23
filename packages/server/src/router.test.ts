@@ -1,11 +1,11 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
-import { PtsqServer } from './ptsqServer';
+import { createServer } from './ptsqServerBuilder';
 import { Router } from './router';
 
 test('Should merge two routers', async () => {
-  const { router, resolver } = PtsqServer.init({
+  const { router, resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -57,7 +57,7 @@ test('Should merge two routers', async () => {
 });
 
 test('Should merge two routers deeply', async () => {
-  const { router, resolver } = PtsqServer.init({
+  const { router, resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -113,7 +113,7 @@ test('Should merge two routers deeply', async () => {
 });
 
 test('Should merge two routers with overwrite', async () => {
-  const { router, resolver } = PtsqServer.init({
+  const { router, resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -149,7 +149,7 @@ test('Should merge two routers with overwrite', async () => {
 });
 
 test('Should not call wrong route', async () => {
-  const { router, resolver } = PtsqServer.init({
+  const { router, resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -180,7 +180,7 @@ test('Should not call wrong route', async () => {
 });
 
 test('Should not call wrong method', async () => {
-  const { router, resolver } = PtsqServer.init({
+  const { router, resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -212,7 +212,7 @@ test('Should not call wrong method', async () => {
 });
 
 test('Should not call if route excess correct route path', async () => {
-  const { router, resolver } = PtsqServer.init({
+  const { router, resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -244,7 +244,7 @@ test('Should not call if route excess correct route path', async () => {
 });
 
 test('Should not call if route not fit correct route path', async () => {
-  const { router, resolver } = PtsqServer.init({
+  const { router, resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -278,7 +278,7 @@ test('Should not call if route not fit correct route path', async () => {
 });
 
 test('Should merge two routers and get json schema', () => {
-  const { router, resolver } = PtsqServer.init({
+  const { router, resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -412,7 +412,7 @@ test('Should merge two routers and get json schema', () => {
 });
 
 test('Should create server side caller with query on router', async () => {
-  const { router, resolver } = PtsqServer.init({
+  const { router, resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -425,13 +425,13 @@ test('Should create server side caller with query on router', async () => {
     a: query,
   });
 
-  const caller = baseRouter.createServerSideCaller({});
+  const caller = Router.serverSideCaller(baseRouter).create({});
 
   expect(await caller.a.query('John')).toBe('Hello John');
 });
 
 test('Should create server side caller with mutation on router', async () => {
-  const { router, resolver } = PtsqServer.init({
+  const { router, resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -444,13 +444,13 @@ test('Should create server side caller with mutation on router', async () => {
     a: mutation,
   });
 
-  const caller = baseRouter.createServerSideCaller({});
+  const caller = Router.serverSideCaller(baseRouter).create({});
 
   expect(await caller.a.mutate('John')).toBe('Hello John');
 });
 
 test('Should create server side caller with query on router and throw PtsqError', async () => {
-  const { router, resolver } = PtsqServer.init({
+  const { router, resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -467,7 +467,7 @@ test('Should create server side caller with query on router and throw PtsqError'
     a: query,
   });
 
-  const caller = baseRouter.createServerSideCaller({});
+  const caller = Router.serverSideCaller(baseRouter).create({});
 
   await expect(caller.a.query('John')).rejects.toThrowError(
     new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 }),
@@ -475,7 +475,7 @@ test('Should create server side caller with query on router and throw PtsqError'
 });
 
 test('Should create server side caller with mutation on router and throw PtsqError', async () => {
-  const { router, resolver } = PtsqServer.init({
+  const { router, resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -492,7 +492,7 @@ test('Should create server side caller with mutation on router and throw PtsqErr
     a: mutation,
   });
 
-  const caller = baseRouter.createServerSideCaller({});
+  const caller = Router.serverSideCaller(baseRouter).create({});
 
   await expect(caller.a.mutate('John')).rejects.toThrowError(
     new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 }),
@@ -500,7 +500,7 @@ test('Should create server side caller with mutation on router and throw PtsqErr
 });
 
 test('Should merge two routers and create server side caller on merged router', async () => {
-  const { router, resolver } = PtsqServer.init({
+  const { router, resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -519,7 +519,7 @@ test('Should merge two routers and create server side caller on merged router', 
 
   const mergedRouter = Router.merge(routerA, routerB);
 
-  const caller = mergedRouter.createServerSideCaller({});
+  const caller = Router.serverSideCaller(mergedRouter).create({});
 
   expect(await caller.a.query('John')).toBe('Hello John');
 
@@ -527,7 +527,7 @@ test('Should merge two routers and create server side caller on merged router', 
 });
 
 test('Should create server side caller with nested router', async () => {
-  const { router, resolver } = PtsqServer.init({
+  const { router, resolver } = createServer({
     ctx: () => ({}),
   }).create();
 
@@ -544,7 +544,7 @@ test('Should create server side caller with nested router', async () => {
     }),
   });
 
-  const caller = baseRouter.createServerSideCaller({});
+  const caller = Router.serverSideCaller(baseRouter).create({});
 
   expect(await caller.a.b.c.query('John')).toBe('Hello John');
 });

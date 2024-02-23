@@ -4,7 +4,7 @@ import { useCORS } from '@whatwg-node/server';
 import axios from 'axios';
 import { expect, test } from 'vitest';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
-import { PtsqServer } from './ptsqServer';
+import { createServer } from './ptsqServerBuilder';
 
 test('Should create server with 2 nested middlewares that runs before and after call', async () => {
   const serverMiddlewareState = {
@@ -14,7 +14,7 @@ test('Should create server with 2 nested middlewares that runs before and after 
     secondResponse: false,
   };
 
-  const { resolver, router, serve } = PtsqServer.init({
+  const { resolver, router, serve } = createServer({
     plugins: [useCORS({ origin: '*' })],
   })
     .use(async ({ next }) => {
@@ -83,7 +83,7 @@ test('Should create server with 2 nested middlewares that runs before and after 
 test('Should create server with middleware that runs before and after invalid route call, where the error is thrown by a router', async () => {
   let wasCheckedByMiddelware = false;
 
-  const { resolver, router, serve } = PtsqServer.init({
+  const { resolver, router, serve } = createServer({
     plugins: [useCORS({ origin: '*' })],
   })
     .use(async ({ next }) => {
@@ -131,7 +131,7 @@ test('Should create server with middleware that runs before and after invalid ro
 test('Should create server with middleware that runs before and after invalid type call, where the error is thrown by a router', async () => {
   let wasCheckedByMiddelware = false;
 
-  const { resolver, router, serve } = PtsqServer.init({
+  const { resolver, router, serve } = createServer({
     plugins: [useCORS({ origin: '*' })],
   })
     .use(async ({ next }) => {
@@ -177,7 +177,7 @@ test('Should create server with middleware that runs before and after invalid ty
 });
 
 test('Should create server introspection', async () => {
-  const { resolver, router, serve } = PtsqServer.init({
+  const { resolver, router, serve } = createServer({
     plugins: [useCORS({ origin: '*' })],
   }).create();
 
@@ -271,7 +271,7 @@ test('Should create server introspection', async () => {
 });
 
 test('Should not fetch server with wrong method', async () => {
-  const { resolver, router, serve } = PtsqServer.init({
+  const { resolver, router, serve } = createServer({
     plugins: [useCORS({ origin: '*' })],
   }).create();
 
@@ -294,7 +294,7 @@ test('Should not fetch server with wrong method', async () => {
 });
 
 test('Should not fetch server introspection with wrong method', async () => {
-  const { resolver, router, serve } = PtsqServer.init({
+  const { resolver, router, serve } = createServer({
     plugins: [useCORS({ origin: '*' })],
   }).create();
 
@@ -317,7 +317,7 @@ test('Should not fetch server introspection with wrong method', async () => {
 });
 
 test('Should not fetch server introspection with wrong route', async () => {
-  const { resolver, router, serve } = PtsqServer.init({
+  const { resolver, router, serve } = createServer({
     plugins: [useCORS({ origin: '*' })],
   }).create();
 
@@ -339,6 +339,159 @@ test('Should not fetch server introspection with wrong route', async () => {
       },
     },
   });
+
+  await $disconnect();
+});
+
+test('Should create ptsq server and serve with bad body format', async () => {
+  const { router, resolver, serve } = createServer().create();
+
+  const baseRouter = router({
+    a: resolver.output(Type.Null()).query(() => null),
+  });
+
+  const { $disconnect, fetch } = await createHttpTestServer(serve(baseRouter));
+
+  await expect(fetch({})).rejects.toMatchObject({
+    response: {
+      data: {
+        name: 'PtsqError',
+        message: 'Parsing request body failed.',
+      },
+    },
+  });
+
+  await expect(
+    fetch({
+      type: 'query',
+    }),
+  ).rejects.toMatchObject({
+    response: {
+      data: {
+        name: 'PtsqError',
+        message: 'Parsing request body failed.',
+      },
+    },
+  });
+
+  await expect(
+    fetch({
+      route: 'a',
+    }),
+  ).rejects.toMatchObject({
+    response: {
+      data: {
+        name: 'PtsqError',
+        message: 'Parsing request body failed.',
+      },
+    },
+  });
+
+  await expect(
+    fetch({
+      route: 'a',
+      input: {},
+    }),
+  ).rejects.toMatchObject({
+    response: {
+      data: {
+        name: 'PtsqError',
+        message: 'Parsing request body failed.',
+      },
+    },
+  });
+
+  await $disconnect();
+});
+
+test('Should create ptsq server and introspectate', async () => {
+  const { router, resolver, serve } = createServer().create();
+
+  const baseRouter = router({
+    a: resolver.output(Type.Null()).query(() => null),
+  });
+
+  const { $disconnect, introspectate } = await createHttpTestServer(
+    serve(baseRouter),
+  );
+
+  const response = await introspectate();
+
+  expect(response.data).toMatchInlineSnapshot(`
+    {
+      "$schema": "https://json-schema.org/draft/2019-09/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "_def": {
+          "additionalProperties": false,
+          "properties": {
+            "nodeType": {
+              "enum": [
+                "router",
+              ],
+              "type": "string",
+            },
+            "routes": {
+              "additionalProperties": false,
+              "properties": {
+                "a": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "_def": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "nodeType": {
+                          "enum": [
+                            "route",
+                          ],
+                          "type": "string",
+                        },
+                        "outputSchema": {
+                          "type": "null",
+                        },
+                        "type": {
+                          "enum": [
+                            "query",
+                          ],
+                          "type": "string",
+                        },
+                      },
+                      "required": [
+                        "type",
+                        "nodeType",
+                        "argsSchema",
+                        "outputSchema",
+                        "description",
+                      ],
+                      "type": "object",
+                    },
+                  },
+                  "required": [
+                    "_def",
+                  ],
+                  "type": "object",
+                },
+              },
+              "required": [
+                "a",
+              ],
+              "type": "object",
+            },
+          },
+          "required": [
+            "nodeType",
+            "routes",
+          ],
+          "type": "object",
+        },
+      },
+      "required": [
+        "_def",
+      ],
+      "title": "BaseRouter",
+      "type": "object",
+    }
+  `);
 
   await $disconnect();
 });

@@ -11,11 +11,6 @@ export type PtsqErrorOptions = {
 
 /**
  * Error class for throwing http response with error message and error info
- *
- * @example
- * ```ts
- * throw new PtsqError({ code: 'FORBIDDEN', message: 'Only administrator can access...' })
- * ```
  */
 export class PtsqError extends Error {
   code: PtsqErrorCode;
