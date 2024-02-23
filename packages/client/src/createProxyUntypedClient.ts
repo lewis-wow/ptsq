@@ -22,18 +22,22 @@ const _createProxyUntypedClient = <TArgs extends readonly unknown[]>({
    */
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  return new Proxy(() => {}, {
-    get: (_target, key: string) =>
-      _createProxyUntypedClient({ route: [...route, key], fetch }),
-    apply: (_target, _thisArg, argumentsList) => {
-      const action = route.pop();
-      if (!action) throw new UndefinedAction();
+  return new Proxy(
+    /* istanbul ignore next -- @preserve */
+    () => {},
+    {
+      get: (_target, key: string) =>
+        _createProxyUntypedClient({ route: [...route, key], fetch }),
+      apply: (_target, _thisArg, argumentsList) => {
+        const action = route.pop();
+        if (!action) throw new UndefinedAction();
 
-      return fetch({
-        route,
-        action,
-        args: argumentsList as unknown as TArgs,
-      });
+        return fetch({
+          route,
+          action,
+          args: argumentsList as unknown as TArgs,
+        });
+      },
     },
-  });
+  );
 };

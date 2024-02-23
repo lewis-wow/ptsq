@@ -4,6 +4,7 @@ import { type AnyMiddlewareResponse, type MiddlewareMeta } from './middleware';
 import type { AnyMutation } from './mutation';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
 import type { AnyQuery } from './query';
+import { ServerSideCallerBuilder } from './serverSideCallerBuilder';
 import type {
   ErrorMessage,
   ResolverType,
@@ -11,7 +12,7 @@ import type {
   Simplify,
 } from './types';
 
-export type Routes = {
+export type RouterRoutes = {
   [Key: string]: AnyQuery | AnyMutation | AnyRouter;
 };
 
@@ -20,22 +21,16 @@ export type Routes = {
  *
  * Creates a router that can be nested.
  */
-export class Router<TRoutes extends Routes, TContext extends Context> {
+export class Router<TRoutes extends RouterRoutes, _TContext extends Context> {
   _def: {
     routes: TRoutes;
     nodeType: 'router';
-    /**
-     * @internal
-     * type only - cannot access context while creating resolver
-     */
-    context: TContext;
   };
 
   constructor(routerOptions: { routes: TRoutes }) {
     this._def = {
       ...routerOptions,
       nodeType: 'router',
-      context: {} as TContext,
     };
   }
 
@@ -117,50 +112,24 @@ export class Router<TRoutes extends Routes, TContext extends Context> {
    *
    * It can be used for testing
    */
-  createServerSideCaller(ctx: TContext) {
-    return this._createServerSideCaller({
-      ctx,
-      route: [],
-    });
+  static serverSideCaller<TRouter extends AnyRouter>(router: TRouter) {
+    return new ServerSideCallerBuilder(router);
   }
 
-  _createServerSideCaller(options: {
-    ctx: TContext;
-    route: string[];
-  }): ServerSideCaller<TRoutes> {
-    return new Proxy(this._def.routes, {
-      get: (target, prop: string) => {
-        const node = target[prop];
-
-        if (node._def.nodeType === 'router')
-          return (node as AnyRouter).createServerSideCaller({
-            ctx: options.ctx,
-            route: [...options.route, prop],
-          });
-
-        if (node._def.type === 'query')
-          return (node as AnyQuery).createServerSideQuery({
-            ctx: options.ctx,
-            route: [...options.route, prop].join('.'),
-          });
-
-        return (node as AnyMutation).createServerSideMutation({
-          ctx: options.ctx,
-          route: [...options.route, prop].join('.'),
-        });
-      },
-    }) as ServerSideCaller<TRoutes>;
-  }
-
+  /**
+   * Merges two routers into one
+   */
   static merge<TRouterA extends AnyRouter, TRouterB extends AnyRouter>(
     routerA: TRouterA,
-    routerB: TRouterB['_def']['context'] extends TRouterA['_def']['context']
+    routerB: inferContextFromRouter<TRouterB> extends inferContextFromRouter<TRouterA>
       ? TRouterB
       : ErrorMessage<`Router B cannot be merged with router A, because the context of router B does not extends context of router A.`>,
   ) {
     return new Router<
       ShallowMerge<TRouterA['_def']['routes'], TRouterB['_def']['routes']>,
-      Simplify<TRouterA['_def']['context'] & TRouterB['_def']['context']>
+      Simplify<
+        inferContextFromRouter<TRouterA> & inferContextFromRouter<TRouterB>
+      >
     >({
       routes: {
         ...routerA._def.routes,
@@ -170,14 +139,10 @@ export class Router<TRoutes extends Routes, TContext extends Context> {
   }
 }
 
-export type AnyRouter = Router<Routes, any>;
+export type AnyRouter = Router<RouterRoutes, any>;
 
-export type ServerSideCaller<TRoutes extends Routes> = {
-  [K in keyof TRoutes]: TRoutes[K] extends AnyRouter
-    ? ServerSideCaller<TRoutes[K]['_def']['routes']>
-    : TRoutes[K] extends AnyQuery
-      ? ReturnType<TRoutes[K]['createServerSideQuery']>
-      : TRoutes[K] extends AnyMutation
-        ? ReturnType<TRoutes[K]['createServerSideMutation']>
-        : never;
-};
+/**
+ * @internal
+ */
+export type inferContextFromRouter<TRouter> =
+  TRouter extends Router<RouterRoutes, infer TContext> ? TContext : never;

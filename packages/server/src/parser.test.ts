@@ -107,30 +107,3 @@ test('Should not parse value by Typebox schema with transformations', () => {
     ok: false,
   });
 });
-
-test('Should parse value when schema is undefined', () => {
-  const parser = new Parser({
-    compiler: new Compiler(),
-    schema: undefined,
-  });
-
-  const resultDecode = parser.parse({
-    mode: 'decode',
-    value: new URL('http://localhost:4000/pathname'),
-  });
-
-  expect(resultDecode).toMatchObject({
-    ok: true,
-    data: new URL('http://localhost:4000/pathname'),
-  });
-
-  const resultEncode = parser.parse({
-    mode: 'encode',
-    value: new URL('http://localhost:4000/pathname'),
-  });
-
-  expect(resultEncode).toMatchObject({
-    ok: true,
-    data: new URL('http://localhost:4000/pathname'),
-  });
-});

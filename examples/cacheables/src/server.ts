@@ -4,28 +4,33 @@ import { Cacheables } from 'cacheables';
 
 const cache = new Cacheables();
 
-const cacheables = middleware().create(async ({ next, meta }) => {
-  /**
-   * because the input in the meta must be serializable for transfer, we can use safely JSON.stringify
-   */
-  const response = await cache.cacheable(
-    () => next(),
-    Cacheables.key(...meta.route.split('.'), JSON.stringify(meta.input)),
-    {
-      cachePolicy: 'max-age',
-      maxAge: 5 * 1000, // 5sec
-    },
-  );
-
-  return response;
+const createContext = () => ({
+  a: '' as 'a' | 'b',
 });
 
+type Context = Awaited<ReturnType<typeof createContext>>;
+
+const cacheables = <TContext extends object>() =>
+  middleware<{ ctx: TContext }>().create(async ({ next, meta }) => {
+    /**
+     * because the input in the meta must be serializable for transfer, we can use safely JSON.stringify
+     */
+    const response = await cache.cacheable(
+      () => next(),
+      Cacheables.key(...meta.route.split('.'), JSON.stringify(meta.input)),
+      {
+        cachePolicy: 'max-age',
+        maxAge: 5 * 1000, // 5sec
+      },
+    );
+
+    return response;
+  });
+
 const { resolver, router, serve } = PtsqServer.init({
-  ctx: () => ({
-    a: '' as 'a' | 'b',
-  }),
+  ctx: createContext,
 })
-  .use(cacheables)
+  .use(cacheables<Context>())
   .create();
 
 const greetingsQuery = resolver

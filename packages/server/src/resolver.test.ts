@@ -2,6 +2,36 @@ import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { Resolver } from './resolver';
 
+test('Should create resolver with two arguments validation schemas', () => {
+  const resolver = Resolver.createRoot();
+
+  const resultResolver = resolver
+    .args(Type.Object({ a: Type.String() }))
+    .args(Type.Object({ b: Type.String() }));
+
+  expect(resultResolver._def.argsSchema).toStrictEqual(
+    Type.Intersect([
+      Type.Object({ a: Type.String() }),
+      Type.Object({ b: Type.String() }),
+    ]),
+  );
+});
+
+test('Should create resolver with output arguments validation schemas', () => {
+  const resolver = Resolver.createRoot();
+
+  const resultResolver = resolver
+    .output(Type.Object({ a: Type.String() }))
+    .output(Type.Object({ b: Type.String() }));
+
+  expect(resultResolver._def.outputSchema).toStrictEqual(
+    Type.Intersect([
+      Type.Object({ a: Type.String() }),
+      Type.Object({ b: Type.String() }),
+    ]),
+  );
+});
+
 test('Should create resolver with description', () => {
   const resolver = Resolver.createRoot<object>();
 
@@ -65,6 +95,42 @@ test('Should merge 2 resolvers with args', () => {
   );
 });
 
+test('Should merge 2 resolvers where first has args and second not', () => {
+  const resolverA = Resolver.createRoot<{ a: 1; b: 2 }>().args(
+    Type.Object({
+      a: Type.String(),
+    }),
+  );
+
+  const resolverB = Resolver.createRoot<{ a: 1 }>();
+
+  const mergedResolver = Resolver.merge(resolverA, resolverB);
+
+  expect(mergedResolver._def.argsSchema).toStrictEqual(
+    Type.Object({
+      a: Type.String(),
+    }),
+  );
+});
+
+test('Should merge 2 resolvers where second has args and first not', () => {
+  const resolverA = Resolver.createRoot<{ a: 1; b: 2 }>();
+
+  const resolverB = Resolver.createRoot<{ a: 1 }>().args(
+    Type.Object({
+      a: Type.String(),
+    }),
+  );
+
+  const mergedResolver = Resolver.merge(resolverA, resolverB);
+
+  expect(mergedResolver._def.argsSchema).toStrictEqual(
+    Type.Object({
+      a: Type.String(),
+    }),
+  );
+});
+
 test('Should merge 2 resolvers with output schema', () => {
   const resolverA = Resolver.createRoot<{ a: 1; b: 2 }>().output(
     Type.Object({
@@ -89,6 +155,42 @@ test('Should merge 2 resolvers with output schema', () => {
         b: Type.String(),
       }),
     ]),
+  );
+});
+
+test('Should merge 2 resolvers where first has output schema and second not', () => {
+  const resolverA = Resolver.createRoot<{ a: 1; b: 2 }>().output(
+    Type.Object({
+      a: Type.String(),
+    }),
+  );
+
+  const resolverB = Resolver.createRoot<{ a: 1 }>();
+
+  const mergedResolver = Resolver.merge(resolverA, resolverB);
+
+  expect(mergedResolver._def.outputSchema).toStrictEqual(
+    Type.Object({
+      a: Type.String(),
+    }),
+  );
+});
+
+test('Should merge 2 resolvers where second has output schema and first not', () => {
+  const resolverA = Resolver.createRoot<{ a: 1; b: 2 }>();
+
+  const resolverB = Resolver.createRoot<{ a: 1 }>().output(
+    Type.Object({
+      a: Type.String(),
+    }),
+  );
+
+  const mergedResolver = Resolver.merge(resolverA, resolverB);
+
+  expect(mergedResolver._def.outputSchema).toStrictEqual(
+    Type.Object({
+      a: Type.String(),
+    }),
   );
 });
 

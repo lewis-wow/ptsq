@@ -4,6 +4,7 @@ import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { Middleware, type MiddlewareMeta } from './middleware';
 import type { AnyMiddleware, AnyMiddlewareResponse } from './middleware';
+import { Parser } from './parser';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
 import type { AnyResolveFunction } from './resolver';
 import type { inferClientResolverArgs, ResolverType } from './types';
@@ -106,11 +107,12 @@ export class Route<
               meta: resolveFunctionParams.meta,
             });
 
-            const compiledParser = this._def.compiler.getParser(
-              this._def.outputSchema,
-            );
+            const outputParser = new Parser({
+              compiler: this._def.compiler,
+              schema: this._def.outputSchema,
+            });
 
-            const parseResult = compiledParser.encode(resolverResult);
+            const parseResult = outputParser.encode(resolverResult);
 
             if (!parseResult.ok)
               throw new PtsqError({

@@ -10,8 +10,6 @@ import type {
 } from './types';
 
 /**
- * @internal
- *
  * Mutation class container
  */
 export class Mutation<
@@ -42,6 +40,10 @@ export class Mutation<
     });
   }
 
+  /**
+   * @internal
+   * Creates a callable mutation
+   */
   createServerSideMutation(options: { ctx: any; route: string }) {
     return {
       mutate: async (

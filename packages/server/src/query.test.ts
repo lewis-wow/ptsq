@@ -2,10 +2,10 @@ import { Type } from '@sinclair/typebox';
 import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
-import { PtsqServer } from './ptsqServer';
+import { createServer } from './ptsqServerBuilder';
 
 test('Should create query', async () => {
-  const { resolver } = PtsqServer.init({
+  const { resolver } = createServer({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),
@@ -119,7 +119,7 @@ test('Should create query', async () => {
 });
 
 test('Should create query without args', async () => {
-  const { resolver } = PtsqServer.init({
+  const { resolver } = createServer({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),
@@ -215,7 +215,7 @@ test('Should create query without args', async () => {
 });
 
 test('Should create query with twice chain', async () => {
-  const { resolver } = PtsqServer.init({
+  const { resolver } = createServer({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),
@@ -372,7 +372,7 @@ test('Should create query with twice chain', async () => {
 });
 
 test('Should create query with optional args chain', async () => {
-  const { resolver } = PtsqServer.init({
+  const { resolver } = createServer({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),

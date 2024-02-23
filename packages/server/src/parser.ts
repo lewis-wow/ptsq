@@ -6,11 +6,17 @@ import {
 import { type ValueError } from '@sinclair/typebox/value';
 import type { Compiler } from './compiler';
 
+/**
+ * @internal
+ */
 export type SchemaParserErrorPayload = {
   ok: false;
   errors: ValueError[];
 };
 
+/**
+ * @internal
+ */
 export type SchemaParserDecodePayload<T extends TSchema> =
   | {
       ok: true;
@@ -18,6 +24,9 @@ export type SchemaParserDecodePayload<T extends TSchema> =
     }
   | SchemaParserErrorPayload;
 
+/**
+ * @internal
+ */
 export type SchemaParserEncodePayload<T extends TSchema> =
   | {
       ok: true;
@@ -33,25 +42,19 @@ export type SchemaParserEncodePayload<T extends TSchema> =
  */
 export class Parser<TValidationSchema extends TSchema> {
   _def: {
-    schema?: TValidationSchema;
+    schema: TValidationSchema;
     compiler: Compiler;
   };
 
   constructor(compilerOptions: {
     compiler: Compiler;
-    schema?: TValidationSchema;
+    schema: TValidationSchema;
   }) {
     this._def = compilerOptions;
   }
 
   encode(value: unknown): SchemaParserEncodePayload<TValidationSchema> {
-    const compiledSchema = this._def.compiler.get(this._def.schema);
-
-    if (compiledSchema === undefined)
-      return {
-        ok: true,
-        data: value,
-      };
+    const compiledSchema = this._def.compiler.compile(this._def.schema);
 
     try {
       return {
@@ -67,13 +70,7 @@ export class Parser<TValidationSchema extends TSchema> {
   }
 
   decode(value: unknown): SchemaParserDecodePayload<TValidationSchema> {
-    const compiledSchema = this._def.compiler.get(this._def.schema);
-
-    if (compiledSchema === undefined)
-      return {
-        ok: true,
-        data: value,
-      };
+    const compiledSchema = this._def.compiler.compile(this._def.schema);
 
     try {
       return {

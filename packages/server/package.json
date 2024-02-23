@@ -11,7 +11,7 @@
   },
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "rollup --config rollup.config.ts --bundleConfigAsCjs",
+    "build": "rollup --config rollup.config.ts",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
