@@ -1,6 +1,7 @@
 import type { PtsqClientError } from '@ptsq/client';
 import { Simplify } from '@ptsq/server';
 import type {
+  QueryKey,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
   UseQueryOptions,
@@ -18,12 +19,16 @@ export type ReactQuery<
 > = {
   useQuery: (
     requestInput: TDefinition['args'],
-    queryOptions?: Omit<UseQueryOptions, 'queryFn' | 'queryKey'>,
+    queryOptions?: Omit<UseQueryOptions, 'queryFn' | 'queryKey'> & {
+      queryKey?: QueryKey[];
+    },
   ) => UseQueryResult<TDefinition['output'], PtsqClientError>;
 
   useSuspenseQuery: (
     requestInput: TDefinition['args'],
-    queryOptions?: Omit<UseSuspenseQueryOptions, 'queryFn' | 'queryKey'>,
+    queryOptions?: Omit<UseSuspenseQueryOptions, 'queryFn' | 'queryKey'> & {
+      queryKey?: QueryKey[];
+    },
   ) => UseSuspenseQueryResult<TDefinition['output'], PtsqClientError>;
 } & (TDefinition['args'] extends { pageParam: any }
   ? {
@@ -37,7 +42,12 @@ export type ReactQuery<
             TDefinition['output']
           >,
           'queryFn' | 'queryKey'
-        >,
-      ) => UseInfiniteQueryResult<TDefinition['output'], PtsqClientError>;
+        > & {
+          queryKey?: QueryKey[];
+        },
+      ) => UseInfiniteQueryResult<
+        { pageParams: unknown[]; pages: TDefinition['output'][] },
+        PtsqClientError
+      >;
     }
   : {});
