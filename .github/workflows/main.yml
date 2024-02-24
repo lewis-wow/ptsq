@@ -53,6 +53,11 @@ jobs:
     runs-on: 'ubuntu-latest'
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
       - name: Checkout repository
         uses: actions/checkout@v4
 
