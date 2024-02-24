@@ -58,7 +58,6 @@ jobs:
         with:
           version: 8
           run_install: false
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
