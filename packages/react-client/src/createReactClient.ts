@@ -11,7 +11,18 @@ import {
   useQuery,
   useSuspenseQuery,
 } from '@tanstack/react-query';
+import { AnyPtsqUseInfiniteQueryOptions } from './ptsqUseInifniteQuery';
+import { PtsqUseMutationOptions } from './ptsqUseMutation';
+import { PtsqUseQueryOptions } from './ptsqUseQuery';
+import { PtsqUseSuspenseQueryOptions } from './ptsqUseSuspenseQuery';
 import type { ReactClientRouter } from './types';
+
+const optionalSpread = <T extends object>(obj: T | undefined): T => {
+  if (obj === undefined) {
+    return {} as T;
+  }
+  return obj;
+};
 
 /**
  * Creates React client
@@ -30,13 +41,20 @@ export const createReactClient = <TRouter extends ClientRouter>({
   links = [],
   fetch = globalThis.fetch,
 }: CreateProxyClientArgs): ReactClientRouter<TRouter> =>
-  createProxyUntypedClient<[any, any]>({
+  createProxyUntypedClient<{
+    useQuery: [unknown, PtsqUseQueryOptions | undefined];
+    useSuspenseQuery: [unknown, PtsqUseSuspenseQueryOptions | undefined];
+    useInfiniteQuery: [object, AnyPtsqUseInfiniteQueryOptions];
+    useMutation: [PtsqUseMutationOptions];
+  }>({
     fetch: ({ route, action, args }) => {
       switch (action) {
         case 'useQuery':
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           return useQuery({
-            queryKey: [...route],
+            queryKey: [
+              ...route,
+              ...optionalSpread(args[action][1]?.additionalQueryKey),
+            ],
             queryFn: (context) =>
               httpFetch({
                 url,
@@ -44,7 +62,7 @@ export const createReactClient = <TRouter extends ClientRouter>({
                 meta: {
                   route: route.join('.'),
                   type: 'query',
-                  input: args[0],
+                  input: args[action][0],
                 },
                 fetch: (input, init) => {
                   return fetch(input, {
@@ -53,10 +71,9 @@ export const createReactClient = <TRouter extends ClientRouter>({
                   });
                 },
               }),
-            ...args[1],
+            ...args[action][1],
           });
         case 'useSuspenseQuery':
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           return useSuspenseQuery({
             queryKey: [...route],
             queryFn: (context) =>
@@ -66,7 +83,7 @@ export const createReactClient = <TRouter extends ClientRouter>({
                 meta: {
                   route: route.join('.'),
                   type: 'query',
-                  input: args[0],
+                  input: args[action][0],
                 },
                 fetch: (input, init) => {
                   return fetch(input, {
@@ -75,10 +92,9 @@ export const createReactClient = <TRouter extends ClientRouter>({
                   });
                 },
               }),
-            ...args[1],
+            ...args[action][1],
           });
         case 'useInfiniteQuery':
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           return useInfiniteQuery({
             queryKey: [...route],
             queryFn: (context) =>
@@ -88,7 +104,7 @@ export const createReactClient = <TRouter extends ClientRouter>({
                 meta: {
                   route: route.join('.'),
                   type: 'query',
-                  input: { ...args[0], pageParam: context.pageParam },
+                  input: { ...args[action][0], pageParam: context.pageParam },
                 },
                 fetch: (input, init) => {
                   return fetch(input, {
@@ -97,10 +113,9 @@ export const createReactClient = <TRouter extends ClientRouter>({
                   });
                 },
               }),
-            ...args[1],
+            ...args[action][1],
           });
         case 'useMutation':
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           return useMutation({
             mutationKey: [...route],
             mutationFn: (variables: any) =>
@@ -118,7 +133,7 @@ export const createReactClient = <TRouter extends ClientRouter>({
                   });
                 },
               }),
-            ...args[0],
+            ...args[action][0],
           });
         default:
           throw new UndefinedAction();

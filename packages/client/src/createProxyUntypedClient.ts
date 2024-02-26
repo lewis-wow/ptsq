@@ -1,10 +1,14 @@
 import { UndefinedAction } from './undefinedAction';
 
-export type CreateProxyUntypedClientArgs<TArgs extends readonly unknown[]> = {
-  fetch: (options: { route: string[]; action: string; args: TArgs }) => unknown;
+export type CreateProxyUntypedClientArgs<TArgs extends Record<string, any>> = {
+  fetch: (options: {
+    route: string[];
+    action: keyof TArgs;
+    args: TArgs;
+  }) => unknown;
 };
 
-export const createProxyUntypedClient = <TArgs extends readonly unknown[]>({
+export const createProxyUntypedClient = <TArgs extends Record<string, any>>({
   fetch,
 }: CreateProxyUntypedClientArgs<TArgs>): unknown =>
   _createProxyUntypedClient({
@@ -12,7 +16,7 @@ export const createProxyUntypedClient = <TArgs extends readonly unknown[]>({
     fetch,
   });
 
-const _createProxyUntypedClient = <TArgs extends readonly unknown[]>({
+const _createProxyUntypedClient = <TArgs extends Record<string, any>>({
   route,
   fetch,
 }: CreateProxyUntypedClientArgs<TArgs> & { route: string[] }): unknown => {
@@ -34,7 +38,7 @@ const _createProxyUntypedClient = <TArgs extends readonly unknown[]>({
 
         return fetch({
           route,
-          action,
+          action: action as keyof TArgs,
           args: argumentsList as unknown as TArgs,
         });
       },

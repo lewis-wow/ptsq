@@ -32,7 +32,10 @@ export const createProxyClient = <TRouter extends ClientRouter>({
   links = [],
   fetch = globalThis.fetch,
 }: CreateProxyClientArgs): ProxyClientRouter<TRouter> =>
-  createProxyUntypedClient<[unknown, RequestOptions | undefined]>({
+  createProxyUntypedClient<{
+    query: [unknown, RequestOptions | undefined];
+    mutate: [unknown, RequestOptions | undefined];
+  }>({
     fetch: ({ route, action, args }) => {
       switch (action) {
         case 'query':
@@ -42,12 +45,12 @@ export const createProxyClient = <TRouter extends ClientRouter>({
             meta: {
               route: route.join('.'),
               type: 'query',
-              input: args[0],
+              input: args[action][0],
             },
             fetch: (input, init) => {
               return fetch(input, {
                 ...init,
-                signal: args[1]?.signal,
+                signal: args[action][1]?.signal,
               });
             },
           });
@@ -58,12 +61,12 @@ export const createProxyClient = <TRouter extends ClientRouter>({
             meta: {
               route: route.join('.'),
               type: 'mutation',
-              input: args[0],
+              input: args[action][0],
             },
             fetch: (input, init) => {
               return fetch(input, {
                 ...init,
-                signal: args[1]?.signal,
+                signal: args[action][1]?.signal,
               });
             },
           });
