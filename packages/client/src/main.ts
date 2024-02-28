@@ -14,6 +14,8 @@ export { PtsqClientError } from './ptsqClientError';
 
 export { UndefinedAction } from './undefinedAction';
 
+export { omit } from './omit';
+
 export type {
   ClientRoute as Route,
   ClientRouter as Router,

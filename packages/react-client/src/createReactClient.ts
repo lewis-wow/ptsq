@@ -1,6 +1,7 @@
 import {
   createProxyUntypedClient,
   httpFetch,
+  omit,
   UndefinedAction,
   type Router as ClientRouter,
   type CreateProxyClientArgs,
@@ -16,13 +17,6 @@ import { PtsqUseMutationOptions } from './ptsqUseMutation';
 import { PtsqUseQueryOptions } from './ptsqUseQuery';
 import { PtsqUseSuspenseQueryOptions } from './ptsqUseSuspenseQuery';
 import type { ReactClientRouter } from './types';
-
-const optionalSpread = <T extends object>(obj: T | undefined): T => {
-  if (obj === undefined) {
-    return {} as T;
-  }
-  return obj;
-};
 
 /**
  * Creates React client
@@ -45,12 +39,12 @@ export const createReactClient = <TRouter extends ClientRouter>({
     useQuery: [unknown, PtsqUseQueryOptions | undefined];
     useSuspenseQuery: [unknown, PtsqUseSuspenseQueryOptions | undefined];
     useInfiniteQuery: [object, AnyPtsqUseInfiniteQueryOptions];
-    useMutation: [PtsqUseMutationOptions];
+    useMutation: [PtsqUseMutationOptions | undefined];
   }>(({ route, action, args }) => {
     switch (action) {
       case 'useQuery':
         return useQuery({
-          queryKey: [...route, ...optionalSpread(args[1]?.additionalQueryKey)],
+          queryKey: [...route, ...(args?.[1]?.additionalQueryKey ?? [])],
           queryFn: (context) =>
             httpFetch({
               url,
@@ -58,7 +52,7 @@ export const createReactClient = <TRouter extends ClientRouter>({
               meta: {
                 route: route.join('.'),
                 type: 'query',
-                input: args[0],
+                input: args?.[0],
               },
               fetch: (input, init) => {
                 return fetch(input, {
@@ -67,11 +61,11 @@ export const createReactClient = <TRouter extends ClientRouter>({
                 });
               },
             }),
-          ...args[1],
+          ...(args?.[1] ? omit(args[1], 'additionalQueryKey') : undefined),
         });
       case 'useSuspenseQuery':
         return useSuspenseQuery({
-          queryKey: [...route],
+          queryKey: [...route, ...(args?.[1]?.additionalQueryKey ?? [])],
           queryFn: (context) =>
             httpFetch({
               url,
@@ -79,7 +73,7 @@ export const createReactClient = <TRouter extends ClientRouter>({
               meta: {
                 route: route.join('.'),
                 type: 'query',
-                input: args[0],
+                input: args?.[0],
               },
               fetch: (input, init) => {
                 return fetch(input, {
@@ -88,11 +82,11 @@ export const createReactClient = <TRouter extends ClientRouter>({
                 });
               },
             }),
-          ...args[1],
+          ...(args?.[1] ? omit(args[1], 'additionalQueryKey') : undefined),
         });
       case 'useInfiniteQuery':
         return useInfiniteQuery({
-          queryKey: [...route],
+          queryKey: [...route, ...(args[1].additionalQueryKey ?? [])],
           queryFn: (context) =>
             httpFetch({
               url,
@@ -109,11 +103,11 @@ export const createReactClient = <TRouter extends ClientRouter>({
                 });
               },
             }),
-          ...args[1],
+          ...omit(args[1], 'additionalQueryKey'),
         });
       case 'useMutation':
         return useMutation({
-          mutationKey: [...route],
+          mutationKey: [...route, ...(args[0]?.additionalMutationKey ?? [])],
           mutationFn: (variables: any) =>
             httpFetch({
               url,
@@ -129,7 +123,7 @@ export const createReactClient = <TRouter extends ClientRouter>({
                 });
               },
             }),
-          ...args[0],
+          ...(args[0] ? omit(args[0], 'additionalMutationKey') : undefined),
         });
       default:
         throw new UndefinedAction();
