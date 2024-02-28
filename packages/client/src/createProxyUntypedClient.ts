@@ -1,25 +1,37 @@
+import { MaybePromise } from '@ptsq/server';
 import { UndefinedAction } from './undefinedAction';
 
-export type CreateProxyUntypedClientArgs<TArgs extends Record<string, any>> = {
-  fetch: (options: {
+export type Fetcher<TArgs extends Record<string, any>> = (
+  options: {
     route: string[];
-    action: keyof TArgs;
-    args: TArgs;
-  }) => unknown;
-};
+  } & KeyValueUnion<TArgs>,
+) => MaybePromise<unknown>;
 
-export const createProxyUntypedClient = <TArgs extends Record<string, any>>({
-  fetch,
-}: CreateProxyUntypedClientArgs<TArgs>): unknown =>
+type KeyValueUnion<TObject extends Record<string, any>> = {
+  [K in keyof TObject]: { action: K; args: TObject[K] };
+}[keyof TObject];
+
+/**
+ * Creates vanillajs proxy based client with untyped actions
+ */
+export const createProxyUntypedClient = <TArgs extends Record<string, any>>(
+  fetcher: Fetcher<TArgs>,
+): unknown =>
   _createProxyUntypedClient({
     route: [],
-    fetch,
+    fetcher: fetcher,
   });
 
+/**
+ * @internal
+ */
 const _createProxyUntypedClient = <TArgs extends Record<string, any>>({
   route,
-  fetch,
-}: CreateProxyUntypedClientArgs<TArgs> & { route: string[] }): unknown => {
+  fetcher,
+}: {
+  route: string[];
+  fetcher: Fetcher<TArgs>;
+}): unknown => {
   /**
    * assign noop function to proxy to create only appliable proxy handler
    * the noop function is never called in proxy
@@ -31,15 +43,15 @@ const _createProxyUntypedClient = <TArgs extends Record<string, any>>({
     () => {},
     {
       get: (_target, key: string) =>
-        _createProxyUntypedClient({ route: [...route, key], fetch }),
+        _createProxyUntypedClient({ route: [...route, key], fetcher }),
       apply: (_target, _thisArg, argumentsList) => {
         const action = route.pop();
         if (!action) throw new UndefinedAction();
 
-        return fetch({
+        return fetcher({
           route,
-          action: action as keyof TArgs,
-          args: argumentsList as unknown as TArgs,
+          action: action,
+          args: argumentsList as TArgs[keyof TArgs],
         });
       },
     },

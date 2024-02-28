@@ -5,7 +5,7 @@ export {
 
 export {
   createProxyUntypedClient,
-  type CreateProxyUntypedClientArgs,
+  type Fetcher,
 } from './createProxyUntypedClient';
 
 export { httpFetch, type HttpFetchArgs } from './httpFetch';

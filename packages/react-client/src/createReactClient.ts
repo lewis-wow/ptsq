@@ -46,97 +46,92 @@ export const createReactClient = <TRouter extends ClientRouter>({
     useSuspenseQuery: [unknown, PtsqUseSuspenseQueryOptions | undefined];
     useInfiniteQuery: [object, AnyPtsqUseInfiniteQueryOptions];
     useMutation: [PtsqUseMutationOptions];
-  }>({
-    fetch: ({ route, action, args }) => {
-      switch (action) {
-        case 'useQuery':
-          return useQuery({
-            queryKey: [
-              ...route,
-              ...optionalSpread(args[action][1]?.additionalQueryKey),
-            ],
-            queryFn: (context) =>
-              httpFetch({
-                url,
-                links,
-                meta: {
-                  route: route.join('.'),
-                  type: 'query',
-                  input: args[action][0],
-                },
-                fetch: (input, init) => {
-                  return fetch(input, {
-                    ...init,
-                    signal: context.signal,
-                  });
-                },
-              }),
-            ...args[action][1],
-          });
-        case 'useSuspenseQuery':
-          return useSuspenseQuery({
-            queryKey: [...route],
-            queryFn: (context) =>
-              httpFetch({
-                url,
-                links,
-                meta: {
-                  route: route.join('.'),
-                  type: 'query',
-                  input: args[action][0],
-                },
-                fetch: (input, init) => {
-                  return fetch(input, {
-                    ...init,
-                    signal: context.signal,
-                  });
-                },
-              }),
-            ...args[action][1],
-          });
-        case 'useInfiniteQuery':
-          return useInfiniteQuery({
-            queryKey: [...route],
-            queryFn: (context) =>
-              httpFetch({
-                url,
-                links,
-                meta: {
-                  route: route.join('.'),
-                  type: 'query',
-                  input: { ...args[action][0], pageParam: context.pageParam },
-                },
-                fetch: (input, init) => {
-                  return fetch(input, {
-                    ...init,
-                    signal: context.signal,
-                  });
-                },
-              }),
-            ...args[action][1],
-          });
-        case 'useMutation':
-          return useMutation({
-            mutationKey: [...route],
-            mutationFn: (variables: any) =>
-              httpFetch({
-                url,
-                links,
-                meta: {
-                  route: route.join('.'),
-                  type: 'mutation',
-                  input: variables,
-                },
-                fetch: (input, init) => {
-                  return fetch(input, {
-                    ...init,
-                  });
-                },
-              }),
-            ...args[action][0],
-          });
-        default:
-          throw new UndefinedAction();
-      }
-    },
+  }>(({ route, action, args }) => {
+    switch (action) {
+      case 'useQuery':
+        return useQuery({
+          queryKey: [...route, ...optionalSpread(args[1]?.additionalQueryKey)],
+          queryFn: (context) =>
+            httpFetch({
+              url,
+              links,
+              meta: {
+                route: route.join('.'),
+                type: 'query',
+                input: args[0],
+              },
+              fetch: (input, init) => {
+                return fetch(input, {
+                  ...init,
+                  signal: context.signal,
+                });
+              },
+            }),
+          ...args[1],
+        });
+      case 'useSuspenseQuery':
+        return useSuspenseQuery({
+          queryKey: [...route],
+          queryFn: (context) =>
+            httpFetch({
+              url,
+              links,
+              meta: {
+                route: route.join('.'),
+                type: 'query',
+                input: args[0],
+              },
+              fetch: (input, init) => {
+                return fetch(input, {
+                  ...init,
+                  signal: context.signal,
+                });
+              },
+            }),
+          ...args[1],
+        });
+      case 'useInfiniteQuery':
+        return useInfiniteQuery({
+          queryKey: [...route],
+          queryFn: (context) =>
+            httpFetch({
+              url,
+              links,
+              meta: {
+                route: route.join('.'),
+                type: 'query',
+                input: { ...args[0], pageParam: context.pageParam },
+              },
+              fetch: (input, init) => {
+                return fetch(input, {
+                  ...init,
+                  signal: context.signal,
+                });
+              },
+            }),
+          ...args[1],
+        });
+      case 'useMutation':
+        return useMutation({
+          mutationKey: [...route],
+          mutationFn: (variables: any) =>
+            httpFetch({
+              url,
+              links,
+              meta: {
+                route: route.join('.'),
+                type: 'mutation',
+                input: variables,
+              },
+              fetch: (input, init) => {
+                return fetch(input, {
+                  ...init,
+                });
+              },
+            }),
+          ...args[0],
+        });
+      default:
+        throw new UndefinedAction();
+    }
   }) as ReactClientRouter<TRouter>;

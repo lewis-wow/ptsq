@@ -35,43 +35,41 @@ export const createProxyClient = <TRouter extends ClientRouter>({
   createProxyUntypedClient<{
     query: [unknown, RequestOptions | undefined];
     mutate: [unknown, RequestOptions | undefined];
-  }>({
-    fetch: ({ route, action, args }) => {
-      switch (action) {
-        case 'query':
-          return httpFetch({
-            url,
-            links,
-            meta: {
-              route: route.join('.'),
-              type: 'query',
-              input: args[action][0],
-            },
-            fetch: (input, init) => {
-              return fetch(input, {
-                ...init,
-                signal: args[action][1]?.signal,
-              });
-            },
-          });
-        case 'mutate':
-          return httpFetch({
-            url,
-            links,
-            meta: {
-              route: route.join('.'),
-              type: 'mutation',
-              input: args[action][0],
-            },
-            fetch: (input, init) => {
-              return fetch(input, {
-                ...init,
-                signal: args[action][1]?.signal,
-              });
-            },
-          });
-        default:
-          throw new UndefinedAction();
-      }
-    },
+  }>(({ route, action, args }) => {
+    switch (action) {
+      case 'query':
+        return httpFetch({
+          url,
+          links,
+          meta: {
+            route: route.join('.'),
+            type: 'query',
+            input: args[0],
+          },
+          fetch: (input, init) => {
+            return fetch(input, {
+              ...init,
+              signal: args[1]?.signal,
+            });
+          },
+        });
+      case 'mutate':
+        return httpFetch({
+          url,
+          links,
+          meta: {
+            route: route.join('.'),
+            type: 'mutation',
+            input: args[0],
+          },
+          fetch: (input, init) => {
+            return fetch(input, {
+              ...init,
+              signal: args[1]?.signal,
+            });
+          },
+        });
+      default:
+        throw new UndefinedAction();
+    }
   }) as ProxyClientRouter<TRouter>;
