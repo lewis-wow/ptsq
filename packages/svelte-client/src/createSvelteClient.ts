@@ -1,6 +1,7 @@
 import {
   createProxyUntypedClient,
   httpFetch,
+  omit,
   UndefinedAction,
   type Router as ClientRouter,
   type CreateProxyClientArgs,
@@ -10,6 +11,9 @@ import {
   createMutation,
   createQuery,
 } from '@tanstack/svelte-query';
+import { AnyPtsqCreateInfiniteQueryOptions } from './ptsqCreateInfiniteQuery';
+import { PtsqCreateMutationOptions } from './ptsqCreateMutation';
+import { PtsqCreateQueryOptions } from './ptsqCreateQuery';
 import type { SvelteClientRouter } from './types';
 
 /**
@@ -29,76 +33,77 @@ export const createSvelteClient = <TRouter extends ClientRouter>({
   links = [],
   fetch = globalThis.fetch,
 }: CreateProxyClientArgs): SvelteClientRouter<TRouter> =>
-  createProxyUntypedClient<[any, any]>({
-    fetch: ({ route, action, args }) => {
-      switch (action) {
-        case 'createQuery':
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return createQuery({
-            queryKey: [...route],
-            queryFn: (context) =>
-              httpFetch({
-                url,
-                links,
-                meta: {
-                  route: route.join('.'),
-                  type: 'query',
-                  input: args[0],
-                },
-                fetch: (input, init) => {
-                  return fetch(input, {
-                    ...init,
-                    signal: context.signal,
-                  });
-                },
-              }),
-            ...args[1],
-          });
-        case 'createInfiniteQuery':
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return createInfiniteQuery({
-            queryKey: [...route],
-            queryFn: (context) =>
-              httpFetch({
-                url,
-                links,
-                meta: {
-                  route: route.join('.'),
-                  type: 'query',
-                  input: { ...args[0], pageParam: context.pageParam },
-                },
-                fetch: (input, init) => {
-                  return fetch(input, {
-                    ...init,
-                    signal: context.signal,
-                  });
-                },
-              }),
-            ...args[1],
-          });
-        case 'createMutation':
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          return createMutation({
-            mutationKey: [...route],
-            mutationFn: (variables: unknown) =>
-              httpFetch({
-                url,
-                links,
-                meta: {
-                  route: route.join('.'),
-                  type: 'mutation',
-                  input: variables,
-                },
-                fetch: (input, init) => {
-                  return fetch(input, {
-                    ...init,
-                  });
-                },
-              }),
-            ...args[0],
-          });
-        default:
-          throw new UndefinedAction();
-      }
-    },
+  createProxyUntypedClient<{
+    createQuery: [unknown, PtsqCreateQueryOptions | undefined];
+    createInfiniteQuery: [object, AnyPtsqCreateInfiniteQueryOptions];
+    createMutation: [PtsqCreateMutationOptions];
+  }>(({ route, action, args }) => {
+    switch (action) {
+      case 'createQuery':
+        return createQuery({
+          queryKey: [...route, ...(args[1]?.additionalQueryKey ?? [])],
+          queryFn: (context) =>
+            httpFetch({
+              url,
+              links,
+              meta: {
+                route: route.join('.'),
+                type: 'query',
+                input: args[0],
+              },
+              fetch: (input, init) => {
+                return fetch(input, {
+                  ...init,
+                  signal: context.signal,
+                });
+              },
+            }),
+          ...((args[1]
+            ? omit(args[1], 'additionalQueryKey')
+            : undefined) as any),
+        });
+      case 'createInfiniteQuery':
+        return createInfiniteQuery({
+          queryKey: [...route, ...(args[1]?.additionalQueryKey ?? [])],
+          queryFn: (context) =>
+            httpFetch({
+              url,
+              links,
+              meta: {
+                route: route.join('.'),
+                type: 'query',
+                input: { ...args[0], pageParam: context.pageParam },
+              },
+              fetch: (input, init) => {
+                return fetch(input, {
+                  ...init,
+                  signal: context.signal,
+                });
+              },
+            }),
+          ...omit(args[1], 'additionalQueryKey'),
+        });
+      case 'createMutation':
+        return createMutation({
+          mutationKey: [...route, ...(args[0]?.additionalMutationKey ?? [])],
+          mutationFn: (variables: unknown) =>
+            httpFetch({
+              url,
+              links,
+              meta: {
+                route: route.join('.'),
+                type: 'mutation',
+                input: variables,
+              },
+              fetch: (input, init) => {
+                return fetch(input, {
+                  ...init,
+                });
+              },
+            }),
+          ...(args[0] ? omit(args[0], 'additionalMutationKey') : undefined),
+        });
+      default:
+        throw new UndefinedAction();
+    }
   }) as SvelteClientRouter<TRouter>;

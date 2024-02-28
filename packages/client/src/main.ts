@@ -5,7 +5,7 @@ export {
 
 export {
   createProxyUntypedClient,
-  type CreateProxyUntypedClientArgs,
+  type Fetcher,
 } from './createProxyUntypedClient';
 
 export { httpFetch, type HttpFetchArgs } from './httpFetch';
@@ -13,6 +13,8 @@ export { httpFetch, type HttpFetchArgs } from './httpFetch';
 export { PtsqClientError } from './ptsqClientError';
 
 export { UndefinedAction } from './undefinedAction';
+
+export { omit } from './omit';
 
 export type {
   ClientRoute as Route,

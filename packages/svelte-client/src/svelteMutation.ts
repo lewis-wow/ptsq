@@ -1,8 +1,4 @@
-import type { PtsqClientError } from '@ptsq/client';
-import type {
-  CreateMutationOptions,
-  CreateMutationResult,
-} from '@tanstack/svelte-query';
+import { PtsqCreateMutation } from './ptsqCreateMutation';
 
 export type SvelteMutation<
   _TDescription extends string | undefined,
@@ -11,11 +7,5 @@ export type SvelteMutation<
     output: any;
   },
 > = {
-  createMutation: (
-    mutationOptions?: Omit<CreateMutationOptions, 'mutationFn' | 'mutationKey'>,
-  ) => CreateMutationResult<
-    TDefinition['output'],
-    PtsqClientError,
-    TDefinition['args']
-  >;
+  createMutation: PtsqCreateMutation<TDefinition>;
 };

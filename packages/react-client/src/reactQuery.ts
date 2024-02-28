@@ -1,13 +1,6 @@
-import type { PtsqClientError } from '@ptsq/client';
-import { Simplify } from '@ptsq/server';
-import type {
-  UseInfiniteQueryOptions,
-  UseInfiniteQueryResult,
-  UseQueryOptions,
-  UseQueryResult,
-  UseSuspenseQueryOptions,
-  UseSuspenseQueryResult,
-} from '@tanstack/react-query';
+import { PtsqUseInfiniteQuery } from './ptsqUseInifniteQuery';
+import { PtsqUseQuery } from './ptsqUseQuery';
+import { PtsqUseSuspenseQuery } from './ptsqUseSuspenseQuery';
 
 export type ReactQuery<
   _TDescription extends string | undefined,
@@ -16,28 +9,10 @@ export type ReactQuery<
     output: any;
   },
 > = {
-  useQuery: (
-    requestInput: TDefinition['args'],
-    queryOptions?: Omit<UseQueryOptions, 'queryFn' | 'queryKey'>,
-  ) => UseQueryResult<TDefinition['output'], PtsqClientError>;
-
-  useSuspenseQuery: (
-    requestInput: TDefinition['args'],
-    queryOptions?: Omit<UseSuspenseQueryOptions, 'queryFn' | 'queryKey'>,
-  ) => UseSuspenseQueryResult<TDefinition['output'], PtsqClientError>;
+  useQuery: PtsqUseQuery<TDefinition>;
+  useSuspenseQuery: PtsqUseSuspenseQuery<TDefinition>;
 } & (TDefinition['args'] extends { pageParam: any }
   ? {
-      useInfiniteQuery: (
-        requestInput: Simplify<Omit<TDefinition['args'], 'pageParam'>>,
-        queryOptions?: Omit<
-          UseInfiniteQueryOptions<
-            TDefinition['output'],
-            PtsqClientError,
-            TDefinition['output'],
-            TDefinition['output']
-          >,
-          'queryFn' | 'queryKey'
-        >,
-      ) => UseInfiniteQueryResult<TDefinition['output'], PtsqClientError>;
+      useInfiniteQuery: PtsqUseInfiniteQuery<TDefinition>;
     }
   : {});

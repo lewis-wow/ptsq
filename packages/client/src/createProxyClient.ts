@@ -32,43 +32,44 @@ export const createProxyClient = <TRouter extends ClientRouter>({
   links = [],
   fetch = globalThis.fetch,
 }: CreateProxyClientArgs): ProxyClientRouter<TRouter> =>
-  createProxyUntypedClient<[unknown, RequestOptions | undefined]>({
-    fetch: ({ route, action, args }) => {
-      switch (action) {
-        case 'query':
-          return httpFetch({
-            url,
-            links,
-            meta: {
-              route: route.join('.'),
-              type: 'query',
-              input: args[0],
-            },
-            fetch: (input, init) => {
-              return fetch(input, {
-                ...init,
-                signal: args[1]?.signal,
-              });
-            },
-          });
-        case 'mutate':
-          return httpFetch({
-            url,
-            links,
-            meta: {
-              route: route.join('.'),
-              type: 'mutation',
-              input: args[0],
-            },
-            fetch: (input, init) => {
-              return fetch(input, {
-                ...init,
-                signal: args[1]?.signal,
-              });
-            },
-          });
-        default:
-          throw new UndefinedAction();
-      }
-    },
+  createProxyUntypedClient<{
+    query: [unknown, RequestOptions | undefined];
+    mutate: [unknown, RequestOptions | undefined];
+  }>(({ route, action, args }) => {
+    switch (action) {
+      case 'query':
+        return httpFetch({
+          url,
+          links,
+          meta: {
+            route: route.join('.'),
+            type: 'query',
+            input: args[0],
+          },
+          fetch: (input, init) => {
+            return fetch(input, {
+              ...init,
+              signal: args[1]?.signal,
+            });
+          },
+        });
+      case 'mutate':
+        return httpFetch({
+          url,
+          links,
+          meta: {
+            route: route.join('.'),
+            type: 'mutation',
+            input: args[0],
+          },
+          fetch: (input, init) => {
+            return fetch(input, {
+              ...init,
+              signal: args[1]?.signal,
+            });
+          },
+        });
+      default:
+        throw new UndefinedAction();
+    }
   }) as ProxyClientRouter<TRouter>;
