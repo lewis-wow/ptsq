@@ -6,9 +6,9 @@ When a query is requested from the client, the associated resolve function is ca
 
 Input validation is conducted by the input schema, ensuring that the provided data meets specified criteria. Similarly, the output of the resolver, returned from the resolve function, undergoes validation by the output schema.
 
-If input validation fails, the PtsqError throws a BAD_REQUEST error, providing details about the validation error within the info property as a Typebox validation schema error result.
+If input validation fails, the `PtsqError` throws a `BAD_REQUEST_400` error, providing details about the validation error within the info property as a Typebox validation schema error result.
 
-Likewise, if output validation fails, the PtsqError throws an INTERNAL_SERVER_ERROR error, including information about the validation error within the info property.
+Likewise, if output validation fails, the `PtsqError` throws an `INTERNAL_SERVER_ERROR_500` error, including information about the validation error within the info property.
 
 These error-handling mechanisms ensure robust data validation and integrity throughout the query process, enhancing the reliability and consistency of data exchanges between the client and server.
 

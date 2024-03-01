@@ -99,10 +99,10 @@ const { resolver, router, serve } = PtsqServer.init({
   ctx: createContext,
 }).create();
 
-const deepContextChangeResolverOverwrite = resolver
-  // ctx = { a: { b: number } }
-  .merge(deepContextChangeResolver);
-// ctx = { a: { c: number } }
+const deepContextChangeResolverOverwrite = Resolver.merge(
+  resolver, // ctx = { a: { b: number } }
+  deepContextChangeResolver, // ctx = { a: { c: number } }
+);
 // The b property inside a object is gone
 ```
 
@@ -144,8 +144,8 @@ const { resolver, router, serve } = PtsqServer.init({
   ctx: createContext,
 }).create();
 
-const deepContextChangeResolverOverwrite = resolver
-  // ctx = { a: { b: number } }
-  .merge(deepContextChangeResolver);
-// ctx = { a: { b: number; c: number } }
+const deepContextChangeResolverOverwrite = Resolver.merge(
+  resolver, // ctx = { a: { b: number } }
+  deepContextChangeResolver, // ctx = { a: { b: number; c: number } }
+);
 ```

@@ -6,10 +6,9 @@ You can integrate `ptsq` with multiple backend rest api frameworks such as Expre
 
 ```ts
 import { createServer, IncommingMessage, ServerResponse } from 'http';
-import { PtsqServer } from '@ptsq/server';
-import { Type } from '@sinclair/typebox';
+import { createServer, Type } from '@ptsq/server';
 
-const { router, resolver, serve } = PtsqServer.init({
+const { router, resolver, serve } = createServer({
   ctx: ({ req, res }: { req: IncommingMessage; res: ServerResponse }) => ({
     req,
     res,

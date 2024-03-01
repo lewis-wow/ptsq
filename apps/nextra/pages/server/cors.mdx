@@ -4,7 +4,7 @@ CORS stands for Cross-Origin Resource Sharing. In a nutshell, as a security meas
 
 If your API and web apps are deployed to different domains (or subdomains), you'll have to worry about CORS. For example, if your web client is deployed to example.com but your ptsq server is api.example.com. For security reasons, your browser will not allow XHR requests to a domain other than the one currently in the browser's address bar.
 
-```ts
+```ts copy
 export type CORSOptions =
   | {
       origin?: string[] | string;
