@@ -3,7 +3,6 @@ import {
   type FetchAPI,
   type ServerAdapterPlugin,
 } from '@whatwg-node/server';
-import { Compiler } from './compiler';
 import type {
   AnyContextBuilder,
   Context,
@@ -11,9 +10,11 @@ import type {
   inferContextParamsFromContextBuilder,
 } from './context';
 import { Envelope } from './envelope';
+import { defaultJsonSchemaParser, JsonSchemaParser } from './jsonSchemaParser';
 import {
   inferContextFromMiddlewareResponse,
   Middleware,
+  MiddlewareMeta,
   type AnyMiddleware,
   type MiddlewareFunction,
 } from './middleware';
@@ -33,7 +34,7 @@ export type PtsqServerBuilderOptions<
   fetchAPI?: FetchAPI;
   root: string;
   endpoint: string;
-  compiler: Compiler;
+  parser: JsonSchemaParser;
   plugins?: ServerAdapterPlugin<any>[];
   middlewares: AnyMiddleware[];
 };
@@ -67,7 +68,7 @@ export class PtsqServerBuilder<
         new Middleware({
           argsSchema: undefined,
           middlewareFunction: middleware,
-          compiler: this._def.compiler,
+          parser: this._def.parser,
         }),
       ] as AnyMiddleware[],
     });
@@ -92,7 +93,7 @@ export class PtsqServerBuilder<
      * resolvers can use middlewares to create like protected resolver
      */
     const resolver = Resolver.createRoot<TContext>({
-      compiler: def.compiler,
+      parser: def.parser,
     });
 
     /**
@@ -125,12 +126,12 @@ export class PtsqServerBuilder<
               middlewares: [
                 new Middleware<unknown, {}>({
                   argsSchema: undefined,
-                  compiler: this._def.compiler,
+                  parser: this._def.parser,
                   middlewareFunction: async ({ next }) => {
-                    const parsedRequestBody = await parseRequest({
+                    const parsedRequestBody = (await parseRequest({
                       request: request,
-                      compiler: this._def.compiler,
-                    });
+                      parser: this._def.parser,
+                    })) as MiddlewareMeta;
 
                     const middlewareMeta = {
                       input: parsedRequestBody.input,
@@ -149,7 +150,7 @@ export class PtsqServerBuilder<
                 ...this._def.middlewares,
                 new Middleware({
                   argsSchema: undefined,
-                  compiler: this._def.compiler,
+                  parser: this._def.parser,
                   middlewareFunction: ({ meta, ctx }) =>
                     baseRouter.call({
                       route: meta.route.split('.'),
@@ -225,7 +226,7 @@ export const createServer = <
   fetchAPI?: FetchAPI;
   root?: string;
   endpoint?: string;
-  compiler?: Compiler;
+  parser?: JsonSchemaParser;
   plugins?: ServerAdapterPlugin<any>[];
 }) =>
   new PtsqServerBuilder<
@@ -236,7 +237,7 @@ export const createServer = <
     fetchAPI: options?.fetchAPI,
     root: options?.root ?? '/',
     endpoint: options?.endpoint ?? '/ptsq',
-    compiler: options?.compiler ?? new Compiler(),
+    parser: options?.parser ?? defaultJsonSchemaParser,
     plugins: options?.plugins,
     middlewares: [],
   });

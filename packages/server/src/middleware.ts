@@ -1,7 +1,6 @@
 import { TSchema } from '@sinclair/typebox';
-import type { Compiler } from './compiler';
 import type { Context } from './context';
-import { Parser } from './parser';
+import { JsonSchemaParser } from './jsonSchemaParser';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
 import { ShallowMerge } from './types';
 import type { ResolverType, Simplify } from './types';
@@ -55,13 +54,13 @@ export class Middleware<TArgs, TContext extends Context> {
   _def: {
     middlewareFunction: MiddlewareFunction<TArgs, TContext>;
     argsSchema: TSchema | undefined;
-    compiler: Compiler;
+    parser: JsonSchemaParser;
   };
 
   constructor(middlewareOptions: {
     argsSchema: TSchema | undefined;
     middlewareFunction: MiddlewareFunction<TArgs, TContext>;
-    compiler: Compiler;
+    parser: JsonSchemaParser;
   }) {
     this._def = middlewareOptions;
   }
@@ -89,15 +88,10 @@ export class Middleware<TArgs, TContext extends Context> {
 
       let middlewareInput = meta.input;
 
-      if (argsSchema) {
-        const parser = new Parser({
-          compiler: middlewares[index]._def.compiler,
-          schema: argsSchema,
-        });
-
-        const parseResult = parser.parse({
+      if (argsSchema !== undefined) {
+        const parseResult = await middlewares[index]._def.parser.decode({
           value: meta.input,
-          mode: 'decode',
+          schema: argsSchema,
         });
 
         if (!parseResult.ok)

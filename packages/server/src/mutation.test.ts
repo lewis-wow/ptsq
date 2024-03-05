@@ -1,6 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
+import { defaultJsonSchemaParser } from './jsonSchemaParser';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
 import { createServer } from './ptsqServerBuilder';
 
@@ -35,7 +36,7 @@ test('Should create mutation', async () => {
     outputSchema: outputValidationSchema,
     resolveFunction: resolveFunction,
     description: undefined,
-    compiler: resolver._def.compiler,
+    parser: defaultJsonSchemaParser,
   });
 
   expect(
@@ -150,7 +151,7 @@ test('Should create mutation without args', async () => {
     outputSchema: outputValidationSchema,
     resolveFunction: resolveFunction,
     description: undefined,
-    compiler: resolver._def.compiler,
+    parser: defaultJsonSchemaParser,
   });
 
   expect(
@@ -258,7 +259,7 @@ test('Should create mutation with twice chain', async () => {
     outputSchema: validationSchema,
     resolveFunction: resolveFunction,
     description: undefined,
-    compiler: resolver._def.compiler,
+    parser: defaultJsonSchemaParser,
   });
 
   expect(
@@ -429,7 +430,7 @@ test('Should create mutation with optional args chain', async () => {
     outputSchema: outputSchema,
     resolveFunction: resolveFunction,
     description: undefined,
-    compiler: resolver._def.compiler,
+    parser: defaultJsonSchemaParser,
   });
 
   expect(

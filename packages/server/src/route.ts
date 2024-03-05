@@ -1,10 +1,9 @@
 import { Type, type TSchema } from '@sinclair/typebox';
-import type { Compiler } from './compiler';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
+import { JsonSchemaParser } from './jsonSchemaParser';
 import { Middleware, type MiddlewareMeta } from './middleware';
 import type { AnyMiddleware, AnyMiddlewareResponse } from './middleware';
-import { Parser } from './parser';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
 import type { AnyResolveFunction } from './resolver';
 import type { inferClientResolverArgs, ResolverType } from './types';
@@ -32,7 +31,7 @@ export class Route<
     nodeType: 'route';
     middlewares: AnyMiddleware[];
     description: TDescription;
-    compiler: Compiler;
+    parser: JsonSchemaParser;
   };
 
   constructor(options: {
@@ -42,7 +41,7 @@ export class Route<
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     description: TDescription;
-    compiler: Compiler;
+    parser: JsonSchemaParser;
   }) {
     this._def = { ...options, nodeType: 'route' };
   }
@@ -99,7 +98,7 @@ export class Route<
         ...this._def.middlewares,
         new Middleware({
           argsSchema: this._def.argsSchema,
-          compiler: this._def.compiler,
+          parser: this._def.parser,
           middlewareFunction: async (resolveFunctionParams) => {
             const resolverResult = await this._def.resolveFunction({
               input: resolveFunctionParams.input,
@@ -107,12 +106,7 @@ export class Route<
               meta: resolveFunctionParams.meta,
             });
 
-            const outputParser = new Parser({
-              compiler: this._def.compiler,
-              schema: this._def.outputSchema,
-            });
-
-            const parseResult = outputParser.encode(resolverResult);
+            const parseResult = await this._def.parser.encode(resolverResult);
 
             if (!parseResult.ok)
               throw new PtsqError({

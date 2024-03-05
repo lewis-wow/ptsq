@@ -1,6 +1,6 @@
 import type { TSchema } from '@sinclair/typebox';
-import type { Compiler } from './compiler';
 import type { Context } from './context';
+import { JsonSchemaParser } from './jsonSchemaParser';
 import type { AnyMiddleware } from './middleware';
 import type { AnyResolveFunction } from './resolver';
 import { Route } from './route';
@@ -32,7 +32,7 @@ export class Query<
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     description: TDescription;
-    compiler: Compiler;
+    parser: JsonSchemaParser;
   }) {
     super({
       type: 'query',

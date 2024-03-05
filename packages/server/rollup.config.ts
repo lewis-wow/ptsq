@@ -6,11 +6,7 @@ import pkg from './package.json';
 
 /** @type {import('rollup').RollupOptions} */
 export default {
-  external: [
-    ...Object.keys(pkg.dependencies),
-    '@sinclair/typebox/value',
-    '@sinclair/typebox/compiler',
-  ],
+  external: [...Object.keys(pkg.dependencies), '@sinclair/typebox/value'],
   input: 'src/main.ts',
   plugins: [typescript()],
   output: [
