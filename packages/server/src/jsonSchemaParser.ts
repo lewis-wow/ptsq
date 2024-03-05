@@ -1,5 +1,5 @@
 import { TSchema } from '@sinclair/typebox';
-import { Value } from '@sinclair/typebox/value';
+import { TypeCompiler } from '@sinclair/typebox/compiler';
 import { MaybePromise } from './types';
 
 export type JsonSchemaParser = {
@@ -15,28 +15,32 @@ export type JsonSchemaParser = {
 
 export const defaultJsonSchemaParser: JsonSchemaParser = {
   encode: ({ value, schema }) => {
+    const compiledSchema = TypeCompiler.Compile(schema);
+
     try {
       return {
         ok: true,
-        data: Value.Encode(schema, value),
+        data: compiledSchema.Encode(value),
       };
     } catch (error) {
       return {
         ok: false,
-        errors: [...Value.Errors(schema, value)],
+        errors: [...compiledSchema.Errors(value)],
       };
     }
   },
   decode: ({ value, schema }) => {
+    const compiledSchema = TypeCompiler.Compile(schema);
+
     try {
       return {
         ok: true,
-        data: Value.Decode(schema, value),
+        data: compiledSchema.Decode(value),
       };
     } catch (error) {
       return {
         ok: false,
-        errors: [...Value.Errors(schema, value)],
+        errors: [...compiledSchema.Errors(value)],
       };
     }
   },
