@@ -120,8 +120,6 @@ export class Middleware<TArgs, TContext extends Context> {
 
       return response;
     } catch (error) {
-      console.error(error);
-
       return Middleware.createFailureResponse({
         error: PtsqError.isPtsqError(error)
           ? error

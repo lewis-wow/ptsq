@@ -130,6 +130,20 @@ test('Should merge two routers with overwrite', async () => {
 
   const mergedRouter = Router.merge(routerA, routerB);
 
+  const t = await mergedRouter.call({
+    route: ['a'],
+    index: 0,
+    ctx: {},
+    type: 'mutation',
+    meta: {
+      input: undefined,
+      route: 'a',
+      type: 'mutation',
+    },
+  });
+
+  console.log(t);
+
   expect(
     await mergedRouter.call({
       route: ['a'],

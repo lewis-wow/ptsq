@@ -106,7 +106,10 @@ export class Route<
               meta: resolveFunctionParams.meta,
             });
 
-            const parseResult = await this._def.parser.encode(resolverResult);
+            const parseResult = await this._def.parser.encode({
+              value: resolverResult,
+              schema: this._def.outputSchema,
+            });
 
             if (!parseResult.ok)
               throw new PtsqError({
