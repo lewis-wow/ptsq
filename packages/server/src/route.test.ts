@@ -1,6 +1,6 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { Compiler } from './compiler';
+import { defaultJsonSchemaParser } from './jsonSchemaParser';
 import { Middleware } from './middleware';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
 import { Route } from './route';
@@ -16,8 +16,6 @@ test('Should create query route without description', async () => {
     ctx: object;
   }) => `${input.name}`;
 
-  const compiler = new Compiler();
-
   const query = new Route({
     type: 'query',
     argsSchema: inputSchema,
@@ -25,7 +23,7 @@ test('Should create query route without description', async () => {
     resolveFunction: resolveFunction,
     middlewares: [],
     description: undefined,
-    compiler: compiler,
+    parser: defaultJsonSchemaParser,
   });
 
   expect(query._def).toStrictEqual({
@@ -36,7 +34,7 @@ test('Should create query route without description', async () => {
     outputSchema: outputSchema,
     resolveFunction: resolveFunction,
     description: undefined,
-    compiler: compiler,
+    parser: defaultJsonSchemaParser,
   });
 
   expect(
@@ -113,8 +111,6 @@ test('Should create mutation route with description', async () => {
     ctx: object;
   }) => `${input.name}`;
 
-  const compiler = new Compiler();
-
   const mutation = new Route({
     type: 'mutation',
     argsSchema: inputSchema,
@@ -122,7 +118,7 @@ test('Should create mutation route with description', async () => {
     resolveFunction: resolveFunction,
     middlewares: [],
     description: 'description',
-    compiler: compiler,
+    parser: defaultJsonSchemaParser,
   });
 
   expect(mutation._def).toStrictEqual({
@@ -133,7 +129,7 @@ test('Should create mutation route with description', async () => {
     outputSchema: outputSchema,
     resolveFunction: resolveFunction,
     description: 'description',
-    compiler: compiler,
+    parser: defaultJsonSchemaParser,
   });
 
   expect(
@@ -215,7 +211,7 @@ test('Should create query route and throw error inside resolve function', async 
     },
     middlewares: [],
     description: undefined,
-    compiler: new Compiler(),
+    parser: defaultJsonSchemaParser,
   });
 
   expect(
@@ -240,7 +236,7 @@ test('Should create mutation route and throw error inside resolve function', asy
     },
     middlewares: [],
     description: undefined,
-    compiler: new Compiler(),
+    parser: defaultJsonSchemaParser,
   });
 
   expect(
@@ -265,8 +261,6 @@ test('Should create query route and return wrong type', async () => {
     ctx: object;
   }) => 42;
 
-  const compiler = new Compiler();
-
   const query = new Route({
     type: 'query',
     argsSchema: inputSchema,
@@ -274,7 +268,7 @@ test('Should create query route and return wrong type', async () => {
     resolveFunction: resolveFunction,
     middlewares: [],
     description: undefined,
-    compiler: compiler,
+    parser: defaultJsonSchemaParser,
   });
 
   expect(
@@ -302,8 +296,6 @@ test('Should create query route and call resolve', () => {
     ctx: object;
   }) => `Hello ${input.name}`;
 
-  const compiler = new Compiler();
-
   const query = new Route({
     type: 'query',
     argsSchema: inputSchema,
@@ -311,7 +303,7 @@ test('Should create query route and call resolve', () => {
     resolveFunction: resolveFunction,
     middlewares: [],
     description: undefined,
-    compiler: compiler,
+    parser: defaultJsonSchemaParser,
   });
 
   expect(
@@ -338,8 +330,6 @@ test('Should create query route with middleware and call resolve', () => {
     ctx: object;
   }) => `Hello ${input.name}`;
 
-  const compiler = new Compiler();
-
   const query = new Route({
     type: 'query',
     argsSchema: inputSchema,
@@ -353,11 +343,11 @@ test('Should create query route with middleware and call resolve', () => {
           throw new Error();
           return next();
         },
-        compiler,
+        parser: defaultJsonSchemaParser,
       }),
     ],
     description: undefined,
-    compiler: compiler,
+    parser: defaultJsonSchemaParser,
   });
 
   expect(

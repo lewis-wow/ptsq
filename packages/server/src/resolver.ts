@@ -1,6 +1,6 @@
 import { Type, type TIntersect, type TSchema } from '@sinclair/typebox';
-import { Compiler } from './compiler';
 import type { Context } from './context';
+import { defaultJsonSchemaParser, JsonSchemaParser } from './jsonSchemaParser';
 import {
   inferContextFromMiddlewareResponse,
   Middleware,
@@ -34,7 +34,7 @@ export class Resolver<
     argsSchema: TArgsSchema;
     outputSchema: TOutputSchema;
     description: TDescription;
-    compiler: Compiler;
+    parser: JsonSchemaParser;
   };
 
   constructor(resolverOptions: {
@@ -42,7 +42,7 @@ export class Resolver<
     outputSchema: TOutputSchema;
     middlewares: AnyMiddleware[];
     description: TDescription;
-    compiler: Compiler;
+    parser: JsonSchemaParser;
   }) {
     this._def = resolverOptions;
   }
@@ -64,7 +64,7 @@ export class Resolver<
       outputSchema: this._def.outputSchema,
       middlewares: [...this._def.middlewares],
       description: description,
-      compiler: this._def.compiler,
+      parser: this._def.parser,
     });
   }
 
@@ -97,11 +97,11 @@ export class Resolver<
         new Middleware({
           argsSchema: this._def.argsSchema,
           middlewareFunction: middleware,
-          compiler: this._def.compiler,
+          parser: this._def.parser,
         }),
       ] as AnyMiddleware[],
       description: this._def.description,
-      compiler: this._def.compiler,
+      parser: this._def.parser,
     });
   }
 
@@ -132,7 +132,7 @@ export class Resolver<
       outputSchema: this._def.outputSchema,
       middlewares: [...this._def.middlewares],
       description: this._def.description,
-      compiler: this._def.compiler,
+      parser: this._def.parser,
     });
   }
 
@@ -165,7 +165,7 @@ export class Resolver<
       outputSchema: nextOutputSchema as NextSchemaOutput,
       middlewares: [...this._def.middlewares],
       description: this._def.description,
-      compiler: this._def.compiler,
+      parser: this._def.parser,
     });
   }
 
@@ -200,7 +200,7 @@ export class Resolver<
       resolveFunction: resolve,
       middlewares: this._def.middlewares,
       description: this._def.description,
-      compiler: this._def.compiler,
+      parser: this._def.parser,
     }) as TOutputSchema extends TSchema
       ? Mutation<
           TArgsSchema,
@@ -249,7 +249,7 @@ export class Resolver<
       resolveFunction: resolve,
       middlewares: this._def.middlewares,
       description: this._def.description,
-      compiler: this._def.compiler,
+      parser: this._def.parser,
     }) as TOutputSchema extends TSchema
       ? Query<
           TArgsSchema,
@@ -271,14 +271,14 @@ export class Resolver<
    * Creates a blank resolver
    */
   static createRoot<TContext extends Context>(rootResolverOptions?: {
-    compiler?: Compiler;
+    parser?: JsonSchemaParser;
   }) {
     return new Resolver<undefined, undefined, TContext, TContext, undefined>({
       argsSchema: undefined,
       outputSchema: undefined,
       middlewares: [],
       description: undefined,
-      compiler: rootResolverOptions?.compiler ?? new Compiler(),
+      parser: rootResolverOptions?.parser ?? defaultJsonSchemaParser,
     });
   }
 
@@ -362,7 +362,7 @@ export class Resolver<
         ..._resolverB._def.middlewares,
       ],
       description: _resolverB._def.description,
-      compiler: resolverA._def.compiler,
+      parser: resolverA._def.parser,
     });
   }
 }

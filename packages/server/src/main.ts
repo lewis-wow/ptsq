@@ -18,7 +18,7 @@ export {
 export { Query, type AnyQuery } from './query';
 export { Mutation, type AnyMutation } from './mutation';
 
-export { Compiler } from './compiler';
+export * from './jsonSchemaParser';
 
 export { Route, type AnyRoute } from './route';
 export { Router, type AnyRouter, type RouterRoutes } from './router';

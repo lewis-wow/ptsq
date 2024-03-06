@@ -1,25 +1,19 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { Compiler } from './compiler';
-import { Parser } from './parser';
+import { defaultJsonSchemaParser } from './jsonSchemaParser';
 
-test('Should parse value by simple Typebox schema', () => {
+test('Should parse value by simple Typebox schema', async () => {
   const schema = Type.Object({
     a: Type.String(),
     b: Type.Number(),
   });
 
-  const parser = new Parser({
-    compiler: new Compiler(),
-    schema,
-  });
-
-  const resultDecode = parser.parse({
-    mode: 'decode',
+  const resultDecode = await defaultJsonSchemaParser.decode({
     value: {
       a: 'a',
       b: 1,
     },
+    schema,
   });
 
   expect(resultDecode).toStrictEqual({
@@ -30,12 +24,12 @@ test('Should parse value by simple Typebox schema', () => {
     },
   });
 
-  const resultEncode = parser.parse({
-    mode: 'encode',
+  const resultEncode = await defaultJsonSchemaParser.encode({
     value: {
       a: 'a',
       b: 1,
     },
+    schema,
   });
 
   expect(resultEncode).toStrictEqual({
@@ -47,19 +41,14 @@ test('Should parse value by simple Typebox schema', () => {
   });
 });
 
-test('Should parse value by Typebox schema with transformations', () => {
+test('Should parse value by Typebox schema with transformations', async () => {
   const schema = Type.Transform(Type.String())
     .Decode((arg) => new URL(arg))
     .Encode((arg) => arg.toString());
 
-  const parser = new Parser({
-    compiler: new Compiler(),
-    schema,
-  });
-
-  const resultDecodeRaw = parser.parse({
-    mode: 'decode',
+  const resultDecodeRaw = await defaultJsonSchemaParser.decode({
     value: 'http://localhost:4000/pathname',
+    schema,
   });
 
   expect(resultDecodeRaw).toStrictEqual({
@@ -67,9 +56,9 @@ test('Should parse value by Typebox schema with transformations', () => {
     data: new URL('http://localhost:4000/pathname'),
   });
 
-  const resultEncodeRaw = parser.parse({
-    mode: 'encode',
+  const resultEncodeRaw = await defaultJsonSchemaParser.encode({
     value: 'http://localhost:4000/pathname',
+    schema,
   });
 
   expect(resultEncodeRaw).toStrictEqual({
@@ -77,9 +66,9 @@ test('Should parse value by Typebox schema with transformations', () => {
     data: 'http://localhost:4000/pathname',
   });
 
-  const resultEncodeParsed = parser.parse({
-    mode: 'encode',
+  const resultEncodeParsed = defaultJsonSchemaParser.encode({
     value: new URL('http://localhost:4000/pathname'),
+    schema,
   });
 
   expect(resultEncodeParsed).toStrictEqual({
@@ -93,14 +82,9 @@ test('Should not parse value by Typebox schema with transformations', () => {
     .Decode((arg) => new URL(arg))
     .Encode((arg) => arg.toString());
 
-  const parser = new Parser({
-    compiler: new Compiler(),
-    schema,
-  });
-
-  const resultDecodeParsed = parser.parse({
-    mode: 'decode',
+  const resultDecodeParsed = defaultJsonSchemaParser.decode({
     value: new URL('http://localhost:4000/pathname'),
+    schema,
   });
 
   expect(resultDecodeParsed).toMatchObject({

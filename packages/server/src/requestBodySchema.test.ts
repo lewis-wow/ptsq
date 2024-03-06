@@ -1,16 +1,9 @@
 import { expect, test } from 'vitest';
-import { Compiler } from './compiler';
-import { Parser } from './parser';
+import { defaultJsonSchemaParser } from './jsonSchemaParser';
 import { requestBodySchema } from './requestBodySchema';
 
-test('Should parse valid request body', () => {
-  const parser = new Parser({
-    schema: requestBodySchema,
-    compiler: new Compiler(),
-  });
-
-  const parseResult = parser.parse({
-    mode: 'decode',
+test('Should parse valid request body', async () => {
+  const parseResult = await defaultJsonSchemaParser.decode({
     value: {
       route: 'a.b.c.d',
       input: {
@@ -25,36 +18,26 @@ test('Should parse valid request body', () => {
       },
       type: 'query',
     },
+    schema: requestBodySchema,
   });
 
   expect(parseResult.ok).toBe(true);
 });
 
-test('Should parse valid request body without input', () => {
-  const parser = new Parser({
-    schema: requestBodySchema,
-    compiler: new Compiler(),
-  });
-
-  const parseResult = parser.parse({
-    mode: 'decode',
+test('Should parse valid request body without input', async () => {
+  const parseResult = await defaultJsonSchemaParser.decode({
     value: {
       route: 'a.b.c.d',
       type: 'query',
     },
+    schema: requestBodySchema,
   });
 
   expect(parseResult.ok).toBe(true);
 });
 
-test('Should parse invalid request body without route', () => {
-  const parser = new Parser({
-    schema: requestBodySchema,
-    compiler: new Compiler(),
-  });
-
-  const parseResult = parser.parse({
-    mode: 'decode',
+test('Should parse invalid request body without route', async () => {
+  const parseResult = await defaultJsonSchemaParser.decode({
     value: {
       input: {
         array: [
@@ -68,19 +51,14 @@ test('Should parse invalid request body without route', () => {
       },
       type: 'query',
     },
+    schema: requestBodySchema,
   });
 
   expect(parseResult.ok).toBe(false);
 });
 
-test('Should parse invalid request body with bad formated route', () => {
-  const parser = new Parser({
-    schema: requestBodySchema,
-    compiler: new Compiler(),
-  });
-
-  const parseResult = parser.parse({
-    mode: 'decode',
+test('Should parse invalid request body with bad formated route', async () => {
+  const parseResult = await defaultJsonSchemaParser.decode({
     value: {
       route: '',
       input: {
@@ -95,19 +73,14 @@ test('Should parse invalid request body with bad formated route', () => {
       },
       type: 'query',
     },
+    schema: requestBodySchema,
   });
 
   expect(parseResult.ok).toBe(false);
 });
 
-test('Should parse invalid request body with bad formated route', () => {
-  const parser = new Parser({
-    schema: requestBodySchema,
-    compiler: new Compiler(),
-  });
-
-  const parseResult = parser.parse({
-    mode: 'decode',
+test('Should parse invalid request body with bad formated route', async () => {
+  const parseResult = await defaultJsonSchemaParser.decode({
     value: {
       route: 'a,b,c',
       input: {
@@ -122,19 +95,14 @@ test('Should parse invalid request body with bad formated route', () => {
       },
       type: 'query',
     },
+    schema: requestBodySchema,
   });
 
   expect(parseResult.ok).toBe(false);
 });
 
-test('Should parse valid request body with only one route without dot', () => {
-  const parser = new Parser({
-    schema: requestBodySchema,
-    compiler: new Compiler(),
-  });
-
-  const parseResult = parser.parse({
-    mode: 'decode',
+test('Should parse valid request body with only one route without dot', async () => {
+  const parseResult = await defaultJsonSchemaParser.decode({
     value: {
       route: 'abcdc',
       input: {
@@ -149,19 +117,14 @@ test('Should parse valid request body with only one route without dot', () => {
       },
       type: 'mutation',
     },
+    schema: requestBodySchema,
   });
 
   expect(parseResult.ok).toBe(true);
 });
 
-test('Should not parse invalid request body without route type', () => {
-  const parser = new Parser({
-    schema: requestBodySchema,
-    compiler: new Compiler(),
-  });
-
-  const parseResult = parser.parse({
-    mode: 'decode',
+test('Should not parse invalid request body without route type', async () => {
+  const parseResult = await defaultJsonSchemaParser.decode({
     value: {
       route: 'abcdc',
       input: {
@@ -175,19 +138,14 @@ test('Should not parse invalid request body without route type', () => {
         key: 'value',
       },
     },
+    schema: requestBodySchema,
   });
 
   expect(parseResult.ok).toBe(false);
 });
 
-test('Should not parse invalid request body with additional property', () => {
-  const parser = new Parser({
-    schema: requestBodySchema,
-    compiler: new Compiler(),
-  });
-
-  const parseResult = parser.parse({
-    mode: 'decode',
+test('Should not parse invalid request body with additional property', async () => {
+  const parseResult = await defaultJsonSchemaParser.decode({
     value: {
       route: 'abcdc',
       input: {
@@ -203,6 +161,7 @@ test('Should not parse invalid request body with additional property', () => {
       type: 'query',
       test: 'test',
     },
+    schema: requestBodySchema,
   });
 
   expect(parseResult.ok).toBe(false);

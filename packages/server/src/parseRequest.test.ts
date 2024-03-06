@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { Compiler } from './compiler';
+import { defaultJsonSchemaParser } from './jsonSchemaParser';
 import { parseRequest } from './parseRequest';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
 
@@ -18,7 +18,7 @@ test('Should parse request', async () => {
   expect(
     await parseRequest({
       request,
-      compiler: new Compiler(),
+      parser: defaultJsonSchemaParser,
     }),
   ).toStrictEqual({
     type: 'query',
@@ -43,7 +43,7 @@ test('Should not parse request', async () => {
   await expect(
     parseRequest({
       request,
-      compiler: new Compiler(),
+      parser: defaultJsonSchemaParser,
     }),
   ).rejects.toThrowError(
     new PtsqError({

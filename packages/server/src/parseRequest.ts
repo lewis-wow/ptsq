@@ -1,5 +1,4 @@
-import type { Compiler } from './compiler';
-import { Parser } from './parser';
+import { JsonSchemaParser } from './jsonSchemaParser';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
 import { requestBodySchema } from './requestBodySchema';
 
@@ -8,7 +7,7 @@ import { requestBodySchema } from './requestBodySchema';
  */
 type ParseRequestArgs = {
   request: Request;
-  compiler: Compiler;
+  parser: JsonSchemaParser;
 };
 
 /**
@@ -16,17 +15,12 @@ type ParseRequestArgs = {
  *
  * Parse the request and validate a request body structure
  */
-export const parseRequest = async ({ request, compiler }: ParseRequestArgs) => {
+export const parseRequest = async ({ request, parser }: ParseRequestArgs) => {
   const body = await request.json();
 
-  const requestBodySchemaParser = new Parser({
-    schema: requestBodySchema,
-    compiler,
-  });
-
-  const parsedRequestBody = requestBodySchemaParser.parse({
+  const parsedRequestBody = await parser.decode({
     value: body,
-    mode: 'decode',
+    schema: requestBodySchema,
   });
 
   if (!parsedRequestBody.ok)

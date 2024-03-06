@@ -1,0 +1,42 @@
+{
+  "name": "@ptsq/cached-json-schema-parser",
+  "version": "0.5.1",
+  "homepage": "https://ptsq.vercel.app/",
+  "author": "lewis-wow",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lewis-wow/ptsq.git",
+    "directory": "packages/server"
+  },
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "rollup --config rollup.config.ts --bundleConfigAsCjs",
+    "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage"
+  },
+  "main": "dist/main.js",
+  "module": "dist/main.mjs",
+  "typings": "dist/main.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "package.json",
+    "!**/*.test.*"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.7.0",
+    "typescript": "^5.2.2",
+    "vitest": "^0.34.6",
+    "@ptsq/server": "*"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.31.28"
+  }
+}
