@@ -3,10 +3,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
 import { defaultJsonSchemaParser } from './jsonSchemaParser';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
-import { createServer } from './ptsqServerBuilder';
+import { ptsq } from './ptsqServerBuilder';
 
 test('Should create query', async () => {
-  const { resolver } = createServer({
+  const { resolver } = ptsq({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),
@@ -120,7 +120,7 @@ test('Should create query', async () => {
 });
 
 test('Should create query without args', async () => {
-  const { resolver } = createServer({
+  const { resolver } = ptsq({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),
@@ -216,7 +216,7 @@ test('Should create query without args', async () => {
 });
 
 test('Should create query with twice chain', async () => {
-  const { resolver } = createServer({
+  const { resolver } = ptsq({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),
@@ -373,7 +373,7 @@ test('Should create query with twice chain', async () => {
 });
 
 test('Should create query with optional args chain', async () => {
-  const { resolver } = createServer({
+  const { resolver } = ptsq({
     ctx: () => ({
       greetingsPrefix: 'Hello' as const,
     }),

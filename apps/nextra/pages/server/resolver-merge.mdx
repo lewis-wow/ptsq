@@ -1,6 +1,6 @@
 # Resolver merge
 
-The merge method provides a convenient way to combine resolvers, facilitating the creation of standalone resolvers without needing the PtsqServer.init method. This flexibility allows you to develop resolvers independently and then merge them with your existing resolver set.
+The merge method provides a convenient way to combine resolvers, facilitating the creation of standalone resolvers without needing the ptsq method. This flexibility allows you to develop resolvers independently and then merge them with your existing resolver set.
 
 When two resolvers are merged, their argument and output validation schemas are intersected, ensuring that the resulting resolver adheres to the combined validation criteria. Additionally, middlewares from the original resolver are integrated with those from the resolver being merged.
 
@@ -24,8 +24,7 @@ export const authedResolver = Resolver.createRoot<{
 ```
 
 ```ts copy filename="server.ts"
-import { PtsqServer } from '@ptsq/server';
-import { Type } from '@sinclair/typebox';
+import { ptsq, Type } from '@ptsq/server';
 import { Request, Response } from 'express';
 import { authedResolver, getUserFromJWT } from './auth.ts';
 
@@ -39,7 +38,7 @@ const createContext = async ({ req, res }: { req: Request; res: Response }) => {
   };
 };
 
-const { resolver, router, serve } = PtsqServer.init({
+const { resolver, router, serve } = ptsq({
   // The context has type { req: Request; res: Response; user?: User<Role> }
   ctx: createContext,
 }).create();
@@ -81,8 +80,7 @@ export const deepContextChangeResolver = Resolver.createRoot<{
 ```
 
 ```ts copy filename="server.ts"
-import { PtsqServer } from '@ptsq/server';
-import { Type } from '@sinclair/typebox';
+import { ptsq, Type } from '@ptsq/server';
 import { Request, Response } from 'express';
 import { deepContextChangeResolver } from './deepContextChangeResolver.ts';
 
@@ -94,7 +92,7 @@ const createContext = () => {
   };
 };
 
-const { resolver, router, serve } = PtsqServer.init({
+const { resolver, router, serve } = ptsq({
   // The context has type { req: Request; res: Response; user?: User<Role> }
   ctx: createContext,
 }).create();
@@ -126,8 +124,7 @@ export const deepContextChangeResolver = Resolver.createRoot<{
 ```
 
 ```ts copy filename="server.ts"
-import { PtsqServer } from '@ptsq/server';
-import { Type } from '@sinclair/typebox';
+import { ptsq, Type } from '@ptsq/server';
 import { Request, Response } from 'express';
 import { deepContextChangeResolver } from './deepContextChangeResolver.ts';
 
@@ -139,7 +136,7 @@ const createContext = () => {
   };
 };
 
-const { resolver, router, serve } = PtsqServer.init({
+const { resolver, router, serve } = ptsq({
   // The context has type { req: Request; res: Response; user?: User<Role> }
   ctx: createContext,
 }).create();

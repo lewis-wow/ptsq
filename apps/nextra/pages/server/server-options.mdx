@@ -1,6 +1,6 @@
 # Server options
 
-There are a few `PtsqServer.init` options and this chapter describes them.
+There are a few `ptsq` options and this chapter describes them.
 
 ## Context and CORS
 
@@ -15,14 +15,14 @@ In scenarios such as using Next.js, where the API resides in the `/api` director
 In summary, leveraging the `root` option is vital for integrating the `ptsq` application seamlessly into your server environment, especially when dealing with complex routing configurations or frameworks like Next.js.
 
 ```ts
-PtsqServer.init({
+ptsq({
   //...,
   root: '/api',
 });
 ```
 
 ```ts copy filename="endpoint-optin"
-PtsqServer.init({
+ptsq({
   //...,
   endpoint: '/my-ptsq-server',
 });
@@ -31,7 +31,7 @@ PtsqServer.init({
 You can also use the combination of root and endpoint options of course.
 
 ```ts
-PtsqServer.init({
+ptsq({
   //...,
   root: '/api',
   endpoint: '/my-ptsq-server',
@@ -41,7 +41,7 @@ PtsqServer.init({
 All trailing slashes are removed, so you don't have to care about them.
 
 ```ts
-PtsqServer.init({
+ptsq({
   //...,
   root: '/api/',
   endpoint: '/my-ptsq-server/',
@@ -53,7 +53,7 @@ PtsqServer.init({
 The fetchAPI option is for defining which API you will use for the request and response.
 
 ```ts
-PtsqServer.init({
+ptsq({
   //...,
   fetchAPI: {
     Request: Request,
@@ -67,7 +67,7 @@ It's very useful if you are using some integration that has its own request or r
 ### Sveltekit example
 
 ```ts
-PtsqServer.init({
+ptsq({
   //...,
 
   // now ptsq knows, that you are using those fetch request and response objects

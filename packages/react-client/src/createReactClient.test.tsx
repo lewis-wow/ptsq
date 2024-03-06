@@ -1,7 +1,6 @@
 import { PtsqClientError, UndefinedAction } from '@ptsq/client';
-import { createServer, PtsqErrorCode } from '@ptsq/server';
+import { ptsq, PtsqErrorCode, Type } from '@ptsq/server';
 import { createHttpTestServer } from '@ptsq/test-utils';
-import { Type } from '@sinclair/typebox';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
@@ -10,7 +9,7 @@ import { expect, test } from 'vitest';
 import { createReactClient } from './createReactClient';
 
 test('Should create simple http server with react client query', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -61,7 +60,7 @@ test('Should create simple http server with react client query', async () => {
 });
 
 test('Should create simple http server with react client mutation', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -110,7 +109,7 @@ test('Should create simple http server with react client mutation', async () => 
 });
 
 test('Should create simple http server with react client query and enabled false', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -168,7 +167,7 @@ test('Should create simple http server with react client query and enabled false
 });
 
 test('Should create simple http server with react client suspense query', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -221,7 +220,7 @@ test('Should create simple http server with react client suspense query', async 
 });
 
 test('Should create simple http server with react client infinite query', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -342,7 +341,7 @@ test('Should create simple http server with react client infinite query', async 
 });
 
 test('Should create simple http server with react client query and query with wrong request', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -401,7 +400,7 @@ test('Should create simple http server with react client query and query with wr
 });
 
 test('Should not call undefined action', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     ctx: () => ({}),
   }).create();
 

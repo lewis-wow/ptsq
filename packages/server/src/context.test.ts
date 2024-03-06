@@ -3,7 +3,7 @@ import { createHttpTestServer } from '@ptsq/test-utils';
 import { Type } from '@sinclair/typebox';
 import { useCORS } from '@whatwg-node/server';
 import { expect, test } from 'vitest';
-import { createServer } from './ptsqServerBuilder';
+import { ptsq } from './ptsqServerBuilder';
 
 test('Should create context with Request object that should be injected', async () => {
   const createContext = ({ request }: { request: Request }) => {
@@ -14,7 +14,7 @@ test('Should create context with Request object that should be injected', async 
     };
   };
 
-  const { router, serve, resolver } = createServer({
+  const { router, serve, resolver } = ptsq({
     ctx: createContext,
     plugins: [useCORS({ origin: '*' })],
   }).create();
@@ -52,7 +52,7 @@ test('Should create context with req and res object that should be injected', as
     };
   };
 
-  const { router, serve, resolver } = createServer({
+  const { router, serve, resolver } = ptsq({
     ctx: createContext,
     plugins: [useCORS({ origin: '*' })],
   }).create();
@@ -82,7 +82,7 @@ test('Should create context with custom param that should not be injected', asyn
     };
   };
 
-  const { router, serve, resolver } = createServer({
+  const { router, serve, resolver } = ptsq({
     ctx: createContext,
     plugins: [useCORS({ origin: '*' })],
   }).create();
@@ -112,7 +112,7 @@ test('Should create context with custom param that should not be injected but pa
     };
   };
 
-  const { router, serve, resolver } = createServer({
+  const { router, serve, resolver } = ptsq({
     ctx: createContext,
     plugins: [useCORS({ origin: '*' })],
   }).create();

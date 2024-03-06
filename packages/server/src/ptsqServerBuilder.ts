@@ -219,7 +219,7 @@ export type AnyPtsqServerBuilder = PtsqServerBuilder<
 /**
  * Creates a ptsq server
  */
-export const createServer = <
+export const ptsq = <
   TContextBuilder extends AnyContextBuilder | undefined = undefined,
 >(options?: {
   ctx?: TContextBuilder;

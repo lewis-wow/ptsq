@@ -48,11 +48,11 @@ const externalResolver = Resolver.createRoot({
 ```
 
 ```ts copy filename="main.ts"
-import { PtsqServer } from '@ptsq/server';
+import { ptsq } from '@ptsq/server';
 import { compiler } from './compiler';
 import { externalResolver } from './external-resolver';
 
-const { resolver, router, serve } = PtsqServer.init({
+const { resolver, router, serve } = ptsq({
   ctx: () => ({}),
   compiler: compiler,
 }).create();

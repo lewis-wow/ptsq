@@ -1,12 +1,12 @@
-import { createServer as createHttpServer } from 'http';
+import { createServer } from 'http';
 import {
-  createServer,
   middleware,
+  Middleware,
+  ptsq,
   PtsqError,
   PtsqErrorCode,
   Type,
 } from '@ptsq/server';
-import { Middleware } from '@ptsq/server/dist/middleware';
 
 const errorFormatter = <TContext extends object>() =>
   middleware<{
@@ -30,7 +30,7 @@ const createContext = () => ({
 
 type Context = Awaited<ReturnType<typeof createContext>>;
 
-const { resolver, router, serve } = createServer({
+const { resolver, router, serve } = ptsq({
   ctx: createContext,
 })
   .use(errorFormatter<Context>())
@@ -53,7 +53,7 @@ const baseRouter = router({
   greetings: greetingsQuery,
 });
 
-const server = createHttpServer(serve(baseRouter));
+const server = createServer(serve(baseRouter));
 
 server.listen(4000, () => {
   console.log(`PTSQ server running on http://localhost:4000/ptsq`);

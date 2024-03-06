@@ -1,5 +1,5 @@
 export {
-  createServer,
+  ptsq,
   PtsqServerBuilder,
   type AnyPtsqServerBuilder,
 } from './ptsqServerBuilder';

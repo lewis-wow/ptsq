@@ -4,7 +4,7 @@ import { useCORS } from '@whatwg-node/server';
 import axios from 'axios';
 import { expect, test } from 'vitest';
 import { PtsqError, PtsqErrorCode } from './ptsqError';
-import { createServer } from './ptsqServerBuilder';
+import { ptsq } from './ptsqServerBuilder';
 
 test('Should create server with 2 nested middlewares that runs before and after call', async () => {
   const serverMiddlewareState = {
@@ -14,7 +14,7 @@ test('Should create server with 2 nested middlewares that runs before and after 
     secondResponse: false,
   };
 
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     plugins: [useCORS({ origin: '*' })],
   })
     .use(async ({ next }) => {
@@ -83,7 +83,7 @@ test('Should create server with 2 nested middlewares that runs before and after 
 test('Should create server with middleware that runs before and after invalid route call, where the error is thrown by a router', async () => {
   let wasCheckedByMiddelware = false;
 
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     plugins: [useCORS({ origin: '*' })],
   })
     .use(async ({ next }) => {
@@ -131,7 +131,7 @@ test('Should create server with middleware that runs before and after invalid ro
 test('Should create server with middleware that runs before and after invalid type call, where the error is thrown by a router', async () => {
   let wasCheckedByMiddelware = false;
 
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     plugins: [useCORS({ origin: '*' })],
   })
     .use(async ({ next }) => {
@@ -177,7 +177,7 @@ test('Should create server with middleware that runs before and after invalid ty
 });
 
 test('Should create server introspection', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     plugins: [useCORS({ origin: '*' })],
   }).create();
 
@@ -271,7 +271,7 @@ test('Should create server introspection', async () => {
 });
 
 test('Should not fetch server with wrong method', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     plugins: [useCORS({ origin: '*' })],
   }).create();
 
@@ -294,7 +294,7 @@ test('Should not fetch server with wrong method', async () => {
 });
 
 test('Should not fetch server introspection with wrong method', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     plugins: [useCORS({ origin: '*' })],
   }).create();
 
@@ -317,7 +317,7 @@ test('Should not fetch server introspection with wrong method', async () => {
 });
 
 test('Should not fetch server introspection with wrong route', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     plugins: [useCORS({ origin: '*' })],
   }).create();
 
@@ -344,7 +344,7 @@ test('Should not fetch server introspection with wrong route', async () => {
 });
 
 test('Should create ptsq server and serve with bad body format', async () => {
-  const { router, resolver, serve } = createServer().create();
+  const { router, resolver, serve } = ptsq().create();
 
   const baseRouter = router({
     a: resolver.output(Type.Null()).query(() => null),
@@ -405,7 +405,7 @@ test('Should create ptsq server and serve with bad body format', async () => {
 });
 
 test('Should create ptsq server and introspectate', async () => {
-  const { router, resolver, serve } = createServer().create();
+  const { router, resolver, serve } = ptsq().create();
 
   const baseRouter = router({
     a: resolver.output(Type.Null()).query(() => null),

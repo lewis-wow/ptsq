@@ -1,5 +1,5 @@
-import { createServer } from '@ptsq/server';
+import { ptsq } from '@ptsq/server';
 
-export const { resolver, router, serve } = createServer({
+export const { resolver, router, serve } = ptsq({
   root: '/api',
 }).create();
