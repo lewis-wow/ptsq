@@ -1,5 +1,5 @@
 import { createServer } from 'http';
-import { ptsq, Type } from '@ptsq/server';
+import { ptsq, Router, Type } from '@ptsq/server';
 
 const { resolver, router, serve } = ptsq().create();
 
@@ -10,12 +10,17 @@ const greetingsQuery = resolver
     }),
   )
   .output(Type.TemplateLiteral('Hello, ${string}!'))
-  .description('Greets a user.')
   .query(({ input }) => `Hello, ${input.name}!`);
 
-const baseRouter = router({
-  greetings: greetingsQuery,
+const routerA = router({
+  a: greetingsQuery,
 });
+
+const routerB = router({
+  b: greetingsQuery,
+});
+
+const baseRouter = router({});
 
 const server = createServer(serve(baseRouter));
 

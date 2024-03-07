@@ -1,3 +1,5 @@
+import { Video } from '../../components/Video';
+
 # Client
 
 The client is a Javascript `Proxy` object.
@@ -20,9 +22,7 @@ const result /* string */ = await client.test.query({
 });
 ```
 
-<video width="640" height="320" autoPlay muted loop>
-  <source src="/client-server.mp4" type="video/mp4" />
-</video>
+<Video src="/assets/client-server.mp4" />
 
 ## Introspected schema
 

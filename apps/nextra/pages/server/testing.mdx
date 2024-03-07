@@ -7,7 +7,7 @@ With this type-safe server client, you can directly invoke your resolver functio
 This approach offers a convenient and efficient way to validate the behavior of your ptsq application's backend logic, helping you identify and resolve issues early in the development process while ensuring the overall quality and reliability of your application.
 
 ```ts copy filename="server.test.ts"
-const testBaseRouter = baseRouter.createServerSideCaller({
+const testBaseRouter = Router.createServerSideCaller(baseRouter).create({
   /* ctx */,
   req: {} as any,
   res: {} as any,

@@ -1,3 +1,5 @@
+import { Video } from '../../components/Video';
+
 # Router
 
 Routers serve as blueprints for defining the API interface, offering a structured way to organize and manage endpoints. One notable feature of this model is the ability to nest routers within a single `Base` router, providing a hierarchical structure that reflects the logical organization of your API.
@@ -58,6 +60,18 @@ const result = await client.a.b.c.user.current.query();
 // auto-completion
 const userList = await client.a. /* b.c.user.userList.query() */
 ```
+
+## Merging routers
+
+```ts copy
+import { Router } from '@ptsq/server';
+import { routerA } from './routerA';
+import { routerB } from './routerB';
+
+const mergedRouter = Router.merge(routerA, routerB);
+```
+
+<Video src="/assets/router-merge.mp4" />
 
 ## Type-level only
 
