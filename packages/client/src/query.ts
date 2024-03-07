@@ -1,3 +1,4 @@
+import { Output, RequestInput } from './args';
 import type { RequestOptions } from './createProxyClient';
 
 export type Query<
@@ -7,8 +8,13 @@ export type Query<
     output: any;
   },
 > = {
-  query: (
-    requestInput: TDefinition['args'],
+  query: <
+    TRequestInput extends RequestInput<
+      TDefinition['args'],
+      TDefinition['output']
+    >,
+  >(
+    requestInput: TRequestInput,
     requestOptions?: RequestOptions,
-  ) => Promise<TDefinition['output']>;
+  ) => Promise<Output<TDefinition['output'], TRequestInput>>;
 };
