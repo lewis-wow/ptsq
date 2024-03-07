@@ -1,11 +1,7 @@
 import { createServer } from 'http';
 import { ptsq, Type } from '@ptsq/server';
 
-const { resolver, router, serve } = ptsq({
-  ctx: () => ({
-    a: '' as 'a' | 'b',
-  }),
-}).create();
+const { resolver, router, serve } = ptsq().create();
 
 const greetingsQuery = resolver
   .args(
@@ -14,6 +10,7 @@ const greetingsQuery = resolver
     }),
   )
   .output(Type.TemplateLiteral('Hello, ${string}!'))
+  .description('Greets a user.')
   .query(({ input }) => `Hello, ${input.name}!`);
 
 const baseRouter = router({
