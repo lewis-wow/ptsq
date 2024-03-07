@@ -1,5 +1,5 @@
 import { PtsqClientError, UndefinedAction } from '@ptsq/client';
-import { ptsq, PtsqErrorCode, Type } from '@ptsq/server';
+import { ptsq, Type } from '@ptsq/server';
 import { createHttpTestServer } from '@ptsq/test-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
@@ -390,7 +390,7 @@ test('Should create simple http server with react client query and query with wr
 
     expect(result.current.error).toStrictEqual(
       new PtsqClientError({
-        code: PtsqErrorCode.BAD_REQUEST_400,
+        code: 'BAD_REQUEST',
         message: 'Args validation error.',
       }),
     );

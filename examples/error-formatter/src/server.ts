@@ -1,12 +1,5 @@
 import { createServer } from 'http';
-import {
-  middleware,
-  Middleware,
-  ptsq,
-  PtsqError,
-  PtsqErrorCode,
-  Type,
-} from '@ptsq/server';
+import { middleware, Middleware, ptsq, PtsqError, Type } from '@ptsq/server';
 
 const errorFormatter = <TContext extends object>() =>
   middleware<{
@@ -18,7 +11,7 @@ const errorFormatter = <TContext extends object>() =>
 
     return Middleware.createFailureResponse({
       error: new PtsqError({
-        code: PtsqErrorCode.BAD_REQUEST_400,
+        code: 'BAD_REQUEST',
         message: 'Masked error',
       }),
     });

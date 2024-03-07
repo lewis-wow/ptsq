@@ -2,7 +2,7 @@ import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { defaultJsonSchemaParser } from './jsonSchemaParser';
 import { Middleware } from './middleware';
-import { PtsqError, PtsqErrorCode } from './ptsqError';
+import { PtsqError } from './ptsqError';
 import { Route } from './route';
 
 test('Should create query route without description', async () => {
@@ -221,7 +221,7 @@ test('Should create query route and throw error inside resolve function', async 
     }),
   ).toStrictEqual({
     ok: false,
-    error: new PtsqError({ code: PtsqErrorCode.INTERNAL_SERVER_ERROR_500 }),
+    error: new PtsqError({ code: 'INTERNAL_SERVER_ERROR' }),
   });
 });
 
@@ -246,7 +246,7 @@ test('Should create mutation route and throw error inside resolve function', asy
     }),
   ).toStrictEqual({
     ok: false,
-    error: new PtsqError({ code: PtsqErrorCode.INTERNAL_SERVER_ERROR_500 }),
+    error: new PtsqError({ code: 'INTERNAL_SERVER_ERROR' }),
   });
 });
 
@@ -278,7 +278,7 @@ test('Should create query route and return wrong type', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: PtsqErrorCode.INTERNAL_SERVER_ERROR_500,
+      code: 'INTERNAL_SERVER_ERROR',
       message: 'Output validation error',
     }),
     ok: false,

@@ -3,7 +3,7 @@ import { Type } from '@sinclair/typebox';
 import { useCORS } from '@whatwg-node/server';
 import axios from 'axios';
 import { expect, test } from 'vitest';
-import { PtsqError, PtsqErrorCode } from './ptsqError';
+import { PtsqError } from './ptsqError';
 import { ptsq } from './ptsqServerBuilder';
 
 test('Should create server with 2 nested middlewares that runs before and after call', async () => {
@@ -92,7 +92,7 @@ test('Should create server with middleware that runs before and after invalid ro
       expect(response).toStrictEqual({
         ok: false,
         error: new PtsqError({
-          code: PtsqErrorCode.NOT_FOUND_404,
+          code: 'NOT_FOUND',
           message: 'The route was invalid.',
         }),
       });
@@ -140,7 +140,7 @@ test('Should create server with middleware that runs before and after invalid ty
       expect(response).toStrictEqual({
         ok: false,
         error: new PtsqError({
-          code: PtsqErrorCode.NOT_FOUND_404,
+          code: 'NOT_FOUND',
           message: `The route type is invalid, it should be query and it is mutation.`,
         }),
       });
@@ -281,35 +281,9 @@ test('Should not fetch server with wrong method', async () => {
 
   const { $disconnect, url } = await createHttpTestServer(serve(baseRouter));
 
-  await expect(axios.get(url)).rejects.toMatchObject({
+  await expect(axios.delete(`${url}`)).rejects.toMatchObject({
     response: {
-      data: {
-        name: 'PtsqError',
-        message: 'Method GET is not allowed by Ptsq server.',
-      },
-    },
-  });
-
-  await $disconnect();
-});
-
-test('Should not fetch server introspection with wrong method', async () => {
-  const { resolver, router, serve } = ptsq({
-    plugins: [useCORS({ origin: '*' })],
-  }).create();
-
-  const baseRouter = router({
-    test: resolver.output(Type.String()).query(() => 'Hello'),
-  });
-
-  const { $disconnect, url } = await createHttpTestServer(serve(baseRouter));
-
-  await expect(axios.post(`${url}/introspection`)).rejects.toMatchObject({
-    response: {
-      data: {
-        name: 'PtsqError',
-        message: 'Method POST is not allowed by Ptsq server.',
-      },
+      status: 405,
     },
   });
 
@@ -329,14 +303,7 @@ test('Should not fetch server introspection with wrong route', async () => {
 
   await expect(axios.post(`${url}/wrong-route`)).rejects.toMatchObject({
     response: {
-      data: {
-        name: 'PtsqError',
-        message: `Http pathname ${
-          new URL(url).pathname
-        }/wrong-route is not supported by Ptsq server, supported are POST ${
-          new URL(url).pathname
-        } and GET ${new URL(url).pathname}/introspection.`,
-      },
+      status: 404,
     },
   });
 
@@ -356,6 +323,7 @@ test('Should create ptsq server and serve with bad body format', async () => {
     response: {
       data: {
         name: 'PtsqError',
+        code: 'PARSE_FAILED',
         message: 'Parsing request body failed.',
       },
     },
@@ -369,6 +337,7 @@ test('Should create ptsq server and serve with bad body format', async () => {
     response: {
       data: {
         name: 'PtsqError',
+        code: 'PARSE_FAILED',
         message: 'Parsing request body failed.',
       },
     },
@@ -382,6 +351,7 @@ test('Should create ptsq server and serve with bad body format', async () => {
     response: {
       data: {
         name: 'PtsqError',
+        code: 'PARSE_FAILED',
         message: 'Parsing request body failed.',
       },
     },
@@ -396,6 +366,7 @@ test('Should create ptsq server and serve with bad body format', async () => {
     response: {
       data: {
         name: 'PtsqError',
+        code: 'PARSE_FAILED',
         message: 'Parsing request body failed.',
       },
     },

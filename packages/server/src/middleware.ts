@@ -1,7 +1,7 @@
 import { TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
 import { JsonSchemaParser } from './jsonSchemaParser';
-import { PtsqError, PtsqErrorCode } from './ptsqError';
+import { PtsqError } from './ptsqError';
 import { ShallowMerge } from './types';
 import type { ResolverType, Simplify } from './types';
 
@@ -96,9 +96,9 @@ export class Middleware<TArgs, TContext extends Context> {
 
         if (!parseResult.ok)
           throw new PtsqError({
-            code: PtsqErrorCode.BAD_REQUEST_400,
+            code: 'VALIDATION_FAILED',
             message: 'Args validation error.',
-            info: parseResult.errors,
+            cause: parseResult.errors,
           });
 
         middlewareInput = parseResult.data;
@@ -124,8 +124,8 @@ export class Middleware<TArgs, TContext extends Context> {
         error: PtsqError.isPtsqError(error)
           ? error
           : new PtsqError({
-              code: PtsqErrorCode.INTERNAL_SERVER_ERROR_500,
-              info: error,
+              code: 'INTERNAL_SERVER_ERROR',
+              cause: error,
             }),
       });
     }

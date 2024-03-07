@@ -53,6 +53,10 @@ protectedResolver.query({
 The `next` function only returns the passed context.
 It is only for keeping the context type up to date after e.g. `if` condition.
 
+<video width="640" height="320" autoPlay muted loop>
+  <source src="/middleware.mp4" type="video/mp4" />
+</video>
+
 ## Middleware flow
 
 <div style={{ backgroundColor: 'white', padding: '1rem' }}>
@@ -141,8 +145,7 @@ If middlewares are piped, then all the middlewares run before the route call in 
 ```ts copy
 const protectedResolver = resolver.use(
   ({ ctx /* { user: User<any> | null } */, next }) => {
-    if (!ctx.user)
-      throw new PtsqError({ code: PtsqErrorCode.UNAUTHORIZED_401 });
+    if (!ctx.user) throw new PtsqError({ code: 'UNAUTHORIZED' });
 
     return next({
       ctx: {
@@ -154,8 +157,7 @@ const protectedResolver = resolver.use(
 
 const adminResolver = protectedResolver.use(
   ({ ctx /* { user: User<any> } */, next }) => {
-    if (ctx.user.role !== 'admin')
-      throw new PtsqError({ code: PtsqErrorCode.FORBIDDEN_403 });
+    if (ctx.user.role !== 'admin') throw new PtsqError({ code: 'FORBIDDEN' });
 
     return next({
       ctx: {
@@ -203,7 +205,7 @@ export const isAuthed = middelware<{
     user?: User;
   };
 }>().create(({ ctx /* { user?: User | undefined } */, next }) => {
-  if (!ctx.user) throw new PtsqError({ code: PtsqErrorCode.UNAUTHORIZED_401 });
+  if (!ctx.user) throw new PtsqError({ code: 'UNAUTHORIZED' });
 
   return next({
     user: ctx.user,

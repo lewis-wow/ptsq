@@ -1,6 +1,6 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { PtsqError, PtsqErrorCode } from './ptsqError';
+import { PtsqError } from './ptsqError';
 import { ptsq } from './ptsqServerBuilder';
 import { Router } from './router';
 
@@ -187,7 +187,7 @@ test('Should not call wrong route', async () => {
     }),
   ).rejects.toThrowError(
     new PtsqError({
-      code: PtsqErrorCode.NOT_FOUND_404,
+      code: 'NOT_FOUND',
       message: 'The route was invalid.',
     }),
   );
@@ -218,7 +218,7 @@ test('Should not call wrong method', async () => {
     }),
   ).rejects.toThrowError(
     new PtsqError({
-      code: PtsqErrorCode.BAD_REQUEST_400,
+      code: 'BAD_REQUEST',
       message:
         'The route type is invalid, it should be query and it is mutation.',
     }),
@@ -250,7 +250,7 @@ test('Should not call if route excess correct route path', async () => {
     }),
   ).rejects.toThrowError(
     new PtsqError({
-      code: PtsqErrorCode.NOT_FOUND_404,
+      code: 'NOT_FOUND',
       message:
         'The route continues, but should be terminated by query or mutate.',
     }),
@@ -284,7 +284,7 @@ test('Should not call if route not fit correct route path', async () => {
     }),
   ).rejects.toThrowError(
     new PtsqError({
-      code: PtsqErrorCode.NOT_FOUND_404,
+      code: 'NOT_FOUND',
       message:
         'The route was terminated by query or mutate but should continue.',
     }),
@@ -472,7 +472,7 @@ test('Should create server side caller with query on router and throw PtsqError'
     .args(Type.String())
     .output(Type.String())
     .query(({ input }) => {
-      throw new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 });
+      throw new PtsqError({ code: 'BAD_REQUEST' });
 
       return `Hello ${input}`;
     });
@@ -484,7 +484,7 @@ test('Should create server side caller with query on router and throw PtsqError'
   const caller = Router.serverSideCaller(baseRouter).create({});
 
   await expect(caller.a.query('John')).rejects.toThrowError(
-    new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 }),
+    new PtsqError({ code: 'BAD_REQUEST' }),
   );
 });
 
@@ -497,7 +497,7 @@ test('Should create server side caller with mutation on router and throw PtsqErr
     .args(Type.String())
     .output(Type.String())
     .mutation(({ input }) => {
-      throw new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 });
+      throw new PtsqError({ code: 'BAD_REQUEST' });
 
       return `Hello ${input}`;
     });
@@ -509,7 +509,7 @@ test('Should create server side caller with mutation on router and throw PtsqErr
   const caller = Router.serverSideCaller(baseRouter).create({});
 
   await expect(caller.a.mutate('John')).rejects.toThrowError(
-    new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 }),
+    new PtsqError({ code: 'BAD_REQUEST' }),
   );
 });
 

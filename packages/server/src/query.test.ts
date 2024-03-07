@@ -2,7 +2,7 @@ import { Type } from '@sinclair/typebox';
 import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
 import { defaultJsonSchemaParser } from './jsonSchemaParser';
-import { PtsqError, PtsqErrorCode } from './ptsqError';
+import { PtsqError } from './ptsqError';
 import { ptsq } from './ptsqServerBuilder';
 
 test('Should create query', async () => {
@@ -60,7 +60,7 @@ test('Should create query', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: PtsqErrorCode.BAD_REQUEST_400,
+      code: 'BAD_REQUEST',
       message: 'Args validation error.',
     }),
     ok: false,
@@ -280,7 +280,7 @@ test('Should create query with twice chain', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: PtsqErrorCode.BAD_REQUEST_400,
+      code: 'BAD_REQUEST',
       message: 'Args validation error.',
     }),
     ok: false,
@@ -297,7 +297,7 @@ test('Should create query with twice chain', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: PtsqErrorCode.BAD_REQUEST_400,
+      code: 'BAD_REQUEST',
       message: 'Args validation error.',
     }),
     ok: false,

@@ -34,21 +34,21 @@ export const httpFetch = async ({
         if (!response.ok) {
           const json = (await response.json()) as {
             name: string;
-            info?: unknown;
+            code: string;
+            cause?: unknown;
             message?: string;
           };
 
           /* istanbul ignore if -- @preserve */
           if (!('name' in json) || json.name !== 'PtsqError') {
-            console.error(json);
             throw new TypeError('The response error is not from PTSQ server.');
           }
 
           return PtsqLink.createFailureResponse(
             new PtsqClientError({
-              code: response.status,
+              code: json.code,
               message: json.message,
-              info: json.info,
+              cause: json.cause,
             }),
           );
         }

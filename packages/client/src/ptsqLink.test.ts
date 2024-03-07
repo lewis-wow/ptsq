@@ -1,4 +1,4 @@
-import { ptsq, PtsqErrorCode, Type } from '@ptsq/server';
+import { ptsq, Type } from '@ptsq/server';
 import { createHttpTestServer } from '@ptsq/test-utils';
 import { expect, test } from 'vitest';
 import { createProxyClient } from './createProxyClient';
@@ -155,7 +155,7 @@ test('Should catch PtsqClientError inside link', async () => {
   const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   const link = new PtsqLink(({ forward }) => {
-    throw new PtsqClientError({ code: PtsqErrorCode.GONE_410 });
+    throw new PtsqClientError({ code: 'CUSTOM_CODE' });
     return forward();
   });
 
@@ -168,7 +168,7 @@ test('Should catch PtsqClientError inside link', async () => {
     client.test.query({
       name: 'John',
     }),
-  ).rejects.toThrow(new PtsqClientError({ code: PtsqErrorCode.GONE_410 }));
+  ).rejects.toThrow(new PtsqClientError({ code: 'CUSTOM_CODE' }));
 
   await $disconnect();
 });

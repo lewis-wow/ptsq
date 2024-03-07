@@ -2,7 +2,7 @@ import { Type } from '@sinclair/typebox';
 import { v4 as uuidv4 } from 'uuid';
 import { expect, test } from 'vitest';
 import { defaultJsonSchemaParser } from './jsonSchemaParser';
-import { PtsqError, PtsqErrorCode } from './ptsqError';
+import { PtsqError } from './ptsqError';
 import { ptsq } from './ptsqServerBuilder';
 
 test('Should create mutation', async () => {
@@ -64,7 +64,7 @@ test('Should create mutation', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: PtsqErrorCode.BAD_REQUEST_400,
+      code: 'VALIDATION_FAILED',
       message: 'Args validation error.',
     }),
     ok: false,
@@ -287,7 +287,7 @@ test('Should create mutation with twice chain', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: PtsqErrorCode.BAD_REQUEST_400,
+      code: 'VALIDATION_FAILED',
       message: 'Args validation error.',
     }),
     ok: false,
@@ -304,7 +304,7 @@ test('Should create mutation with twice chain', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: PtsqErrorCode.BAD_REQUEST_400,
+      code: 'VALIDATION_FAILED',
       message: 'Args validation error.',
     }),
     ok: false,
