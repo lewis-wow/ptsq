@@ -3,7 +3,7 @@
   "mutation": "Mutation",
   "router": "Router",
   "context": "Context",
-  "middlewares": "Middlewares",
+  "middleware": "Middleware",
   "compilation": "Compilation",
   "args-chaining": "Args chaining",
   "output-chaining": "Output chaining",

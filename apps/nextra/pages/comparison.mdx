@@ -125,7 +125,7 @@ publicProcedure.query(() => {
 
 On the client it tells you that the incoming type is `MyClass`, but that is not true, incoming type will be `{ x: number; y: number }`, because classes are not serializable.
 
-ptsq has another solution for this problem and that is [arguments transformations](/args-transformations).
+ptsq has another solution for this problem and that is [arguments transformations](/server/args-transformations).
 
 ptsq does not allow you to use any non-serializable type for resolver input and output.
 
