@@ -1,9 +1,13 @@
 export {
-  createServer,
+  ptsq,
   PtsqServerBuilder,
   type AnyPtsqServerBuilder,
 } from './ptsqServerBuilder';
-export { PtsqError, PtsqErrorCode } from './ptsqError';
+export {
+  PtsqError,
+  PtsqBuildInErrorCodes,
+  type PtsqCustomErrorCode,
+} from './ptsqError';
 
 export { Resolver, type ResolveFunction } from './resolver';
 

@@ -13,8 +13,7 @@ Likewise, if output validation fails, the PtsqError throws an INTERNAL_SERVER_ER
 These error-handling mechanisms ensure robust data validation and integrity throughout the query process, enhancing the reliability and consistency of data exchanges between the client and server.
 
 ```ts copy filename="query.ts"
-import { PtsqServer } from '@ptsq/server';
-import { Type } from '@sinclair/typebox';
+import { ptsq, Type } from '@ptsq/server';
 import express, { Request, Response } from 'express';
 
 const app = express();
@@ -24,7 +23,7 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => ({
   res,
 });
 
-const { resolver, router, serve } = PtsqServer.init({
+const { resolver, router, serve } = ptsq({
   ctx: createContext,
 }).create();
 

@@ -2,7 +2,7 @@ import type { Context } from './context';
 import { createSchemaRoot, type SchemaRoot } from './createSchemaRoot';
 import { type AnyMiddlewareResponse, type MiddlewareMeta } from './middleware';
 import type { AnyMutation } from './mutation';
-import { PtsqError, PtsqErrorCode } from './ptsqError';
+import { PtsqError } from './ptsqError';
 import type { AnyQuery } from './query';
 import { ServerSideCallerBuilder } from './serverSideCallerBuilder';
 import type {
@@ -75,14 +75,14 @@ export class Router<TRoutes extends RouterRoutes, _TContext extends Context> {
 
     if (!currentRoute)
       throw new PtsqError({
-        code: PtsqErrorCode.NOT_FOUND_404,
+        code: 'NOT_FOUND',
         message:
           'The route was terminated by query or mutate but should continue.',
       });
 
     if (!(currentRoute in this._def.routes))
       throw new PtsqError({
-        code: PtsqErrorCode.NOT_FOUND_404,
+        code: 'NOT_FOUND',
         message: 'The route was invalid.',
       });
 
@@ -93,14 +93,14 @@ export class Router<TRoutes extends RouterRoutes, _TContext extends Context> {
 
     if (options.index !== options.route.length - 1)
       throw new PtsqError({
-        code: PtsqErrorCode.NOT_FOUND_404,
+        code: 'NOT_FOUND',
         message:
           'The route continues, but should be terminated by query or mutate.',
       });
 
     if (nextNode._def.type !== options.type)
       throw new PtsqError({
-        code: PtsqErrorCode.BAD_REQUEST_400,
+        code: 'BAD_ROUTE_TYPE',
         message: `The route type is invalid, it should be ${nextNode._def.type} and it is ${options.type}.`,
       });
 

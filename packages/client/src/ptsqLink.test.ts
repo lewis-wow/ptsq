@@ -1,6 +1,5 @@
-import { createServer, PtsqErrorCode } from '@ptsq/server';
+import { ptsq, Type } from '@ptsq/server';
 import { createHttpTestServer } from '@ptsq/test-utils';
-import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { createProxyClient } from './createProxyClient';
 import { PtsqClientError } from './ptsqClientError';
@@ -9,7 +8,7 @@ import { PtsqLink } from './ptsqLink';
 test('Should create simple http server with proxy client', async () => {
   let wasLinkCalled = false;
 
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -62,7 +61,7 @@ test('Should create simple http server with proxy client', async () => {
 });
 
 test('Should create simple http server with proxy client and link that edits the input', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -101,7 +100,7 @@ test('Should create simple http server with proxy client and link that edits the
 });
 
 test('Should catch error inside link', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -138,7 +137,7 @@ test('Should catch error inside link', async () => {
 });
 
 test('Should catch PtsqClientError inside link', async () => {
-  const { resolver, router, serve } = createServer({
+  const { resolver, router, serve } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -156,7 +155,7 @@ test('Should catch PtsqClientError inside link', async () => {
   const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   const link = new PtsqLink(({ forward }) => {
-    throw new PtsqClientError({ code: PtsqErrorCode.GONE_410 });
+    throw new PtsqClientError({ code: 'CUSTOM_CODE' });
     return forward();
   });
 
@@ -169,7 +168,7 @@ test('Should catch PtsqClientError inside link', async () => {
     client.test.query({
       name: 'John',
     }),
-  ).rejects.toThrow(new PtsqClientError({ code: PtsqErrorCode.GONE_410 }));
+  ).rejects.toThrow(new PtsqClientError({ code: 'CUSTOM_CODE' }));
 
   await $disconnect();
 });

@@ -12,8 +12,7 @@ const argv = yargs
   .alias('h', 'help')
   .option('url', {
     alias: 'u',
-    describe:
-      'the ptsq url to introspectate, should be without /introspection path',
+    describe: 'the ptsq url to introspectate',
     type: 'string',
     demandOption: true,
   })
@@ -36,7 +35,7 @@ const { url, out, lang } = argv.parseSync();
 const parsedUrl = new URL(url);
 
 axios
-  .get(`${parsedUrl.href}/introspection`, {
+  .get(parsedUrl.href, {
     headers: {
       'Cache-Control': 'no-cache',
       Pragma: 'no-cache',

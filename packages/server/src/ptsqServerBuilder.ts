@@ -19,7 +19,6 @@ import {
   type MiddlewareFunction,
 } from './middleware';
 import { parseRequest } from './parseRequest';
-import { PtsqError, PtsqErrorCode } from './ptsqError';
 import { Resolver } from './resolver';
 import { Router, type AnyRouter, type RouterRoutes } from './router';
 import { ResolverType } from './types';
@@ -114,7 +113,13 @@ export class PtsqServerBuilder<
           const url = new URL(request.url);
           const method = request.method;
 
-          if (url.pathname === path && method === 'POST') {
+          if (url.pathname !== path)
+            return new Response(undefined, { status: 404 });
+
+          if (!['POST', 'GET'].includes(method))
+            return new Response(undefined, { status: 405 });
+
+          if (method === 'POST') {
             const middlewareResponse = await Middleware.recursiveCall({
               ctx: {},
               meta: {
@@ -166,36 +171,15 @@ export class PtsqServerBuilder<
             return envelopedResponse.createResponse(middlewareResponse);
           }
 
-          if (url.pathname === `${path}/introspection` && method === 'GET') {
-            const introspectionResponse = Middleware.createSuccessResponse({
-              data: {
-                title: 'BaseRouter',
-                $schema: 'https://json-schema.org/draft/2019-09/schema#',
-                ...baseRouter.getJsonSchema(),
-              },
-            });
+          const introspectionResponse = Middleware.createSuccessResponse({
+            data: {
+              title: 'BaseRouter',
+              $schema: 'https://json-schema.org/draft/2019-09/schema#',
+              ...baseRouter.getJsonSchema(),
+            },
+          });
 
-            return envelopedResponse.createResponse(introspectionResponse);
-          }
-
-          if (
-            !['GET', 'POST'].includes(method) ||
-            (url.pathname === `${path}/introspection` && method !== 'GET') ||
-            (url.pathname === path && method !== 'POST')
-          )
-            return envelopedResponse.createResponse(
-              new PtsqError({
-                code: PtsqErrorCode.METHOD_NOT_ALLOWED_405,
-                message: `Method ${method} is not allowed by Ptsq server.`,
-              }).toMiddlewareResponse(),
-            );
-
-          return envelopedResponse.createResponse(
-            new PtsqError({
-              code: PtsqErrorCode.NOT_FOUND_404,
-              message: `Http pathname ${url.pathname} is not supported by Ptsq server, supported are POST ${path} and GET ${path}/introspection.`,
-            }).toMiddlewareResponse(),
-          );
+          return envelopedResponse.createResponse(introspectionResponse);
         },
         {
           plugins: def.plugins,
@@ -219,7 +203,7 @@ export type AnyPtsqServerBuilder = PtsqServerBuilder<
 /**
  * Creates a ptsq server
  */
-export const createServer = <
+export const ptsq = <
   TContextBuilder extends AnyContextBuilder | undefined = undefined,
 >(options?: {
   ctx?: TContextBuilder;

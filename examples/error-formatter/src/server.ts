@@ -1,12 +1,5 @@
-import { createServer as createHttpServer } from 'http';
-import {
-  createServer,
-  middleware,
-  PtsqError,
-  PtsqErrorCode,
-  Type,
-} from '@ptsq/server';
-import { Middleware } from '@ptsq/server/dist/middleware';
+import { createServer } from 'http';
+import { middleware, Middleware, ptsq, PtsqError, Type } from '@ptsq/server';
 
 const errorFormatter = <TContext extends object>() =>
   middleware<{
@@ -18,7 +11,7 @@ const errorFormatter = <TContext extends object>() =>
 
     return Middleware.createFailureResponse({
       error: new PtsqError({
-        code: PtsqErrorCode.BAD_REQUEST_400,
+        code: 'BAD_REQUEST',
         message: 'Masked error',
       }),
     });
@@ -30,7 +23,7 @@ const createContext = () => ({
 
 type Context = Awaited<ReturnType<typeof createContext>>;
 
-const { resolver, router, serve } = createServer({
+const { resolver, router, serve } = ptsq({
   ctx: createContext,
 })
   .use(errorFormatter<Context>())
@@ -53,7 +46,7 @@ const baseRouter = router({
   greetings: greetingsQuery,
 });
 
-const server = createHttpServer(serve(baseRouter));
+const server = createServer(serve(baseRouter));
 
 server.listen(4000, () => {
   console.log(`PTSQ server running on http://localhost:4000/ptsq`);

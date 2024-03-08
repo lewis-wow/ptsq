@@ -10,7 +10,7 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => {
   };
 };
 
-const { resolver, router, serve } = PtsqServer.init({
+const { resolver, router, serve } = ptsq({
   ctx: createContext,
 }).create();
 ```
@@ -34,7 +34,7 @@ const createContext = async ({ req, res }: { req: Request; res: Response }) => {
   };
 };
 
-const { resolver, router, serve } = PtsqServer.init({
+const { resolver, router, serve } = ptsq({
   ctx: createContext,
 }).create();
 ```

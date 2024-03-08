@@ -1,7 +1,7 @@
-import { createServer, Type } from '@ptsq/server';
+import { ptsq, Type } from '@ptsq/server';
 import { callback, createHttpTestServer } from '@ptsq/test-utils';
 
-const { resolver, router, serve } = createServer({
+const { resolver, router, serve } = ptsq({
   ctx: () => ({}),
 }).create();
 

@@ -1,4 +1,4 @@
-import { createServer, Type } from '@ptsq/server';
+import { ptsq, Type } from '@ptsq/server';
 import express, { Request, Response } from 'express';
 
 const app = express();
@@ -10,7 +10,7 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => {
   };
 };
 
-const { router, resolver, serve } = createServer({
+const { router, resolver, serve } = ptsq({
   ctx: createContext,
 }).create();
 

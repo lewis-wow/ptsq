@@ -4,7 +4,7 @@
 const isAuthedResolver = resolver.use(({ ctx, next }) => {
   if (!ctx.user)
     throw new PtsqError({
-      code: PtsqErrorCode.UNAUTHORIZED_401,
+      code: 'UNAUTHORIZED',
       message: 'Must be logged in!',
     });
 
@@ -18,12 +18,55 @@ const isAuthedResolver = resolver.use(({ ctx, next }) => {
 
 The `PtsqError` is the only error that is caught by the `ptsq`.
 The adapter such as `Express` or `Koa` then responds with that error code and message, if specified.
-You can also specify info, which can be something like a schema validation error.
+You can also specify cause, which can be something like a schema validation error.
 
 ```ts copy
 throw new PtsqError({
-  code: PtsqErrorCode.BAD_REQUEST_400,
+  code: 'BAD_REQUEST',
   message: 'User already exists.',
-  info: databaseInsert.error,
+  cause: databaseInsert.error,
+});
+```
+
+## Built in error codes
+
+| Code                  | Description                                                                                                             | HTTP code |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------- |
+| BAD_REQUEST           | The server cannot or will not process the request due to something that is perceived to be a client error.              | 400       |
+| PARSE_FAILED          | The server cannot parse the request body.                                                                               | 400       |
+| VALIDATION_FAILED     | The arguments schema validation failed.                                                                                 | 400       |
+| BAD_ROUTE_TYPE        | The route is query and should be mutation and vice versa.                                                               | 400       |
+| UNAUTHORIZED          | The client request has not been completed because it lacks valid authentication credentials for the requested resource. | 401       |
+| FORBIDDEN             | The server was unauthorized to access a required data source, such as a REST API.                                       | 403       |
+| NOT_FOUND             | The server cannot find the requested resource.                                                                          | 404       |
+| INTERNAL_SERVER_ERROR | An unspecified error occurred.                                                                                          | 500       |
+
+## Custom error code
+
+The `httpStatus` code is not required, if not specified the status will be 500 as if `INTERNAL_SERVER_ERROR`.
+
+```ts copy
+throw new PtsqError({
+  code: {
+    ptsqCode: 'USER_ALREADY_EXISTS',
+    httpStatus: 400,
+  },
+  message: 'User already exists.',
+  cause: databaseInsert.error,
+});
+```
+
+```ts copy filename="errors/userAlreadyExists.ts"
+export const USER_ALREADY_EXISTS: PtsqCustomErrorCode = {
+  ptsqCode: 'USER_ALREADY_EXISTS',
+  httpStatus: 400,
+};
+```
+
+```ts copy
+throw new PtsqError({
+  code: USER_ALREADY_EXISTS,
+  message: 'User already exists.',
+  cause: databaseInsert.error,
 });
 ```

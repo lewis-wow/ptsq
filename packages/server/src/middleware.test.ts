@@ -1,21 +1,20 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { middleware } from './middleware';
-import { PtsqError, PtsqErrorCode } from './ptsqError';
-import { createServer } from './ptsqServerBuilder';
+import { PtsqError } from './ptsqError';
+import { ptsq } from './ptsqServerBuilder';
 
 test('Should create middleware with query and serverSideQuery', async () => {
   let contextBuilderResult = {
     state: 'invalid' as 'valid' | 'invalid',
   };
 
-  const { resolver } = createServer({
+  const { resolver } = ptsq({
     ctx: () => contextBuilderResult,
   }).create();
 
   const validResolver = resolver.use(({ ctx, next }) => {
-    if (ctx.state === 'invalid')
-      throw new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 });
+    if (ctx.state === 'invalid') throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({
       ctx: {
@@ -51,7 +50,7 @@ test('Should create middleware with query and serverSideQuery', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    error: new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 }),
+    error: new PtsqError({ code: 'BAD_REQUEST' }),
     ok: false,
   });
 
@@ -85,13 +84,12 @@ test('Should create middleware with mutation and serverSideMutation', async () =
     state: 'invalid' as 'valid' | 'invalid',
   };
 
-  const { resolver } = createServer({
+  const { resolver } = ptsq({
     ctx: () => contextBuilderResult,
   }).create();
 
   const validResolver = resolver.use(({ ctx, next }) => {
-    if (ctx.state === 'invalid')
-      throw new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 });
+    if (ctx.state === 'invalid') throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({
       ctx: {
@@ -129,7 +127,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    error: new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 }),
+    error: new PtsqError({ code: 'BAD_REQUEST' }),
     ok: false,
   });
 
@@ -159,7 +157,7 @@ test('Should create middleware with mutation and serverSideMutation', async () =
 });
 
 test('Should create middleware with measuring time', async () => {
-  const { resolver } = createServer({
+  const { resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -207,7 +205,7 @@ test('Should create middleware with measuring time', async () => {
 });
 
 test('Should create two nested middlewares', async () => {
-  const { resolver } = createServer({
+  const { resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -288,13 +286,12 @@ test('Should create nested middlewares with query', async () => {
     state: 'invalid' as 'valid' | 'invalid' | null,
   };
 
-  const { resolver } = createServer({
+  const { resolver } = ptsq({
     ctx: () => contextBuilderResult,
   }).create();
 
   const dummyResolver = resolver.use(({ ctx, next }) => {
-    if (ctx.state === null)
-      throw new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 });
+    if (ctx.state === null) throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({
       ctx: {
@@ -304,8 +301,7 @@ test('Should create nested middlewares with query', async () => {
   });
 
   const validResolver = dummyResolver.use(({ ctx, next }) => {
-    if (ctx.state === 'invalid')
-      throw new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 });
+    if (ctx.state === 'invalid') throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({
       ctx: {
@@ -344,7 +340,7 @@ test('Should create nested middlewares with query', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    error: new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 }),
+    error: new PtsqError({ code: 'BAD_REQUEST' }),
     ok: false,
   });
 
@@ -378,13 +374,12 @@ test('Should create nested middlewares with mutation', async () => {
     state: 'invalid' as 'valid' | 'invalid' | null,
   };
 
-  const { resolver } = createServer({
+  const { resolver } = ptsq({
     ctx: () => contextBuilderResult,
   }).create();
 
   const dummyResolver = resolver.use(({ ctx, next }) => {
-    if (ctx.state === null)
-      throw new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 });
+    if (ctx.state === null) throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({
       ctx: {
@@ -394,8 +389,7 @@ test('Should create nested middlewares with mutation', async () => {
   });
 
   const validResolver = dummyResolver.use(({ ctx, next }) => {
-    if (ctx.state === 'invalid')
-      throw new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 });
+    if (ctx.state === 'invalid') throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({
       ctx: {
@@ -434,7 +428,7 @@ test('Should create nested middlewares with mutation', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    error: new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 }),
+    error: new PtsqError({ code: 'BAD_REQUEST' }),
     ok: false,
   });
 
@@ -464,7 +458,7 @@ test('Should create nested middlewares with mutation', async () => {
 });
 
 test('Should create nested middlewares with query with args chaining', async () => {
-  const { resolver } = createServer({
+  const { resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -532,7 +526,7 @@ test('Should create nested middlewares with query with args chaining', async () 
 });
 
 test('Should create nested middlewares with query and returns response recursivelly', async () => {
-  const { resolver } = createServer({
+  const { resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -611,7 +605,7 @@ test('Should create nested middlewares with query and returns response recursive
 });
 
 test('Should create nested middlewares with query and returns response recursivelly but call the router', async () => {
-  const { resolver, router } = createServer({
+  const { resolver, router } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -701,7 +695,7 @@ test('Should create standalone middleware with query', async () => {
     state: 'invalid' as 'valid' | 'invalid',
   };
 
-  const { resolver } = createServer({
+  const { resolver } = ptsq({
     ctx: () => contextBuilderResult,
   }).create();
 
@@ -710,8 +704,7 @@ test('Should create standalone middleware with query', async () => {
       state: 'valid' | 'invalid';
     };
   }>().create(({ ctx, next }) => {
-    if (ctx.state === 'invalid')
-      throw new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 });
+    if (ctx.state === 'invalid') throw new PtsqError({ code: 'BAD_REQUEST' });
 
     return next({
       ctx: {
@@ -749,7 +742,7 @@ test('Should create standalone middleware with query', async () => {
       ctx: contextBuilderResult,
     }),
   ).toStrictEqual({
-    error: new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 }),
+    error: new PtsqError({ code: 'BAD_REQUEST' }),
     ok: false,
   });
 

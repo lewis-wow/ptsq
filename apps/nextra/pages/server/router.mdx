@@ -1,3 +1,5 @@
+import { Video } from '../../components/Video';
+
 # Router
 
 Routers serve as blueprints for defining the API interface, offering a structured way to organize and manage endpoints. One notable feature of this model is the ability to nest routers within a single `Base` router, providing a hierarchical structure that reflects the logical organization of your API.
@@ -7,7 +9,7 @@ Moreover, routers can be merged seamlessly across files, allowing you to define 
 Exporting the `type` of the `Base` router is recommended as it enables clients, particularly in a monorepo project structure, to specify the server as a `devDependency`. This promotes better dependency management and version control, ensuring consistency and compatibility across different parts of your project.
 
 ```ts copy
-import { PtsqServer } from '@ptsq/server';
+import { ptsq } from '@ptsq/server';
 import express, { Request, Response } from 'express';
 import { userRouter } from './userRouter';
 
@@ -18,7 +20,7 @@ const createContext = ({ req, res }: { req: Request; res: Response }) => ({
   res,
 });
 
-const { resolver, router, serve } = PtsqServer.init({
+const { resolver, router, serve } = ptsq({
   ctx: createContext,
 }).create();
 
@@ -58,6 +60,18 @@ const result = await client.a.b.c.user.current.query();
 // auto-completion
 const userList = await client.a. /* b.c.user.userList.query() */
 ```
+
+## Merging routers
+
+```ts copy
+import { Router } from '@ptsq/server';
+import { routerA } from './routerA';
+import { routerB } from './routerB';
+
+const mergedRouter = Router.merge(routerA, routerB);
+```
+
+<Video src="/assets/router-merge.mp4" />
 
 ## Type-level only
 

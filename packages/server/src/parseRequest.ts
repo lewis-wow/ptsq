@@ -1,5 +1,5 @@
 import { JsonSchemaParser } from './jsonSchemaParser';
-import { PtsqError, PtsqErrorCode } from './ptsqError';
+import { PtsqError } from './ptsqError';
 import { requestBodySchema } from './requestBodySchema';
 
 /**
@@ -25,9 +25,9 @@ export const parseRequest = async ({ request, parser }: ParseRequestArgs) => {
 
   if (!parsedRequestBody.ok)
     throw new PtsqError({
-      code: PtsqErrorCode.BAD_REQUEST_400,
+      code: 'PARSE_FAILED',
       message: 'Parsing request body failed.',
-      info: parsedRequestBody.errors,
+      cause: parsedRequestBody.errors,
     });
 
   return parsedRequestBody.data;

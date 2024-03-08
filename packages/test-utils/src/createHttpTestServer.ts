@@ -41,7 +41,7 @@ export const createHttpTestServer = (
 
       resolve({
         fetch: (data: unknown) => axios.post(`${serverURL}/ptsq`, data),
-        introspectate: () => axios.get(`${serverURL}/ptsq/introspection`),
+        introspectate: () => axios.get(`${serverURL}/ptsq`),
         url: `${serverURL}/ptsq`,
         $disconnect: () => {
           return new Promise((disconnectResolve) => {

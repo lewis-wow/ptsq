@@ -1,11 +1,11 @@
 import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
-import { PtsqError, PtsqErrorCode } from './ptsqError';
-import { createServer } from './ptsqServerBuilder';
+import { PtsqError } from './ptsqError';
+import { ptsq } from './ptsqServerBuilder';
 import { Router } from './router';
 
 test('Should merge two routers', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -57,7 +57,7 @@ test('Should merge two routers', async () => {
 });
 
 test('Should merge two routers deeply', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -113,7 +113,7 @@ test('Should merge two routers deeply', async () => {
 });
 
 test('Should merge two routers with overwrite', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -163,7 +163,7 @@ test('Should merge two routers with overwrite', async () => {
 });
 
 test('Should not call wrong route', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -187,14 +187,14 @@ test('Should not call wrong route', async () => {
     }),
   ).rejects.toThrowError(
     new PtsqError({
-      code: PtsqErrorCode.NOT_FOUND_404,
+      code: 'NOT_FOUND',
       message: 'The route was invalid.',
     }),
   );
 });
 
 test('Should not call wrong method', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -218,7 +218,7 @@ test('Should not call wrong method', async () => {
     }),
   ).rejects.toThrowError(
     new PtsqError({
-      code: PtsqErrorCode.BAD_REQUEST_400,
+      code: 'BAD_REQUEST',
       message:
         'The route type is invalid, it should be query and it is mutation.',
     }),
@@ -226,7 +226,7 @@ test('Should not call wrong method', async () => {
 });
 
 test('Should not call if route excess correct route path', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -250,7 +250,7 @@ test('Should not call if route excess correct route path', async () => {
     }),
   ).rejects.toThrowError(
     new PtsqError({
-      code: PtsqErrorCode.NOT_FOUND_404,
+      code: 'NOT_FOUND',
       message:
         'The route continues, but should be terminated by query or mutate.',
     }),
@@ -258,7 +258,7 @@ test('Should not call if route excess correct route path', async () => {
 });
 
 test('Should not call if route not fit correct route path', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -284,7 +284,7 @@ test('Should not call if route not fit correct route path', async () => {
     }),
   ).rejects.toThrowError(
     new PtsqError({
-      code: PtsqErrorCode.NOT_FOUND_404,
+      code: 'NOT_FOUND',
       message:
         'The route was terminated by query or mutate but should continue.',
     }),
@@ -292,7 +292,7 @@ test('Should not call if route not fit correct route path', async () => {
 });
 
 test('Should merge two routers and get json schema', () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -426,7 +426,7 @@ test('Should merge two routers and get json schema', () => {
 });
 
 test('Should create server side caller with query on router', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -445,7 +445,7 @@ test('Should create server side caller with query on router', async () => {
 });
 
 test('Should create server side caller with mutation on router', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -464,7 +464,7 @@ test('Should create server side caller with mutation on router', async () => {
 });
 
 test('Should create server side caller with query on router and throw PtsqError', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -472,7 +472,7 @@ test('Should create server side caller with query on router and throw PtsqError'
     .args(Type.String())
     .output(Type.String())
     .query(({ input }) => {
-      throw new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 });
+      throw new PtsqError({ code: 'BAD_REQUEST' });
 
       return `Hello ${input}`;
     });
@@ -484,12 +484,12 @@ test('Should create server side caller with query on router and throw PtsqError'
   const caller = Router.serverSideCaller(baseRouter).create({});
 
   await expect(caller.a.query('John')).rejects.toThrowError(
-    new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 }),
+    new PtsqError({ code: 'BAD_REQUEST' }),
   );
 });
 
 test('Should create server side caller with mutation on router and throw PtsqError', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -497,7 +497,7 @@ test('Should create server side caller with mutation on router and throw PtsqErr
     .args(Type.String())
     .output(Type.String())
     .mutation(({ input }) => {
-      throw new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 });
+      throw new PtsqError({ code: 'BAD_REQUEST' });
 
       return `Hello ${input}`;
     });
@@ -509,12 +509,12 @@ test('Should create server side caller with mutation on router and throw PtsqErr
   const caller = Router.serverSideCaller(baseRouter).create({});
 
   await expect(caller.a.mutate('John')).rejects.toThrowError(
-    new PtsqError({ code: PtsqErrorCode.BAD_REQUEST_400 }),
+    new PtsqError({ code: 'BAD_REQUEST' }),
   );
 });
 
 test('Should merge two routers and create server side caller on merged router', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 
@@ -541,7 +541,7 @@ test('Should merge two routers and create server side caller on merged router', 
 });
 
 test('Should create server side caller with nested router', async () => {
-  const { router, resolver } = createServer({
+  const { router, resolver } = ptsq({
     ctx: () => ({}),
   }).create();
 

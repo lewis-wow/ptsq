@@ -1,8 +1,8 @@
 import { deletePostSchema, PostSchema } from '@/validation';
 import { prisma } from '../prisma';
-import { publicResolver } from '../resolvers/publicResolver';
+import { authedResolver } from '../resolvers/authedResolver';
 
-export const deletePost = publicResolver
+export const deletePost = authedResolver
   .args(deletePostSchema)
   .output(PostSchema)
   .mutation(({ input }) => {

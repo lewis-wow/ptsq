@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { defaultJsonSchemaParser } from './jsonSchemaParser';
 import { parseRequest } from './parseRequest';
-import { PtsqError, PtsqErrorCode } from './ptsqError';
+import { PtsqError } from './ptsqError';
 
 test('Should parse request', async () => {
   const request = new Request('http://localhost:4000/pathname', {
@@ -47,7 +47,7 @@ test('Should not parse request', async () => {
     }),
   ).rejects.toThrowError(
     new PtsqError({
-      code: PtsqErrorCode.BAD_REQUEST_400,
+      code: 'PARSE_FAILED',
       message: 'Parsing request body failed.',
     }),
   );

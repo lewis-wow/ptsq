@@ -1,9 +1,11 @@
+import { Video } from '../../components/Video';
+
 # Middlewares
 
 The Middleware function is executed prior before each route call, whether it's a query or mutation, that utilizes the resolver associated with the middleware. The next function within the middleware determines when to proceed to the next middleware in the chain. This mechanism enables you to execute custom logic, perform validation, or modify the context before the resolver is invoked, ensuring consistent behavior and enforcing any necessary preconditions across your application's routes.
 
 ```ts copy
-import { PtsqServer } from '@ptsq/server';
+import { ptsq } from '@ptsq/server';
 import express, { Request, Response } from 'express';
 import { getUserFromJWT } from './getUserFromJWT';
 import { userRouter } from './userRouter';
@@ -20,7 +22,7 @@ const createContext = async ({ req, res }: { req: Request; res: Response }) => {
   };
 };
 
-const { resolver, router } = PtsqServer.init({
+const { resolver, router } = ptsq({
   ctx: createContext,
 }).create();
 
@@ -52,6 +54,14 @@ protectedResolver.query({
 
 The `next` function only returns the passed context.
 It is only for keeping the context type up to date after e.g. `if` condition.
+
+<Video src="/assets/middleware.mp4" />
+
+## Middleware flow
+
+<div style={{ backgroundColor: 'white', padding: '1rem' }}>
+  ![Middleware flow](/assets/middleware-flow.png 'Middleware flow')
+</div>
 
 ## Run next function before return
 
@@ -135,8 +145,7 @@ If middlewares are piped, then all the middlewares run before the route call in 
 ```ts copy
 const protectedResolver = resolver.use(
   ({ ctx /* { user: User<any> | null } */, next }) => {
-    if (!ctx.user)
-      throw new PtsqError({ code: PtsqErrorCode.UNAUTHORIZED_401 });
+    if (!ctx.user) throw new PtsqError({ code: 'UNAUTHORIZED' });
 
     return next({
       ctx: {
@@ -148,8 +157,7 @@ const protectedResolver = resolver.use(
 
 const adminResolver = protectedResolver.use(
   ({ ctx /* { user: User<any> } */, next }) => {
-    if (ctx.user.role !== 'admin')
-      throw new PtsqError({ code: PtsqErrorCode.FORBIDDEN_403 });
+    if (ctx.user.role !== 'admin') throw new PtsqError({ code: 'FORBIDDEN' });
 
     return next({
       ctx: {
@@ -197,7 +205,7 @@ export const isAuthed = middelware<{
     user?: User;
   };
 }>().create(({ ctx /* { user?: User | undefined } */, next }) => {
-  if (!ctx.user) throw new PtsqError({ code: PtsqErrorCode.UNAUTHORIZED_401 });
+  if (!ctx.user) throw new PtsqError({ code: 'UNAUTHORIZED' });
 
   return next({
     user: ctx.user,
@@ -216,7 +224,7 @@ const createContext = async ({ req }: { req: Request }) => {
   };
 };
 
-export const { resolver, router, serve } = PtsqServer.init({
+export const { resolver, router, serve } = ptsq({
   ctx: createContext,
 });
 ```
@@ -252,7 +260,7 @@ You can add middleware to the resolver, which calls them when the query or mutat
 What if you want to run middleware no matter if the route is found or the resolver type (query or mutation) is correctly set?
 
 ```ts copy
-export const { resolver, router, serve } = PtsqServer.init()
+export const { resolver, router, serve } = ptsq()
   .use(async ({ next, meta }) => {
     console.log('request: ', meta);
 
@@ -268,3 +276,59 @@ export const { resolver, router, serve } = PtsqServer.init()
 The middleware that the server uses in the example will be called on every request, no matter if the route was found and the resolver type was correctly set.
 
 It is very good for logging and something like that.
+
+## Middleware examples
+
+```ts copy filename="console-error.ts"
+export const { resolver, router, serve } = ptsq()
+  .use(async ({ next }) => {
+    const response = await next();
+
+    if (process.env.NODE_ENV === 'development' && !response.ok) {
+      console.error(response.error);
+    }
+
+    console.log('response: ', response);
+
+    return response;
+  })
+  .create();
+```
+
+```ts copy filename="error-masking.ts"
+export const { resolver, router, serve } = ptsq()
+  .use(async ({ next }) => {
+    const response = await next();
+
+    if (
+      process.env.NODE_ENV === 'production' &&
+      !response.ok &&
+      response.error.code === 'INTERNAL_SERVER_ERROR'
+    ) {
+      throw new PtsqError({
+        ...response.error,
+        cause: undefined, // remove the cause property
+      });
+    }
+
+    return response;
+  })
+  .create();
+```
+
+```ts copy filename="cacheables.ts"
+export const { resolver, router, serve } = ptsq()
+  .use(async ({ next, meta }) => {
+    const response = await cache.cacheable(
+      () => next(),
+      Cacheables.key(...meta.route.split('.'), JSON.stringify(meta.input)),
+      {
+        cachePolicy: 'max-age',
+        maxAge: 5 * 1000, // 5sec
+      },
+    );
+
+    return response;
+  })
+  .create();
+```

@@ -6,10 +6,9 @@ You can integrate `ptsq` with multiple backend rest api frameworks such as Expre
 
 ```ts
 import { createServer, IncommingMessage, ServerResponse } from 'http';
-import { PtsqServer } from '@ptsq/server';
-import { Type } from '@sinclair/typebox';
+import { ptsq, Type } from '@ptsq/server';
 
-const { router, resolver, serve } = PtsqServer.init({
+const { router, resolver, serve } = ptsq({
   ctx: ({ req, res }: { req: IncommingMessage; res: ServerResponse }) => ({
     req,
     res,
@@ -35,13 +34,12 @@ export type BaseRouter = typeof baseRouter;
 ## Express
 
 ```ts copy
-import { PtsqServer } from '@ptsq/server';
-import { Type } from '@sinclair/typebox';
+import { ptsq, Type } from '@ptsq/server';
 import express, { Request, Response } from 'express';
 
 const app = express();
 
-const { router, resolver, serve } = PtsqServer.init({
+const { router, resolver, serve } = ptsq({
   ctx: ({ req, res }: { req: Request; res: Response }) => ({
     req,
     res,
@@ -67,13 +65,12 @@ export type BaseRouter = typeof baseRouter;
 ## Koa
 
 ```ts copy
-import { PtsqServer } from '@ptsq/server';
-import { Type } from '@sinclair/typebox';
+import { ptsq, Type } from '@ptsq/server';
 import Koa, { Context } from 'koa';
 
 const app = new Koa();
 
-const { router, resolver, serve } = PtsqServer.init({
+const { router, resolver, serve } = ptsq({
   ctx: ({ koa }: { koa: Context }) => ({
     koa,
   }),
@@ -110,13 +107,12 @@ export type BaseRouter = typeof baseRouter;
 ## Fastify
 
 ```ts copy
-import { PtsqServer } from '@ptsq/server';
-import { Type } from '@sinclair/typebox';
+import { ptsq, Type } from '@ptsq/server';
 import fastify, { FastifyReply, FastifyRequest } from 'fastify';
 
 const app = fastify();
 
-const { router, resolver, serve } = PtsqServer.init({
+const { router, resolver, serve } = ptsq({
   ctx: ({ req, reply }: { req: FastifyRequest; reply: FastifyReply }) => ({
     req,
     reply,
@@ -179,10 +175,9 @@ export default serve(baseRouter);
 ## Sveltekit
 
 ```ts copy
-import { PtsqServer } from '@ptsq/server';
-import { Type } from '@sinclair/typebox';
+import { ptsq, Type } from '@ptsq/server';
 
-const { router, resolver, serve } = PtsqServer.init({
+const { router, resolver, serve } = ptsq({
   ctx: () => ({}),
 }).create();
 
@@ -203,10 +198,9 @@ export { server as POST, server as GET };
 ## Bun
 
 ```ts copy
-import { PtsqServer } from '@ptsq/server';
-import { Type } from '@sinclair/typebox';
+import { ptsq, Type } from '@ptsq/server';
 
-const { router, resolver, serve } = PtsqServer.init({
+const { router, resolver, serve } = ptsq({
   ctx: () => ({}),
 }).create();
 
