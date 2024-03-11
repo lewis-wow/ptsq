@@ -1,7 +1,7 @@
 import { TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
 import { JsonSchemaParser } from './jsonSchemaParser';
-import { PtsqError } from './ptsqError';
+import { AnyPtsqErrorTemplate, PtsqError } from './ptsqError';
 import { ShallowMerge } from './types';
 import type { ResolverType, Simplify } from './types';
 
@@ -29,17 +29,30 @@ export type NextFunction<TContext extends Context> = {
 /**
  * @internal
  */
-export type MiddlewareFunction<TArgs, TContext extends Context> = (options: {
+export type MiddlewareFunction<
+  TArgs,
+  TContext extends Context,
+  TErrors extends Record<string, number>,
+> = (options: {
   input: TArgs;
   meta: MiddlewareMeta;
   ctx: TContext;
   next: NextFunction<TContext>;
+  PtsqError: (options: {
+    code: keyof TErrors;
+    message?: string;
+    cause?: unknown;
+  }) => PtsqError;
 }) => ReturnType<NextFunction<TContext>>;
 
 /**
  * @internal
  */
-export type AnyMiddlewareFunction = MiddlewareFunction<unknown, Context>;
+export type AnyMiddlewareFunction = MiddlewareFunction<
+  unknown,
+  Context,
+  Record<string, number>
+>;
 
 export type MiddlewareMeta = {
   input: unknown;
@@ -50,17 +63,23 @@ export type MiddlewareMeta = {
 /**
  * The middleware class container
  */
-export class Middleware<TArgs, TContext extends Context> {
+export class Middleware<
+  TArgs,
+  TContext extends Context,
+  TErrors extends Record<string, number>,
+> {
   _def: {
-    middlewareFunction: MiddlewareFunction<TArgs, TContext>;
+    middlewareFunction: MiddlewareFunction<TArgs, TContext, TErrors>;
     argsSchema: TSchema | undefined;
     parser: JsonSchemaParser;
+    errors: TErrors;
   };
 
   constructor(middlewareOptions: {
     argsSchema: TSchema | undefined;
-    middlewareFunction: MiddlewareFunction<TArgs, TContext>;
+    middlewareFunction: MiddlewareFunction<TArgs, TContext, TErrors>;
     parser: JsonSchemaParser;
+    errors: TErrors;
   }) {
     this._def = middlewareOptions;
   }
@@ -99,6 +118,7 @@ export class Middleware<TArgs, TContext extends Context> {
             code: 'VALIDATION_FAILED',
             message: 'Args validation error.',
             cause: parseResult.errors,
+            httpStatus: 400,
           });
 
         middlewareInput = parseResult.data;
@@ -108,6 +128,11 @@ export class Middleware<TArgs, TContext extends Context> {
         input: middlewareInput,
         meta: meta,
         ctx: ctx,
+        PtsqError: (options) =>
+          new PtsqError({
+            ...options,
+            httpStatus: middlewares[index]._def.errors[options.code],
+          }),
         next: ((options) => {
           return Middleware.recursiveCall({
             ctx: { ...ctx, ...options?.ctx },
@@ -126,6 +151,7 @@ export class Middleware<TArgs, TContext extends Context> {
           : new PtsqError({
               code: 'INTERNAL_SERVER_ERROR',
               cause: error,
+              httpStatus: 500,
             }),
       });
     }
@@ -156,7 +182,11 @@ export class Middleware<TArgs, TContext extends Context> {
   }
 }
 
-export type AnyMiddleware = Middleware<unknown, Context>;
+export type AnyMiddleware = Middleware<
+  unknown,
+  Context,
+  Record<string, number>
+>;
 
 /**
  * @internal
@@ -191,10 +221,41 @@ export type inferContextFromMiddlewareResponse<TMiddlewareResponse> =
 /**
  * @internal
  */
-class StandaloneMiddlewareBuilder<TArgs, TContext extends Context> {
-  create<TMiddlewareFunction extends MiddlewareFunction<TArgs, TContext>>(
-    middlewareFunction: TMiddlewareFunction,
+class StandaloneMiddlewareBuilder<
+  TArgs,
+  TContext extends Context,
+  TErrors extends Record<string, number>,
+> {
+  _def: {
+    errors: TErrors;
+  };
+
+  constructor(options: { errors: TErrors }) {
+    this._def = options;
+  }
+
+  canThrow<const TPtsqErrorTemplate extends AnyPtsqErrorTemplate>(
+    ptsqErrorTemplate: TPtsqErrorTemplate,
   ) {
+    return new StandaloneMiddlewareBuilder<
+      TArgs,
+      TContext,
+      Simplify<
+        TErrors & {
+          [key in TPtsqErrorTemplate['code']]: TPtsqErrorTemplate['httpStatus'];
+        }
+      >
+    >({
+      errors: {
+        ...this._def.errors,
+        [ptsqErrorTemplate.code]: ptsqErrorTemplate.httpStatus,
+      },
+    });
+  }
+
+  create<
+    TMiddlewareFunction extends MiddlewareFunction<TArgs, TContext, TErrors>,
+  >(middlewareFunction: TMiddlewareFunction) {
     return middlewareFunction;
   }
 }
@@ -203,19 +264,19 @@ class StandaloneMiddlewareBuilder<TArgs, TContext extends Context> {
  * @internal
  */
 type StandaloneMiddlewareBuilderFunction = {
-  (): StandaloneMiddlewareBuilder<unknown, Context>;
+  (): StandaloneMiddlewareBuilder<unknown, Context, {}>;
 
   <
     TMiddlewareOptions extends {
       ctx: Context;
     },
-  >(): StandaloneMiddlewareBuilder<unknown, TMiddlewareOptions['ctx']>;
+  >(): StandaloneMiddlewareBuilder<unknown, TMiddlewareOptions['ctx'], {}>;
 
   <
     TMiddlewareOptions extends {
       input: unknown;
     },
-  >(): StandaloneMiddlewareBuilder<TMiddlewareOptions['input'], Context>;
+  >(): StandaloneMiddlewareBuilder<TMiddlewareOptions['input'], Context, {}>;
 
   <
     TMiddlewareOptions extends {
@@ -224,7 +285,8 @@ type StandaloneMiddlewareBuilderFunction = {
     },
   >(): StandaloneMiddlewareBuilder<
     TMiddlewareOptions['input'],
-    TMiddlewareOptions['ctx']
+    TMiddlewareOptions['ctx'],
+    {}
   >;
 };
 
@@ -232,4 +294,4 @@ type StandaloneMiddlewareBuilderFunction = {
  * Creates standalone middleware
  */
 export const middleware: StandaloneMiddlewareBuilderFunction = () =>
-  new StandaloneMiddlewareBuilder();
+  new StandaloneMiddlewareBuilder({ errors: {} });

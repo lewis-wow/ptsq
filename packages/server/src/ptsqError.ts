@@ -4,40 +4,25 @@ import type { AnyMiddlewareResponse } from './middleware';
  * @internal
  */
 export type PtsqErrorOptions = {
-  code: PtsqErrorCode;
+  code: string;
+  httpStatus: number;
   message?: string;
   cause?: unknown;
-};
-
-export type PtsqErrorCode =
-  | keyof typeof PtsqBuildInErrorCodes
-  | PtsqCustomErrorCode;
-
-export type PtsqCustomErrorCode = {
-  ptsqCode: string;
-  httpStatus?: number;
 };
 
 /**
  * Error class for throwing http response with error message and error info
  */
 export class PtsqError extends Error {
-  code: PtsqErrorCode;
+  code: string;
   cause: unknown;
+  httpStatus: number;
 
-  constructor({ code, message, cause }: PtsqErrorOptions) {
-    if (
-      typeof code === 'object' &&
-      code.httpStatus !== undefined &&
-      code.httpStatus < 400
-    )
-      throw new Error(
-        `PtsqError httpStatus must be greater or equal than 400 as it represents HTTP error status code.`,
-      );
-
+  constructor({ code, message, cause, httpStatus }: PtsqErrorOptions) {
     super(message);
 
     this.code = code;
+    this.httpStatus = httpStatus;
     this.cause = cause;
     this.name = this.constructor.name;
 
@@ -47,7 +32,7 @@ export class PtsqError extends Error {
   toJSON() {
     return {
       name: this.name,
-      code: this.getPtsqErrorCode(),
+      code: this.code,
       message: this.message,
       cause: this.cause,
     };
@@ -59,24 +44,8 @@ export class PtsqError extends Error {
       error: this,
     };
   }
-
-  getHttpStatus(): number {
-    if (typeof this.code === 'object') return this.code.httpStatus ?? 500;
-
-    if (this.code in PtsqBuildInErrorCodes)
-      return PtsqBuildInErrorCodes[
-        this.code as keyof typeof PtsqBuildInErrorCodes
-      ];
-
-    return 500;
-  }
-
-  getPtsqErrorCode() {
-    return typeof this.code === 'object' ? this.code.ptsqCode : this.code;
-  }
-
   toResponse() {
-    return Response.json(this.toJSON(), { status: this.getHttpStatus() });
+    return Response.json(this.toJSON(), { status: this.httpStatus });
   }
 
   /**
@@ -97,6 +66,13 @@ export class PtsqError extends Error {
   static isPtsqError = (error: unknown): error is PtsqError =>
     error instanceof PtsqError;
 }
+
+export type PtsqErrorTemplate<TPtsqErrorCode extends string> = {
+  code: TPtsqErrorCode;
+  httpStatus: number;
+};
+
+export type AnyPtsqErrorTemplate = PtsqErrorTemplate<string>;
 
 /**
  * Ptsq standard error codes
