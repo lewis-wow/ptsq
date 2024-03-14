@@ -2,21 +2,23 @@ import { Type, type TIntersect, type TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
 import { defaultJsonSchemaParser, JsonSchemaParser } from './jsonSchemaParser';
 import {
+  AnyMiddlewareFunction,
   inferContextFromMiddlewareResponse,
   Middleware,
+  middleware,
+  StandaloneMiddleware,
   type AnyMiddleware,
   type MiddlewareFunction,
   type MiddlewareMeta,
 } from './middleware';
 import { Mutation } from './mutation';
+import { AnyPtsqError, PtsqError } from './ptsqError';
 import { Query } from './query';
 import {
   type ErrorMessage,
   type inferStaticInput,
   type inferStaticOutput,
   type MaybePromise,
-  type ShallowMerge,
-  type Simplify,
 } from './types';
 
 /**
@@ -28,6 +30,7 @@ export class Resolver<
   TRootContext extends Context,
   TContext extends Context,
   TDescription extends string | undefined,
+  TErrors extends AnyPtsqError[],
 > {
   _def: {
     middlewares: AnyMiddleware[];
@@ -35,6 +38,7 @@ export class Resolver<
     outputSchema: TOutputSchema;
     description: TDescription;
     parser: JsonSchemaParser;
+    errors: TErrors;
   };
 
   constructor(resolverOptions: {
@@ -43,6 +47,7 @@ export class Resolver<
     middlewares: AnyMiddleware[];
     description: TDescription;
     parser: JsonSchemaParser;
+    errors: TErrors;
   }) {
     this._def = resolverOptions;
   }
@@ -58,13 +63,35 @@ export class Resolver<
       TOutputSchema,
       TRootContext,
       TContext,
-      TNextDescription
+      TNextDescription,
+      TErrors
     >({
       argsSchema: this._def.argsSchema,
       outputSchema: this._def.outputSchema,
       middlewares: [...this._def.middlewares],
       description: description,
       parser: this._def.parser,
+      errors: this._def.errors,
+    });
+  }
+
+  canThrow<TNextPtsqErrorCode extends string>(
+    ptsqError: PtsqError<TNextPtsqErrorCode>,
+  ) {
+    return new Resolver<
+      TArgsSchema,
+      TOutputSchema,
+      TRootContext,
+      TContext,
+      TDescription,
+      [...TErrors, PtsqError<TNextPtsqErrorCode>]
+    >({
+      argsSchema: this._def.argsSchema,
+      outputSchema: this._def.outputSchema,
+      middlewares: [...this._def.middlewares],
+      description: this._def.description,
+      parser: this._def.parser,
+      errors: [...this._def.errors, ptsqError],
     });
   }
 
@@ -74,13 +101,20 @@ export class Resolver<
    * Middlewares can update a context, transform output or input, or throw an error if something is wrong
    */
   use<
-    TMiddlewareFunction extends MiddlewareFunction<
-      inferStaticInput<TArgsSchema>,
-      TContext
-    >,
+    TMiddlewareFunction extends
+      | MiddlewareFunction<inferStaticInput<TArgsSchema>, TContext, TErrors>
+      | StandaloneMiddleware<inferStaticInput<TArgsSchema>, TContext, any>,
   >(middleware: TMiddlewareFunction) {
     type NextContext = inferContextFromMiddlewareResponse<
-      Awaited<ReturnType<TMiddlewareFunction>>
+      Awaited<
+        ReturnType<
+          TMiddlewareFunction extends AnyMiddlewareFunction
+            ? TMiddlewareFunction
+            : TMiddlewareFunction extends StandaloneMiddleware<any, any, any>
+              ? TMiddlewareFunction['_def']['middlewareFunction']
+              : never
+        >
+      >
     >;
 
     return new Resolver<
@@ -88,7 +122,13 @@ export class Resolver<
       TOutputSchema,
       TRootContext,
       NextContext,
-      TDescription
+      TDescription,
+      [
+        ...TErrors,
+        ...(TMiddlewareFunction extends StandaloneMiddleware<any, any, any>
+          ? TMiddlewareFunction['_def']['errors']
+          : []),
+      ]
     >({
       argsSchema: this._def.argsSchema,
       outputSchema: this._def.outputSchema,
@@ -96,12 +136,23 @@ export class Resolver<
         ...this._def.middlewares,
         new Middleware({
           argsSchema: this._def.argsSchema,
-          middlewareFunction: middleware,
+          middlewareFunction:
+            typeof middleware === 'function'
+              ? middleware
+              : middleware._def.middlewareFunction,
           parser: this._def.parser,
+          errors: [
+            ...this._def.errors,
+            ...(typeof middleware === 'function' ? [] : middleware._def.errors),
+          ] as any,
         }),
       ] as AnyMiddleware[],
       description: this._def.description,
       parser: this._def.parser,
+      errors: [
+        ...this._def.errors,
+        ...(typeof middleware === 'function' ? [] : middleware._def.errors),
+      ] as any,
     });
   }
 
@@ -126,13 +177,15 @@ export class Resolver<
       TOutputSchema,
       TRootContext,
       TContext,
-      TDescription
+      TDescription,
+      TErrors
     >({
       argsSchema: nextArgsSchema as NextArgsSchema,
       outputSchema: this._def.outputSchema,
       middlewares: [...this._def.middlewares],
       description: this._def.description,
       parser: this._def.parser,
+      errors: this._def.errors,
     });
   }
 
@@ -159,13 +212,15 @@ export class Resolver<
       NextSchemaOutput,
       TRootContext,
       TContext,
-      TDescription
+      TDescription,
+      TErrors
     >({
       argsSchema: this._def.argsSchema,
       outputSchema: nextOutputSchema as NextSchemaOutput,
       middlewares: [...this._def.middlewares],
       description: this._def.description,
       parser: this._def.parser,
+      errors: this._def.errors,
     });
   }
 
@@ -273,96 +328,20 @@ export class Resolver<
   static createRoot<TContext extends Context>(rootResolverOptions?: {
     parser?: JsonSchemaParser;
   }) {
-    return new Resolver<undefined, undefined, TContext, TContext, undefined>({
+    return new Resolver<
+      undefined,
+      undefined,
+      TContext,
+      TContext,
+      undefined,
+      []
+    >({
       argsSchema: undefined,
       outputSchema: undefined,
       middlewares: [],
       description: undefined,
       parser: rootResolverOptions?.parser ?? defaultJsonSchemaParser,
-    });
-  }
-
-  /**
-   * Merges two resolvers into one
-   *
-   * It merges middlewares, arguments and output schemas
-   */
-  static merge<
-    TResolverA extends Resolver<any, any, any, any, string | undefined>,
-    TResolverB extends Resolver<any, any, any, any, string | undefined>,
-  >(
-    resolverA: TResolverA,
-    resolverB: inferResolverContextType<TResolverA> extends inferResolverRootContextType<TResolverB>
-      ? TResolverB
-      : ErrorMessage<`Context of resolver B have to extends context of resolver A.`>,
-  ) {
-    const _resolverB = resolverB as TResolverB;
-
-    const nextArgsSchema =
-      resolverA._def.argsSchema === undefined &&
-      _resolverB._def.argsSchema === undefined
-        ? undefined
-        : resolverA._def.argsSchema === undefined
-          ? _resolverB._def.argsSchema
-          : _resolverB._def.argsSchema === undefined
-            ? resolverA._def.argsSchema
-            : Type.Intersect([
-                resolverA._def.argsSchema,
-                _resolverB._def.argsSchema,
-              ]);
-
-    type NextArgsSchema = TResolverA['_def']['argsSchema'] extends TSchema
-      ? TResolverB['_def']['argsSchema'] extends TSchema
-        ? TIntersect<
-            [TResolverA['_def']['argsSchema'], TResolverB['_def']['argsSchema']]
-          >
-        : TResolverA['_def']['argsSchema']
-      : TResolverB['_def']['argsSchema'];
-
-    const nextOutputSchema =
-      resolverA._def.outputSchema === undefined &&
-      _resolverB._def.outputSchema === undefined
-        ? undefined
-        : resolverA._def.outputSchema === undefined
-          ? _resolverB._def.outputSchema
-          : _resolverB._def.outputSchema === undefined
-            ? resolverA._def.outputSchema
-            : Type.Intersect([
-                resolverA._def.outputSchema,
-                _resolverB._def.outputSchema,
-              ]);
-
-    type NextOutputSchema = TResolverA['_def']['outputSchema'] extends TSchema
-      ? TResolverB['_def']['outputSchema'] extends TSchema
-        ? TIntersect<
-            [
-              TResolverA['_def']['outputSchema'],
-              TResolverB['_def']['outputSchema'],
-            ]
-          >
-        : TResolverA['_def']['outputSchema']
-      : TResolverB['_def']['outputSchema'];
-
-    return new Resolver<
-      NextArgsSchema,
-      NextOutputSchema,
-      inferResolverRootContextType<TResolverA>,
-      Simplify<
-        ShallowMerge<
-          inferResolverContextType<TResolverA>,
-          inferResolverContextType<TResolverB>
-        >
-      >,
-      TResolverB['_def']['description']
-    >({
-      argsSchema: nextArgsSchema as NextArgsSchema,
-      outputSchema: nextOutputSchema as NextOutputSchema,
-      middlewares: [
-        ...resolverA._def.middlewares,
-        ..._resolverB._def.middlewares,
-      ],
-      description: _resolverB._def.description,
-      parser: resolverA._def.parser,
+      errors: [],
     });
   }
 }
@@ -394,7 +373,8 @@ export type inferResolverRootContextType<TResolver> =
     any,
     infer RootContext,
     any,
-    string | undefined
+    string | undefined,
+    AnyPtsqError[]
   >
     ? RootContext
     : never;
@@ -403,6 +383,26 @@ export type inferResolverRootContextType<TResolver> =
  * @internal
  */
 export type inferResolverContextType<TResolver> =
-  TResolver extends Resolver<any, any, any, infer Context, string | undefined>
+  TResolver extends Resolver<
+    any,
+    any,
+    any,
+    infer Context,
+    string | undefined,
+    AnyPtsqError[]
+  >
     ? Context
     : never;
+
+const m1 = middleware()
+  .canThrow(new PtsqError({ code: 'FORBIDDEN' }))
+  .create(({ error }) => {
+    throw error({ code: 'FORBIDDEN' });
+  });
+
+const resolver = Resolver.createRoot()
+  .canThrow(new PtsqError({ code: 'UNAUTHORIZED' }))
+  .use(({ error }) => {
+    throw error({ code: 'UNAUTHORIZED' });
+  })
+  .use(m1);
