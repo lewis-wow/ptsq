@@ -2,13 +2,17 @@ import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { Resolver } from './resolver';
 
-const query = Resolver.createRoot<{}>()
+const query = Resolver.createRoot<{ a: 12 }>()
   .error({ code: 'UNAUTHORIZED' })
   .use(async ({ next, response }) => {
-    const res = await next();
-
-    response.error({
+    return response.error({
       code: 'UNAUTHORIZED',
+    });
+
+    const res = await next({
+      ctx: {
+        b: 5 as const,
+      },
     });
 
     return res;

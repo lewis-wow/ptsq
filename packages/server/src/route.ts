@@ -1,6 +1,5 @@
 import { Type, type TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
-import { createSchemaRoot } from './createSchemaRoot';
 import { JsonSchemaParser } from './jsonSchemaParser';
 import { Middleware, type MiddlewareMeta } from './middleware';
 import type { AnyMiddleware } from './middleware';
@@ -83,7 +82,7 @@ export class Route<
                   this._def.description === undefined
                     ? undefined
                     : Type.Literal(this._def.description),
-              }) as TSchema,
+              }) as Record<string, TSchema>,
               { additionalProperties: false },
             ),
           ),

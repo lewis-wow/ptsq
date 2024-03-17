@@ -1,3 +1,4 @@
+import { TSchema, Type } from '@sinclair/typebox';
 import type { Context } from './context';
 import { createSchemaRoot, type SchemaRoot } from './createSchemaRoot';
 import { type AnyMiddlewareResponse, type MiddlewareMeta } from './middleware';
@@ -40,14 +41,11 @@ export class Router<TRoutes extends RouterRoutes, _TContext extends Context> {
    * Gets the json schema of the whole router recursivelly
    */
   getJsonSchema() {
-    return createSchemaRoot({
-      _def: createSchemaRoot({
-        nodeType: {
-          type: 'string',
-          enum: [this._def.nodeType],
-        },
-        routes: createSchemaRoot(
-          Object.entries(this._def.routes).reduce<Record<string, SchemaRoot>>(
+    return Type.Object({
+      _def: Type.Object({
+        nodeType: Type.Literal(this._def.nodeType),
+        routes: Type.Object(
+          Object.entries(this._def.routes).reduce<Record<string, TSchema>>(
             (acc, [key, node]) => {
               acc[key] = node.getJsonSchema();
               return acc;
