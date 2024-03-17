@@ -4,7 +4,9 @@ import { createSchemaRoot } from './createSchemaRoot';
 import { JsonSchemaParser } from './jsonSchemaParser';
 import { Middleware, type MiddlewareMeta } from './middleware';
 import type { AnyMiddleware } from './middleware';
-import { PtsqError } from './ptsqError';
+import { omitUndefinedProperties } from './omitUndefinedProperties';
+import { AnyPtsqErrorShape } from './ptsqError';
+import { AnyMiddlewareResponse, AnyPtsqResponse } from './ptsqResponse';
 import type { AnyResolveFunction } from './resolver';
 import type { ResolverType } from './types';
 
@@ -34,6 +36,7 @@ export class Route<
     middlewares: AnyMiddleware[];
     description: TDescription;
     parser: JsonSchemaParser;
+    response: AnyPtsqResponse;
   };
 
   constructor(options: {
@@ -45,6 +48,7 @@ export class Route<
     middlewares: AnyMiddleware[];
     description: TDescription;
     parser: JsonSchemaParser;
+    response: AnyPtsqResponse;
   }) {
     this._def = { ...options, nodeType: 'route' };
   }
@@ -55,30 +59,38 @@ export class Route<
    * Gets the json schema of the route for the introspection query
    */
   getJsonSchema() {
-    return createSchemaRoot({
-      _def: createSchemaRoot({
-        type: {
-          type: 'string',
-          enum: [this._def.type],
+    return Type.Strict(
+      Type.Object(
+        {
+          _def: Type.Strict(
+            Type.Object(
+              omitUndefinedProperties({
+                type: Type.Strict(Type.Literal(this._def.type)),
+                nodeType: Type.Strict(Type.Literal(this._def.nodeType)),
+                argsSchema:
+                  this._def.argsSchema === undefined
+                    ? undefined
+                    : Type.Strict(this._def.argsSchema),
+                outputSchema: Type.Strict(this._def.outputSchema),
+                errorSchema: Type.Strict(
+                  Type.Union(
+                    Object.keys(this._def.errorSchema).map((errorCode) =>
+                      Type.Literal(errorCode),
+                    ),
+                  ),
+                ),
+                description:
+                  this._def.description === undefined
+                    ? undefined
+                    : Type.Literal(this._def.description),
+              }) as TSchema,
+              { additionalProperties: false },
+            ),
+          ),
         },
-        nodeType: {
-          type: 'string',
-          enum: [this._def.nodeType],
-        },
-        argsSchema:
-          this._def.argsSchema === undefined
-            ? undefined
-            : Type.Strict(this._def.argsSchema),
-        outputSchema: Type.Strict(this._def.outputSchema),
-        description:
-          this._def.description === undefined
-            ? undefined
-            : {
-                type: 'string',
-                enum: [this._def.description],
-              },
-      }),
-    });
+        { additionalProperties: false },
+      ),
+    );
   }
 
   /**
@@ -107,6 +119,7 @@ export class Route<
               input: resolveFunctionParams.input,
               ctx: resolveFunctionParams.ctx,
               meta: resolveFunctionParams.meta,
+              response: this._def.response,
             });
 
             const parseResult = await this._def.parser.encode({
@@ -115,15 +128,13 @@ export class Route<
             });
 
             if (!parseResult.ok)
-              throw new PtsqError({
+              return this._def.response.error({
                 code: 'INTERNAL_SERVER_ERROR',
                 message: 'Output validation error',
                 cause: parseResult.errors,
               });
 
-            const response = Middleware.createSuccessResponse({
-              data: parseResult.data,
-            });
+            const response = this._def.response.data(parseResult.data);
 
             return response;
           },
@@ -137,7 +148,7 @@ export type AnyRoute = Route<
   ResolverType,
   TSchema | undefined,
   TSchema,
-  TSchema | undefined,
+  Record<string, AnyPtsqErrorShape>,
   any,
   AnyResolveFunction,
   string | undefined

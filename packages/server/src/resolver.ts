@@ -1,10 +1,9 @@
-import { TUnion, Type, type TIntersect, type TSchema } from '@sinclair/typebox';
+import { Type, type TIntersect, type TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
 import { defaultJsonSchemaParser, JsonSchemaParser } from './jsonSchemaParser';
 import {
   inferContextFromMiddlewareResponse,
   Middleware,
-  middleware,
   type AnyMiddleware,
   type MiddlewareFunction,
   type MiddlewareMeta,
@@ -16,7 +15,7 @@ import {
   PtsqError,
   PtsqErrorShape,
 } from './ptsqError';
-import { AnyMiddlewareResponse, PtsqResponseFunction } from './ptsqResponse';
+import { AnyMiddlewareResponse, PtsqResponse } from './ptsqResponse';
 import { Query } from './query';
 import {
   Simplify,
@@ -241,6 +240,7 @@ export class Resolver<
       middlewares: this._def.middlewares,
       description: this._def.description,
       parser: this._def.parser,
+      response: new PtsqResponse({ errorShema: this._def.errorSchema }),
     }) as TOutputSchema extends TSchema
       ? Mutation<
           TArgsSchema,
@@ -296,6 +296,7 @@ export class Resolver<
       middlewares: this._def.middlewares,
       description: this._def.description,
       parser: this._def.parser,
+      response: new PtsqResponse({ errorShema: this._def.errorSchema }),
     }) as TOutputSchema extends TSchema
       ? Query<
           TArgsSchema,
@@ -352,7 +353,7 @@ export type ResolveFunction<
   input: TInput;
   ctx: TContext;
   meta: MiddlewareMeta;
-  response: PtsqResponseFunction<TOutput, TError>;
+  response: PtsqResponse<TOutput, TError>;
 }) => MaybePromise<AnyMiddlewareResponse>;
 
 /**
@@ -389,24 +390,3 @@ export type inferResolverContextType<TResolver> =
   >
     ? Context
     : never;
-
-const m1 = middleware().create(({ next }) => {
-  throw next();
-});
-
-const resolver = Resolver.createRoot<{}>()
-  .error({ code: 'UNAUTHORIZED' })
-  .use(async ({ next, response }) => {
-    const res = await next();
-
-    return res;
-  })
-  .output(Type.String())
-  .error({ code: 'FORBIDDEN' })
-  .query(({ response }) => {
-    return response({
-      error: {
-        code: 'FORBIDDEN',
-      },
-    });
-  });

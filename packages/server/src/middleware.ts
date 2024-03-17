@@ -1,11 +1,11 @@
 import { TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
 import { JsonSchemaParser } from './jsonSchemaParser';
-import { AnyPtsqError, PtsqError } from './ptsqError';
+import { AnyPtsqError } from './ptsqError';
 import {
-  AnyPtsqErrorShape,
+  AnyMiddlewareResponse,
   MiddlewareResponse,
-  PtsqResponseFunction,
+  PtsqResponse,
 } from './ptsqResponse';
 import { ShallowMerge } from './types';
 import type { MaybePromise, ResolverType, Simplify } from './types';
@@ -13,7 +13,11 @@ import type { MaybePromise, ResolverType, Simplify } from './types';
 /**
  * @internal
  */
-export type NextFunction<TOutput, TError, TContext extends Context> = {
+export type NextFunction<
+  TOutput,
+  TError extends AnyPtsqError,
+  TContext extends Context,
+> = {
   (): Promise<MiddlewareResponse<TOutput, TError, TContext>>;
 
   <TNextContext extends Context | undefined = undefined>(options?: {
@@ -46,7 +50,7 @@ export type MiddlewareFunction<
   meta: MiddlewareMeta;
   ctx: TContext;
   next: NextFunction<unknown, AnyPtsqError, TContext>;
-  response: PtsqResponseFunction<TOutput, TError>;
+  response: PtsqResponse<TOutput, TError>;
 }) => MaybePromise<MiddlewareResponse<unknown, AnyPtsqError, TContext>>;
 
 /**
@@ -55,7 +59,7 @@ export type MiddlewareFunction<
 export type AnyMiddlewareFunction = MiddlewareFunction<
   unknown,
   unknown,
-  unknown,
+  AnyPtsqError,
   any
 >;
 
@@ -68,7 +72,12 @@ export type MiddlewareMeta = {
 /**
  * The middleware class container
  */
-export class Middleware<TArgs, TOutput, TError, TContext extends Context> {
+export class Middleware<
+  TArgs,
+  TOutput,
+  TError extends AnyPtsqError,
+  TContext extends Context,
+> {
   _def: {
     middlewareFunction: MiddlewareFunction<TArgs, TOutput, TError, TContext>;
     argsSchema: TSchema | undefined;
@@ -113,7 +122,7 @@ export class Middleware<TArgs, TOutput, TError, TContext extends Context> {
         });
 
         if (!parseResult.ok)
-          return Middleware.createFailureResponse({
+          return new PtsqResponse().error({
             code: 'VALIDATION_FAILED',
             message: 'Args validation error.',
             cause: parseResult.errors,
@@ -133,12 +142,13 @@ export class Middleware<TArgs, TOutput, TError, TContext extends Context> {
             index: index + 1,
             middlewares: middlewares,
           });
-        }) as NextFunction<unknown, unknown, Context>,
+        }) as NextFunction<unknown, AnyPtsqError, Context>,
+        response: new PtsqResponse(),
       });
 
       return response;
     } catch (error) {
-      return Middleware.createFailureResponse({
+      return new PtsqResponse().error({
         code: 'INTERNAL_SERVER_ERROR',
         cause: error,
       });
@@ -146,7 +156,7 @@ export class Middleware<TArgs, TOutput, TError, TContext extends Context> {
   }
 }
 
-export type AnyMiddleware = Middleware<unknown, unknown, unknown, Context>;
+export type AnyMiddleware = Middleware<unknown, unknown, AnyPtsqError, Context>;
 
 /**
  * @internal
@@ -169,7 +179,7 @@ class StandaloneMiddlewareBuilder<
     TNextMiddlewareFunction extends MiddlewareFunction<
       TArgs,
       TOutput,
-      TError,
+      AnyPtsqError,
       TContext
     >,
   >(middlewareFunction: TNextMiddlewareFunction) {

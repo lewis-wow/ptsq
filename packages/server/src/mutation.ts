@@ -2,7 +2,8 @@ import type { TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
 import { JsonSchemaParser } from './jsonSchemaParser';
 import type { AnyMiddleware } from './middleware';
-import { AnyPtsqErrorShape } from './ptsqError';
+import { AnyPtsqErrorShape, PtsqError } from './ptsqError';
+import { AnyPtsqResponse, MiddlewareResponse } from './ptsqResponse';
 import type { AnyResolveFunction } from './resolver';
 import { Route } from './route';
 import type {
@@ -37,6 +38,7 @@ export class Mutation<
     middlewares: AnyMiddleware[];
     description: TDescription;
     parser: JsonSchemaParser;
+    response: AnyPtsqResponse;
   }) {
     super({
       type: 'mutation',
@@ -55,7 +57,7 @@ export class Mutation<
       ): Promise<
         MiddlewareResponse<
           inferClientResolverOutput<TOutputSchema>,
-          inferClientResolverOutput<TErrorSchema>,
+          PtsqError<keyof TError extends string ? keyof TError : never>,
           TContext
         >
       > => {
@@ -66,7 +68,13 @@ export class Mutation<
             type: 'mutation',
             route: options.route,
           },
-        });
+        }) as Promise<
+          MiddlewareResponse<
+            inferClientResolverOutput<TOutputSchema>,
+            PtsqError<keyof TError extends string ? keyof TError : never>,
+            TContext
+          >
+        >;
       },
     };
   }
