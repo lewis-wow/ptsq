@@ -1,25 +1,39 @@
-import { Type, type TIntersect, type TSchema } from '@sinclair/typebox';
+import { TUnion, Type, type TIntersect, type TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
 import { defaultJsonSchemaParser, JsonSchemaParser } from './jsonSchemaParser';
 import {
-  AnyMiddlewareFunction,
   inferContextFromMiddlewareResponse,
   Middleware,
   middleware,
-  StandaloneMiddleware,
   type AnyMiddleware,
   type MiddlewareFunction,
   type MiddlewareMeta,
 } from './middleware';
 import { Mutation } from './mutation';
-import { AnyPtsqError, PtsqError } from './ptsqError';
+import {
+  AnyPtsqError,
+  AnyPtsqErrorShape,
+  PtsqError,
+  PtsqErrorShape,
+} from './ptsqError';
+import { AnyMiddlewareResponse, PtsqResponseFunction } from './ptsqResponse';
 import { Query } from './query';
 import {
+  Simplify,
   type ErrorMessage,
   type inferStaticInput,
   type inferStaticOutput,
   type MaybePromise,
 } from './types';
+
+export type ResolverConfig = {
+  argsSchema: TSchema | undefined;
+  outputSchema: TSchema | undefined;
+  error: PtsqError<string>;
+  rootContext: Context;
+  context: Context;
+  description: string | undefined;
+};
 
 /**
  * Resolver allows you to create queries, mutations and middlewares
@@ -27,27 +41,29 @@ import {
 export class Resolver<
   TArgsSchema extends TSchema | undefined,
   TOutputSchema extends TSchema | undefined,
+  TError extends Record<string, AnyPtsqErrorShape>,
   TRootContext extends Context,
   TContext extends Context,
   TDescription extends string | undefined,
-  TErrors extends AnyPtsqError[],
 > {
   _def: {
-    middlewares: AnyMiddleware[];
     argsSchema: TArgsSchema;
     outputSchema: TOutputSchema;
+    errorSchema: TError;
+    middlewares: AnyMiddleware[];
     description: TDescription;
     parser: JsonSchemaParser;
-    errors: TErrors;
+    errors: Record<string, AnyPtsqError>;
   };
 
   constructor(resolverOptions: {
     argsSchema: TArgsSchema;
     outputSchema: TOutputSchema;
+    errorSchema: TError;
     middlewares: AnyMiddleware[];
     description: TDescription;
     parser: JsonSchemaParser;
-    errors: TErrors;
+    errors: Record<string, AnyPtsqError>;
   }) {
     this._def = resolverOptions;
   }
@@ -61,37 +77,13 @@ export class Resolver<
     return new Resolver<
       TArgsSchema,
       TOutputSchema,
+      TError,
       TRootContext,
       TContext,
-      TNextDescription,
-      TErrors
+      TNextDescription
     >({
-      argsSchema: this._def.argsSchema,
-      outputSchema: this._def.outputSchema,
-      middlewares: [...this._def.middlewares],
-      description: description,
-      parser: this._def.parser,
-      errors: this._def.errors,
-    });
-  }
-
-  canThrow<TNextPtsqErrorCode extends string>(
-    ptsqError: PtsqError<TNextPtsqErrorCode>,
-  ) {
-    return new Resolver<
-      TArgsSchema,
-      TOutputSchema,
-      TRootContext,
-      TContext,
-      TDescription,
-      [...TErrors, PtsqError<TNextPtsqErrorCode>]
-    >({
-      argsSchema: this._def.argsSchema,
-      outputSchema: this._def.outputSchema,
-      middlewares: [...this._def.middlewares],
-      description: this._def.description,
-      parser: this._def.parser,
-      errors: [...this._def.errors, ptsqError],
+      ...this._def,
+      description,
     });
   }
 
@@ -101,58 +93,34 @@ export class Resolver<
    * Middlewares can update a context, transform output or input, or throw an error if something is wrong
    */
   use<
-    TMiddlewareFunction extends
-      | MiddlewareFunction<inferStaticInput<TArgsSchema>, TContext, TErrors>
-      | StandaloneMiddleware<inferStaticInput<TArgsSchema>, TContext, any>,
+    TMiddlewareFunction extends MiddlewareFunction<
+      inferStaticInput<TArgsSchema>,
+      inferStaticOutput<TOutputSchema>,
+      PtsqError<keyof TError extends string ? keyof TError : never>,
+      TContext
+    >,
   >(middleware: TMiddlewareFunction) {
     type NextContext = inferContextFromMiddlewareResponse<
-      Awaited<
-        ReturnType<
-          TMiddlewareFunction extends AnyMiddlewareFunction
-            ? TMiddlewareFunction
-            : TMiddlewareFunction extends StandaloneMiddleware<any, any, any>
-              ? TMiddlewareFunction['_def']['middlewareFunction']
-              : never
-        >
-      >
+      Awaited<ReturnType<TMiddlewareFunction>>
     >;
 
     return new Resolver<
       TArgsSchema,
       TOutputSchema,
+      TError,
       TRootContext,
       NextContext,
-      TDescription,
-      [
-        ...TErrors,
-        ...(TMiddlewareFunction extends StandaloneMiddleware<any, any, any>
-          ? TMiddlewareFunction['_def']['errors']
-          : []),
-      ]
+      TDescription
     >({
-      argsSchema: this._def.argsSchema,
-      outputSchema: this._def.outputSchema,
+      ...this._def,
       middlewares: [
         ...this._def.middlewares,
         new Middleware({
           argsSchema: this._def.argsSchema,
-          middlewareFunction:
-            typeof middleware === 'function'
-              ? middleware
-              : middleware._def.middlewareFunction,
+          middlewareFunction: middleware,
           parser: this._def.parser,
-          errors: [
-            ...this._def.errors,
-            ...(typeof middleware === 'function' ? [] : middleware._def.errors),
-          ] as any,
         }),
       ] as AnyMiddleware[],
-      description: this._def.description,
-      parser: this._def.parser,
-      errors: [
-        ...this._def.errors,
-        ...(typeof middleware === 'function' ? [] : middleware._def.errors),
-      ] as any,
     });
   }
 
@@ -175,17 +143,34 @@ export class Resolver<
     return new Resolver<
       NextArgsSchema,
       TOutputSchema,
+      TError,
       TRootContext,
       TContext,
-      TDescription,
-      TErrors
+      TDescription
     >({
+      ...this._def,
       argsSchema: nextArgsSchema as NextArgsSchema,
-      outputSchema: this._def.outputSchema,
-      middlewares: [...this._def.middlewares],
-      description: this._def.description,
-      parser: this._def.parser,
-      errors: this._def.errors,
+    });
+  }
+
+  error<TErrorCode extends string>(ptsqError: PtsqErrorShape<TErrorCode>) {
+    type NextError = Simplify<
+      TError & Record<TErrorCode, PtsqErrorShape<TErrorCode>>
+    >;
+
+    return new Resolver<
+      TArgsSchema,
+      TOutputSchema,
+      NextError,
+      TRootContext,
+      TContext,
+      TDescription
+    >({
+      ...this._def,
+      errorSchema: {
+        ...this._def.errorSchema,
+        [ptsqError.code]: ptsqError,
+      },
     });
   }
 
@@ -210,17 +195,13 @@ export class Resolver<
     return new Resolver<
       TArgsSchema,
       NextSchemaOutput,
+      TError,
       TRootContext,
       TContext,
-      TDescription,
-      TErrors
+      TDescription
     >({
-      argsSchema: this._def.argsSchema,
+      ...this._def,
       outputSchema: nextOutputSchema as NextSchemaOutput,
-      middlewares: [...this._def.middlewares],
-      description: this._def.description,
-      parser: this._def.parser,
-      errors: this._def.errors,
     });
   }
 
@@ -233,16 +214,19 @@ export class Resolver<
     resolve: ResolveFunction<
       inferStaticInput<TArgsSchema>,
       inferStaticOutput<TOutputSchema>,
+      PtsqError<keyof TError extends string ? keyof TError : never>,
       TContext
     >,
   ): TOutputSchema extends TSchema
     ? Mutation<
         TArgsSchema,
         TOutputSchema,
+        TError,
         TContext,
         ResolveFunction<
           inferStaticInput<TArgsSchema>,
           inferStaticOutput<TOutputSchema>,
+          PtsqError<keyof TError extends string ? keyof TError : never>,
           TContext
         >,
         TDescription
@@ -252,6 +236,7 @@ export class Resolver<
       argsSchema: this._def.argsSchema,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       outputSchema: this._def.outputSchema!,
+      errorSchema: this._def.errorSchema,
       resolveFunction: resolve,
       middlewares: this._def.middlewares,
       description: this._def.description,
@@ -260,10 +245,12 @@ export class Resolver<
       ? Mutation<
           TArgsSchema,
           TOutputSchema,
+          TError,
           TContext,
           ResolveFunction<
             inferStaticInput<TArgsSchema>,
             inferStaticOutput<TOutputSchema>,
+            PtsqError<keyof TError extends string ? keyof TError : never>,
             TContext
           >,
           TDescription
@@ -280,17 +267,20 @@ export class Resolver<
     resolve: ResolveFunction<
       inferStaticInput<TArgsSchema>,
       inferStaticOutput<TOutputSchema>,
+      PtsqError<keyof TError extends string ? keyof TError : never>,
       TContext
     >,
   ): TOutputSchema extends TSchema
     ? Query<
         TArgsSchema,
         TOutputSchema,
+        TError,
         TContext,
         TOutputSchema extends TSchema
           ? ResolveFunction<
               inferStaticInput<TArgsSchema>,
               inferStaticOutput<TOutputSchema>,
+              PtsqError<keyof TError extends string ? keyof TError : never>,
               TContext
             >
           : never,
@@ -301,6 +291,7 @@ export class Resolver<
       argsSchema: this._def.argsSchema,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       outputSchema: this._def.outputSchema!,
+      errorSchema: this._def.errorSchema,
       resolveFunction: resolve,
       middlewares: this._def.middlewares,
       description: this._def.description,
@@ -309,11 +300,13 @@ export class Resolver<
       ? Query<
           TArgsSchema,
           TOutputSchema,
+          TError,
           TContext,
           TOutputSchema extends TSchema
             ? ResolveFunction<
                 inferStaticInput<TArgsSchema>,
                 inferStaticOutput<TOutputSchema>,
+                PtsqError<keyof TError extends string ? keyof TError : never>,
                 TContext
               >
             : never,
@@ -331,17 +324,18 @@ export class Resolver<
     return new Resolver<
       undefined,
       undefined,
+      {},
       TContext,
       TContext,
-      undefined,
-      []
+      undefined
     >({
       argsSchema: undefined,
       outputSchema: undefined,
+      errorSchema: {},
       middlewares: [],
       description: undefined,
       parser: rootResolverOptions?.parser ?? defaultJsonSchemaParser,
-      errors: [],
+      errors: {},
     });
   }
 }
@@ -352,17 +346,19 @@ export class Resolver<
 export type ResolveFunction<
   TInput,
   TOutput,
+  TError extends AnyPtsqError,
   TContext extends Context,
 > = (options: {
   input: TInput;
   ctx: TContext;
   meta: MiddlewareMeta;
-}) => MaybePromise<TOutput>;
+  response: PtsqResponseFunction<TOutput, TError>;
+}) => MaybePromise<AnyMiddlewareResponse>;
 
 /**
  * @internal
  */
-export type AnyResolveFunction = ResolveFunction<any, any, any>;
+export type AnyResolveFunction = ResolveFunction<any, any, any, any>;
 
 /**
  * @internal
@@ -371,10 +367,10 @@ export type inferResolverRootContextType<TResolver> =
   TResolver extends Resolver<
     any,
     any,
+    any,
     infer RootContext,
     any,
-    string | undefined,
-    AnyPtsqError[]
+    string | undefined
   >
     ? RootContext
     : never;
@@ -387,22 +383,30 @@ export type inferResolverContextType<TResolver> =
     any,
     any,
     any,
+    any,
     infer Context,
-    string | undefined,
-    AnyPtsqError[]
+    string | undefined
   >
     ? Context
     : never;
 
-const m1 = middleware()
-  .canThrow(new PtsqError({ code: 'FORBIDDEN' }))
-  .create(({ error }) => {
-    throw error({ code: 'FORBIDDEN' });
-  });
+const m1 = middleware().create(({ next }) => {
+  throw next();
+});
 
-const resolver = Resolver.createRoot()
-  .canThrow(new PtsqError({ code: 'UNAUTHORIZED' }))
-  .use(({ error }) => {
-    throw error({ code: 'UNAUTHORIZED' });
+const resolver = Resolver.createRoot<{}>()
+  .error({ code: 'UNAUTHORIZED' })
+  .use(async ({ next, response }) => {
+    const res = await next();
+
+    return res;
   })
-  .use(m1);
+  .output(Type.String())
+  .error({ code: 'FORBIDDEN' })
+  .query(({ response }) => {
+    return response({
+      error: {
+        code: 'FORBIDDEN',
+      },
+    });
+  });

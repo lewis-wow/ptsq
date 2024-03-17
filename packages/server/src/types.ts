@@ -64,3 +64,11 @@ export type ShallowMerge<T extends object, U extends object> = {
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type Simplify<T> = { [K in keyof T]: T[K] } & {};
+
+/**
+ * @internal
+ */
+export type OverrideConfig<
+  TConfig extends object,
+  TNextConfig extends object,
+> = Simplify<Omit<TConfig, keyof TNextConfig> & TNextConfig>;

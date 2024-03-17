@@ -3,10 +3,10 @@ import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
 import { JsonSchemaParser } from './jsonSchemaParser';
 import { Middleware, type MiddlewareMeta } from './middleware';
-import type { AnyMiddleware, AnyMiddlewareResponse } from './middleware';
+import type { AnyMiddleware } from './middleware';
 import { PtsqError } from './ptsqError';
 import type { AnyResolveFunction } from './resolver';
-import type { inferClientResolverArgs, ResolverType } from './types';
+import type { ResolverType } from './types';
 
 /**
  * @internal
@@ -19,7 +19,8 @@ export class Route<
   TType extends ResolverType,
   TArgsSchema extends TSchema | undefined,
   TOutputSchema extends TSchema,
-  TContext extends Context,
+  TError extends Record<string, AnyPtsqErrorShape>,
+  _TContext extends Context,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
 > {
@@ -27,6 +28,7 @@ export class Route<
     type: TType;
     argsSchema: TArgsSchema;
     outputSchema: TOutputSchema;
+    errorSchema: TError;
     resolveFunction: TResolveFunction;
     nodeType: 'route';
     middlewares: AnyMiddleware[];
@@ -38,6 +40,7 @@ export class Route<
     type: TType;
     argsSchema: TArgsSchema;
     outputSchema: TOutputSchema;
+    errorSchema: TError;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     description: TDescription;
@@ -128,24 +131,13 @@ export class Route<
       ],
     });
   }
-
-  /**
-   * Calls the route resolve function without calling any middleware or validation connected to this route
-   */
-  resolve(resolveFunctionOptions: {
-    ctx: TContext;
-    input: inferClientResolverArgs<TArgsSchema>;
-    meta: MiddlewareMeta;
-  }): ReturnType<TResolveFunction> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return this._def.resolveFunction(resolveFunctionOptions);
-  }
 }
 
 export type AnyRoute = Route<
   ResolverType,
   TSchema | undefined,
   TSchema,
+  TSchema | undefined,
   any,
   AnyResolveFunction,
   string | undefined
