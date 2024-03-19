@@ -17,10 +17,7 @@ import {
 } from './ptsqError';
 import { AnyMiddlewareResponse, PtsqResponse } from './ptsqResponse';
 import { Query } from './query';
-import { Router } from './router';
 import {
-  inferErrorCodes,
-  inferResponse,
   Simplify,
   type ErrorMessage,
   type inferStaticInput,
@@ -401,28 +398,3 @@ export type inferResolverContextType<TResolver> =
   >
     ? Context
     : never;
-
-const query = Resolver.createRoot()
-  .output(Type.Number())
-  .error({ custom: 400 })
-  .query(({ response }) => {
-    return response.data(1);
-  });
-
-const router = new Router({
-  routes: {
-    x: query,
-    y: new Router({
-      routes: {
-        z: Resolver.createRoot()
-          .output(Type.Number())
-          .error({ NNOOOOOO: 400 })
-          .mutation(({ response }) => {
-            return response.data(1);
-          }),
-      },
-    }),
-  },
-});
-
-type T = inferErrorCodes<typeof router>;

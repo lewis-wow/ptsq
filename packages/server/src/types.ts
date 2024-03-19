@@ -115,8 +115,12 @@ export type inferArgs<TRoute extends SimpleRoute> = inferArgsFromArgsSchema<
 /**
  * DESCRIPTION
  */
-export type inferDescription<TRoute extends SimpleRoute> =
-  TRoute['_def']['description'];
+export type inferDescription<TNode extends SimpleRoute | SimpleRouter> =
+  TNode extends SimpleRoute
+    ? TNode['_def']['description']
+    : TNode extends SimpleRouter
+      ? inferDescription<TNode['_def']['routes'][keyof TNode['_def']['routes']]>
+      : never;
 
 /**
  * RESOLVER TYPE
@@ -127,11 +131,16 @@ export type inferResolverType<TRoute extends SimpleRoute> =
 /**
  * RESPONSE
  */
-export type inferResponse<TRoute extends SimpleRoute> = {
-  data: inferOutput<TRoute> | null;
-  error: PtsqError<
-    keyof TRoute['_def']['errorShape'] extends string
-      ? keyof TRoute['_def']['errorShape']
-      : never
-  > | null;
-};
+export type inferResponse<TNode extends SimpleRoute | SimpleRouter> =
+  TNode extends SimpleRoute
+    ? {
+        data: inferOutput<TNode> | null;
+        error: PtsqError<
+          keyof TNode['_def']['errorShape'] extends string
+            ? keyof TNode['_def']['errorShape']
+            : never
+        > | null;
+      }
+    : TNode extends SimpleRouter
+      ? inferResponse<TNode['_def']['routes'][keyof TNode['_def']['routes']]>
+      : never;
