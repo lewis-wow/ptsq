@@ -133,14 +133,19 @@ export type inferResolverType<TRoute extends SimpleRoute> =
  */
 export type inferResponse<TNode extends SimpleRoute | SimpleRouter> =
   TNode extends SimpleRoute
-    ? {
-        data: inferOutput<TNode> | null;
-        error: PtsqError<
-          keyof TNode['_def']['errorShape'] extends string
-            ? keyof TNode['_def']['errorShape']
-            : never
-        > | null;
-      }
+    ?
+        | {
+            data: inferOutput<TNode>;
+            error: null;
+          }
+        | {
+            data: null;
+            error: PtsqError<
+              keyof TNode['_def']['errorShape'] extends string
+                ? keyof TNode['_def']['errorShape']
+                : never
+            >;
+          }
     : TNode extends SimpleRouter
       ? inferResponse<TNode['_def']['routes'][keyof TNode['_def']['routes']]>
       : never;

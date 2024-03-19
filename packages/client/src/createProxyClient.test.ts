@@ -23,7 +23,7 @@ test('Should create simple http server with proxy client', async () => {
         }),
       )
       .output(Type.String())
-      .query(({ input }) => input.name),
+      .query(({ input, response }) => response.data(input.name)),
   });
 
   const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
@@ -35,6 +35,8 @@ test('Should create simple http server with proxy client', async () => {
   const response = await client.test.query({
     name: 'John',
   });
+
+  response.data ? response.data : response.error;
 
   expect(response).toBe('John');
 
