@@ -3,11 +3,7 @@ export {
   PtsqServerBuilder,
   type AnyPtsqServerBuilder,
 } from './ptsqServerBuilder';
-export {
-  PtsqError,
-  PtsqBuildInErrorCodes,
-  type PtsqCustomErrorCode,
-} from './ptsqError';
+export { type PtsqError } from './ptsqError';
 
 export { Resolver, type ResolveFunction } from './resolver';
 
@@ -16,8 +12,6 @@ export {
   middleware,
   type AnyMiddleware,
   type MiddlewareMeta,
-  type MiddlewareResponse,
-  type AnyMiddlewareResponse,
 } from './middleware';
 export { Query, type AnyQuery } from './query';
 export { Mutation, type AnyMutation } from './mutation';
@@ -30,9 +24,19 @@ export type { Context } from './context';
 export type {
   ResolverType,
   MaybePromise,
-  inferClientResolverArgs,
-  inferClientResolverOutput,
+  inferArgs,
+  inferArgsFromArgsSchema,
+  inferDescription,
+  inferError,
+  inferErrorCodes,
+  inferErrorFromErrorShape,
+  inferOutput,
+  inferOutputFromOutputSchema,
+  inferResolverType,
+  inferResponse,
   Simplify,
+  SimpleRoute,
+  SimpleRouter,
 } from './types';
 
 export { useCORS } from '@whatwg-node/server';

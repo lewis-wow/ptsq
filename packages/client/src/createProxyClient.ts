@@ -1,7 +1,8 @@
+import { SimpleRouter } from '@ptsq/server';
 import { createProxyUntypedClient } from './createProxyUntypedClient';
 import { httpFetch } from './httpFetch';
 import type { PtsqLink } from './ptsqLink';
-import type { ClientRouter, ProxyClientRouter } from './types';
+import type { ProxyClientRouter } from './types';
 import { UndefinedAction } from './undefinedAction';
 
 export type CreateProxyClientArgs = {
@@ -27,7 +28,7 @@ export type RequestOptions = { signal: AbortSignal };
  * const currentUser = await client.user.getCurrent.query();
  * ```
  */
-export const createProxyClient = <TRouter extends ClientRouter>({
+export const createProxyClient = <TRouter extends SimpleRouter>({
   url,
   links = [],
   fetch = globalThis.fetch,

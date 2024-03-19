@@ -1,8 +1,9 @@
+import { TSchema, Type } from '@sinclair/typebox';
 import type { Context } from './context';
-import { createSchemaRoot, type SchemaRoot } from './createSchemaRoot';
-import { type AnyMiddlewareResponse, type MiddlewareMeta } from './middleware';
+import { type MiddlewareMeta } from './middleware';
 import type { AnyMutation } from './mutation';
-import { PtsqError } from './ptsqError';
+import { buildInPtsqErrorShape } from './ptsqError';
+import { AnyMiddlewareResponse, PtsqResponse } from './ptsqResponse';
 import type { AnyQuery } from './query';
 import { ServerSideCallerBuilder } from './serverSideCallerBuilder';
 import type {
@@ -40,14 +41,11 @@ export class Router<TRoutes extends RouterRoutes, _TContext extends Context> {
    * Gets the json schema of the whole router recursivelly
    */
   getJsonSchema() {
-    return createSchemaRoot({
-      _def: createSchemaRoot({
-        nodeType: {
-          type: 'string',
-          enum: [this._def.nodeType],
-        },
-        routes: createSchemaRoot(
-          Object.entries(this._def.routes).reduce<Record<string, SchemaRoot>>(
+    return Type.Object({
+      _def: Type.Object({
+        nodeType: Type.Literal(this._def.nodeType),
+        routes: Type.Object(
+          Object.entries(this._def.routes).reduce<Record<string, TSchema>>(
             (acc, [key, node]) => {
               acc[key] = node.getJsonSchema();
               return acc;
@@ -74,14 +72,14 @@ export class Router<TRoutes extends RouterRoutes, _TContext extends Context> {
     const currentRoute = options.route[options.index];
 
     if (!currentRoute)
-      throw new PtsqError({
+      return new PtsqResponse({ errorShape: buildInPtsqErrorShape }).error({
         code: 'NOT_FOUND',
         message:
           'The route was terminated by query or mutate but should continue.',
       });
 
     if (!(currentRoute in this._def.routes))
-      throw new PtsqError({
+      return new PtsqResponse({ errorShape: buildInPtsqErrorShape }).error({
         code: 'NOT_FOUND',
         message: 'The route was invalid.',
       });
@@ -92,14 +90,14 @@ export class Router<TRoutes extends RouterRoutes, _TContext extends Context> {
       return nextNode.call({ ...options, index: options.index + 1 });
 
     if (options.index !== options.route.length - 1)
-      throw new PtsqError({
+      return new PtsqResponse({ errorShape: buildInPtsqErrorShape }).error({
         code: 'NOT_FOUND',
         message:
           'The route continues, but should be terminated by query or mutate.',
       });
 
     if (nextNode._def.type !== options.type)
-      throw new PtsqError({
+      return new PtsqResponse({ errorShape: buildInPtsqErrorShape }).error({
         code: 'BAD_ROUTE_TYPE',
         message: `The route type is invalid, it should be ${nextNode._def.type} and it is ${options.type}.`,
       });

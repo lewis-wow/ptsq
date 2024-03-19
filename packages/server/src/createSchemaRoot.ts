@@ -3,7 +3,9 @@
  *
  * Creates schema root for json-schema introspection
  */
-export const createSchemaRoot = (properties: object): SchemaRoot => {
+export const createSchemaRoot = (
+  properties: Record<string, unknown>,
+): SchemaRoot => {
   const schemaRoot: SchemaRoot = {
     type: 'object',
     additionalProperties: false,

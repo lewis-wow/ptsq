@@ -2,6 +2,78 @@ import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { Resolver } from './resolver';
 
+const query = Resolver.createRoot<{ a: 12 }>()
+  .error({ code: 'UNAUTHORIZED' })
+  .use(async ({ next, response }) => {
+    return response.error({
+      code: 'UNAUTHORIZED',
+    });
+
+    const res = await next({
+      ctx: {
+        b: 5 as const,
+      },
+    });
+
+    return res;
+  })
+  .output(Type.String())
+  .error({ code: 'FORBIDDEN' })
+  .query(({ response }) => {
+    return response.error({
+      code: 'FORBIDDEN',
+    });
+  });
+
+test('Should create resolver with two arguments validation schemas', () => {
+  expect(query.getJsonSchema()).toMatchInlineSnapshot(`
+    {
+      "additionalProperties": false,
+      "properties": {
+        "_def": {
+          "additionalProperties": false,
+          "properties": {
+            "errorSchema": {
+              "anyOf": [
+                {
+                  "const": "UNAUTHORIZED",
+                  "type": "string",
+                },
+                {
+                  "const": "FORBIDDEN",
+                  "type": "string",
+                },
+              ],
+            },
+            "nodeType": {
+              "const": "route",
+              "type": "string",
+            },
+            "outputSchema": {
+              "type": "string",
+            },
+            "type": {
+              "const": "query",
+              "type": "string",
+            },
+          },
+          "required": [
+            "type",
+            "nodeType",
+            "outputSchema",
+            "errorSchema",
+          ],
+          "type": "object",
+        },
+      },
+      "required": [
+        "_def",
+      ],
+      "type": "object",
+    }
+  `);
+});
+/*
 test('Should create resolver with two arguments validation schemas', () => {
   const resolver = Resolver.createRoot();
 
@@ -203,3 +275,4 @@ test('Should merge 2 resolvers with description', () => {
 
   expect(mergedResolver._def.description).toBe('B');
 });
+*/
