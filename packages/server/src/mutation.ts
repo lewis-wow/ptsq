@@ -2,13 +2,14 @@ import type { TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
 import { JsonSchemaParser } from './jsonSchemaParser';
 import type { AnyMiddleware } from './middleware';
-import { AnyPtsqErrorShape, PtsqError } from './ptsqError';
+import { PtsqErrorShape } from './ptsqError';
 import { AnyPtsqResponse, MiddlewareResponse } from './ptsqResponse';
 import type { AnyResolveFunction } from './resolver';
 import { Route } from './route';
 import type {
-  inferClientResolverArgs,
-  inferClientResolverOutput,
+  inferArgsFromArgsSchema,
+  inferErrorFromErrorShape,
+  inferOutputFromOutputSchema,
 } from './types';
 
 /**
@@ -17,7 +18,7 @@ import type {
 export class Mutation<
   TArgsSchema extends TSchema | undefined,
   TOutputSchema extends TSchema,
-  TError extends Record<string, AnyPtsqErrorShape>,
+  TErrorShape extends PtsqErrorShape,
   TContext extends Context,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
@@ -25,7 +26,7 @@ export class Mutation<
   'mutation',
   TArgsSchema,
   TOutputSchema,
-  TError,
+  TErrorShape,
   TContext,
   TResolveFunction,
   TDescription
@@ -33,7 +34,7 @@ export class Mutation<
   constructor(options: {
     argsSchema: TArgsSchema;
     outputSchema: TOutputSchema;
-    errorSchema: TError;
+    errorShape: TErrorShape;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     description: TDescription;
@@ -53,11 +54,11 @@ export class Mutation<
   createServerSideMutation(options: { ctx: any; route: string }) {
     return {
       mutate: async (
-        input: inferClientResolverArgs<TArgsSchema>,
+        input: inferArgsFromArgsSchema<TArgsSchema>,
       ): Promise<
         MiddlewareResponse<
-          inferClientResolverOutput<TOutputSchema>,
-          PtsqError<keyof TError extends string ? keyof TError : never>,
+          inferOutputFromOutputSchema<TOutputSchema>,
+          inferErrorFromErrorShape<TErrorShape>,
           TContext
         >
       > => {
@@ -70,8 +71,8 @@ export class Mutation<
           },
         }) as Promise<
           MiddlewareResponse<
-            inferClientResolverOutput<TOutputSchema>,
-            PtsqError<keyof TError extends string ? keyof TError : never>,
+            inferOutputFromOutputSchema<TOutputSchema>,
+            inferErrorFromErrorShape<TErrorShape>,
             TContext
           >
         >;

@@ -4,7 +4,7 @@ import { JsonSchemaParser } from './jsonSchemaParser';
 import { Middleware, type MiddlewareMeta } from './middleware';
 import type { AnyMiddleware } from './middleware';
 import { omitUndefinedProperties } from './omitUndefinedProperties';
-import { AnyPtsqErrorShape } from './ptsqError';
+import { PtsqErrorShape } from './ptsqError';
 import { AnyMiddlewareResponse, AnyPtsqResponse } from './ptsqResponse';
 import type { AnyResolveFunction } from './resolver';
 import type { ResolverType } from './types';
@@ -20,7 +20,7 @@ export class Route<
   TType extends ResolverType,
   TArgsSchema extends TSchema | undefined,
   TOutputSchema extends TSchema,
-  TError extends Record<string, AnyPtsqErrorShape>,
+  TErrorShape extends PtsqErrorShape,
   _TContext extends Context,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
@@ -29,7 +29,7 @@ export class Route<
     type: TType;
     argsSchema: TArgsSchema;
     outputSchema: TOutputSchema;
-    errorSchema: TError;
+    errorShape: TErrorShape;
     resolveFunction: TResolveFunction;
     nodeType: 'route';
     middlewares: AnyMiddleware[];
@@ -42,7 +42,7 @@ export class Route<
     type: TType;
     argsSchema: TArgsSchema;
     outputSchema: TOutputSchema;
-    errorSchema: TError;
+    errorShape: TErrorShape;
     resolveFunction: TResolveFunction;
     middlewares: AnyMiddleware[];
     description: TDescription;
@@ -71,9 +71,9 @@ export class Route<
                     ? undefined
                     : Type.Strict(this._def.argsSchema),
                 outputSchema: Type.Strict(this._def.outputSchema),
-                errorSchema: Type.Strict(
+                errorShape: Type.Strict(
                   Type.Union(
-                    Object.keys(this._def.errorSchema).map((errorCode) =>
+                    Object.keys(this._def.errorShape).map((errorCode) =>
                       Type.Literal(errorCode),
                     ),
                   ),
@@ -147,7 +147,7 @@ export type AnyRoute = Route<
   ResolverType,
   TSchema | undefined,
   TSchema,
-  Record<string, AnyPtsqErrorShape>,
+  PtsqErrorShape,
   any,
   AnyResolveFunction,
   string | undefined

@@ -1,10 +1,9 @@
-import type {
-  Static,
-  StaticDecode,
-  TSchema,
-  TUndefined,
-  TVoid,
+import {
+  type Static,
+  type StaticDecode,
+  type TSchema,
 } from '@sinclair/typebox';
+import { PtsqError, PtsqErrorShape } from './ptsqError';
 
 export type ResolverType = 'query' | 'mutation';
 
@@ -23,27 +22,6 @@ export type inferStaticInput<TTSchema extends TSchema | undefined> =
  */
 export type inferStaticOutput<TTSchema extends TSchema | undefined> =
   TTSchema extends TSchema ? StaticDecode<TTSchema> : undefined;
-
-/**
- * Infers the arguments type of the zod validation schema or the introspected schema
- */
-export type inferClientResolverArgs<TResolverArgs> = TResolverArgs extends
-  | undefined
-  | TUndefined
-  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  | void
-  | TVoid
-  ? // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-    undefined | void
-  : TResolverArgs extends TSchema
-    ? Static<TResolverArgs>
-    : TResolverArgs;
-
-/**
- * Infers the output type of the zod validation schema or the introspected schema
- */
-export type inferClientResolverOutput<TResolverOutput> =
-  TResolverOutput extends TSchema ? Static<TResolverOutput> : TResolverOutput;
 
 /**
  * @internal
@@ -72,3 +50,88 @@ export type OverrideConfig<
   TConfig extends object,
   TNextConfig extends object,
 > = Simplify<Omit<TConfig, keyof TNextConfig> & TNextConfig>;
+
+export type SimpleRoute = {
+  _def: {
+    nodeType: 'route';
+    type: ResolverType;
+    errorShape: PtsqErrorShape;
+    outputSchema: any;
+    argsSchema: any;
+    description: string | undefined;
+  };
+};
+
+export type SimpleRouter = {
+  _def: {
+    nodeType: 'router';
+    routes: {
+      [key: string]: SimpleRouter | SimpleRoute;
+    };
+  };
+};
+
+/**
+ * ERROR
+ */
+export type inferErrorFromErrorShape<TErrorShape extends PtsqErrorShape> =
+  PtsqError<keyof TErrorShape extends string ? keyof TErrorShape : never>;
+
+export type inferError<TRoute extends SimpleRoute> = inferErrorFromErrorShape<
+  TRoute['_def']['errorShape']
+>;
+
+export type inferErrorCodes<TNode extends SimpleRoute | SimpleRouter> =
+  TNode extends SimpleRoute
+    ? keyof TNode['_def']['errorShape']
+    : TNode extends SimpleRouter
+      ? inferErrorCodes<TNode['_def']['routes'][keyof TNode['_def']['routes']]>
+      : never;
+
+/**
+ * OUTPUT
+ */
+export type inferOutputFromOutputSchema<TOutputSchema> =
+  TOutputSchema extends TSchema ? Static<TOutputSchema> : TOutputSchema;
+
+export type inferOutput<TRoute extends SimpleRoute> =
+  inferOutputFromOutputSchema<TRoute['_def']['outputSchema']>;
+
+/**
+ * ARGS
+ */
+export type inferArgsFromArgsSchema<TArgsSchema> = TArgsSchema extends
+  | undefined
+  | void
+  ? undefined | void
+  : TArgsSchema extends TSchema
+    ? Static<TArgsSchema>
+    : TArgsSchema;
+
+export type inferArgs<TRoute extends SimpleRoute> = inferArgsFromArgsSchema<
+  TRoute['_def']['argsSchema']
+>;
+
+/**
+ * DESCRIPTION
+ */
+export type inferDescription<TRoute extends SimpleRoute> =
+  TRoute['_def']['description'];
+
+/**
+ * RESOLVER TYPE
+ */
+export type inferResolverType<TRoute extends SimpleRoute> =
+  TRoute['_def']['type'];
+
+/**
+ * RESPONSE
+ */
+export type inferResponse<TRoute extends SimpleRoute> = {
+  data: inferOutput<TRoute> | null;
+  error: PtsqError<
+    keyof TRoute['_def']['errorShape'] extends string
+      ? keyof TRoute['_def']['errorShape']
+      : never
+  > | null;
+};

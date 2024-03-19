@@ -1,5 +1,5 @@
 import { Context } from './context';
-import { AnyPtsqError, AnyPtsqErrorShape } from './ptsqError';
+import { AnyPtsqError, PtsqErrorShape } from './ptsqError';
 
 /**
  * @internal
@@ -40,10 +40,10 @@ export type PtsqResponseFunction<TOutput, TError extends AnyPtsqError> = (
 
 export class PtsqResponse<TOutput, TError extends AnyPtsqError> {
   _def: {
-    errorShema: Record<string, AnyPtsqErrorShape>;
+    errorShape: PtsqErrorShape;
   };
 
-  constructor(options: { errorShema: Record<string, AnyPtsqErrorShape> }) {
+  constructor(options: { errorShape: PtsqErrorShape }) {
     this._def = options;
   }
 
