@@ -1,0 +1,37 @@
+{
+  "name": "@ptsq/example-express-drizzle",
+  "version": "0.0.1",
+  "private": true,
+  "main": "src/server.ts",
+  "scripts": {
+    "prebuild": "prisma generate",
+    "postinstall": "prisma generate",
+    "build": "tsc --build",
+    "server": "dotenv -e .env -- ts-node --esm src/server.ts",
+    "client": "ts-node --esm src/client.ts",
+    "introspection": "introspection-cli --url='http://localhost:4000/ptsq'",
+    "introspection-raw": "introspection-cli --url='http://localhost:4000/ptsq' --lang='raw'",
+    "db:generate": "drizzle-kit generate:pg --schema ./src/drizzle/schema.ts --out=./src/drizzle/migrations",
+    "db:migrate": "bun run ./src/drizzle/migrate.ts",
+    "db:seed": "bun run ./src/drizzle/seed.ts"
+  },
+  "devDependencies": {
+    "@ptsq/introspection-cli": "*",
+    "@types/express": "^4.17.18",
+    "@types/node": "^20.7.0",
+    "@types/pg": "^8.11.4",
+    "dotenv-cli": "^7.3.0",
+    "drizzle-kit": "^0.20.14",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@ptsq/client": "*",
+    "@ptsq/server": "*",
+    "drizzle-orm": "^0.30.4",
+    "drizzle-typebox": "^0.1.1",
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "postgres": "^3.4.4"
+  }
+}
