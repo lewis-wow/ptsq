@@ -1,6 +1,6 @@
 # Query
 
-In ptsq, queries are handled via POST requests due to the potential complexity of the data being sent from the client to the server.
+In PTSQ, queries are handled via POST requests due to the potential complexity of the data being sent from the client to the server.
 
 When a query is requested from the client, the associated resolve function is called, receiving `{ input, ctx }` parameters. Here, input represents the actual input for the query, while ctx represents the context, which may vary depending on whether the resolver creating the query employs middleware.
 

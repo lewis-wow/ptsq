@@ -1,8 +1,10 @@
 import { Video } from '../../components/Video';
 
-# Middlewares
+# Middleware
 
-The Middleware function is executed prior before each route call, whether it's a query or mutation, that utilizes the resolver associated with the middleware. The next function within the middleware determines when to proceed to the next middleware in the chain. This mechanism enables you to execute custom logic, perform validation, or modify the context before the resolver is invoked, ensuring consistent behavior and enforcing any necessary preconditions across your application's routes.
+The Middleware function is executed before each route call, whether it's a query or mutation, that utilizes the resolver associated with the middleware.
+The next function within the middleware determines when to proceed to the next middleware in the chain.
+This mechanism enables you to execute custom logic, perform validation, or modify the context before the resolver is invoked, ensuring consistent behavior and enforcing any necessary preconditions across your application's routes.
 
 ```ts copy
 import { ptsq } from '@ptsq/server';
@@ -93,17 +95,15 @@ Indeed, returning the resolver result is essential not only for inferring the co
 
 The type of middleware response is
 
-```ts copy
-type MiddlewareResponse<TContext extends Context> =
+```ts
+type MiddlewareResponse =
   | {
       ok: true;
       data: unknown;
-      ctx: TContext;
     }
   | {
       ok: false;
       error: PtsqError;
-      ctx: TContext;
     };
 ```
 

@@ -40,9 +40,7 @@ const baseRouter = router({
 
 export type BaseRouter = typeof baseRouter;
 
-app.use((req, res) =>
-  serve({ router: baseRouter, ctx: { req, res } })(req, res),
-);
+app.use((req, res) => serve(baseRouter)(req, res));
 
 app.listen(4000);
 ```

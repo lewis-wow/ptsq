@@ -8,7 +8,7 @@ Moreover, routers can be merged seamlessly across files, allowing you to define 
 
 Exporting the `type` of the `Base` router is recommended as it enables clients, particularly in a monorepo project structure, to specify the server as a `devDependency`. This promotes better dependency management and version control, ensuring consistency and compatibility across different parts of your project.
 
-```ts copy
+```ts copy filename="server.ts"
 import { ptsq } from '@ptsq/server';
 import express, { Request, Response } from 'express';
 import { userRouter } from './userRouter';
@@ -24,7 +24,7 @@ const { resolver, router, serve } = ptsq({
   ctx: createContext,
 }).create();
 
-// routers can be merged as you want
+// routers can be nested as you want
 const baseRouter = router({
   a: router({
     b: router({
@@ -47,7 +47,7 @@ app.listen(4000);
 On the client side routers are objects (Proxy objects).
 If routers are nested on the server, it creates the nesting on the client side as well.
 
-```ts copy
+```ts copy filename="client.ts"
 import { createProxyClient } from '@ptsq/client';
 import { BaseRouter } from './server';
 
@@ -63,7 +63,7 @@ const userList = await client.a. /* b.c.user.userList.query() */
 
 ## Merging routers
 
-```ts copy
+```ts copy filename="server-router-merge.ts"
 import { Router } from '@ptsq/server';
 import { routerA } from './routerA';
 import { routerB } from './routerB';
@@ -77,7 +77,7 @@ const mergedRouter = Router.merge(routerA, routerB);
 
 The `BaseRouter` is a Typescript type, which means the client doesn't know anything about the server in runtime.
 
-```ts
+```ts filename="client-bad-route.ts"
 //@ts-ignore
 const result = await client.a.wrong.route.query();
 ```

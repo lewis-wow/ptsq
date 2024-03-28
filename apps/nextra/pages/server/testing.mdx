@@ -1,10 +1,10 @@
 # Testing
 
-Creating a server-side caller for your ptsq application can provide you with a type-safe server client that doesn't perform any HTTP requests. This client allows you to simulate interactions with your backend API programmatically, enabling thorough testing of your application's logic and behavior without the need to set up a separate HTTP server.
+Creating a server-side caller for your PTSQ application can provide you with a type-safe server client that doesn't perform any HTTP requests. This client allows you to simulate interactions with your backend API programmatically, enabling thorough testing of your application's logic and behavior without the need to set up a separate HTTP server.
 
 With this type-safe server client, you can directly invoke your resolver functions and middleware, providing input data and capturing output results for validation. By bypassing the HTTP layer, you can focus exclusively on testing your backend application's functionality in a controlled environment, ensuring that it behaves correctly under various conditions and scenarios.
 
-This approach offers a convenient and efficient way to validate the behavior of your ptsq application's backend logic, helping you identify and resolve issues early in the development process while ensuring the overall quality and reliability of your application.
+This approach offers a convenient and efficient way to validate the behavior of your PTSQ application's backend logic, helping you identify and resolve issues early in the development process while ensuring the overall quality and reliability of your application.
 
 ```ts copy filename="server.test.ts"
 const testBaseRouter = Router.createServerSideCaller(baseRouter).create({

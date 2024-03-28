@@ -1,124 +1,26 @@
 # Compilation
 
-Every argument or output schemas are compiled by TypeBox TypeCompiler.
+Each argument or output schema is compiled by the [TypeBox TypeCompiler](https://github.com/sinclairzx81/typebox?tab=readme-ov-file#typecheck-typecompiler) right before the validation process.
 
-The reason for the compilation is to create very high-performance validations.
+Compilation is conducted to facilitate highly efficient validations.
 
-The TypeBox TypeCompiler is a high-performance JIT validation compiler that transforms TypeBox types into optimized JavaScript validation routines.
+## Lazy compilation
 
-## Cold starts
+Since compilation occurs at runtime, the initial validation call may experience a slight delay compared to subsequent ones due to the compilation step.
+This delay is a natural part of the process and typically minimally impacts overall performance once the initial compilation is complete.
 
-Since compilation occurs at runtime, the initial validation call may experience a slight delay compared to subsequent ones due to the compilation step. This delay is a natural part of the process and typically minimally impacts overall performance once the initial compilation is complete.
+## Compilation cache
 
-```txt
-parsing: 0.706ms
-parsing: 0.018ms
-parsing: 0.042ms
-```
+By default, compiled schemas are not cached at all.
 
-These statistics, derived from real application data, illustrate that the initial parsing process tends to have a longer duration compared to subsequent ones. This discrepancy is attributable to the compilation step, which is automatically cached per instance of the validation schema. As a result, subsequent parsing processes benefit from faster execution times due to the cached compilation.
+There is a module `@ptsq/cached-json-schema-parser` that caches every compiled validation schema by schema instance.
 
-That means that those two schemas
+```ts copy
+import { createCachedJsonSchemaParser } from '@ptsq/cached-json-schema-parser';
 
-```ts
-const schema1 = Type.String();
-
-const schema2 = Type.String();
-```
-
-are both must be compiled, so the compilation process is twice.
-
-## Compilers sharing
-
-Sharing compilers across the entire application ensures that the same validation schema is not compiled multiple times. This optimization reduces redundancy and enhances overall performance by leveraging a centralized compilation mechanism for all relevant validation processes.
-
-```ts copy filename="compiler.ts"
-import { Compiler } from '@ptsq/server';
-
-export const compiler = new Compiler();
-```
-
-```ts copy filename="external-resolver.ts"
-import { Resolver } from '@ptsq/server';
-import { compiler } from './compiler';
-
-const externalResolver = Resolver.createRoot({
-  compiler: compiler,
-});
-```
-
-```ts copy filename="main.ts"
-import { ptsq } from '@ptsq/server';
-import { compiler } from './compiler';
-import { externalResolver } from './external-resolver';
+const { parser } = createCachedJsonSchemaParser();
 
 const { resolver, router, serve } = ptsq({
-  ctx: () => ({}),
-  compiler: compiler,
+  parser,
 }).create();
-
-// ...
 ```
-
-## Typebox vs Zod
-
-Performance comparison between Typebox and Zod validations.
-
-```ts copy filename="validation.ts"
-const personSchemaTypeBox = Type.Intersect([
-  Type.Object({
-    firstName: Type.String({ minLength: 4 }),
-    age: Type.Number({ minimum: 18 }),
-  }),
-  Type.Object({
-    lastName: Type.Optional(Type.String({ minLength: 4 })),
-  }),
-]);
-
-const personSchemaZod = z.intersection(
-  z.object({
-    firstName: z.string().min(4),
-    age: z.number().min(18),
-  }),
-  z.object({
-    lastName: z.string().min(4).optional(),
-  }),
-);
-```
-
-### Test 1
-
-```ts copy
-const data = {
-  firstName: 'John',
-  age: 22,
-};
-```
-
-```txt
-non-compiled Typebox schema check: 0.247ms
-Typebox compilation: 0.738ms
-compiled Typebox schema check: 0.024ms
-Zod schema check: 0.67ms
-```
-
-### Test 2
-
-```ts copy
-const data = {
-  firstName: 'John',
-  age: 22,
-  lastName: 'Doe', // invalid!
-};
-```
-
-```txt
-non-compiled Typebox schema check: 0.244ms
-Typebox compilation: 0.702ms
-compiled Typebox schema check: 0.025ms
-Zod schema check: 0.846ms
-```
-
-### Results
-
-From these small tests, it's evident that the Typebox compilation step nearly matches the speed of Zod validation. Crucially, this compilation occurs just once per application deployment. Subsequent validations are then expedited by cached and validated JavaScript functions. Although the schemas tested here aren't overly complex, they represent a common pattern, particularly the intersection of two schemas in ptsq. This efficiency demonstrates the effectiveness of optimizing compilation and caching mechanisms to streamline validation processes.
