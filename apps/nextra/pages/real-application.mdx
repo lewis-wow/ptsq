@@ -1,0 +1,210 @@
+# Real application
+
+PTSQ can be combined with almost any framework that creates an HTTP server. On the client, it supports any framework thanks to the ability to create a custom client.
+
+With support for many environments, the project can be deployed on serverless environments and services like [Vercel](https://vercel.com/).
+
+The TypeScript ecosystem offers many database ORMs, most of which offer mapping of database models to TypeScript types. PTSQ can be easily combined with ORMs such as [Prisma](https://www.prisma.io/), [MikroORM](https://mikro-orm.io/), or [Drizzle](https://orm.drizzle.team/). The Drizzle ORM even offers the ability to [generate Typebox schemas](https://orm.drizzle.team/docs/typebox) from a database model. This allows the generated model schemas to be used inside the PTSQ endpoint as output definitions.
+
+With defined Typebox schemas and the ability to share the schema between the server and client, libraries such as [React hook form](https://react-hook-form.com/) or [Formik](https://formik.org/) can be used on the client to define forms.
+
+SSR support inside [Tanstack query](https://tanstack.com/query/latest) libraries allows the use of prefetching data inside full-stack frameworks like [Next.js](https://nextjs.org/), [Sveltekit](https://kit.svelte.dev/) or [Nuxt](https://nuxt.com/).
+
+Invalidating queries and caching on the client allows you to create complex reactive UIs with simple data management between framework components.
+
+The ability to create a server-side request context allows the use of user login libraries like [Next-auth](https://next-auth.js.org/) or [Passport](https://www.passportjs.org/).
+
+## React hook form integration
+
+```ts copy copy filename="Form.tsx"
+import { createPostSchema, updatePostSchema } from '@/validation';
+import { typeboxResolver } from '@hookform/resolvers/typebox';
+import { Static } from '@ptsq/server';
+import { Controller, useForm } from 'react-hook-form';
+
+const { handleSubmit: handleSubmitCreatePost, control: controlCreatePost } =
+  useForm<Static<typeof createPostSchema>>({
+    resolver: typeboxResolver(createPostSchema),
+  });
+```
+
+## Query invalidation on submit
+
+```ts copy filename="Form.tsx"
+import { ptsqClient } from '@/ptsqClient';
+import { useQueryClient } from '@ptsq/react-client';
+
+const queryClient = useQueryClient();
+
+const createPostMutation = ptsqClient.post.create.useMutation({
+  onSuccess: () => {
+    queryClient.invalidateQueries({
+      queryKey: ['post'],
+    });
+  },
+});
+```
+
+## Form in React using React hook form
+
+```tsx copy filename="Form.tsx"
+<form
+  onSubmit={handleSubmitCreatePost((data) => {
+    createPostMutation.mutate(data); // type-safe!
+  })}
+>
+  <div className="flex flex-col gap-y-2">
+    <Controller
+      control={controlCreatePost}
+      name="title"
+      defaultValue={''}
+      render={({ field }) => (
+        <Input type="text" {...field} placeholder="Title" />
+      )}
+    />
+
+    <Controller
+      control={controlCreatePost}
+      name="content"
+      defaultValue={''}
+      render={({ field }) => <Textarea placeholder="Content" {...field} />}
+    />
+
+    <Button type="submit">Submit</Button>
+  </div>
+</form>
+```
+
+## Query of all posts
+
+Can be placed in any part of the application.
+It will be invalidated by the success create post process.
+
+```ts copy filename="query.ts"
+import { ptsqClient } from '@/ptsqClient';
+
+const listPostsQuery = ptsqClient.post.list.useQuery();
+```
+
+## Validations
+
+```ts copy filename="validation.ts"
+export const PostSchema = Type.Object({
+  id: Type.String(),
+  title: Type.String(),
+  content: Nullable(Type.String()),
+  published: Type.Boolean(),
+});
+
+export const createPostSchema = Type.Object({
+  title: Type.String({
+    minLength: 4,
+  }),
+  content: Type.Optional(Type.String()),
+  published: Type.Boolean(),
+});
+```
+
+## Server
+
+```ts copy filename="server.ts"
+import { createPostSchema, PostSchema } from '@/validation';
+import { prisma } from '../prisma';
+import { publicResolver } from '../resolvers/publicResolver';
+
+export const createPost = publicResolver
+  .args(createPostSchema)
+  .output(PostSchema)
+  .mutation(async ({ input }) => {
+    const post = await prisma.post.create({
+      data: input,
+    });
+
+    return post;
+  });
+```
+
+## Prisma schema
+
+```prisma copy filename="schema.prisma"
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Post {
+  id        String  @id @default(cuid())
+  title     String
+  content   String?
+}
+```
+
+## Next auth
+
+```ts copy filename="pages/api/auth/[...nextauth].ts"
+import { env } from '@/env';
+import {
+  GetServerSidePropsContext,
+  NextApiRequest,
+  NextApiResponse,
+} from 'next';
+import NextAuth, { getServerSession, NextAuthOptions } from 'next-auth';
+import GithubProvider from 'next-auth/providers/github';
+
+export const authOptions = {
+  providers: [
+    GithubProvider({
+      clientId: env.GITHUB_ID,
+      clientSecret: env.GITHUB_SECRET,
+    }),
+  ],
+} satisfies NextAuthOptions;
+
+export default NextAuth(authOptions);
+
+export const getNextAuthServerSideSession = (
+  ...args:
+    | [GetServerSidePropsContext['req'], GetServerSidePropsContext['res']]
+    | [NextApiRequest, NextApiResponse]
+    | []
+) => getServerSession(...args, authOptions);
+```
+
+## PTSQ Context
+
+```ts copy filename="context.ts"
+import { getNextAuthServerSideSession } from '@/pages/api/auth/[...nextauth]';
+import { NextApiRequest, NextApiResponse } from 'next';
+
+export const createContext = async ({
+  req,
+  res,
+}: {
+  req: NextApiRequest;
+  res: NextApiResponse;
+}) => {
+  const session = await getNextAuthServerSideSession(req, res);
+
+  return {
+    req,
+    res,
+    session,
+  };
+};
+```
+
+## PTSQ init
+
+```ts copy filename="ptsq.ts"
+import { ptsq } from '@ptsq/server';
+import { createContext } from './context.ts';
+
+export const { resolver, router, serve } = ptsq({
+  ctx: createContext,
+  root: '/api',
+}).create();
+```
