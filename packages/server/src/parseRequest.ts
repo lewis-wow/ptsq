@@ -25,7 +25,7 @@ export const parseRequest = async ({ request, parser }: ParseRequestArgs) => {
 
   if (!parsedRequestBody.ok)
     throw new PtsqError({
-      code: 'PARSE_FAILED',
+      code: 'PTSQ_BODY_PARSE_FAILED',
       message: 'Parsing request body failed.',
       cause: parsedRequestBody.errors,
     });

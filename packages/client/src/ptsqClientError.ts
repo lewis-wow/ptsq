@@ -1,10 +1,10 @@
-import type { PtsqBuildInErrorCodes, PtsqError } from '@ptsq/server';
+import type { PtsqError } from '@ptsq/server';
 
 /**
  * @internal
  */
 export type PtsqClientErrorOptions = {
-  code: keyof typeof PtsqBuildInErrorCodes | (string & {});
+  code: keyof typeof PtsqError.PtsqErrorCodes;
   message?: PtsqError['message'];
   cause?: PtsqError['cause'];
 };
@@ -13,7 +13,7 @@ export type PtsqClientErrorOptions = {
  * Client error for throwing the error that comes from server on the client side
  */
 export class PtsqClientError extends Error {
-  code: keyof typeof PtsqBuildInErrorCodes | (string & {});
+  code: keyof typeof PtsqError.PtsqErrorCodes;
   cause?: PtsqError['cause'];
 
   constructor({ code, message, cause }: PtsqClientErrorOptions) {

@@ -47,7 +47,7 @@ test('Should not parse request', async () => {
     }),
   ).rejects.toThrowError(
     new PtsqError({
-      code: 'PARSE_FAILED',
+      code: 'PTSQ_BODY_PARSE_FAILED',
       message: 'Parsing request body failed.',
     }),
   );

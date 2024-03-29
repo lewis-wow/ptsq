@@ -3,11 +3,7 @@ export {
   PtsqServerBuilder,
   type AnyPtsqServerBuilder,
 } from './ptsqServerBuilder';
-export {
-  PtsqError,
-  PtsqBuildInErrorCodes,
-  type PtsqCustomErrorCode,
-} from './ptsqError';
+export { PtsqError } from './ptsqError';
 
 export { Resolver, type ResolveFunction } from './resolver';
 

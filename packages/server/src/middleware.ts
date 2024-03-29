@@ -96,7 +96,7 @@ export class Middleware<TArgs, TContext extends Context> {
 
         if (!parseResult.ok)
           throw new PtsqError({
-            code: 'VALIDATION_FAILED',
+            code: 'PTSQ_VALIDATION_FAILED',
             message: 'Args validation error.',
             cause: parseResult.errors,
           });

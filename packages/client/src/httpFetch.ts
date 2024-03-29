@@ -1,3 +1,4 @@
+import type { PtsqError } from '@ptsq/server';
 import { PtsqClientError } from './ptsqClientError';
 import { PtsqLink, type LinkMeta } from './ptsqLink';
 
@@ -46,7 +47,7 @@ export const httpFetch = async ({
 
           return PtsqLink.createFailureResponse(
             new PtsqClientError({
-              code: json.code,
+              code: json.code as keyof typeof PtsqError.PtsqErrorCodes,
               message: json.message,
               cause: json.cause,
             }),
