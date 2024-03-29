@@ -1,19 +1,25 @@
+import { Video } from '../../components/Video';
+
 # Arguments chaining
 
-Input arguments of the resolver can be chained, enabling the creation of complex types or the determination of types prior to the execution of the resolver function. This capability is particularly useful, for instance, within middleware functions.
+Argument schemas of the resolver can be chained.
+Enabling the creation of complex types or the determination of types before the execution of the resolver function.
+This capability is particularly useful, for instance, within middleware functions.
 
-```ts
-const personWithFirstNameResolver = resolver.args(
-  Type.Object({ person: Type.Object({ firstName: Type.String() }) }),
-);
+When chaining, the schemas are intersected using the allOf JSON schema construct.
 
-const personResolver = personWithFirstNameResolver.args(
-  Type.Object({
-    person: Type.Object({ lastName: Type.String() }),
-  }),
-);
-
-const testQuery = personResolver
+```ts copy
+resolver
+  .args(
+    Type.Object({
+      person: Type.Object({ firstName: Type.String() }),
+    }),
+  )
+  .args(
+    Type.Object({
+      person: Type.Object({ lastName: Type.String() }),
+    }),
+  )
   .output(Type.String())
   .query(
     ({ input /* { person: { firstName: string; lastName: string; } } */ }) => {
@@ -22,26 +28,22 @@ const testQuery = personResolver
   );
 ```
 
-The types are merged into one. It is using the `Type.Intersection` in the background.
-
 ## Using arguments chaining with middleware
 
 Harnessing argument chaining allows for the validation of input within the middleware, ensuring that inputs are validated before the resolver begins its execution.
 
-```ts
-const personResolver = resolver.args(
-  Type.Object({ person: Type.Object({ firstName: Type.String() }) }),
-);
-
-const personWithLogResolver = personResolver.use(
-  ({ input /* { person: { firstName: string } } */, ctx, next }) => {
+```ts copy
+resolver
+  .args(
+    Type.Object({
+      person: Type.Object({ firstName: Type.String() }),
+    }),
+  )
+  .use(({ input /* { person: { firstName: string } } */, ctx, next }) => {
     console.log('Persons first name: ', input.person.firstName);
 
     return next();
-  },
-);
-
-const testQuery = personWithLogResolver
+  })
   .args(
     Type.Object({
       person: Type.Object({
@@ -65,7 +67,9 @@ Indeed, the ability to access the input safely stems from its validation through
 
 It's important to note that while future arguments in the argument chaining sequence can extend the existing validation schema, they are not obligated to do so. This flexibility ensures adaptability to evolving requirements without imposing unnecessary constraints.
 
-```ts
+<Video src="/assets/args-chaining.mp4" />
+
+```ts copy
 import { personSchema } from './validation';
 
 const loggerResolver = resolver
@@ -77,14 +81,12 @@ const loggerResolver = resolver
     }),
   )
   .use(({ input, ctx, next }) => {
-    console.log('Log the email: ', input.email);
+    console.log('Email: ', input.email);
 
-    return next(ctx);
+    return next();
   });
 
 loggerResolver.args(personSchema).query({
   // ...
 });
 ```
-
-The `personSchema` can have email validation in its definition.

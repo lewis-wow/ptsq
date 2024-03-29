@@ -1,8 +1,10 @@
+import { Video } from '../../components/Video';
+
 # React client
 
-The React client in `ptsq` serves as a lightweight wrapper around [react-query](https://tanstack.com/query/latest), a powerful library for managing data fetching and state synchronization in React applications.
+The React client in PTSQ serves as a lightweight wrapper around [react-query](https://tanstack.com/query/latest), a powerful library for managing data fetching and state synchronization in React applications.
 
-By leveraging `react-query` under the hood, the React client in `ptsq` inherits a wide range of features and benefits, including:
+By leveraging `react-query` under the hood, the React client in PTSQ inherits a wide range of features and benefits, including:
 
 1. **Data Fetching**: Utilizing `react-query`'s hooks and utilities, the React client simplifies the process of fetching data from the server and managing the resulting data states.
 
@@ -10,11 +12,13 @@ By leveraging `react-query` under the hood, the React client in `ptsq` inherits 
 
 3. **Pagination and Infinite Loading**: The React client facilitates pagination and infinite loading patterns with ease, thanks to `react-query`'s built-in support for paginated data fetching and automatic triggering of additional data fetches as needed.
 
-4. **Mutation Handling**: `react-query` simplifies handling of mutations (e.g., updates, creations, deletions) by providing hooks for performing mutations and automatically updating the local cache and UI in response to mutation results.
+4. **Mutation Handling**: `react-query` simplifies the handling of mutations (e.g., updates, creations, deletions) by providing hooks for performing mutations and automatically updating the local cache and UI in response to mutation results.
 
 5. **Error and Loading State Handling**: With `react-query`, the React client efficiently manages error and loading states, making it easy to display loading spinners, error messages, or retry options based on the current data fetching status.
 
-Overall, by leveraging `react-query`, the React client in `ptsq` offers a robust and efficient solution for managing data fetching and state synchronization in React applications, enabling developers to build powerful and responsive user interfaces with minimal effort.
+Overall, by leveraging `react-query`, the React client in PTSQ offers a robust and efficient solution for managing data fetching and state synchronization in React applications, enabling developers to build powerful and responsive user interfaces with minimal effort.
+
+<Video src="/assets/react-client.mp4" />
 
 ```ts copy filename="client.ts"
 import { createReactClient } from '@ptsq/react-client';
@@ -29,7 +33,7 @@ const client = createReactClient<BaseRouter>({
 
 ```tsx copy filename="component.tsx"
 export const App = () => {
-  const testQuery = await client.test.useQuery({
+  const testQuery = client.test.useQuery({
     name: /* string */ 'John',
   });
 
@@ -37,8 +41,8 @@ export const App = () => {
     <main>
       {testQuery.isFetching ? 'Loading...' : testQuery.data /* string */}
     </main>
-  )
-}
+  );
+};
 ```
 
 ## Mutation

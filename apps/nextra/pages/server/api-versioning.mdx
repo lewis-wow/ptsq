@@ -4,6 +4,8 @@ import { Video } from '../../components/Video';
 
 You have the flexibility to version your API just like you would with a traditional REST API.
 
+<Video src="/assets/api-versioning.mp4" />
+
 ```ts copy filename="server.ts"
 import { baseRouterV1 } from 'baseRouterV1';
 import { baseRouterV2 } from 'baseRouterV2';
@@ -27,5 +29,3 @@ client /* v1 | v2 */.v1.user
 client /* v1 | v2 */.v2.user
   .query();
 ```
-
-<Video src="/assets/api-versioning.mp4" />

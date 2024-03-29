@@ -11,6 +11,7 @@
   "validations": "Validations",
   "server": "Server",
   "client": "Client",
+  "real-application": "Real application",
   "introspection": "Introspection",
   "integration": "Integration",
   "examples": "Examples",

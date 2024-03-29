@@ -1,6 +1,6 @@
 # Introspection query
 
-The introspected schema is provided in JSON schema format, which offers a structured representation of the API's data model and operations. To streamline integration with TypeScript, the introspection-cli tool automates the conversion of this JSON schema into TypeScript interfaces. This ensures that developers can easily incorporate the API schema into their TypeScript projects, leveraging type safety and code completion features.
+The introspected schema is provided in JSON schema format, which offers a structured representation of the API's data model and operations. To streamline integration with TypeScript, the `introspection-cli` tool automates the conversion of this JSON schema into TypeScript interfaces. This ensures that developers can easily incorporate the API schema into their TypeScript projects, leveraging type safety and code completion features.
 
 For those who prefer more control or have specific requirements, the tool also offers the flexibility to use the raw output of the schema directly. By specifying the lang="raw" option in the CLI, developers can obtain the JSON schema without any additional transformations. Alternatively, developers can choose to fetch the schema themselves and process it according to their needs.
 
@@ -20,4 +20,26 @@ instrospection-cli --url="http://localhost:4000/ptsq" --out="schema.generated.ts
 
 ```bash copy
 instrospection-cli --url="http://localhost:4000/ptsq" --out="schema.generated.ts" --lang="raw"
+```
+
+## In package.json
+
+Example of `package.json` in Next.js application with introspection CLI.
+
+```json copy filename="package.json"
+{
+  "name": "example",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "next dev",
+    "prebuild": "instrospection-cli --url='http://localhost:4000/ptsq' --out='schema.generated.ts'",
+    "build": "next build",
+    "start": "next start"
+  },
+  "devDependencies": {
+    "@ptsq/instrospection-cli": "latest",
+    ...
+  },
+  ...
+}
 ```

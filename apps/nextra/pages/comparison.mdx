@@ -2,13 +2,13 @@
 
 ## GraphQL
 
-GraphQL is one of the best tools for creating type-safe APIs. It offers much more than only type-safe API, but `ptsq` aims only for type-safety.
+GraphQL is one of the best tools for creating type-safe APIs. It offers much more than only type-safe API, but PTSQ aims only for type-safety.
 
-ptsq is more for smaller projects, unlike GraphQL which is for large to enormous projects, however setting ptsq to be type-safe is much easier than GraphQL where you need to know how to run other tools to create a type-safe API as well as a type-safe backend and client.
+PTSQ is more for smaller projects, unlike GraphQL which is for large to enormous projects, however setting PTSQ to be type-safe is much easier than GraphQL where you need to know how to run other tools to create a type-safe API as well as a type-safe backend and client.
 
-ptsq backend must be written in TS, GraphQL supports the possibility of creating a backend in almost any programming language.
+PTSQ backend must be written in TS, GraphQL supports the possibility of creating a backend in almost any programming language.
 
-Tools for creating type-safe backend code and for generating the GraphQL schema such as [Nexus](https://nexusjs.org/) or [Pothos](https://pothos-graphql.dev/) are very good, but they both require a `build` step in creating a schema, ptsq does not require any build step for creating a schema of the API.
+Tools for creating type-safe backend code and for generating the GraphQL schema such as [Nexus](https://nexusjs.org/) or [Pothos](https://pothos-graphql.dev/) are very good, but they both require a `build` step in creating a schema, PTSQ does not require any build step for creating a schema of the API.
 
 As you can see below, the GraphQL resolver requires to define a schema of input arguments, but the schema does not have any validation, just a type validation.
 
@@ -50,7 +50,7 @@ As you can see, we duplicated the input arguments schema in the validation Schem
 
 Another issue is that the GraphQL validation is really slow, cause it has to validate every argument against its GraphQL schema, and then validate against the validation schema.
 
-If there are many arguments, the validation step can last a long time. ptsq does not have its own schema, it has only one validation `Zod` schema, that validates the whole pool of arguments.
+If there are many arguments, the validation step can last a long time. PTSQ does not have its own schema, it has only one validation `Zod` schema, that validates the whole pool of arguments.
 
 ```ts
 import { stringArg } from 'nexus';
@@ -78,11 +78,11 @@ resolver
   });
 ```
 
-In `ptsq` you don't duplicate the input and output schemas, the open API schema for introspection is inferred from validation schemas that are defined for input and output.
+In PTSQ you don't duplicate the input and output schemas, the open API schema for introspection is inferred from validation schemas that are defined for input and output.
 
 That means both, input and output, are validated on the type level and in runtime.
 
-You don't have to set up some other tools such as Nexus or Pothos for generating a schema and writing type-safe resolvers, because ptsq offers this in the library directly.
+You don't have to set up some other tools such as Nexus or Pothos for generating a schema and writing type-safe resolvers, because PTSQ offers this in the library directly.
 
 ## tRPC
 
@@ -90,9 +90,9 @@ tRPC is also a tool for creating type-safe API, but it does not allow to create 
 
 There are plugins for creating REST API by tRPC resolvers, but the REST API router loses the type-safety.
 
-It's designed for monorepos, as you need to export/import the type definitions from/to your server. The ptsq thanks to schema introspection can be easily used in multirepos.
+It's designed for monorepos, as you need to export/import the type definitions from/to your server. The PTSQ thanks to schema introspection can be easily used in multirepos.
 
-tRPC is designed for full-stack Typescript setup, which means both, server and client must be written in Typescript for type safety, in ptsq only the server must be written in Typescript.
+tRPC is designed for full-stack Typescript setup, which means both, server and client must be written in Typescript for type safety, in PTSQ only the server must be written in Typescript.
 
 tRPC loses type-safety with transformers such as the `Superjson` transformer because then it does not respect serializable types.
 
@@ -125,9 +125,9 @@ publicProcedure.query(() => {
 
 On the client it tells you that the incoming type is `MyClass`, but that is not true, incoming type will be `{ x: number; y: number }`, because classes are not serializable.
 
-ptsq has another solution for this problem and that is [arguments transformations](/server/args-transformations).
+PTSQ has another solution for this problem and that is [arguments transformations](/server/args-transformations).
 
-ptsq does not allow you to use any non-serializable type for resolver input and output.
+PTSQ does not allow you to use any non-serializable type for resolver input and output.
 
 Another way that tRPC can lie to you is in complex schema chaining.
 
@@ -195,4 +195,4 @@ So as you can see, both tools, GraphQL and tRPC have some downsides to creating 
 
 GraphQL in its complexity, slow validation and code duplication and tRPC in lying types, strict project structure and no support for type-safe open API.
 
-ptsq tries to combine the best from those two tools for creating type-safe open API.
+PTSQ tries to combine the best from those two tools for creating type-safe open API.
