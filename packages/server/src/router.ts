@@ -100,7 +100,7 @@ export class Router<TRoutes extends RouterRoutes, _TContext extends Context> {
 
     if (nextNode._def.type !== options.type)
       throw new PtsqError({
-        code: 'BAD_ROUTE_TYPE',
+        code: 'PTSQ_BAD_ROUTE_TYPE',
         message: `The route type is invalid, it should be ${nextNode._def.type} and it is ${options.type}.`,
       });
 

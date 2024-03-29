@@ -323,7 +323,7 @@ test('Should create ptsq server and serve with bad body format', async () => {
     response: {
       data: {
         name: 'PtsqError',
-        code: 'PARSE_FAILED',
+        code: 'PTSQ_BODY_PARSE_FAILED',
         message: 'Parsing request body failed.',
       },
     },
@@ -337,7 +337,7 @@ test('Should create ptsq server and serve with bad body format', async () => {
     response: {
       data: {
         name: 'PtsqError',
-        code: 'PARSE_FAILED',
+        code: 'PTSQ_BODY_PARSE_FAILED',
         message: 'Parsing request body failed.',
       },
     },
@@ -351,7 +351,7 @@ test('Should create ptsq server and serve with bad body format', async () => {
     response: {
       data: {
         name: 'PtsqError',
-        code: 'PARSE_FAILED',
+        code: 'PTSQ_BODY_PARSE_FAILED',
         message: 'Parsing request body failed.',
       },
     },
@@ -366,7 +366,7 @@ test('Should create ptsq server and serve with bad body format', async () => {
     response: {
       data: {
         name: 'PtsqError',
-        code: 'PARSE_FAILED',
+        code: 'PTSQ_BODY_PARSE_FAILED',
         message: 'Parsing request body failed.',
       },
     },

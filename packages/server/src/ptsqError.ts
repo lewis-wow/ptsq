@@ -1,40 +1,20 @@
-import type { AnyMiddlewareResponse } from './middleware';
-
 /**
  * @internal
  */
 export type PtsqErrorOptions = {
-  code: PtsqErrorCode;
+  code: keyof typeof PtsqError.PtsqErrorCodes;
   message?: string;
   cause?: unknown;
-};
-
-export type PtsqErrorCode =
-  | keyof typeof PtsqBuildInErrorCodes
-  | PtsqCustomErrorCode;
-
-export type PtsqCustomErrorCode = {
-  ptsqCode: string;
-  httpStatus?: number;
 };
 
 /**
  * Error class for throwing http response with error message and error info
  */
 export class PtsqError extends Error {
-  code: PtsqErrorCode;
+  code: keyof typeof PtsqError.PtsqErrorCodes;
   cause: unknown;
 
   constructor({ code, message, cause }: PtsqErrorOptions) {
-    if (
-      typeof code === 'object' &&
-      code.httpStatus !== undefined &&
-      code.httpStatus < 400
-    )
-      throw new Error(
-        `PtsqError httpStatus must be greater or equal than 400 as it represents HTTP error status code.`,
-      );
-
     super(message);
 
     this.code = code;
@@ -47,32 +27,14 @@ export class PtsqError extends Error {
   toJSON() {
     return {
       name: this.name,
-      code: this.getPtsqErrorCode(),
+      code: this.code,
       message: this.message,
       cause: this.cause,
     };
   }
 
-  toMiddlewareResponse(): AnyMiddlewareResponse {
-    return {
-      ok: false,
-      error: this,
-    };
-  }
-
   getHttpStatus(): number {
-    if (typeof this.code === 'object') return this.code.httpStatus ?? 500;
-
-    if (this.code in PtsqBuildInErrorCodes)
-      return PtsqBuildInErrorCodes[
-        this.code as keyof typeof PtsqBuildInErrorCodes
-      ];
-
-    return 500;
-  }
-
-  getPtsqErrorCode() {
-    return typeof this.code === 'object' ? this.code.ptsqCode : this.code;
+    return PtsqError.PtsqErrorCodes[this.code];
   }
 
   toResponse() {
@@ -96,18 +58,23 @@ export class PtsqError extends Error {
    */
   static isPtsqError = (error: unknown): error is PtsqError =>
     error instanceof PtsqError;
-}
 
-/**
- * Ptsq standard error codes
- */
-export const PtsqBuildInErrorCodes = {
-  BAD_REQUEST: 400,
-  PARSE_FAILED: 400,
-  VALIDATION_FAILED: 400,
-  BAD_ROUTE_TYPE: 400,
-  INTERNAL_SERVER_ERROR: 500,
-  UNAUTHORIZED: 401,
-  FORBIDDEN: 403,
-  NOT_FOUND: 404,
-} as const;
+  static PtsqErrorCodes = {
+    PTSQ_VALIDATION_FAILED: 400,
+    PTSQ_BODY_PARSE_FAILED: 400,
+    PTSQ_BAD_ROUTE_TYPE: 400,
+    BAD_REQUEST: 400,
+    UNAUTHORIZED: 401,
+    FORBIDDEN: 403,
+    NOT_FOUND: 404,
+    METHOD_NOT_SUPPORTED: 405,
+    TIMEOUT: 408,
+    CONFLICT: 409,
+    PRECONDITION_FAILED: 412,
+    PAYLOAD_TOO_LARGE: 413,
+    UNPROCESSABLE_CONTENT: 422,
+    TOO_MANY_REQUESTS: 429,
+    CLIENT_CLOSED_REQUEST: 499,
+    INTERNAL_SERVER_ERROR: 500,
+  } as const;
+}
