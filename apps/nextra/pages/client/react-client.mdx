@@ -16,6 +16,8 @@ By leveraging `react-query` under the hood, the React client in PTSQ inherits a 
 
 Overall, by leveraging `react-query`, the React client in PTSQ offers a robust and efficient solution for managing data fetching and state synchronization in React applications, enabling developers to build powerful and responsive user interfaces with minimal effort.
 
+<Video src="/assets/react-client.mp4" />
+
 ```ts copy filename="client.ts"
 import { createReactClient } from '@ptsq/react-client';
 import type { BaseRouter } from './server';
@@ -29,7 +31,7 @@ const client = createReactClient<BaseRouter>({
 
 ```tsx copy filename="component.tsx"
 export const App = () => {
-  const testQuery = await client.test.useQuery({
+  const testQuery = client.test.useQuery({
     name: /* string */ 'John',
   });
 
@@ -37,8 +39,8 @@ export const App = () => {
     <main>
       {testQuery.isFetching ? 'Loading...' : testQuery.data /* string */}
     </main>
-  )
-}
+  );
+};
 ```
 
 ## Mutation
