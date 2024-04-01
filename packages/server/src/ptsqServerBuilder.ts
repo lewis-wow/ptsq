@@ -99,8 +99,8 @@ export class PtsqServerBuilder<
      * Creates a fully typed router
      * routers can be merged as you want, they creates sdk-like structure
      */
-    const router = <TRoutes extends RouterRoutes>(routes: TRoutes) =>
-      new Router<TRoutes, TContext>({ routes });
+    const router = <TRoutes extends RouterRoutes<TContext>>(routes: TRoutes) =>
+      new Router<TContext, TRoutes>({ routes });
 
     /**
      * Serves the ptsq application

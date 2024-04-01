@@ -64,7 +64,7 @@ test('Should create mutation', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: 'VALIDATION_FAILED',
+      code: 'PTSQ_VALIDATION_FAILED',
       message: 'Args validation error.',
     }),
     ok: false,
@@ -287,7 +287,7 @@ test('Should create mutation with twice chain', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: 'VALIDATION_FAILED',
+      code: 'PTSQ_VALIDATION_FAILED',
       message: 'Args validation error.',
     }),
     ok: false,
@@ -304,7 +304,7 @@ test('Should create mutation with twice chain', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: 'VALIDATION_FAILED',
+      code: 'PTSQ_VALIDATION_FAILED',
       message: 'Args validation error.',
     }),
     ok: false,

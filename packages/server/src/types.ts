@@ -1,49 +1,8 @@
-import type {
-  Static,
-  StaticDecode,
-  TSchema,
-  TUndefined,
-  TVoid,
-} from '@sinclair/typebox';
-
 export type ResolverType = 'query' | 'mutation';
 
 export type NodeType = 'route' | 'router';
 
 export type MaybePromise<T> = T | Promise<T>;
-
-/**
- * @internal
- */
-export type inferStaticInput<TTSchema extends TSchema | undefined> =
-  TTSchema extends TSchema ? StaticDecode<TTSchema> : undefined;
-
-/**
- * @internal
- */
-export type inferStaticOutput<TTSchema extends TSchema | undefined> =
-  TTSchema extends TSchema ? StaticDecode<TTSchema> : undefined;
-
-/**
- * Infers the arguments type of the zod validation schema or the introspected schema
- */
-export type inferClientResolverArgs<TResolverArgs> = TResolverArgs extends
-  | undefined
-  | TUndefined
-  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  | void
-  | TVoid
-  ? // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-    undefined | void
-  : TResolverArgs extends TSchema
-    ? Static<TResolverArgs>
-    : TResolverArgs;
-
-/**
- * Infers the output type of the zod validation schema or the introspected schema
- */
-export type inferClientResolverOutput<TResolverOutput> =
-  TResolverOutput extends TSchema ? Static<TResolverOutput> : TResolverOutput;
 
 /**
  * @internal
@@ -64,3 +23,34 @@ export type ShallowMerge<T extends object, U extends object> = {
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type Simplify<T> = { [K in keyof T]: T[K] } & {};
+
+export type SimpleRoute = {
+  _def: {
+    nodeType: 'route';
+    type: ResolverType;
+    outputSchema: any;
+    argsSchema: any;
+    description: string | undefined;
+  };
+};
+
+export type SimpleRouter = {
+  _def: {
+    nodeType: 'router';
+    routes: {
+      [key: string]: SimpleRouter | SimpleRoute;
+    };
+  };
+};
+
+/**
+ * DESCRIPTION
+ */
+export type inferDescription<TRoute extends SimpleRoute> =
+  TRoute['_def']['description'];
+
+/**
+ * RESOLVER TYPE
+ */
+export type inferResolverType<TRoute extends SimpleRoute> =
+  TRoute['_def']['type'];

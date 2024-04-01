@@ -1,9 +1,10 @@
 import type { Context } from './context';
 import { createSchemaRoot, type SchemaRoot } from './createSchemaRoot';
 import { type AnyMiddlewareResponse, type MiddlewareMeta } from './middleware';
-import type { AnyMutation } from './mutation';
+import type { Mutation } from './mutation';
 import { PtsqError } from './ptsqError';
-import type { AnyQuery } from './query';
+import type { Query } from './query';
+import { AnyResolveFunction } from './resolver';
 import { ServerSideCallerBuilder } from './serverSideCallerBuilder';
 import type {
   ErrorMessage,
@@ -12,8 +13,11 @@ import type {
   Simplify,
 } from './types';
 
-export type RouterRoutes = {
-  [Key: string]: AnyQuery | AnyMutation | AnyRouter;
+export type RouterRoutes<TContext extends Context> = {
+  [Key: string]:
+    | Query<any, any, TContext, AnyResolveFunction, string | undefined>
+    | Mutation<any, any, TContext, AnyResolveFunction, string | undefined>
+    | Router<TContext, any>;
 };
 
 /**
@@ -21,7 +25,10 @@ export type RouterRoutes = {
  *
  * Creates a router that can be nested.
  */
-export class Router<TRoutes extends RouterRoutes, _TContext extends Context> {
+export class Router<
+  TContext extends Context,
+  TRoutes extends RouterRoutes<TContext>,
+> {
   _def: {
     routes: TRoutes;
     nodeType: 'router';
@@ -126,9 +133,11 @@ export class Router<TRoutes extends RouterRoutes, _TContext extends Context> {
       : ErrorMessage<`Router B cannot be merged with router A, because the context of router B does not extends context of router A.`>,
   ) {
     return new Router<
-      ShallowMerge<TRouterA['_def']['routes'], TRouterB['_def']['routes']>,
       Simplify<
         inferContextFromRouter<TRouterA> & inferContextFromRouter<TRouterB>
+      >,
+      Simplify<
+        ShallowMerge<TRouterA['_def']['routes'], TRouterB['_def']['routes']>
       >
     >({
       routes: {
@@ -139,10 +148,12 @@ export class Router<TRoutes extends RouterRoutes, _TContext extends Context> {
   }
 }
 
-export type AnyRouter = Router<RouterRoutes, any>;
+export type AnyRouter = Router<Context, RouterRoutes<Context>>;
 
 /**
  * @internal
  */
 export type inferContextFromRouter<TRouter> =
-  TRouter extends Router<RouterRoutes, infer TContext> ? TContext : never;
+  TRouter extends Router<infer TContext, RouterRoutes<Context>>
+    ? TContext
+    : never;
