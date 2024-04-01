@@ -1,0 +1,27 @@
+## Links
+
+Links are something like middleware but on the client side.
+
+The last link is the terminating link.
+
+The terminating link is responsible for sending the HTTP request and receiving the server's response.
+
+```ts copy
+import { createProxyClient } from '@ptsq/client';
+import { BaseRouter } from './server';
+
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/ptsq',
+  links: [
+    new PtsqLink(async ({ forward, meta }) => {
+      console.log('Request data: ', meta);
+
+      const response = await forward();
+
+      console.log('Response data: ', response);
+
+      return response;
+    }),
+  ],
+});
+```

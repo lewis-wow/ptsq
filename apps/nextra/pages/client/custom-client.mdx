@@ -27,7 +27,9 @@ export type Query<
     output: any;
   },
 > = {
-  query: (requestInput: TDefinition['args']) => Promise<TDefinition['output']>;
+  myQuery: (
+    requestInput: TDefinition['args'],
+  ) => Promise<TDefinition['output']>;
 };
 ```
 
@@ -41,7 +43,9 @@ export type Mutation<
     output: any;
   },
 > = {
-  mutate: (requestInput: TDefinition['args']) => Promise<TDefinition['output']>;
+  myMutate: (
+    requestInput: TDefinition['args'],
+  ) => Promise<TDefinition['output']>;
 };
 ```
 
@@ -56,15 +60,13 @@ export type Query<
     args?: any;
     output: any;
   },
-> = {
-  query: (requestInput: TDefinition['args']) => Promise<TDefinition['output']>;
-} & (TDefinition['args'] extends { pageParam: any }
+> = TDefinition['args'] extends { param: number }
   ? {
-      infiniteQuery: (
-        requestInput: Omit<TDefinition['args'], 'pageParam'>,
+      myConditionalQuery: (
+        requestInput: Omit<TDefinition['args'], 'param'>,
       ) => Promise<TDefinition['output']>;
     }
-  : {});
+  : {};
 ```
 
 ## Client type
@@ -116,45 +118,128 @@ This approach ensures that `@ptsq/server` is only required for development purpo
 
 ## Client runtime
 
-```ts copy filename="client.ts"
+This is the implementation of React client in package `@ptsq/react-client`.
+
+```ts copy filename="react-client.ts"
 import {
   createProxyUntypedClient,
   httpFetch,
+  omit,
   UndefinedAction,
   type Router as ClientRouter,
   type CreateProxyClientArgs,
 } from '@ptsq/client';
-import type { Client } from './types';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
+import { AnyPtsqUseInfiniteQueryOptions } from './ptsqUseInifniteQuery';
+import { PtsqUseMutationOptions } from './ptsqUseMutation';
+import { PtsqUseQueryOptions } from './ptsqUseQuery';
+import { PtsqUseSuspenseQueryOptions } from './ptsqUseSuspenseQuery';
+import type { ReactClientRouter } from './types';
 
-export const createCustomClient = <TRouter extends ClientRouter>(
-  options: CreateProxyClientArgs,
-): ReactClientRouter<TRouter> =>
-  createProxyUntypedClient<[any, any]>({
-    route: [],
-    fetch: ({ route, type, args }) => {
-      switch (type) {
-        case 'cachedQuery':
-          return cached({
-            queryKey: [...route],
-            fetch: (context) =>
-              httpFetch({
-                ...options,
-                body: {
-                  route: route.join('.'),
-                  type: 'query',
-                  input: args[0],
-                },
-                signal: context.signal,
-              }),
-            ...args[1],
-          });
-        default:
-          throw new UndefinedAction();
-      }
-    },
+export const createReactClient = <TRouter extends ClientRouter>({
+  url,
+  links = [],
+  fetch = globalThis.fetch,
+}: CreateProxyClientArgs): ReactClientRouter<TRouter> =>
+  createProxyUntypedClient<{
+    useQuery: [unknown, PtsqUseQueryOptions | undefined];
+    useSuspenseQuery: [unknown, PtsqUseSuspenseQueryOptions | undefined];
+    useInfiniteQuery: [object, AnyPtsqUseInfiniteQueryOptions];
+    useMutation: [PtsqUseMutationOptions | undefined];
+  }>(({ route, action, args }) => {
+    switch (action) {
+      case 'useQuery':
+        return useQuery({
+          queryKey: [...route, ...(args?.[1]?.additionalQueryKey ?? [])],
+          queryFn: (context) =>
+            httpFetch({
+              url,
+              links,
+              meta: {
+                route: route.join('.'),
+                type: 'query',
+                input: args?.[0],
+              },
+              fetch: (input, init) => {
+                return fetch(input, {
+                  ...init,
+                  signal: context.signal,
+                });
+              },
+            }),
+          ...(args?.[1] ? omit(args[1], 'additionalQueryKey') : undefined),
+        });
+      case 'useSuspenseQuery':
+        return useSuspenseQuery({
+          queryKey: [...route, ...(args?.[1]?.additionalQueryKey ?? [])],
+          queryFn: (context) =>
+            httpFetch({
+              url,
+              links,
+              meta: {
+                route: route.join('.'),
+                type: 'query',
+                input: args?.[0],
+              },
+              fetch: (input, init) => {
+                return fetch(input, {
+                  ...init,
+                  signal: context.signal,
+                });
+              },
+            }),
+          ...(args?.[1] ? omit(args[1], 'additionalQueryKey') : undefined),
+        });
+      case 'useInfiniteQuery':
+        return useInfiniteQuery({
+          queryKey: [...route, ...(args[1].additionalQueryKey ?? [])],
+          queryFn: (context) =>
+            httpFetch({
+              url,
+              links,
+              meta: {
+                route: route.join('.'),
+                type: 'query',
+                input: { ...args[0], pageParam: context.pageParam },
+              },
+              fetch: (input, init) => {
+                return fetch(input, {
+                  ...init,
+                  signal: context.signal,
+                });
+              },
+            }),
+          ...omit(args[1], 'additionalQueryKey'),
+        });
+      case 'useMutation':
+        return useMutation({
+          mutationKey: [...route, ...(args[0]?.additionalMutationKey ?? [])],
+          mutationFn: (variables: any) =>
+            httpFetch({
+              url,
+              links,
+              meta: {
+                route: route.join('.'),
+                type: 'mutation',
+                input: variables,
+              },
+              fetch: (input, init) => {
+                return fetch(input, {
+                  ...init,
+                });
+              },
+            }),
+          ...(args[0] ? omit(args[0], 'additionalMutationKey') : undefined),
+        });
+      default:
+        throw new UndefinedAction();
+    }
   }) as ReactClientRouter<TRouter>;
 ```
-
-This simple client does not allow mutations, it's not very practical, it's for simplicity.
 
 Of course, you can define as many methods as you want and create a runtime for them in the switch in `fetch` function in the `createProxyUntypedClient`.
