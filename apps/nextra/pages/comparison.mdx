@@ -46,11 +46,10 @@ queryField('user', {
 });
 ```
 
-As you can see, we duplicated the input arguments schema in the validation Schema. But GraphQL requires us to define the schema of args, so we cannot infer the GraphQL schema from the validation schema, because GraphQL schema types can be complex and must have a name, such as `type: User` that we returning from the resolver.
+As you can see, we duplicated the input arguments schema in the validation Schema.
+But GraphQL requires us to define the schema of args, so we cannot infer the GraphQL schema from the validation schema, because GraphQL schema types can be complex and must have a name, such as `type: User` that we returning from the resolver.
 
 Another issue is that the GraphQL validation is really slow, cause it has to validate every argument against its GraphQL schema, and then validate against the validation schema.
-
-If there are many arguments, the validation step can last a long time. PTSQ does not have its own schema, it has only one validation `Zod` schema, that validates the whole pool of arguments.
 
 ```ts
 import { stringArg } from 'nexus';
@@ -67,8 +66,6 @@ queryField('user', {
 });
 ```
 
-There is no output validation, which means that only types must match, but the runtime types can be different.
-
 ```ts
 resolver
   .args(Type.Object({ name: Type.String() }))
@@ -80,7 +77,7 @@ resolver
 
 In PTSQ you don't duplicate the input and output schemas, the open API schema for introspection is inferred from validation schemas that are defined for input and output.
 
-That means both, input and output, are validated on the type level and in runtime.
+Both, input and output, are validated on the type level and in runtime.
 
 You don't have to set up some other tools such as Nexus or Pothos for generating a schema and writing type-safe resolvers, because PTSQ offers this in the library directly.
 
