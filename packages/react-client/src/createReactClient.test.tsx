@@ -59,6 +59,65 @@ test('Should create simple http server with react client query', async () => {
   await $disconnect();
 });
 
+test('Should create simple http server with react client query with transformation', async () => {
+  const { resolver, router, serve } = ptsq({
+    ctx: () => ({}),
+  }).create();
+
+  const URLSchema = Type.Transform(Type.String())
+    .Decode((value) => new URL(value))
+    .Encode((value) => value.toString());
+
+  const baseRouter = router({
+    test: resolver
+      .args(
+        Type.Object({
+          url: URLSchema,
+        }),
+      )
+      .output(URLSchema)
+      .query(({ input }) => {
+        input.url.searchParams.set('test', 'test');
+
+        return input.url;
+      }),
+  });
+
+  const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
+
+  const client = createReactClient<typeof baseRouter>({
+    url,
+  });
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
+
+  const { result } = renderHook(
+    () =>
+      client.test.useQuery({
+        url: 'http://localhost:4000',
+      }),
+    { wrapper },
+  );
+
+  await waitFor(() => {
+    expect(result.current.isSuccess).toBe(true);
+
+    expect(result.current.data).toBe('http://localhost:4000/?test=test');
+  });
+
+  await $disconnect();
+});
+
 test('Should create simple http server with react client mutation', async () => {
   const { resolver, router, serve } = ptsq({
     ctx: () => ({}),

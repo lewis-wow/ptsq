@@ -41,6 +41,45 @@ test('Should create simple http server with proxy client', async () => {
   await $disconnect();
 });
 
+test('Should create simple http server with proxy client and transformation', async () => {
+  const { resolver, router, serve } = ptsq({
+    ctx: () => ({}),
+  }).create();
+
+  const URLSchema = Type.Transform(Type.String())
+    .Decode((value) => new URL(value))
+    .Encode((value) => value.toString());
+
+  const baseRouter = router({
+    test: resolver
+      .args(
+        Type.Object({
+          url: URLSchema,
+        }),
+      )
+      .output(URLSchema)
+      .query(({ input }) => {
+        input.url.searchParams.set('test', 'test');
+
+        return input.url;
+      }),
+  });
+
+  const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
+
+  const client = createProxyClient<typeof baseRouter>({
+    url,
+  });
+
+  const response = await client.test.query({
+    url: 'http://localhost:4000',
+  });
+
+  expect(response).toBe('http://localhost:4000/?test=test');
+
+  await $disconnect();
+});
+
 test('Should create simple http server with proxy client and request bad route', async () => {
   const { resolver, router, serve } = ptsq({
     ctx: () => ({}),

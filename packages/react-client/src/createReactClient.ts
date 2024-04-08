@@ -3,9 +3,9 @@ import {
   httpFetch,
   omit,
   UndefinedAction,
-  type Router as ClientRouter,
   type CreateProxyClientArgs,
 } from '@ptsq/client';
+import { IntrospectedRouter } from '@ptsq/server';
 import {
   useInfiniteQuery,
   useMutation,
@@ -30,7 +30,7 @@ import type { ReactClientRouter } from './types';
  * const currentUser = await client.user.getCurrent.useQuery();
  * ```
  */
-export const createReactClient = <TRouter extends ClientRouter>({
+export const createReactClient = <TRouter extends IntrospectedRouter>({
   url,
   links = [],
   fetch = globalThis.fetch,

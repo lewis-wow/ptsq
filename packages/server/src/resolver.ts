@@ -1,5 +1,7 @@
 import { Type, type TIntersect, type TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
+import { inferDecodedArgsFromArgsSchema } from './inferArgs';
+import { inferDecodedOutputFromArgsSchema } from './inferOutput';
 import { defaultJsonSchemaParser, JsonSchemaParser } from './jsonSchemaParser';
 import {
   inferContextFromMiddlewareResponse,
@@ -10,14 +12,7 @@ import {
 } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
-import {
-  type ErrorMessage,
-  type inferStaticInput,
-  type inferStaticOutput,
-  type MaybePromise,
-  type ShallowMerge,
-  type Simplify,
-} from './types';
+import { type ErrorMessage, type MaybePromise } from './types';
 
 /**
  * Resolver allows you to create queries, mutations and middlewares
@@ -75,7 +70,7 @@ export class Resolver<
    */
   use<
     TMiddlewareFunction extends MiddlewareFunction<
-      inferStaticInput<TArgsSchema>,
+      inferDecodedArgsFromArgsSchema<TArgsSchema>,
       TContext
     >,
   >(middleware: TMiddlewareFunction) {
@@ -176,8 +171,8 @@ export class Resolver<
    */
   mutation(
     resolve: ResolveFunction<
-      inferStaticInput<TArgsSchema>,
-      inferStaticOutput<TOutputSchema>,
+      inferDecodedArgsFromArgsSchema<TArgsSchema>,
+      inferDecodedOutputFromArgsSchema<TOutputSchema>,
       TContext
     >,
   ): TOutputSchema extends TSchema
@@ -186,8 +181,8 @@ export class Resolver<
         TOutputSchema,
         TContext,
         ResolveFunction<
-          inferStaticInput<TArgsSchema>,
-          inferStaticOutput<TOutputSchema>,
+          inferDecodedArgsFromArgsSchema<TArgsSchema>,
+          inferDecodedOutputFromArgsSchema<TOutputSchema>,
           TContext
         >,
         TDescription
@@ -207,8 +202,8 @@ export class Resolver<
           TOutputSchema,
           TContext,
           ResolveFunction<
-            inferStaticInput<TArgsSchema>,
-            inferStaticOutput<TOutputSchema>,
+            inferDecodedArgsFromArgsSchema<TArgsSchema>,
+            inferDecodedOutputFromArgsSchema<TOutputSchema>,
             TContext
           >,
           TDescription
@@ -223,8 +218,8 @@ export class Resolver<
    */
   query(
     resolve: ResolveFunction<
-      inferStaticInput<TArgsSchema>,
-      inferStaticOutput<TOutputSchema>,
+      inferDecodedArgsFromArgsSchema<TArgsSchema>,
+      inferDecodedOutputFromArgsSchema<TOutputSchema>,
       TContext
     >,
   ): TOutputSchema extends TSchema
@@ -234,8 +229,8 @@ export class Resolver<
         TContext,
         TOutputSchema extends TSchema
           ? ResolveFunction<
-              inferStaticInput<TArgsSchema>,
-              inferStaticOutput<TOutputSchema>,
+              inferDecodedArgsFromArgsSchema<TArgsSchema>,
+              inferDecodedOutputFromArgsSchema<TOutputSchema>,
               TContext
             >
           : never,
@@ -257,8 +252,8 @@ export class Resolver<
           TContext,
           TOutputSchema extends TSchema
             ? ResolveFunction<
-                inferStaticInput<TArgsSchema>,
-                inferStaticOutput<TOutputSchema>,
+                inferDecodedArgsFromArgsSchema<TArgsSchema>,
+                inferDecodedOutputFromArgsSchema<TOutputSchema>,
                 TContext
               >
             : never,
@@ -279,90 +274,6 @@ export class Resolver<
       middlewares: [],
       description: undefined,
       parser: rootResolverOptions?.parser ?? defaultJsonSchemaParser,
-    });
-  }
-
-  /**
-   * Merges two resolvers into one
-   *
-   * It merges middlewares, arguments and output schemas
-   */
-  static merge<
-    TResolverA extends Resolver<any, any, any, any, string | undefined>,
-    TResolverB extends Resolver<any, any, any, any, string | undefined>,
-  >(
-    resolverA: TResolverA,
-    resolverB: inferResolverContextType<TResolverA> extends inferResolverRootContextType<TResolverB>
-      ? TResolverB
-      : ErrorMessage<`Context of resolver B have to extends context of resolver A.`>,
-  ) {
-    const _resolverB = resolverB as TResolverB;
-
-    const nextArgsSchema =
-      resolverA._def.argsSchema === undefined &&
-      _resolverB._def.argsSchema === undefined
-        ? undefined
-        : resolverA._def.argsSchema === undefined
-          ? _resolverB._def.argsSchema
-          : _resolverB._def.argsSchema === undefined
-            ? resolverA._def.argsSchema
-            : Type.Intersect([
-                resolverA._def.argsSchema,
-                _resolverB._def.argsSchema,
-              ]);
-
-    type NextArgsSchema = TResolverA['_def']['argsSchema'] extends TSchema
-      ? TResolverB['_def']['argsSchema'] extends TSchema
-        ? TIntersect<
-            [TResolverA['_def']['argsSchema'], TResolverB['_def']['argsSchema']]
-          >
-        : TResolverA['_def']['argsSchema']
-      : TResolverB['_def']['argsSchema'];
-
-    const nextOutputSchema =
-      resolverA._def.outputSchema === undefined &&
-      _resolverB._def.outputSchema === undefined
-        ? undefined
-        : resolverA._def.outputSchema === undefined
-          ? _resolverB._def.outputSchema
-          : _resolverB._def.outputSchema === undefined
-            ? resolverA._def.outputSchema
-            : Type.Intersect([
-                resolverA._def.outputSchema,
-                _resolverB._def.outputSchema,
-              ]);
-
-    type NextOutputSchema = TResolverA['_def']['outputSchema'] extends TSchema
-      ? TResolverB['_def']['outputSchema'] extends TSchema
-        ? TIntersect<
-            [
-              TResolverA['_def']['outputSchema'],
-              TResolverB['_def']['outputSchema'],
-            ]
-          >
-        : TResolverA['_def']['outputSchema']
-      : TResolverB['_def']['outputSchema'];
-
-    return new Resolver<
-      NextArgsSchema,
-      NextOutputSchema,
-      inferResolverRootContextType<TResolverA>,
-      Simplify<
-        ShallowMerge<
-          inferResolverContextType<TResolverA>,
-          inferResolverContextType<TResolverB>
-        >
-      >,
-      TResolverB['_def']['description']
-    >({
-      argsSchema: nextArgsSchema as NextArgsSchema,
-      outputSchema: nextOutputSchema as NextOutputSchema,
-      middlewares: [
-        ...resolverA._def.middlewares,
-        ..._resolverB._def.middlewares,
-      ],
-      description: _resolverB._def.description,
-      parser: resolverA._def.parser,
     });
   }
 }

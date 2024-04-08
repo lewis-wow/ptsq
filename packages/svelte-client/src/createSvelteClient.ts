@@ -3,9 +3,9 @@ import {
   httpFetch,
   omit,
   UndefinedAction,
-  type Router as ClientRouter,
   type CreateProxyClientArgs,
 } from '@ptsq/client';
+import { IntrospectedRouter } from '@ptsq/server';
 import {
   createInfiniteQuery,
   createMutation,
@@ -28,7 +28,7 @@ import type { SvelteClientRouter } from './types';
  * const currentUser = await client.user.getCurrent.createQuery();
  * ```
  */
-export const createSvelteClient = <TRouter extends ClientRouter>({
+export const createSvelteClient = <TRouter extends IntrospectedRouter>({
   url,
   links = [],
   fetch = globalThis.fetch,

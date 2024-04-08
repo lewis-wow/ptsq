@@ -1,5 +1,5 @@
 import { Static, StaticDecode, TSchema } from '@sinclair/typebox';
-import { SimpleRoute } from './types';
+import { IntrospectedRoute } from './types';
 
 /**
  * infers args from Typebox schema or typescript type
@@ -45,6 +45,5 @@ export type inferDecodedArgsFromArgsSchema<
  * }> = string
  * ```
  */
-export type inferArgs<TRoute extends SimpleRoute> = inferArgsFromArgsSchema<
-  TRoute['_def']['argsSchema']
->;
+export type inferArgs<TRoute extends IntrospectedRoute> =
+  inferArgsFromArgsSchema<TRoute['_def']['argsSchema']>;

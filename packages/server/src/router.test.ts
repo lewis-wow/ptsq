@@ -444,6 +444,41 @@ test('Should create server side caller with query on router', async () => {
   expect(await caller.a.query('John')).toBe('Hello John');
 });
 
+test('Should create server side caller with query on router with transformation', async () => {
+  const { router, resolver } = ptsq({
+    ctx: () => ({}),
+  }).create();
+
+  const URLSchema = Type.Transform(Type.String())
+    .Decode((value) => new URL(value))
+    .Encode((value) => value.toString());
+
+  const query = resolver
+    .args(
+      Type.Object({
+        url: URLSchema,
+      }),
+    )
+    .output(URLSchema)
+    .query(({ input }) => {
+      input.url.searchParams.set('test', 'test');
+
+      return input.url;
+    });
+
+  const baseRouter = router({
+    a: query,
+  });
+
+  const caller = Router.serverSideCaller(baseRouter).create({});
+
+  expect(
+    await caller.a.query({
+      url: 'http://localhost:4000',
+    }),
+  ).toBe('http://localhost:4000/?test=test');
+});
+
 test('Should create server side caller with mutation on router', async () => {
   const { router, resolver } = ptsq({
     ctx: () => ({}),

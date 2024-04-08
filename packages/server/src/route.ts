@@ -1,12 +1,13 @@
 import { Type, type TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
 import { createSchemaRoot } from './createSchemaRoot';
+import { inferArgsFromArgsSchema } from './inferArgs';
 import { JsonSchemaParser } from './jsonSchemaParser';
 import { Middleware, type MiddlewareMeta } from './middleware';
 import type { AnyMiddleware, AnyMiddlewareResponse } from './middleware';
 import { PtsqError } from './ptsqError';
 import type { AnyResolveFunction } from './resolver';
-import type { inferClientResolverArgs, ResolverType } from './types';
+import type { ResolverType } from './types';
 
 /**
  * @internal
@@ -134,7 +135,7 @@ export class Route<
    */
   resolve(resolveFunctionOptions: {
     ctx: TContext;
-    input: inferClientResolverArgs<TArgsSchema>;
+    input: inferArgsFromArgsSchema<TArgsSchema>;
     meta: MiddlewareMeta;
   }): ReturnType<TResolveFunction> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return

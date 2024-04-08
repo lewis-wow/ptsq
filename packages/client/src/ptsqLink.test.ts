@@ -155,7 +155,7 @@ test('Should catch PtsqClientError inside link', async () => {
   const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
 
   const link = new PtsqLink(({ forward }) => {
-    throw new PtsqClientError({ code: 'CUSTOM_CODE' });
+    throw new PtsqClientError({ code: 'BAD_REQUEST' });
     return forward();
   });
 
@@ -168,7 +168,7 @@ test('Should catch PtsqClientError inside link', async () => {
     client.test.query({
       name: 'John',
     }),
-  ).rejects.toThrow(new PtsqClientError({ code: 'CUSTOM_CODE' }));
+  ).rejects.toThrow(new PtsqClientError({ code: 'BAD_REQUEST' }));
 
   await $disconnect();
 });
