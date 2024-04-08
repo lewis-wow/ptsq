@@ -5,6 +5,7 @@ import type {
   TUndefined,
   TVoid,
 } from '@sinclair/typebox';
+import { AnyRouter } from './router';
 
 export type ResolverType = 'query' | 'mutation';
 
@@ -64,3 +65,9 @@ export type ShallowMerge<T extends object, U extends object> = {
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type Simplify<T> = { [K in keyof T]: T[K] } & {};
+
+export type inferPtsqJSONSchema<TRouter extends AnyRouter> = {
+  [K in keyof TRouter['_def']['routes']]: TRouter['_def']['routes'][K] extends AnyRouter
+    ? inferPtsqJSONSchema<TRouter['_def']['routes'][K]>
+    : TRouter['_def']['routes'][K]['_def'];
+};
