@@ -1,10 +1,10 @@
 import type { Context } from './context';
-import { createSchemaRoot, type SchemaRoot } from './createSchemaRoot';
 import { type AnyMiddlewareResponse, type MiddlewareMeta } from './middleware';
 import type { Mutation } from './mutation';
 import { PtsqError } from './ptsqError';
 import type { Query } from './query';
 import { AnyResolveFunction } from './resolver';
+import { RouteSchema } from './route';
 import { ServerSideCallerBuilder } from './serverSideCallerBuilder';
 import type {
   ErrorMessage,
@@ -29,16 +29,11 @@ export class Router<
   TContext extends Context,
   TRoutes extends RouterRoutes<TContext>,
 > {
-  _def: {
-    routes: TRoutes;
-    nodeType: 'router';
-  };
+  nodeType: 'router' = 'router';
+  routes: TRoutes;
 
-  constructor(routerOptions: { routes: TRoutes }) {
-    this._def = {
-      ...routerOptions,
-      nodeType: 'router',
-    };
+  constructor({ routes }: { routes: TRoutes }) {
+    this.routes = routes;
   }
 
   /**
@@ -46,24 +41,16 @@ export class Router<
    *
    * Gets the json schema of the whole router recursivelly
    */
-  getJsonSchema() {
-    return createSchemaRoot({
-      _def: createSchemaRoot({
-        nodeType: {
-          type: 'string',
-          enum: [this._def.nodeType],
-        },
-        routes: createSchemaRoot(
-          Object.entries(this._def.routes).reduce<Record<string, SchemaRoot>>(
-            (acc, [key, node]) => {
-              acc[key] = node.getJsonSchema();
-              return acc;
-            },
-            {},
-          ),
-        ),
-      }),
-    });
+  getSchema() {
+    return {
+      nodeType: this.nodeType,
+      routes: Object.entries(this.routes).reduce<
+        Record<string, RouteSchema | RouterSchema>
+      >((acc, [key, node]) => {
+        acc[key] = node.getSchema();
+        return acc;
+      }, {}),
+    } satisfies RouterSchema;
   }
 
   /**
@@ -87,15 +74,15 @@ export class Router<
           'The route was terminated by query or mutate but should continue.',
       });
 
-    if (!(currentRoute in this._def.routes))
+    if (!(currentRoute in this.routes))
       throw new PtsqError({
         code: 'NOT_FOUND',
         message: 'The route was invalid.',
       });
 
-    const nextNode = this._def.routes[currentRoute];
+    const nextNode = this.routes[currentRoute];
 
-    if (nextNode._def.nodeType === 'router')
+    if (nextNode.nodeType === 'router')
       return nextNode.call({ ...options, index: options.index + 1 });
 
     if (options.index !== options.route.length - 1)
@@ -105,10 +92,10 @@ export class Router<
           'The route continues, but should be terminated by query or mutate.',
       });
 
-    if (nextNode._def.type !== options.type)
+    if (nextNode.type !== options.type)
       throw new PtsqError({
         code: 'PTSQ_BAD_ROUTE_TYPE',
-        message: `The route type is invalid, it should be ${nextNode._def.type} and it is ${options.type}.`,
+        message: `The route type is invalid, it should be ${nextNode.type} and it is ${options.type}.`,
       });
 
     return nextNode.call(options);
@@ -136,17 +123,20 @@ export class Router<
       Simplify<
         inferContextFromRouter<TRouterA> & inferContextFromRouter<TRouterB>
       >,
-      Simplify<
-        ShallowMerge<TRouterA['_def']['routes'], TRouterB['_def']['routes']>
-      >
+      Simplify<ShallowMerge<TRouterA['routes'], TRouterB['routes']>>
     >({
       routes: {
-        ...routerA._def.routes,
-        ...(routerB as TRouterB)._def.routes,
-      } as ShallowMerge<TRouterA['_def']['routes'], TRouterB['_def']['routes']>,
+        ...routerA.routes,
+        ...(routerB as TRouterB).routes,
+      } as ShallowMerge<TRouterA['routes'], TRouterB['routes']>,
     });
   }
 }
+
+export type RouterSchema = {
+  nodeType: 'router';
+  routes: Record<string, RouterSchema | RouteSchema>;
+};
 
 export type AnyRouter = Router<Context, RouterRoutes<Context>>;
 

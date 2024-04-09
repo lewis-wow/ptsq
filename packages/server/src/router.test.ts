@@ -308,119 +308,29 @@ test('Should merge two routers and get json schema', () => {
 
   const mergedRouter = Router.merge(routerA, routerB);
 
-  expect(mergedRouter.getJsonSchema()).toMatchInlineSnapshot(`
+  expect(mergedRouter.getSchema()).toMatchInlineSnapshot(`
     {
-      "additionalProperties": false,
-      "properties": {
-        "_def": {
-          "additionalProperties": false,
-          "properties": {
-            "nodeType": {
-              "enum": [
-                "router",
-              ],
-              "type": "string",
-            },
-            "routes": {
-              "additionalProperties": false,
-              "properties": {
-                "a": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "_def": {
-                      "additionalProperties": false,
-                      "properties": {
-                        "argsSchema": undefined,
-                        "description": undefined,
-                        "nodeType": {
-                          "enum": [
-                            "route",
-                          ],
-                          "type": "string",
-                        },
-                        "outputSchema": {
-                          "type": "null",
-                        },
-                        "type": {
-                          "enum": [
-                            "query",
-                          ],
-                          "type": "string",
-                        },
-                      },
-                      "required": [
-                        "type",
-                        "nodeType",
-                        "argsSchema",
-                        "outputSchema",
-                        "description",
-                      ],
-                      "type": "object",
-                    },
-                  },
-                  "required": [
-                    "_def",
-                  ],
-                  "type": "object",
-                },
-                "b": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "_def": {
-                      "additionalProperties": false,
-                      "properties": {
-                        "argsSchema": undefined,
-                        "description": undefined,
-                        "nodeType": {
-                          "enum": [
-                            "route",
-                          ],
-                          "type": "string",
-                        },
-                        "outputSchema": {
-                          "type": "null",
-                        },
-                        "type": {
-                          "enum": [
-                            "query",
-                          ],
-                          "type": "string",
-                        },
-                      },
-                      "required": [
-                        "type",
-                        "nodeType",
-                        "argsSchema",
-                        "outputSchema",
-                        "description",
-                      ],
-                      "type": "object",
-                    },
-                  },
-                  "required": [
-                    "_def",
-                  ],
-                  "type": "object",
-                },
-              },
-              "required": [
-                "a",
-                "b",
-              ],
-              "type": "object",
-            },
+      "nodeType": "router",
+      "routes": {
+        "a": {
+          "argsSchema": undefined,
+          "description": undefined,
+          "nodeType": "route",
+          "outputSchema": {
+            "type": "null",
           },
-          "required": [
-            "nodeType",
-            "routes",
-          ],
-          "type": "object",
+          "type": "query",
+        },
+        "b": {
+          "argsSchema": undefined,
+          "description": undefined,
+          "nodeType": "route",
+          "outputSchema": {
+            "type": "null",
+          },
+          "type": "query",
         },
       },
-      "required": [
-        "_def",
-      ],
-      "type": "object",
     }
   `);
 });

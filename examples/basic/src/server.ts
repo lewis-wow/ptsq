@@ -8,13 +8,8 @@ const { resolver, router, serve } = ptsq({
 }).create();
 
 const greetingsQuery = resolver
-  .args(
-    Type.Object({
-      name: Type.String(),
-    }),
-  )
   .output(Type.TemplateLiteral('Hello, ${string}!'))
-  .query(({ input }) => `Hello, ${input.name}!`);
+  .query(({ input }) => `Hello, ${''}!`);
 
 const baseRouter = router({
   greetings: greetingsQuery,

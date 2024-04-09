@@ -193,77 +193,16 @@ test('Should create server introspection', async () => {
 
   expect(response.data).toMatchInlineSnapshot(`
     {
-      "$schema": "https://json-schema.org/draft/2019-09/schema#",
-      "additionalProperties": false,
-      "properties": {
-        "_def": {
-          "additionalProperties": false,
-          "properties": {
-            "nodeType": {
-              "enum": [
-                "router",
-              ],
-              "type": "string",
-            },
-            "routes": {
-              "additionalProperties": false,
-              "properties": {
-                "test": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "_def": {
-                      "additionalProperties": false,
-                      "properties": {
-                        "nodeType": {
-                          "enum": [
-                            "route",
-                          ],
-                          "type": "string",
-                        },
-                        "outputSchema": {
-                          "type": "string",
-                        },
-                        "type": {
-                          "enum": [
-                            "query",
-                          ],
-                          "type": "string",
-                        },
-                      },
-                      "required": [
-                        "type",
-                        "nodeType",
-                        "argsSchema",
-                        "outputSchema",
-                        "description",
-                      ],
-                      "type": "object",
-                    },
-                  },
-                  "required": [
-                    "_def",
-                  ],
-                  "type": "object",
-                },
-              },
-              "required": [
-                "test",
-              ],
-              "type": "object",
-            },
+      "nodeType": "router",
+      "routes": {
+        "test": {
+          "nodeType": "route",
+          "outputSchema": {
+            "type": "string",
           },
-          "required": [
-            "nodeType",
-            "routes",
-          ],
-          "type": "object",
+          "type": "query",
         },
       },
-      "required": [
-        "_def",
-      ],
-      "title": "BaseRouter",
-      "type": "object",
     }
   `);
 
@@ -390,77 +329,16 @@ test('Should create ptsq server and introspectate', async () => {
 
   expect(response.data).toMatchInlineSnapshot(`
     {
-      "$schema": "https://json-schema.org/draft/2019-09/schema#",
-      "additionalProperties": false,
-      "properties": {
-        "_def": {
-          "additionalProperties": false,
-          "properties": {
-            "nodeType": {
-              "enum": [
-                "router",
-              ],
-              "type": "string",
-            },
-            "routes": {
-              "additionalProperties": false,
-              "properties": {
-                "a": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "_def": {
-                      "additionalProperties": false,
-                      "properties": {
-                        "nodeType": {
-                          "enum": [
-                            "route",
-                          ],
-                          "type": "string",
-                        },
-                        "outputSchema": {
-                          "type": "null",
-                        },
-                        "type": {
-                          "enum": [
-                            "query",
-                          ],
-                          "type": "string",
-                        },
-                      },
-                      "required": [
-                        "type",
-                        "nodeType",
-                        "argsSchema",
-                        "outputSchema",
-                        "description",
-                      ],
-                      "type": "object",
-                    },
-                  },
-                  "required": [
-                    "_def",
-                  ],
-                  "type": "object",
-                },
-              },
-              "required": [
-                "a",
-              ],
-              "type": "object",
-            },
+      "nodeType": "router",
+      "routes": {
+        "a": {
+          "nodeType": "route",
+          "outputSchema": {
+            "type": "null",
           },
-          "required": [
-            "nodeType",
-            "routes",
-          ],
-          "type": "object",
+          "type": "query",
         },
       },
-      "required": [
-        "_def",
-      ],
-      "title": "BaseRouter",
-      "type": "object",
     }
   `);
 

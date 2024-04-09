@@ -11,6 +11,7 @@ export class ServerSideCallerBuilder<TRouter extends AnyRouter> {
   _def: {
     router: TRouter;
   };
+
   constructor(router: TRouter) {
     this._def = {
       router,
@@ -34,18 +35,18 @@ const createServerSideCaller = <TRouter extends AnyRouter>(options: {
   ctx: inferContextFromRouter<TRouter>;
   route: string[];
 }): ServerSideCaller<TRouter> => {
-  return new Proxy(options.router._def.routes, {
+  return new Proxy(options.router.routes, {
     get: (target, prop: string) => {
       const node = target[prop];
 
-      if (node._def.nodeType === 'router')
+      if (node.nodeType === 'router')
         return createServerSideCaller({
           router: node as AnyRouter,
           ctx: options.ctx,
           route: [...options.route, prop],
         });
 
-      if (node._def.type === 'query')
+      if (node.type === 'query')
         return (node as AnyQuery).createServerSideQuery({
           ctx: options.ctx,
           route: [...options.route, prop].join('.'),
@@ -63,11 +64,11 @@ const createServerSideCaller = <TRouter extends AnyRouter>(options: {
  * @internal
  */
 export type ServerSideCaller<TRouter extends AnyRouter> = {
-  [K in keyof TRouter['_def']['routes']]: TRouter['_def']['routes'][K] extends AnyRouter
-    ? ServerSideCaller<TRouter['_def']['routes'][K]>
-    : TRouter['_def']['routes'][K] extends AnyQuery
-      ? ReturnType<TRouter['_def']['routes'][K]['createServerSideQuery']>
-      : TRouter['_def']['routes'][K] extends AnyMutation
-        ? ReturnType<TRouter['_def']['routes'][K]['createServerSideMutation']>
+  [K in keyof TRouter['routes']]: TRouter['routes'][K] extends AnyRouter
+    ? ServerSideCaller<TRouter['routes'][K]>
+    : TRouter['routes'][K] extends AnyQuery
+      ? ReturnType<TRouter['routes'][K]['createServerSideQuery']>
+      : TRouter['routes'][K] extends AnyMutation
+        ? ReturnType<TRouter['routes'][K]['createServerSideMutation']>
         : never;
 };

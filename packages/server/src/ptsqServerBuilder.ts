@@ -172,11 +172,7 @@ export class PtsqServerBuilder<
           }
 
           const introspectionResponse = Middleware.createSuccessResponse({
-            data: {
-              title: 'BaseRouter',
-              $schema: 'https://json-schema.org/draft/2019-09/schema#',
-              ...baseRouter.getJsonSchema(),
-            },
+            data: baseRouter.getSchema(),
           });
 
           return envelopedResponse.createResponse(introspectionResponse);

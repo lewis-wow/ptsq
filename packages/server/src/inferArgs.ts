@@ -1,4 +1,5 @@
 import { Static, StaticDecode, TSchema } from '@sinclair/typebox';
+import type { FromSchema, JSONSchema } from 'json-schema-to-ts';
 import { IntrospectedRoute } from './types';
 
 /**
@@ -10,13 +11,13 @@ import { IntrospectedRoute } from './types';
  * inferArgsFromArgsSchema<string> = string
  * ```
  */
-export type inferArgsFromArgsSchema<TArgsSchema> = TArgsSchema extends
-  | undefined
-  | void
+export type inferArgsFromTypeboxArgsSchema<
+  TArgsSchema extends TSchema | void | undefined,
+> = TArgsSchema extends undefined | void
   ? undefined | void
   : TArgsSchema extends TSchema
     ? Static<TArgsSchema>
-    : TArgsSchema;
+    : never;
 
 /**
  * infers decoded args as input for resolve function
@@ -27,9 +28,19 @@ export type inferArgsFromArgsSchema<TArgsSchema> = TArgsSchema extends
  * .mutation({ input }) => {...}
  * ```
  */
-export type inferDecodedArgsFromArgsSchema<
+export type inferDecodedArgsFromTypeboxArgsSchema<
   TArgsSchema extends TSchema | undefined,
 > = TArgsSchema extends TSchema ? StaticDecode<TArgsSchema> : TArgsSchema;
+
+export type inferArgsFromArgsSchema<
+  TArgsSchema extends TSchema | JSONSchema | void | undefined,
+> = TArgsSchema extends undefined | void
+  ? undefined | void
+  : TArgsSchema extends TSchema
+    ? Static<TArgsSchema>
+    : TArgsSchema extends JSONSchema
+      ? FromSchema<TArgsSchema>
+      : never;
 
 /**
  * infers args from SimpleRoute
@@ -46,4 +57,6 @@ export type inferDecodedArgsFromArgsSchema<
  * ```
  */
 export type inferArgs<TRoute extends IntrospectedRoute> =
-  inferArgsFromArgsSchema<TRoute['_def']['argsSchema']>;
+  'argsSchema' extends keyof TRoute
+    ? inferArgsFromArgsSchema<TRoute['argsSchema']>
+    : undefined | void;

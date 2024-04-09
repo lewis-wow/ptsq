@@ -30,20 +30,19 @@ export type {
   IntrospectedRoute,
   IntrospectedRouter,
   inferDescription,
-  inferPtsqJSONSchema,
   inferResolverType,
 } from './types';
 
 export type {
   inferArgs,
   inferArgsFromArgsSchema,
-  inferDecodedArgsFromArgsSchema,
+  inferDecodedArgsFromTypeboxArgsSchema,
 } from './inferArgs';
 
 export type {
   inferOutput,
   inferOutputFromOutputSchema,
-  inferDecodedOutputFromArgsSchema,
+  inferDecodedOutputFromTypeboxOutputSchema,
 } from './inferOutput';
 
 export * from './jsonSchemaParser';

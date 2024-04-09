@@ -1,7 +1,7 @@
 import type { TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
-import { inferArgsFromArgsSchema } from './inferArgs';
-import { inferOutputFromOutputSchema } from './inferOutput';
+import { inferArgsFromTypeboxArgsSchema } from './inferArgs';
+import { inferOutputFromTypeboxOutputSchema } from './inferOutput';
 import { JsonSchemaParser } from './jsonSchemaParser';
 import type { AnyMiddleware } from './middleware';
 import type { AnyResolveFunction } from './resolver';
@@ -45,8 +45,8 @@ export class Query<
   createServerSideQuery(options: { ctx: any; route: string }) {
     return {
       query: async (
-        input: inferArgsFromArgsSchema<TArgsSchema>,
-      ): Promise<inferOutputFromOutputSchema<TOutputSchema>> => {
+        input: inferArgsFromTypeboxArgsSchema<TArgsSchema>,
+      ): Promise<inferOutputFromTypeboxOutputSchema<TOutputSchema>> => {
         const response = await this.call({
           ctx: options.ctx,
           meta: {
@@ -58,7 +58,7 @@ export class Query<
 
         if (!response.ok) throw response.error;
 
-        return response.data as inferOutputFromOutputSchema<TOutputSchema>;
+        return response.data as inferOutputFromTypeboxOutputSchema<TOutputSchema>;
       },
     };
   }

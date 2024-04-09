@@ -1,7 +1,7 @@
 import { Type, type TIntersect, type TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
-import { inferDecodedArgsFromArgsSchema } from './inferArgs';
-import { inferDecodedOutputFromArgsSchema } from './inferOutput';
+import { inferDecodedArgsFromTypeboxArgsSchema } from './inferArgs';
+import { inferDecodedOutputFromTypeboxOutputSchema } from './inferOutput';
 import { defaultJsonSchemaParser, JsonSchemaParser } from './jsonSchemaParser';
 import {
   inferContextFromMiddlewareResponse,
@@ -70,7 +70,7 @@ export class Resolver<
    */
   use<
     TMiddlewareFunction extends MiddlewareFunction<
-      inferDecodedArgsFromArgsSchema<TArgsSchema>,
+      inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>,
       TContext
     >,
   >(middleware: TMiddlewareFunction) {
@@ -171,8 +171,8 @@ export class Resolver<
    */
   mutation(
     resolve: ResolveFunction<
-      inferDecodedArgsFromArgsSchema<TArgsSchema>,
-      inferDecodedOutputFromArgsSchema<TOutputSchema>,
+      inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>,
+      inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>,
       TContext
     >,
   ): TOutputSchema extends TSchema
@@ -181,8 +181,8 @@ export class Resolver<
         TOutputSchema,
         TContext,
         ResolveFunction<
-          inferDecodedArgsFromArgsSchema<TArgsSchema>,
-          inferDecodedOutputFromArgsSchema<TOutputSchema>,
+          inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>,
+          inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>,
           TContext
         >,
         TDescription
@@ -202,8 +202,8 @@ export class Resolver<
           TOutputSchema,
           TContext,
           ResolveFunction<
-            inferDecodedArgsFromArgsSchema<TArgsSchema>,
-            inferDecodedOutputFromArgsSchema<TOutputSchema>,
+            inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>,
+            inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>,
             TContext
           >,
           TDescription
@@ -218,8 +218,8 @@ export class Resolver<
    */
   query(
     resolve: ResolveFunction<
-      inferDecodedArgsFromArgsSchema<TArgsSchema>,
-      inferDecodedOutputFromArgsSchema<TOutputSchema>,
+      inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>,
+      inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>,
       TContext
     >,
   ): TOutputSchema extends TSchema
@@ -229,8 +229,8 @@ export class Resolver<
         TContext,
         TOutputSchema extends TSchema
           ? ResolveFunction<
-              inferDecodedArgsFromArgsSchema<TArgsSchema>,
-              inferDecodedOutputFromArgsSchema<TOutputSchema>,
+              inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>,
+              inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>,
               TContext
             >
           : never,
@@ -252,8 +252,8 @@ export class Resolver<
           TContext,
           TOutputSchema extends TSchema
             ? ResolveFunction<
-                inferDecodedArgsFromArgsSchema<TArgsSchema>,
-                inferDecodedOutputFromArgsSchema<TOutputSchema>,
+                inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>,
+                inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>,
                 TContext
               >
             : never,
