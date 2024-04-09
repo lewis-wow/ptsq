@@ -1,5 +1,5 @@
 import { createProxyClient } from '@ptsq/client';
-import { IntrospectedRouter } from '@ptsq/server';
+import { inferPtsqSchema } from '@ptsq/server/dist/types';
 import { schema } from './schema.generated';
 import type { BaseRouter } from './server';
 

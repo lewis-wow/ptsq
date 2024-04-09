@@ -48,3 +48,17 @@ export type inferDescription<TRoute extends IntrospectedRoute> =
  */
 export type inferResolverType<TRoute extends IntrospectedRoute> =
   TRoute['type'];
+
+/**
+ * infers PTSQ schema from router
+ */
+export type inferPtsqSchema<TRouter extends IntrospectedRouter> = {
+  nodeType: 'router';
+  routes: {
+    [K in keyof TRouter['routes']]: TRouter['routes'][K] extends IntrospectedRouter
+      ? inferPtsqSchema<TRouter['routes'][K]>
+      : TRouter['routes'][K] extends IntrospectedRoute
+        ? Pick<TRouter['routes'][K], keyof IntrospectedRoute>
+        : never;
+  };
+};

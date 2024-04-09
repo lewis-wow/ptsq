@@ -31,6 +31,7 @@ export type {
   IntrospectedRouter,
   inferDescription,
   inferResolverType,
+  inferPtsqSchema,
 } from './types';
 
 export type {
