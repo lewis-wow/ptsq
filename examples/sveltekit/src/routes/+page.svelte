@@ -1,7 +1,7 @@
 <script lang="ts">
   import { client } from '$lib/ptsq';
 
-  const greetingsQuery = client.greetings.createQuery();
+  const greetingsQuery = client.greetings.getGreetings.createQuery();
 </script>
 
 <h1>Welcome to SvelteKit</h1>
