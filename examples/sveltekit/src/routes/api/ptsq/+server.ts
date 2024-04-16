@@ -1,14 +1,5 @@
-import { ptsq, Type } from '@ptsq/server';
-
-const { resolver, router, serve } = ptsq({
-  root: '/api',
-}).create();
-
-const baseRouter = router({
-  greetings: resolver.output(Type.String()).query(() => 'Hello'),
-});
-
-export type BaseRouter = typeof baseRouter;
+import { baseRouter } from './baseRouter';
+import { serve } from './ptsq';
 
 const server = serve(baseRouter);
 
