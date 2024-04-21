@@ -99,8 +99,8 @@ export class PtsqServerBuilder<
      * Creates a fully typed router
      * routers can be merged as you want, they creates sdk-like structure
      */
-    const router = <TRoutes extends RouterRoutes>(routes: TRoutes) =>
-      new Router<TRoutes, TContext>({ routes });
+    const router = <TRoutes extends RouterRoutes<TContext>>(routes: TRoutes) =>
+      new Router<TContext, TRoutes>({ routes });
 
     /**
      * Serves the ptsq application
@@ -172,11 +172,7 @@ export class PtsqServerBuilder<
           }
 
           const introspectionResponse = Middleware.createSuccessResponse({
-            data: {
-              title: 'BaseRouter',
-              $schema: 'https://json-schema.org/draft/2019-09/schema#',
-              ...baseRouter.getJsonSchema(),
-            },
+            data: baseRouter.getSchema(),
           });
 
           return envelopedResponse.createResponse(introspectionResponse);

@@ -28,15 +28,17 @@ test('Should create mutation', async () => {
     .output(outputValidationSchema)
     .mutation(resolveFunction);
 
-  expect(mutation._def).toStrictEqual({
+  expect(mutation).toMatchObject({
     nodeType: 'route',
     type: 'mutation',
-    middlewares: [],
     argsSchema: argsSchema,
     outputSchema: outputValidationSchema,
-    resolveFunction: resolveFunction,
     description: undefined,
-    parser: defaultJsonSchemaParser,
+    _def: {
+      middlewares: [],
+      resolveFunction: resolveFunction,
+      parser: defaultJsonSchemaParser,
+    },
   });
 
   expect(
@@ -64,61 +66,31 @@ test('Should create mutation', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: 'VALIDATION_FAILED',
+      code: 'PTSQ_VALIDATION_FAILED',
       message: 'Args validation error.',
     }),
     ok: false,
   });
 
-  expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
+  expect(mutation.getSchema()).toMatchInlineSnapshot(`
     {
-      "additionalProperties": false,
-      "properties": {
-        "_def": {
-          "additionalProperties": false,
-          "properties": {
-            "argsSchema": {
-              "properties": {
-                "name": {
-                  "type": "string",
-                },
-              },
-              "required": [
-                "name",
-              ],
-              "type": "object",
-            },
-            "description": undefined,
-            "nodeType": {
-              "enum": [
-                "route",
-              ],
-              "type": "string",
-            },
-            "outputSchema": {
-              "type": "string",
-            },
-            "type": {
-              "enum": [
-                "mutation",
-              ],
-              "type": "string",
-            },
+      "argsSchema": {
+        "properties": {
+          "name": {
+            "type": "string",
           },
-          "required": [
-            "type",
-            "nodeType",
-            "argsSchema",
-            "outputSchema",
-            "description",
-          ],
-          "type": "object",
         },
+        "required": [
+          "name",
+        ],
+        "type": "object",
       },
-      "required": [
-        "_def",
-      ],
-      "type": "object",
+      "description": undefined,
+      "nodeType": "route",
+      "outputSchema": {
+        "type": "string",
+      },
+      "type": "mutation",
     }
   `);
 });
@@ -143,15 +115,17 @@ test('Should create mutation without args', async () => {
     .output(outputValidationSchema)
     .mutation(resolveFunction);
 
-  expect(mutation._def).toStrictEqual({
+  expect(mutation).toMatchObject({
     nodeType: 'route',
     type: 'mutation',
-    middlewares: [],
     argsSchema: undefined,
     outputSchema: outputValidationSchema,
-    resolveFunction: resolveFunction,
     description: undefined,
-    parser: defaultJsonSchemaParser,
+    _def: {
+      middlewares: [],
+      resolveFunction: resolveFunction,
+      parser: defaultJsonSchemaParser,
+    },
   });
 
   expect(
@@ -182,45 +156,15 @@ test('Should create mutation without args', async () => {
     ok: true,
   });
 
-  expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
+  expect(mutation.getSchema()).toMatchInlineSnapshot(`
     {
-      "additionalProperties": false,
-      "properties": {
-        "_def": {
-          "additionalProperties": false,
-          "properties": {
-            "argsSchema": undefined,
-            "description": undefined,
-            "nodeType": {
-              "enum": [
-                "route",
-              ],
-              "type": "string",
-            },
-            "outputSchema": {
-              "type": "string",
-            },
-            "type": {
-              "enum": [
-                "mutation",
-              ],
-              "type": "string",
-            },
-          },
-          "required": [
-            "type",
-            "nodeType",
-            "argsSchema",
-            "outputSchema",
-            "description",
-          ],
-          "type": "object",
-        },
+      "argsSchema": undefined,
+      "description": undefined,
+      "nodeType": "route",
+      "outputSchema": {
+        "type": "string",
       },
-      "required": [
-        "_def",
-      ],
-      "type": "object",
+      "type": "mutation",
     }
   `);
 });
@@ -251,15 +195,17 @@ test('Should create mutation with twice chain', async () => {
     .output(validationSchema)
     .mutation(resolveFunction);
 
-  expect(mutation._def).toStrictEqual({
+  expect(mutation).toMatchObject({
     nodeType: 'route',
     type: 'mutation',
-    middlewares: [],
     argsSchema: Type.Intersect([firstSchemaInChain, secondSchemaInChain]),
     outputSchema: validationSchema,
-    resolveFunction: resolveFunction,
     description: undefined,
-    parser: defaultJsonSchemaParser,
+    _def: {
+      middlewares: [],
+      resolveFunction: resolveFunction,
+      parser: defaultJsonSchemaParser,
+    },
   });
 
   expect(
@@ -287,7 +233,7 @@ test('Should create mutation with twice chain', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: 'VALIDATION_FAILED',
+      code: 'PTSQ_VALIDATION_FAILED',
       message: 'Args validation error.',
     }),
     ok: false,
@@ -304,77 +250,47 @@ test('Should create mutation with twice chain', async () => {
     }),
   ).toStrictEqual({
     error: new PtsqError({
-      code: 'VALIDATION_FAILED',
+      code: 'PTSQ_VALIDATION_FAILED',
       message: 'Args validation error.',
     }),
     ok: false,
   });
 
-  expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
+  expect(mutation.getSchema()).toMatchInlineSnapshot(`
     {
-      "additionalProperties": false,
-      "properties": {
-        "_def": {
-          "additionalProperties": false,
-          "properties": {
-            "argsSchema": {
-              "allOf": [
-                {
-                  "properties": {
-                    "firstName": {
-                      "type": "string",
-                    },
-                  },
-                  "required": [
-                    "firstName",
-                  ],
-                  "type": "object",
-                },
-                {
-                  "properties": {
-                    "lastName": {
-                      "type": "string",
-                    },
-                  },
-                  "required": [
-                    "lastName",
-                  ],
-                  "type": "object",
-                },
-              ],
-              "type": "object",
+      "argsSchema": {
+        "allOf": [
+          {
+            "properties": {
+              "firstName": {
+                "type": "string",
+              },
             },
-            "description": undefined,
-            "nodeType": {
-              "enum": [
-                "route",
-              ],
-              "type": "string",
-            },
-            "outputSchema": {
-              "type": "string",
-            },
-            "type": {
-              "enum": [
-                "mutation",
-              ],
-              "type": "string",
-            },
+            "required": [
+              "firstName",
+            ],
+            "type": "object",
           },
-          "required": [
-            "type",
-            "nodeType",
-            "argsSchema",
-            "outputSchema",
-            "description",
-          ],
-          "type": "object",
-        },
+          {
+            "properties": {
+              "lastName": {
+                "type": "string",
+              },
+            },
+            "required": [
+              "lastName",
+            ],
+            "type": "object",
+          },
+        ],
+        "type": "object",
       },
-      "required": [
-        "_def",
-      ],
-      "type": "object",
+      "description": undefined,
+      "nodeType": "route",
+      "outputSchema": {
+        "type": "string",
+      },
+      "type": "mutation",
     }
   `);
 });
@@ -419,18 +335,20 @@ test('Should create mutation with optional args chain', async () => {
     .output(outputSchema)
     .mutation(resolveFunction);
 
-  expect(mutation._def).toStrictEqual({
+  expect(mutation).toMatchObject({
     nodeType: 'route',
     type: 'mutation',
-    middlewares: [],
     argsSchema: Type.Intersect([
       firstSchemaInArgumentChain,
       secondSchemaInArgumentChain,
     ]),
     outputSchema: outputSchema,
-    resolveFunction: resolveFunction,
     description: undefined,
-    parser: defaultJsonSchemaParser,
+    _def: {
+      middlewares: [],
+      resolveFunction: resolveFunction,
+      parser: defaultJsonSchemaParser,
+    },
   });
 
   expect(
@@ -499,78 +417,48 @@ test('Should create mutation with optional args chain', async () => {
     ok: true,
   });
 
-  expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
+  expect(mutation.getSchema()).toMatchInlineSnapshot(`
     {
-      "additionalProperties": false,
-      "properties": {
-        "_def": {
-          "additionalProperties": false,
-          "properties": {
-            "argsSchema": {
-              "allOf": [
-                {
-                  "anyOf": [
-                    {
-                      "properties": {
-                        "firstName": {
-                          "type": "string",
-                        },
-                      },
-                      "type": "object",
-                    },
-                    {
-                      "type": "undefined",
-                    },
-                  ],
+      "argsSchema": {
+        "allOf": [
+          {
+            "anyOf": [
+              {
+                "properties": {
+                  "firstName": {
+                    "type": "string",
+                  },
                 },
-                {
-                  "anyOf": [
-                    {
-                      "properties": {
-                        "lastName": {
-                          "type": "string",
-                        },
-                      },
-                      "type": "object",
-                    },
-                    {
-                      "type": "undefined",
-                    },
-                  ],
-                },
-              ],
-            },
-            "description": undefined,
-            "nodeType": {
-              "enum": [
-                "route",
-              ],
-              "type": "string",
-            },
-            "outputSchema": {
-              "type": "string",
-            },
-            "type": {
-              "enum": [
-                "mutation",
-              ],
-              "type": "string",
-            },
+                "type": "object",
+              },
+              {
+                "type": "undefined",
+              },
+            ],
           },
-          "required": [
-            "type",
-            "nodeType",
-            "argsSchema",
-            "outputSchema",
-            "description",
-          ],
-          "type": "object",
-        },
+          {
+            "anyOf": [
+              {
+                "properties": {
+                  "lastName": {
+                    "type": "string",
+                  },
+                },
+                "type": "object",
+              },
+              {
+                "type": "undefined",
+              },
+            ],
+          },
+        ],
       },
-      "required": [
-        "_def",
-      ],
-      "type": "object",
+      "description": undefined,
+      "nodeType": "route",
+      "outputSchema": {
+        "type": "string",
+      },
+      "type": "mutation",
     }
   `);
 });

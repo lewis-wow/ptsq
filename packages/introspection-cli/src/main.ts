@@ -2,8 +2,8 @@
 import { writeFile } from 'fs/promises';
 import { resolve } from 'path';
 import axios from 'axios';
-import { compile } from 'json-schema-to-typescript';
 import yargs from 'yargs';
+import { createTypescriptSchema } from './createTypescriptSchema';
 import { Languages } from './languages';
 
 const argv = yargs
@@ -15,6 +15,12 @@ const argv = yargs
     describe: 'the ptsq url to introspectate',
     type: 'string',
     demandOption: true,
+  })
+  .option('name', {
+    alias: 'n',
+    describe: 'The name of schema, default is "BaseRouter"',
+    type: 'string',
+    demandOption: false,
   })
   .option('out', {
     alias: 'o',
@@ -30,7 +36,7 @@ const argv = yargs
     default: Languages.TS,
   });
 
-const { url, out, lang } = argv.parseSync();
+const { url, out, lang, name } = argv.parseSync();
 
 const parsedUrl = new URL(url);
 
@@ -48,7 +54,10 @@ axios
 
     switch (lang.toUpperCase()) {
       case Languages.TS:
-        schema = await compile(response.data, 'MySchema');
+        schema = createTypescriptSchema({
+          json: response.data,
+          schemaName: name,
+        });
 
         outFile = out ?? 'schema.generated.ts';
         break;
@@ -69,4 +78,4 @@ axios
 
     console.log(`Schema generated into ${resolve(outFile)}`);
   })
-  .catch((error) => console.error('Error fetching schema:', error.message));
+  .catch((error) => console.error('Error fetching schema:', error));

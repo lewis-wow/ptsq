@@ -35,6 +35,7 @@
     "@types/node": "^20.7.0",
     "@types/uuid": "^9.0.7",
     "axios": "^1.5.1",
+    "json-schema-to-ts": "^3.0.1",
     "typescript": "^5.2.2",
     "uuid": "^9.0.1",
     "vitest": "^0.34.6"

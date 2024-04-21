@@ -1,49 +1,8 @@
-import type {
-  Static,
-  StaticDecode,
-  TSchema,
-  TUndefined,
-  TVoid,
-} from '@sinclair/typebox';
-
 export type ResolverType = 'query' | 'mutation';
 
 export type NodeType = 'route' | 'router';
 
 export type MaybePromise<T> = T | Promise<T>;
-
-/**
- * @internal
- */
-export type inferStaticInput<TTSchema extends TSchema | undefined> =
-  TTSchema extends TSchema ? StaticDecode<TTSchema> : undefined;
-
-/**
- * @internal
- */
-export type inferStaticOutput<TTSchema extends TSchema | undefined> =
-  TTSchema extends TSchema ? StaticDecode<TTSchema> : undefined;
-
-/**
- * Infers the arguments type of the zod validation schema or the introspected schema
- */
-export type inferClientResolverArgs<TResolverArgs> = TResolverArgs extends
-  | undefined
-  | TUndefined
-  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  | void
-  | TVoid
-  ? // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-    undefined | void
-  : TResolverArgs extends TSchema
-    ? Static<TResolverArgs>
-    : TResolverArgs;
-
-/**
- * Infers the output type of the zod validation schema or the introspected schema
- */
-export type inferClientResolverOutput<TResolverOutput> =
-  TResolverOutput extends TSchema ? Static<TResolverOutput> : TResolverOutput;
 
 /**
  * @internal
@@ -64,3 +23,42 @@ export type ShallowMerge<T extends object, U extends object> = {
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type Simplify<T> = { [K in keyof T]: T[K] } & {};
+
+export type IntrospectedRoute = {
+  nodeType: 'route';
+  type: ResolverType;
+  outputSchema: any;
+  argsSchema?: any;
+  description?: string;
+};
+
+export type IntrospectedRouter = {
+  nodeType: 'router';
+  routes: Record<string, IntrospectedRouter | IntrospectedRoute>;
+};
+
+/**
+ * infers description from PTSQ endpoint
+ */
+export type inferDescription<TRoute extends IntrospectedRoute> =
+  'description' extends keyof TRoute ? TRoute['description'] : undefined;
+
+/**
+ * infers resolver type from PTSQ endpoint
+ */
+export type inferResolverType<TRoute extends IntrospectedRoute> =
+  TRoute['type'];
+
+/**
+ * infers PTSQ schema from router
+ */
+export type inferPtsqSchema<TRouter extends IntrospectedRouter> = {
+  nodeType: 'router';
+  routes: {
+    [K in keyof TRouter['routes']]: TRouter['routes'][K] extends IntrospectedRouter
+      ? inferPtsqSchema<TRouter['routes'][K]>
+      : TRouter['routes'][K] extends IntrospectedRoute
+        ? Pick<TRouter['routes'][K], keyof IntrospectedRoute>
+        : never;
+  };
+};

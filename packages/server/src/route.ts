@@ -1,12 +1,13 @@
 import { Type, type TSchema } from '@sinclair/typebox';
+import type { JSONSchema } from 'json-schema-to-ts';
 import type { Context } from './context';
-import { createSchemaRoot } from './createSchemaRoot';
+import { inferArgsFromTypeboxArgsSchema } from './inferArgs';
 import { JsonSchemaParser } from './jsonSchemaParser';
 import { Middleware, type MiddlewareMeta } from './middleware';
 import type { AnyMiddleware, AnyMiddlewareResponse } from './middleware';
 import { PtsqError } from './ptsqError';
 import type { AnyResolveFunction } from './resolver';
-import type { inferClientResolverArgs, ResolverType } from './types';
+import type { ResolverType } from './types';
 
 /**
  * @internal
@@ -16,26 +17,27 @@ import type { inferClientResolverArgs, ResolverType } from './types';
  * Creates callable route.
  */
 export class Route<
-  TType extends ResolverType,
+  TEndpointType extends ResolverType,
   TArgsSchema extends TSchema | undefined,
   TOutputSchema extends TSchema,
   TContext extends Context,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
 > {
+  nodeType: 'route' = 'route';
+  type: TEndpointType;
+  argsSchema: TArgsSchema;
+  outputSchema: TOutputSchema;
+  description: TDescription;
+
   _def: {
-    type: TType;
-    argsSchema: TArgsSchema;
-    outputSchema: TOutputSchema;
     resolveFunction: TResolveFunction;
-    nodeType: 'route';
     middlewares: AnyMiddleware[];
-    description: TDescription;
     parser: JsonSchemaParser;
   };
 
   constructor(options: {
-    type: TType;
+    type: TEndpointType;
     argsSchema: TArgsSchema;
     outputSchema: TOutputSchema;
     resolveFunction: TResolveFunction;
@@ -43,39 +45,34 @@ export class Route<
     description: TDescription;
     parser: JsonSchemaParser;
   }) {
-    this._def = { ...options, nodeType: 'route' };
+    this._def = {
+      resolveFunction: options.resolveFunction,
+      middlewares: options.middlewares,
+      parser: options.parser,
+    };
+
+    this.argsSchema = options.argsSchema;
+    this.type = options.type;
+    this.outputSchema = options.outputSchema;
+    this.description = options.description;
   }
 
   /**
    * @internal
    *
-   * Gets the json schema of the route for the introspection query
+   * Returns the schema of the route for the introspection query
    */
-  getJsonSchema() {
-    return createSchemaRoot({
-      _def: createSchemaRoot({
-        type: {
-          type: 'string',
-          enum: [this._def.type],
-        },
-        nodeType: {
-          type: 'string',
-          enum: [this._def.nodeType],
-        },
-        argsSchema:
-          this._def.argsSchema === undefined
-            ? undefined
-            : Type.Strict(this._def.argsSchema),
-        outputSchema: Type.Strict(this._def.outputSchema),
-        description:
-          this._def.description === undefined
-            ? undefined
-            : {
-                type: 'string',
-                enum: [this._def.description],
-              },
-      }),
-    });
+  getSchema() {
+    return {
+      type: this.type,
+      nodeType: this.nodeType,
+      argsSchema:
+        this.argsSchema === undefined
+          ? undefined
+          : Type.Strict(this.argsSchema),
+      outputSchema: Type.Strict(this.outputSchema),
+      description: this.description,
+    } satisfies RouteSchema;
   }
 
   /**
@@ -97,7 +94,7 @@ export class Route<
       middlewares: [
         ...this._def.middlewares,
         new Middleware({
-          argsSchema: this._def.argsSchema,
+          argsSchema: this.argsSchema,
           parser: this._def.parser,
           middlewareFunction: async (resolveFunctionParams) => {
             const resolverResult = await this._def.resolveFunction({
@@ -108,7 +105,7 @@ export class Route<
 
             const parseResult = await this._def.parser.encode({
               value: resolverResult,
-              schema: this._def.outputSchema,
+              schema: this.outputSchema,
             });
 
             if (!parseResult.ok)
@@ -134,13 +131,21 @@ export class Route<
    */
   resolve(resolveFunctionOptions: {
     ctx: TContext;
-    input: inferClientResolverArgs<TArgsSchema>;
+    input: inferArgsFromTypeboxArgsSchema<TArgsSchema>;
     meta: MiddlewareMeta;
   }): ReturnType<TResolveFunction> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this._def.resolveFunction(resolveFunctionOptions);
   }
 }
+
+export type RouteSchema = {
+  type: ResolverType;
+  nodeType: 'route';
+  argsSchema?: JSONSchema;
+  outputSchema: JSONSchema;
+  description?: string;
+};
 
 export type AnyRoute = Route<
   ResolverType,

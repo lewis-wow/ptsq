@@ -1,13 +1,11 @@
 import type { TSchema } from '@sinclair/typebox';
 import type { Context } from './context';
+import { inferArgsFromTypeboxArgsSchema } from './inferArgs';
+import { inferOutputFromTypeboxOutputSchema } from './inferOutput';
 import { JsonSchemaParser } from './jsonSchemaParser';
 import type { AnyMiddleware } from './middleware';
 import type { AnyResolveFunction } from './resolver';
 import { Route } from './route';
-import type {
-  inferClientResolverArgs,
-  inferClientResolverOutput,
-} from './types';
 
 /**
  * Mutation class container
@@ -47,8 +45,8 @@ export class Mutation<
   createServerSideMutation(options: { ctx: any; route: string }) {
     return {
       mutate: async (
-        input: inferClientResolverArgs<TArgsSchema>,
-      ): Promise<inferClientResolverOutput<TOutputSchema>> => {
+        input: inferArgsFromTypeboxArgsSchema<TArgsSchema>,
+      ): Promise<inferOutputFromTypeboxOutputSchema<TOutputSchema>> => {
         const response = await this.call({
           ctx: options.ctx,
           meta: {
@@ -60,7 +58,7 @@ export class Mutation<
 
         if (!response.ok) throw response.error;
 
-        return response.data as inferClientResolverOutput<TOutputSchema>;
+        return response.data as inferOutputFromTypeboxOutputSchema<TOutputSchema>;
       },
     };
   }

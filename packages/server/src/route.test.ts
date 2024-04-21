@@ -26,15 +26,17 @@ test('Should create query route without description', async () => {
     parser: defaultJsonSchemaParser,
   });
 
-  expect(query._def).toStrictEqual({
+  expect(query).toMatchObject({
     nodeType: 'route',
     type: 'query',
-    middlewares: [],
     argsSchema: inputSchema,
     outputSchema: outputSchema,
-    resolveFunction: resolveFunction,
     description: undefined,
-    parser: defaultJsonSchemaParser,
+    _def: {
+      middlewares: [],
+      resolveFunction: resolveFunction,
+      parser: defaultJsonSchemaParser,
+    },
   });
 
   expect(
@@ -47,55 +49,25 @@ test('Should create query route without description', async () => {
     ok: true,
   });
 
-  expect(query.getJsonSchema()).toMatchInlineSnapshot(`
+  expect(query.getSchema()).toMatchInlineSnapshot(`
     {
-      "additionalProperties": false,
-      "properties": {
-        "_def": {
-          "additionalProperties": false,
-          "properties": {
-            "argsSchema": {
-              "properties": {
-                "name": {
-                  "type": "string",
-                },
-              },
-              "required": [
-                "name",
-              ],
-              "type": "object",
-            },
-            "description": undefined,
-            "nodeType": {
-              "enum": [
-                "route",
-              ],
-              "type": "string",
-            },
-            "outputSchema": {
-              "type": "string",
-            },
-            "type": {
-              "enum": [
-                "query",
-              ],
-              "type": "string",
-            },
+      "argsSchema": {
+        "properties": {
+          "name": {
+            "type": "string",
           },
-          "required": [
-            "type",
-            "nodeType",
-            "argsSchema",
-            "outputSchema",
-            "description",
-          ],
-          "type": "object",
         },
+        "required": [
+          "name",
+        ],
+        "type": "object",
       },
-      "required": [
-        "_def",
-      ],
-      "type": "object",
+      "description": undefined,
+      "nodeType": "route",
+      "outputSchema": {
+        "type": "string",
+      },
+      "type": "query",
     }
   `);
 });
@@ -121,15 +93,17 @@ test('Should create mutation route with description', async () => {
     parser: defaultJsonSchemaParser,
   });
 
-  expect(mutation._def).toStrictEqual({
+  expect(mutation).toMatchObject({
     nodeType: 'route',
     type: 'mutation',
-    middlewares: [],
     argsSchema: inputSchema,
     outputSchema: outputSchema,
-    resolveFunction: resolveFunction,
     description: 'description',
-    parser: defaultJsonSchemaParser,
+    _def: {
+      middlewares: [],
+      resolveFunction: resolveFunction,
+      parser: defaultJsonSchemaParser,
+    },
   });
 
   expect(
@@ -142,60 +116,25 @@ test('Should create mutation route with description', async () => {
     ok: true,
   });
 
-  expect(mutation.getJsonSchema()).toMatchInlineSnapshot(`
+  expect(mutation.getSchema()).toMatchInlineSnapshot(`
     {
-      "additionalProperties": false,
-      "properties": {
-        "_def": {
-          "additionalProperties": false,
-          "properties": {
-            "argsSchema": {
-              "properties": {
-                "name": {
-                  "type": "string",
-                },
-              },
-              "required": [
-                "name",
-              ],
-              "type": "object",
-            },
-            "description": {
-              "enum": [
-                "description",
-              ],
-              "type": "string",
-            },
-            "nodeType": {
-              "enum": [
-                "route",
-              ],
-              "type": "string",
-            },
-            "outputSchema": {
-              "type": "string",
-            },
-            "type": {
-              "enum": [
-                "mutation",
-              ],
-              "type": "string",
-            },
+      "argsSchema": {
+        "properties": {
+          "name": {
+            "type": "string",
           },
-          "required": [
-            "type",
-            "nodeType",
-            "argsSchema",
-            "outputSchema",
-            "description",
-          ],
-          "type": "object",
         },
+        "required": [
+          "name",
+        ],
+        "type": "object",
       },
-      "required": [
-        "_def",
-      ],
-      "type": "object",
+      "description": "description",
+      "nodeType": "route",
+      "outputSchema": {
+        "type": "string",
+      },
+      "type": "mutation",
     }
   `);
 });
