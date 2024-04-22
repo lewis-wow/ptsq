@@ -1,0 +1,30 @@
+# Error response
+
+Since the error response is also transferred using JSON format between the server and the client, it must be transformed again on the client into a class representing the PTSQ error response.
+When using clients working with Tanstack query, the error response type is automatically set to `PtsqClientError`.
+Because Tanstack query does not use Promise objects to return results from the server, there is no need to further redefine the error response type.
+
+However, by using a traditional client that returns the response in a Promise object, the error response must be rewritten because neither Promise nor the async/await constructs support defining error types.
+The rewriting occurs when the exception itself is checked.
+TypeScript allows you to define a predicate for a function that returns a boolean.
+The predicate is the type of function parameter that is set if the function returns `true`.
+
+```ts filename="Error check"
+// async/await
+try {
+  const response = await client.user.list.query(...);
+} catch(error) {
+  if(PtsqClientError.isPtsqClientError(error)) {
+    console.error(error.code);
+  }
+}
+
+// Promise
+client.user.list.query(...).then(...).catch((error) => {
+  if(PtsqClientError.isPtsqClientError(error)) {
+    console.error(error.code);
+  }
+});
+```
+
+Inside the `PtsqClientError.isPtsqClientError(error)` condition, the exception type is mapped from the `unknown` type to the `PtsqClientError` type and thus it is possible to safely access the PTSQ properties of the error response.

@@ -1,0 +1,26 @@
+# Server middleware
+
+Sometimes the middleware of the resolver is not enough.
+It is only started if the path to the endpoint that the resolver creates is successfully found.
+If the path is not found or some other error occurs before the PTSQ endpoint is selected, the middleware does not start.
+Because of this situation, server middleware support exists.
+These are created when the PTSQ server instance is created and run on each request before the router is called to navigate the request within the API.
+
+The server middleware can modify or format inputs and outputs, both error and success.
+Format error outputs on the production environment, or conversely, in the development environment, output all error outputs to the console.
+It also allows you to create logging, either simple console logging or using some external service.
+
+```ts copy
+const { resolver, router, serve } = ptsq(...).use(async ({ next }) => {
+  const response = await next();
+
+  if(
+    process.env.NODE_ENV === 'development' &&
+    !response.ok
+  ) {
+    console.error(response.error);
+  }
+
+  return response;
+}).create();
+```

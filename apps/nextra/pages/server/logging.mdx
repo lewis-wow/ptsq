@@ -1,0 +1,21 @@
+# Logging
+
+Logging queries and possibly successful or failed responses is one of the key features of the server.
+Logging makes it possible to detect errors in different environments such as stage or production.
+Logging is enabled inside the PTSQ application by creating logging middleware, which can be deployed as server middleware or inside the resolver.
+
+```ts copy
+ptsq(...).use(async ({ meta, next, ctx }) => {
+  const response = await next();
+
+  ctx.logger.logAction({
+    route: meta.route,
+    payload: {
+      meta,
+      response
+    }
+  });
+
+  return response;
+});
+```

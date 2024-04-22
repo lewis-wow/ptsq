@@ -1,0 +1,45 @@
+# Middleware chaining
+
+Middleware can be chained inside the application.
+This makes it possible to create complex downstream logic and prepare several resolvers that can be used in multiple places.
+Chaining middleware comes in handy when dealing with user authorization and permission checking.
+When creating individual resolvers covering different permissions, chaining allows you to build on the already resolved logic of another resolver.
+
+In the code sample, a resolver is created that decides whether a user is logged in.
+This creates a single reusable block or component that can be used in multiple places within the application.
+If the user querying any endpoint created by this resolver is not logged in, the server returns an error response.
+
+```ts copy
+const loggedInResolver = resolver.use(({ ctx, next }) => {
+  if(ctx.user === undefined) throw new PtsqError({ code: 'UNAUTHORIZED' });
+
+  return next({
+    ctx: {
+      user: ctx.user
+    }
+  });
+});
+
+// using a resolver that only allows communication to logged in users
+loggedInResolver.output(...).query(...);
+```
+
+If the endpoint in the application were only allowed to a specific user role, logically the user must be logged in at the same time.
+By using the previous resolver, we create a new one that effectively uses the restrictions defined in the previous resolver and adds another one of its own.
+This way of building on previous already defined components supports a very efficient way of creating authorization.
+Complex methods such as ACL or voter can also be used for the authorization itself.
+
+```ts copy
+const adminResolver = loggedInResolver.use(({ ctx, next }) => {
+  if(ctx.user.role !== Role.Admin) throw new PtsqError({ code: 'FORBIDDEN' });
+
+  return next({
+    ctx: {
+      user: ctx.user
+    }
+  });
+});
+
+// using a resolver that allows communication only for users with the administrator role
+adminResolver.output(...).query(...);
+```

@@ -1,0 +1,75 @@
+# PTSQ client
+
+In addition to creating a server, PTSQ also offers to create a client that queries the server.
+The library itself offers three client modules: for JavaScript or TypeScript without frameworks, React, Svelte.
+However, PTSQ allows you to create your own client for your own frontend framework, this requires some knowledge of TypeScript and the type system in particular.
+
+All framework client adapters refer to the base client module `@ptsq/client`.
+The client requires a type argument, whose type must be the root router from the server or the result of introspection.
+Various type-level transformations are further performed over this type, making it possible to construct a type-safe client.
+The client has type assumptions for endpoint definitions, arguments, outputs, and endpoint descriptions.
+
+The client itself is a Proxy object wrapping a function.
+The client has no run-level control of endpoints, inputs, or outputs; control exists only at the type level.
+So it is still possible to query the wrong path, use the wrong endpoint method, or use the wrong input.
+For this behavior, TypeScript type checking must be turned off, as it would not allow the application to compile.
+
+Creating the client itself requires a single mandatory `url` property that specifies which PTSQ server the client should query.
+
+```ts copy
+// creating a client with a schema from the router from the server
+import type { BaseRouter } from './server';
+
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/ptsq',
+});
+
+// creating a client with a schema from the introspection
+import { BaseRouter } from './schema.generated';
+
+const client = createProxyClient<typeof BaseRouter>({
+  url: 'http://localhost:4000/ptsq',
+});
+```
+
+## Fetch property
+
+Another optional client setting is the `fetch` property.
+This allows us to replace the HTTP server request call with a custom call.
+This is useful for setting various request properties such as HTTP headers.
+The `fetch` property can also be used to create a client in a different environment than inside the browser.
+Without using the `fetch` setting, the client can only be used in a browser environment or newer versions of Node.js, as it uses the `globalThis.fetch` feature.
+When setting up a custom fetch function, the entire call to the HTTP server can be replaced with a fetch polyfill, making it possible to run the client from environments other than the browser, such as older versions of Node.js that did not support fetch.
+
+```ts copy
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/ptsq',
+  fetch: async (input, init) => {
+    const jwt = await cookie.get('token');
+
+    return fetchPolyfill(input, {
+      ...init,
+      headers: {
+        ...init.headers,
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
+  },
+});
+```
+
+When the request is called, the last key of the Proxy object is used to select whether the request is a query or a mutation, and the HTTP request is sent with the appropriate data to the PTSQ server.
+
+```ts copy
+// endpoint = user.list
+const response = await client.user.list.query(...);
+
+// endpoint = user.create
+const response = await client.user.create.mutate(...);
+```
+
+The client evaluates that the last key of the Proxy object is `mutate`, i.e. that it is a mutation.
+It sends an HTTP POST request to the PTSQ server with the request body setting the endpoint type as mutation.
+If the last key was `query`, the client would evaluate that this is a query and send the request with the endpoint set as a query.
+If the type is unknown when the action is evaluated, the client itself throws an exception.
+For API security, the endpoint type must also be validated on the server side.

@@ -1,0 +1,33 @@
+# Documentation
+
+PTSQ supports the creation of custom web documentation similar to the REST or GraphQL API.
+The documentation consists primarily in creating a clear interface describing the API for use of the service by external clients.
+Documentation can be created from schema introspection.
+The schema in JSON form can be obtained by querying the PTSQ server using the HTTP GET method.
+
+```ts copy
+const schema = await fetch('http://localhost:3000/api/ptsq');
+```
+
+The `schema` variable inside the code above has no data type.
+Without a data type, the schema is very hard to work with.
+However, the schema type can be inferred using the special TypeScript type `inferPtsqSchema` that the library provides.
+This type requires a type argument, which can be the type of the server's root router or the resulting schema from introspection.
+
+```ts copy
+// root router without introspection
+import { inferPtsqSchema } from '@ptsq/server';
+import type { BaseRouter } from './server';
+
+const schema: inferPtsqSchema<BaseRouter> = await fetch('http://localhost:3000/api/ptsq');
+
+// generated scheme from introspection
+import { inferPtsqSchema } from '@ptsq/server';
+import { BaseRouter } from './schema.generated';
+
+const schema: inferPtsqSchema<typeof BaseRouter> = await fetch('http://localhost:3000/api/ptsq');
+```
+
+Based on the schema, a frontend can then be created that describes the PTSQ API clearly on a web page.
+In full-stack frameworks like Next.js or SvelteKit, the schema can be obtained before rendering the page on the server using SSR.
+The documentation page is thus also SEO friendly.

@@ -59,12 +59,6 @@ It is only for keeping the context type up to date after e.g. `if` condition.
 
 <Video src="/assets/middleware.mp4" />
 
-## Middleware flow
-
-<div style={{ backgroundColor: 'white', padding: '1rem' }}>
-  ![Middleware flow](/assets/middleware-flow.png 'Middleware flow')
-</div>
-
 ## Run next function before return
 
 Running the next function before the return statement allows for the execution of subsequent middlewares before the current middleware completes. This capability is particularly useful for tasks such as measuring response times, as it ensures that the next middleware is triggered before the current one finishes processing.
@@ -138,61 +132,6 @@ const protectedResolver = resolver
   );
 ```
 
-## Middleware pipes
-
-If middlewares are piped, then all the middlewares run before the route call in piping order.
-
-```ts copy
-const protectedResolver = resolver.use(
-  ({ ctx /* { user: User<any> | null } */, next }) => {
-    if (!ctx.user) throw new PtsqError({ code: 'UNAUTHORIZED' });
-
-    return next({
-      ctx: {
-        user: ctx.user,
-      },
-    });
-  },
-);
-
-const adminResolver = protectedResolver.use(
-  ({ ctx /* { user: User<any> } */, next }) => {
-    if (ctx.user.role !== 'admin') throw new PtsqError({ code: 'FORBIDDEN' });
-
-    return next({
-      ctx: {
-        user: ctx.user,
-      },
-    });
-  },
-);
-
-const deleteOrganization = adminResolver.mutation({
-  //...
-  resolve: ({ ctx /* { user: User<'admin'> } */, input }) => {
-    //...
-  },
-});
-```
-
-Piping the middleware with another middleware, pass the context returned from the first middleware as an input to the piped (next) middleware.
-
-There is a demonstration of the `Middleware` types work.
-
-```ts
-// the mutation without any middleware
-Mutation<{ user?: User | null }>;
-
-// the first middleware gets the root context and checks if the user is undefined
-Middleware<{ user?: User | null }, { user: User | null }>;
-
-// the piped middleware gets the result context of the first middleware and checks if the user is null
-Middleware<{ user: User | null }, { user: User }>;
-
-// the mutation with a resolver that uses the piped middleware
-Mutation<{ user: User }>;
-```
-
 ## Standalone middleware
 
 Standalone middleware allows you to create a middleware that is out of the server.
@@ -253,84 +192,4 @@ export const hasPermission = middelware<{
 
   return next();
 });
-```
-
-## Server middlewares
-
-You can add middleware to the resolver, which calls them when the query or mutation created by that resolver will be called.
-
-What if you want to run middleware no matter if the route is found or the resolver type (query or mutation) is correctly set?
-
-```ts copy
-export const { resolver, router, serve } = ptsq()
-  .use(async ({ next, meta }) => {
-    console.log('request: ', meta);
-
-    const response = await next();
-
-    console.log('response: ', response);
-
-    return response;
-  })
-  .create();
-```
-
-The middleware that the server uses in the example will be called on every request, no matter if the route was found and the resolver type was correctly set.
-
-It is very good for logging and something like that.
-
-## Middleware examples
-
-```ts copy filename="console-error.ts"
-export const { resolver, router, serve } = ptsq()
-  .use(async ({ next }) => {
-    const response = await next();
-
-    if (process.env.NODE_ENV === 'development' && !response.ok) {
-      console.error(response.error);
-    }
-
-    console.log('response: ', response);
-
-    return response;
-  })
-  .create();
-```
-
-```ts copy filename="error-masking.ts"
-export const { resolver, router, serve } = ptsq()
-  .use(async ({ next }) => {
-    const response = await next();
-
-    if (
-      process.env.NODE_ENV === 'production' &&
-      !response.ok &&
-      response.error.code === 'INTERNAL_SERVER_ERROR'
-    ) {
-      throw new PtsqError({
-        ...response.error,
-        cause: undefined, // remove the cause property
-      });
-    }
-
-    return response;
-  })
-  .create();
-```
-
-```ts copy filename="cacheables.ts"
-export const { resolver, router, serve } = ptsq()
-  .use(async ({ next, meta }) => {
-    const response = await cache.cacheable(
-      () => next(),
-      Cacheables.key(...meta.route.split('.'), JSON.stringify(meta.input)),
-      {
-        cachePolicy: 'max-age',
-        maxAge: 5 * 1000, // 5sec
-      },
-    );
-
-    return response;
-  })
-  .create();
 ```

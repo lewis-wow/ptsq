@@ -1,0 +1,31 @@
+# Response envelope
+
+The Web API can sometimes define a so-called response envelope.
+An envelope is a common practice in creating open APIs and provides some standard structure or skeleton of a response for a given web service.
+Creating an envelope inside an untyped system, for example, when creating a REST API, is very simple.
+In fact, the schema does not exist and hence there is no need to somehow type the response wrapper.
+When creating an envelope inside a PTSQ, the best option is to create a resolver that has a prebuilt response structure.
+
+```ts copy
+  const envelopedResolver = resolver.output(
+    Type.Object({
+      data: Type.Unknown(),
+      version: Type.Number(),
+      // using schema with transformations for date serialization
+      timestamp: DateSchema,
+    })
+  );
+
+  // using a resolver with a response envelope
+  envelopedResolver.output(
+    Type.Object({
+      data: Type.Array(BookSchema)
+    })
+  ).query(...);
+```
+
+By using the resolver defined in this way everywhere in the application, the necessity of creating a response wrapper is ensured.
+At the same time, the code does not need to be repeated and the response data type can be easily extended using chaining of output validation schemes.
+By using `Type.Unknown()` instead of `Type.Any()` as the base output data type, the need to define an additional data schema is guaranteed.
+This is because no handler output will be compatible with TypeScript data type unknown unless it is manually overridden.
+Such defined output is also valid for schema export (introspection) of the API.

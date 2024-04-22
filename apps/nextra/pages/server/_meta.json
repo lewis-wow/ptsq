@@ -4,6 +4,8 @@
   "router": "Router",
   "context": "Context",
   "middleware": "Middleware",
+  "server-middleware": "Server middleware",
+  "middleware-chaining": "Middleware chaining",
   "compilation": "Compilation",
   "args-chaining": "Args chaining",
   "output-chaining": "Output chaining",
@@ -14,5 +16,9 @@
   "cors": "Cors",
   "server-options": "Server options",
   "testing": "Testing",
-  "api-versioning": "API versioning"
+  "api-versioning": "API versioning",
+  "authentication": "Authentication",
+  "logging": "Logging",
+  "response-envelope": "Response envelope",
+  "documentation": "Documentation"
 }
