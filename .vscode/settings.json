@@ -1,9 +1,3 @@
 {
-  "grammarly.selectors": [
-    {
-      "language": "mdx",
-      "scheme": "file"
-    }
-  ],
   "typescript.tsdk": "node_modules/typescript/lib"
 }

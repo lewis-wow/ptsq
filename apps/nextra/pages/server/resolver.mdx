@@ -1,0 +1,105 @@
+# Resolver
+
+One of the three components of the PTSQ server is the resolver, which is responsible for creating queries and mutations.
+It allows you to add validation schemes for arguments and outputs.
+The resolver acts as a builder that forms the final PTSQ endpoint.
+This can be of type `query` or `mutation`, depending on the purpose.
+The query endpoint should not modify data and should be safe and idempotent.
+Conversely, mutations should change data and need not be idempotent.
+These types of endpoints are also used on the client side for query caching and invalidation purposes.
+
+## Arguments
+
+The `Resolver.args` method allows to add arguments to the resolver.
+When the method is used, a new resolver with a validation scheme is created, and the original resolver remains unchanged.
+This makes the operation of adding arguments immutable, primarily because of the need to register data types.
+These do not support any overwriting capability, so a new data type must always be created.
+Arguments are specified using JSON validation schemas, created using the Typebox builder, which allows you to derive TypeScript types from these schemas.
+This ensures that type-safe arguments are added via type inference while ensuring the safety of arguments at runtime via verification and validation based on JSON schemas.
+The `Resolver.args` method can be called repeatedly to chain arguments.
+Chaining can occur anywhere in the endpoint creation process.
+Chained validation schemes are linked using JSON `allOf` construct.
+
+```ts filename="Resolver with arguments" copy
+const resolverWithFirstName = resolver.args(
+  Type.Object({
+    firstName: Type.String(),
+  }),
+);
+```
+
+## Arguments chaining
+
+The advantage of chaining is the ability to replace a resolver with another, already prepared one at any time in the chain, thus creating reusable components.
+
+```ts filename="Arguments chaining" copy
+resolverWithFirstName.args(
+  Type.Object({
+    lastName: Type.String(),
+  }),
+);
+```
+
+```ts filename="Arguments chaining" copy
+resolver
+  .args(
+    Type.Object({
+      firstName: Type.String(),
+    }),
+  )
+  .args(
+    Type.Object({
+      lastName: Type.String(),
+    }),
+  );
+```
+
+Arguments can be chained until the resolver produces either a query or a mutation.
+The created endpoint will then access a `input` object that is type-safe and its type exactly matches the data validated by the input validation JSON schema.
+This way, the developer never loses track of the expected endpoint input, minimizing errors and inefficiencies.
+Should the input validation (arguments) be evaluated as invalid at runtime, the server will automatically return a HTTP response 400, Bad request with the PTSQ error code [PTSQ_VALIDATION_FAILED](/server/errors#error-codes).
+
+## Output schemas
+
+In addition to adding arguments, the resolver also has the ability to add outputs.
+Like adding arguments, adding outputs is an immutable operation, which means that the original resolver remains unchanged and a new resolver is created with the added output validation scheme.
+The output validation scheme not only checks the return value type of the function (handler) that represents the query or mutation, but also performs runtime validation of the output.
+If the output is not valid, the server will return an HTTP response of 500, Internal Server Error, with a PTSQ error code of [INTERNAL_SERVER_ERROR](/server/errors#error-codes).
+
+```ts filename="Resolver with output" copy
+resolver.output(
+  Type.Object({
+    firstName: Type.String(),
+  }),
+);
+```
+
+In the case of an invalid input or output, the error response data automatically includes information about the validation itself to justify why the input or output is invalid.
+
+## Dual validation
+
+Because TypeScript is used on both the server and client side, PTSQ provides the ability to share validation schemes between the frontend and backend.
+The use of dual validation brings a huge advantage in optimizing network communication with the server.
+On the frontend, the same validation scheme is used to validate the form.
+If the form is not valid, there is no need to burden the server by sending invalid data.
+Only if the form is valid is the data sent to the server.
+However, the server must also re-validate the data for security reasons.
+
+```ts filename="External shared schemas" copy
+import { BookSchema, createBookSchema } from './validations';
+
+resolver.args(createBookSchema).output(BookSchema);
+```
+
+```ts filename="External shared schemas - React hook form" copy
+import type { Static } from '@ptsq/server';
+import { useForm } from 'react-hook-form';
+import { createBookSchema } from './validations';
+
+useForm<Static<typeof createBookSchema>>({
+  resolver: typeboxResolver(createBookSchema),
+  defaultValues: {
+    published: false,
+  },
+});
+```

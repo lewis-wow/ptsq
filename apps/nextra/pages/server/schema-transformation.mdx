@@ -1,0 +1,27 @@
+import { Video } from '../../components/Video';
+
+# Schema transformation
+
+Transformations can be used to parse and serialize values.
+When sending a date to the PTSQ API, the date and time can only be sent as a string because JSON does not support the JavaScript object `Date` or any other similar object to represent the date and time.
+So the time value will only arrive at the server in string format, but this is very impractical for any kind of time manipulation, and it is also very inconvenient and cluttered to parse or serialize the value directly inside the handler.
+The handler is only supposed to take care of processing the request as a write to the database or a dump of values from the database.
+Transformations allow you to create a parser and serializer directly within the validation schema, abstracting the parsing function from the handler itself.
+This allows the handler to accept JavaScript objects and classes and return such types and constructs at the same time.
+This is because the arguments are automatically parsed, while the handler outputs are automatically serialized before sending the data to the client.
+
+<Video src="/assets/transformations.mp4" />
+
+```ts copy filename="URL transformations"
+const URLSchema = Type.Transformation(Type.String())
+  .Decode((arg) => new URL(arg))
+  .Encode((arg) => arg.toISOString());
+
+resolver
+  .args(z.object({ url: URLSchema }))
+  .output(URLSchema)
+  .query(
+    ({ input /* { url: { URL } }  */ }) =>
+      new URL(`http://localhost:3000/${input.url.pathname}`),
+  );
+```

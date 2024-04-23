@@ -1,9 +1,34 @@
 # Validations
 
-Validations are a core concept within PTSQ, encompassing both argument and output validation. These validations are powered by [Typebox](https://github.com/sinclairzx81/typebox), a library known for generating JSON schemas for validation purposes.
+The main concept of PTSQ is to create a secure API, both at the TypeScript level and at the runtime level.
+A validation schema is a tool that allows defining structure and types and then validating the data.
+The PTSQ uses the [Typebox](https://github.com/sinclairzx81/typebox) library to define validation schemes.
+You might wonder why Typebox is chosen over Zod for validations.
+The primary reason is the seamless integration with introspection.
+Typebox generates JSON schemas directly, simplifying the introspection process.
+In contrast, Zod requires the conversion of its schemas into JSON schemas for introspection, adding an extra step and potentially complicating the process.
+This allows you to create a plain JSON schema using a builder with the ability to statically derive the schema type in TypeScript.
+Thus, the schema validates the data at the runtime level, but also provides type assumptions for the data at the type level.
+It is thus a "single source of truth".
 
-You might wonder why Typebox is chosen over Zod for validations. The primary reason is the seamless integration with introspection. Typebox generates JSON schemas directly, simplifying the introspection process. In contrast, Zod requires conversion of its schemas into JSON schemas for introspection, adding an extra step and potentially complicating the process.
+```ts filename="Zod" copy
+z.string();
 
-Furthermore, Typebox allows PTSQ to infer TypeScript types directly from the generated JSON schemas, streamlining the development experience and ensuring type safety throughout the application.
+z.object({
+  nickname: z.string().min(4),
+  email: z.string().email(),
+});
+```
 
-In summary, by leveraging Typebox for validations, PTSQ benefits from easier introspection, simplified development workflows, and robust type inference capabilities, enhancing the overall developer experience and productivity.
+```ts filename="Typebox" copy
+Type.String();
+
+Type.Object({
+  nickname: Type.String({
+    minLength: 4,
+  }),
+  email: Type.String({
+    format: 'email',
+  }),
+});
+```

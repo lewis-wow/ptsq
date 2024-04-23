@@ -1,4 +1,8 @@
 {
+  "index": "PTSQ server",
+  "resolver": "Resolver",
+  "schema-transformation": "Schema transformation",
+  "schema-compilation": "Schema compilation",
   "query": "Query",
   "mutation": "Mutation",
   "router": "Router",
@@ -9,7 +13,6 @@
   "compilation": "Compilation",
   "args-chaining": "Args chaining",
   "output-chaining": "Output chaining",
-  "transformations": "Transformations",
   "description": "Description",
   "errors": "Errors",
   "server-calls": "Server calls",
