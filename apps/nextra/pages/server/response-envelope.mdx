@@ -6,18 +6,16 @@ Creating an envelope inside an untyped system, for example, when creating a REST
 In fact, the schema does not exist and hence there is no need to somehow type the response wrapper.
 When creating an envelope inside a PTSQ, the best option is to create a resolver that has a prebuilt response structure.
 
-```ts copy
-  const envelopedResolver = resolver.output(
+```ts copy filename="Response aggregation envelope"
+  const envelopedAggregationResolver = resolver.output(
     Type.Object({
       data: Type.Unknown(),
-      version: Type.Number(),
-      // using schema with transformations for date serialization
-      timestamp: DateSchema,
+      paging: Type.Object({...}),
+      count: Type.Number(),
     })
   );
 
-  // using a resolver with a response envelope
-  envelopedResolver.output(
+  envelopedAggregationResolver.output(
     Type.Object({
       data: Type.Array(BookSchema)
     })

@@ -1,0 +1,13 @@
+# Standalone resolver
+
+The library allows you to create a standalone resolver independent of the PTSQ server instance.
+Using the `Resolver.createRoot` static method, you can create an external resolver without creating a server and define the type of context that this resolver requires.
+By creating an independent resolver, the library supports the creation of standalone components that can be easily connected to a server.
+An independent resolver can, like a classic resolver, create PTSQ endpoints and thus can be attached to any PTSQ instance.
+The resolver unification described below can also be used to connect to an application.
+When connecting created endpoints or resolvers, the application context type just needs to extend the defined context type of the standalone resolver, so the application context can contain multiple properties.
+If this restriction does not apply, TypeScript will not allow a resolver to be attached to the application at the type level.
+
+```ts copy filename="Standalone resolver with context requiremens"
+const standaloneResolver = Resolver.createRoot<{ user?: User }>();
+```

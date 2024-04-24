@@ -43,3 +43,5 @@ const adminResolver = loggedInResolver.use(({ ctx, next }) => {
 // using a resolver that allows communication only for users with the administrator role
 adminResolver.output(...).query(...);
 ```
+
+![Middleware chaining diagram](/assets/middleware_chaining.png 'Middleware chaining diagram')

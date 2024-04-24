@@ -5,9 +5,9 @@ However, it does not create the server components themselves, it creates a build
 
 PTSQ itself does not offer any option to create an HTTP server.
 Like GraphQL or tRPC, PTSQ uses only a single HTTP endpoint.
-The library provides listeners for HTTP servers created by external modules such as node:http, Express, Fastify, or Koa.
+The library provides listeners for HTTP servers created by external modules such as [node:http](https://nodejs.org/api/http.html), [Express](https://expressjs.com/), [Fastify](https://fastify.dev/), or [Koa](https://koajs.com/), for serverless or alternative environments, such as [Bun](https://bun.sh/), [Deno](https://deno.com/), [AWS Lambda](https://aws.amazon.com/lambda/) or [Cloudflare workers](https://workers.cloudflare.com/) and for full-stack frameworks, such as [Next.js](https://nextjs.org/) or [SvelteKit](https://kit.svelte.dev/).
 
-```ts copy filename="Create PTSQ server"
+```ts copy filename="Creating a PTSQ server"
 import { ptsq } from '@ptsq/server';
 
 const { resolver, router serve } = ptsq().create();
@@ -15,7 +15,7 @@ const { resolver, router serve } = ptsq().create();
 
 You can directly export all created components for further use.
 
-```ts copy filename="Create PTSQ server"
+```ts copy filename="Creating a PTSQ server"
 import { ptsq } from '@ptsq/server';
 
 export const { resolver, router serve } = ptsq().create();

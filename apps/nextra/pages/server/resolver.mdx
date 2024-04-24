@@ -67,7 +67,7 @@ The output validation scheme not only checks the return value type of the functi
 If the output is not valid, the server will return an HTTP response of 500, Internal Server Error, with a PTSQ error code of [INTERNAL_SERVER_ERROR](/server/errors#error-codes).
 
 ```ts filename="Resolver with output" copy
-resolver.output(
+resolver.args(...).output(
   Type.Object({
     firstName: Type.String(),
   }),

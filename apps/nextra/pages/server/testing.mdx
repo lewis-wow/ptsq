@@ -21,7 +21,7 @@ However, due to running all the middleware of the called endpoint inside the cal
 
 <Video src="/assets/server-side-caller.mp4" />
 
-```ts copy filename="server.test.ts"
+```ts copy filename="Server testing"
 const baseRouterCallerBuilder = Router.serverSideCaller(baseRouter);
 
 const adminCaller = baseRouterCallerBuilder.create({

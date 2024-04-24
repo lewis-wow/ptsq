@@ -8,62 +8,61 @@ Moreover, routers can be merged seamlessly across files, allowing you to define 
 
 Exporting the `type` of the `Base` router is recommended as it enables clients, particularly in a monorepo project structure, to specify the server as a `devDependency`. This promotes better dependency management and version control, ensuring consistency and compatibility across different parts of your project.
 
-```ts copy filename="server.ts"
+```ts copy filename="Server side"
 import { ptsq } from '@ptsq/server';
-import express, { Request, Response } from 'express';
-import { userRouter } from './userRouter';
 
-const app = express();
+const { resolver, router } = ptsq().create();
 
-const createContext = ({ req, res }: { req: Request; res: Response }) => ({
-  req,
-  res,
-});
-
-const { resolver, router, serve } = ptsq({
-  ctx: createContext,
-}).create();
+const createUser = resolver
+  .output(
+    Type.Object({
+      firstName: Type.String(),
+      lastName: Type.String(),
+    }),
+  )
+  .mutation(() => {
+    return {
+      firstName: 'John',
+      lastName: 'Doe',
+    };
+  });
 
 // routers can be nested as you want
 const baseRouter = router({
-  a: router({
-    b: router({
-      c: router({
-        user: userRouter,
-      }),
-    }),
+  user: router({
+    create: createUser,
   }),
 });
 
 export type BaseRouter = typeof baseRouter;
-
-app.use((req, res) => serve(baseRouter)(req, res));
-
-app.listen(4000);
 ```
 
-## Client
+<Video src="/assets/router.mp4" />
+
+## On client side
 
 On the client side routers are objects (Proxy objects).
 If routers are nested on the server, it creates the nesting on the client side as well.
 
-```ts copy filename="client.ts"
+```ts copy filename="Client side"
 import { createProxyClient } from '@ptsq/client';
-import { BaseRouter } from './server';
+import type { BaseRouter } from './server';
 
 const client = createProxyClient<BaseRouter>({
-  url: 'http://localhost:4000/ptsq'
+  url: 'http://localhost:4000/ptsq',
 });
 
-const result = await client.a.b.c.user.current.query();
-
-// auto-completion
-const userList = await client.a. /* b.c.user.userList.query() */
+const response = await client.user.create.mutate();
 ```
 
 ## Merging routers
 
-```ts copy filename="server-router-merge.ts"
+In addition to nesting, routers also support merging using the static `Router.merge` method.
+This method creates a new router.
+The operation does not change the contents of the original routers in any way and merges the paths of one and the other.
+If any of the paths within the routers overlap, the path that enters the merge operation second, from the other router, is always used.
+
+```ts copy filename="Server router merging"
 import { Router } from '@ptsq/server';
 import { routerA } from './routerA';
 import { routerB } from './routerB';
@@ -72,15 +71,3 @@ const mergedRouter = Router.merge(routerA, routerB);
 ```
 
 <Video src="/assets/router-merge.mp4" />
-
-## Type-level only
-
-The `BaseRouter` is a Typescript type, which means the client doesn't know anything about the server in runtime.
-
-```ts filename="client-bad-route.ts"
-//@ts-ignore
-const result = await client.a.wrong.route.query();
-```
-
-That means you can disable the type hinting and call the wrong route.
-If the wrong route is called, then the server responds with `BAD_REQUEST` error.

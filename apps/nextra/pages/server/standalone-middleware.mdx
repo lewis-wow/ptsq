@@ -1,0 +1,65 @@
+import { Video } from '../../components/Video';
+
+# Standalone middleware
+
+The library also allows you to create separate middleware in addition to a separate resolver.
+Like the standalone resolver, this middleware can be created without a PTSQ instance.
+When defining this middleware, you can specify at the type level what inputs and context it requires, these requirements are then respected when connecting the middleware to the resolver.
+
+<Video src="/assets/standalone-middleware.mp4" />
+
+```ts filename="middleware/isAuthed.ts" copy
+import { middleware } from '@ptsq/server';
+
+export const isAuthed = middelware<{
+  ctx: {
+    user?: User;
+  };
+}>().create(({ ctx /* { user?: User | undefined } */, next }) => {
+  if (!ctx.user) throw new PtsqError({ code: 'UNAUTHORIZED' });
+
+  return next({
+    user: ctx.user,
+  });
+});
+```
+
+As you can see we can define which context is required for the standalone middleware, then we can you the middleware as any other middleware.
+
+```ts filename="ptsq.ts" copy
+const createContext = async ({ req }: { req: Request }) => {
+  const user = await getUserFromJWT(req);
+
+  return {
+    user,
+  };
+};
+
+export const { resolver, router, serve } = ptsq({
+  ctx: createContext,
+});
+```
+
+```ts filename="resolvers/isAuthed.ts"
+export const isAuthedResolver = resolver.use(isAuthed);
+```
+
+You can also define which input the standalone middleware requires
+
+```ts copy filename="Standalone middleware with context and input requirements"
+import { middleware } from '@ptsq/server';
+
+export const hasPermission = middelware<{
+  ctx: {
+    user: User;
+  };
+  input: {
+    roomId: string;
+  };
+}>(({ input /* { roomId: string } */, ctx /* { user: User } */, next }) => {
+  if (!ctx.hasRoomPermissions(input.roomId, ctx.user))
+    throw new PtsqError({ code: 'UNAUTHORIZED' });
+
+  return next();
+});
+```

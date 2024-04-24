@@ -2,13 +2,13 @@
 
 The PTSQ library itself does not provide authentication, this must be done externally either by a library supporting authentication or by its own implementation.
 Because PTSQ allows sending and receiving cookies and HTTP headers in server requests and responses, the user login process can be easily implemented.
-Typically, authentication is performed using JWT tokens that are stored on the client, either in cookies or, for example, in local storage.
+Typically, authentication is performed using [JWT](https://jwt.io/) tokens that are stored on the client, either in cookies or, for example, in local storage.
 This can be done by sending a JWT token in the Authorization header with each request, or automatically by setting cookies.
 
-Libraries like Next-auth or PassportJS can be used to create easy authentication.
+Libraries like [Next-auth](https://next-auth.js.org/) or [PassportJS](https://www.passportjs.org/) can be used to create easy authentication.
 Inside the function that creates the context of the PTSQ request, the JWT token that came with the HTTP request can then be decoded to add the user data to the context, thereby publicizing this information to all the endpoints and middleware that can further operate on the data.
 
-```ts copy
+```ts copy filename="Context creation with Next-auth session"
 export const createContext = async (options: {
   req: NextApiRequest;
   res: NextApiResponse;

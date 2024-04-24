@@ -1,0 +1,49 @@
+import { Video } from '../../components/Video';
+
+# Endpoint
+
+You can create a query or mutation from the resolver only if it has any output schema defined.
+
+Queries should not modify data, only return it, and should be safe and idempotent.
+Conversely, mutations should modify data and need not be idempotent.
+This approach differs from the REST architecture, where there are at least four HTTP methods: GET, POST, DELETE, and PUT.
+In PTSQ, mutations are used for updating, creating and deleting, while queries are analogous to the HTTP method GET.
+Both types of endpoints are called using the HTTP POST method, primarily because of the complexity of the data content that is transmitted in the request body.
+Thus, for queries with many filters, it is not appropriate to use the GET method, which does not support the request body and would mean that all data would have to be included as parameters in the URL.
+
+By creating an endpoint, it is not possible to continue chaining arguments, outputs and other operations as was done with the resolver.
+A query or mutation always terminates this chaining sequence.
+
+When an endpoint is created, the types from the input validation schemas are provided, and the return type from the query or mutation function is checked at the same time.
+If the handler returned data that did not match the output type, TypeScript would not allow such code to compile.
+The same is true for input; you cannot access any properties of the `input` object other than those defined by Scheme.
+
+<Video src="/assets/resolver-query.mp4" />
+
+```ts copy filename="Query"
+resolver
+  .args(Type.Object({ name: Type.String() }))
+  .output(Type.String())
+  .query(({ input /* { name: string } */ }) /* string */ => {
+    return `Hello, ${input.name}`;
+  });
+```
+
+```ts copy filename="Mutation"
+import { UserSchema } from './validations';
+
+resolver
+  .args(Type.Object({ name: Type.String() }))
+  .output(UserSchema)
+  .mutation(async ({ input /* { name: string } */, ctx }) /* User */ => {
+    const user = ctx.prisma.create({
+      data: {
+        name: input.name,
+      },
+    });
+
+    return user;
+  });
+```
+
+Inside the query and mutation, it is also possible to access the created context, which is again type-safe and offers only the object properties that were defined inside the middleware when creating or modifying the context.
