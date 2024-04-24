@@ -12,7 +12,12 @@ import {
 } from './middleware';
 import { Mutation } from './mutation';
 import { Query } from './query';
-import { type ErrorMessage, type MaybePromise } from './types';
+import type {
+  ErrorMessage,
+  MaybePromise,
+  ShallowMerge,
+  Simplify,
+} from './types';
 
 /**
  * Resolver allows you to create queries, mutations and middlewares
@@ -171,8 +176,8 @@ export class Resolver<
    */
   mutation(
     resolve: ResolveFunction<
-      inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>,
-      inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>,
+      Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
+      Simplify<inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>>,
       TContext
     >,
   ): TOutputSchema extends TSchema
@@ -181,8 +186,8 @@ export class Resolver<
         TOutputSchema,
         TContext,
         ResolveFunction<
-          inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>,
-          inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>,
+          Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
+          Simplify<inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>>,
           TContext
         >,
         TDescription
@@ -202,8 +207,8 @@ export class Resolver<
           TOutputSchema,
           TContext,
           ResolveFunction<
-            inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>,
-            inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>,
+            Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
+            Simplify<inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>>,
             TContext
           >,
           TDescription
@@ -218,8 +223,8 @@ export class Resolver<
    */
   query(
     resolve: ResolveFunction<
-      inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>,
-      inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>,
+      Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
+      Simplify<inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>>,
       TContext
     >,
   ): TOutputSchema extends TSchema
@@ -229,8 +234,10 @@ export class Resolver<
         TContext,
         TOutputSchema extends TSchema
           ? ResolveFunction<
-              inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>,
-              inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>,
+              Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
+              Simplify<
+                inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>
+              >,
               TContext
             >
           : never,
@@ -252,14 +259,90 @@ export class Resolver<
           TContext,
           TOutputSchema extends TSchema
             ? ResolveFunction<
-                inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>,
-                inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>,
+                Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
+                Simplify<
+                  inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>
+                >,
                 TContext
               >
             : never,
           TDescription
         >
       : ErrorMessage<`Query cannot be used without output schema.`>;
+  }
+
+  /**
+   * Continues in the second resolver
+   */
+  pipe<
+    TPipedResolver extends Resolver<
+      any,
+      any,
+      TContext,
+      any,
+      string | undefined
+    >,
+  >(
+    pipedResolver: TContext extends inferResolverRootContextType<TPipedResolver>
+      ? TPipedResolver
+      : never,
+  ) {
+    const nextArgsSchema = this._def.argsSchema;
+    this._def.argsSchema === undefined &&
+    pipedResolver._def.argsSchema === undefined
+      ? undefined
+      : this._def.argsSchema === undefined
+        ? pipedResolver._def.argsSchema
+        : pipedResolver._def.argsSchema === undefined
+          ? this._def.argsSchema
+          : Type.Intersect([
+              this._def.argsSchema,
+              pipedResolver._def.argsSchema,
+            ]);
+
+    type NextArgsSchema = TArgsSchema extends TSchema
+      ? TPipedResolver['_def']['argsSchema'] extends TSchema
+        ? TIntersect<[TArgsSchema, TPipedResolver['_def']['argsSchema']]>
+        : TArgsSchema
+      : TPipedResolver['_def']['argsSchema'];
+
+    const nextOutputSchema =
+      this._def.outputSchema === undefined &&
+      pipedResolver._def.outputSchema === undefined
+        ? undefined
+        : this._def.outputSchema === undefined
+          ? pipedResolver._def.outputSchema
+          : pipedResolver._def.outputSchema === undefined
+            ? this._def.outputSchema
+            : Type.Intersect([
+                this._def.outputSchema,
+                pipedResolver._def.outputSchema,
+              ]);
+
+    type NextOutputSchema = TOutputSchema extends TSchema
+      ? TPipedResolver['_def']['outputSchema'] extends TSchema
+        ? TIntersect<[TOutputSchema, TPipedResolver['_def']['outputSchema']]>
+        : TOutputSchema
+      : TPipedResolver['_def']['outputSchema'];
+
+    return new Resolver<
+      NextArgsSchema,
+      NextOutputSchema,
+      TRootContext,
+      Simplify<
+        ShallowMerge<TContext, inferResolverContextType<TPipedResolver>>
+      >,
+      undefined
+    >({
+      argsSchema: nextArgsSchema as NextArgsSchema,
+      outputSchema: nextOutputSchema as NextOutputSchema,
+      middlewares: [
+        ...this._def.middlewares,
+        ...pipedResolver._def.middlewares,
+      ],
+      description: undefined,
+      parser: this._def.parser,
+    });
   }
 
   /**
