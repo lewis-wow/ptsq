@@ -58,3 +58,192 @@ test('Should create resolver with output schema', () => {
   expect(resolver._def.outputSchema).toBe(undefined);
   expect(intOutputResolver._def.outputSchema).toStrictEqual(Type.Integer());
 });
+
+test('Should pipe resolvers middleware', async () => {
+  const resolverA = Resolver.createRoot<{ count: number }>().use(
+    ({ next, ctx }) => {
+      return next({
+        ctx: {
+          count: ctx.count + 1,
+        },
+      });
+    },
+  );
+
+  const resolverB = Resolver.createRoot<{ count: number }>().use(
+    ({ next, ctx }) => {
+      return next({
+        ctx: {
+          count: ctx.count + 1,
+        },
+      });
+    },
+  );
+
+  const query = resolverA
+    .pipe(resolverB)
+    .output(Type.Any())
+    .query(({ ctx }) => {
+      expect(ctx.count).toBe(3);
+    });
+
+  await query.call({ ctx: { count: 1 }, meta: {} as any });
+});
+
+test('Should pipe resolvers with arguments', async () => {
+  const resolverA = Resolver.createRoot<{ count: number }>().args(
+    Type.Object({
+      firstName: Type.String(),
+    }),
+  );
+
+  const resolverB = Resolver.createRoot<{ count: number }>().args(
+    Type.Object({
+      lastName: Type.String(),
+    }),
+  );
+
+  const testInput = {
+    firstName: 'John',
+    lastName: 'Doe',
+  };
+
+  const query = resolverA
+    .pipe(resolverB)
+    .output(Type.Any())
+    .query(({ input, ctx }) => {
+      expect(ctx.count).toBe(1);
+
+      expect(input).toStrictEqual(testInput);
+    });
+
+  await query.call({ ctx: { count: 1 }, meta: { input: testInput } as any });
+});
+
+test('Should pipe resolvers with outputs', async () => {
+  const resolverA = Resolver.createRoot<{ count: number }>().output(
+    Type.Object({
+      firstName: Type.String(),
+    }),
+  );
+
+  const resolverB = Resolver.createRoot<{ count: number }>().output(
+    Type.Object({
+      lastName: Type.String(),
+    }),
+  );
+
+  const testOutput = {
+    firstName: 'John',
+    lastName: 'Doe',
+  };
+
+  const query = resolverA.pipe(resolverB).query(() => {
+    return testOutput;
+  });
+
+  const response = await query.call({ ctx: { count: 1 }, meta: {} as any });
+
+  expect(response).toStrictEqual({
+    ok: true,
+    data: testOutput,
+  });
+});
+
+test('Should pipe resolvers but only first has arguments', async () => {
+  const resolverA = Resolver.createRoot<{ count: number }>().args(
+    Type.Object({
+      firstName: Type.String(),
+    }),
+  );
+
+  const resolverB = Resolver.createRoot<{ count: number }>();
+
+  const testInput = {
+    firstName: 'John',
+  };
+
+  const query = resolverA
+    .pipe(resolverB)
+    .output(Type.Any())
+    .query(({ input }) => {
+      expect(input).toStrictEqual(testInput);
+      return input;
+    });
+
+  await query.call({ ctx: {}, meta: { input: testInput } as any });
+});
+
+test('Should pipe resolvers but only second has arguments', async () => {
+  const resolverA = Resolver.createRoot<{ count: number }>();
+
+  const resolverB = Resolver.createRoot<{ count: number }>().args(
+    Type.Object({
+      firstName: Type.String(),
+    }),
+  );
+
+  const testInput = {
+    firstName: 'John',
+  };
+
+  const query = resolverA
+    .pipe(resolverB)
+    .output(Type.Any())
+    .query(({ input }) => {
+      expect(input).toStrictEqual(testInput);
+      return input;
+    });
+
+  await query.call({ ctx: {}, meta: { input: testInput } as any });
+});
+
+test('Should pipe resolvers but only first has output', async () => {
+  const resolverA = Resolver.createRoot<{ count: number }>().output(
+    Type.Object({
+      firstName: Type.String(),
+    }),
+  );
+
+  const resolverB = Resolver.createRoot<{ count: number }>();
+
+  const testOutput = {
+    firstName: 'John',
+  };
+
+  const query = resolverA.pipe(resolverB).query(() => {
+    return testOutput;
+  });
+
+  const response = await query.call({ ctx: {}, meta: {} as any });
+
+  expect(response).toStrictEqual({
+    ok: true,
+    data: testOutput,
+  });
+});
+
+test('Should pipe resolvers but only second has output', async () => {
+  const resolverA = Resolver.createRoot<{ count: number }>();
+
+  const resolverB = Resolver.createRoot<{ count: number }>().output(
+    Type.Object({
+      firstName: Type.String(),
+    }),
+  );
+
+  const testOutput = {
+    firstName: 'John',
+  };
+
+  const query = resolverA.pipe(resolverB).query(() => {
+    return testOutput;
+  });
+
+  const response = await query.call({ ctx: {}, meta: {} as any });
+
+  expect(response).toStrictEqual({
+    ok: true,
+    data: testOutput,
+  });
+});
