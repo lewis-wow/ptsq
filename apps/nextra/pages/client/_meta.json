@@ -1,6 +1,5 @@
 {
   "index": "PTSQ client",
-  "proxy-client": "Proxy client",
   "code-importing-on-client-side": "Code importing on client side",
   "query": "Query",
   "mutation": "Mutation",

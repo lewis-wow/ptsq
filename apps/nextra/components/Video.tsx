@@ -11,7 +11,7 @@ export type VideoProps = {
 export const Video = ({ src }: VideoProps) => {
   return (
     <MediaQuery minWidth={640}>
-      <div className="p-4 w-full aspect-video">
+      <div className="w-full aspect-video mt-6 first:mt-0">
         <video autoPlay muted loop>
           <source src={src} type="video/mp4" />
         </video>

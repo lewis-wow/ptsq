@@ -1,25 +1,18 @@
-import { Alert } from '../../components/Alert';
-
 # Custom client adapter
 
-In addition to the provided React and Svelte client adapters, PTSQ offers the flexibility to create custom client adapters tailored to specific use cases or frameworks.
+In addition to the provided [React](https://react.dev/) and [Svelte](https://svelte.dev/) client adapters, PTSQ offers the flexibility to create custom client adapters tailored to specific use cases or frameworks.
 
-By creating a custom client adapter, you can seamlessly integrate PTSQ with any front-end framework or library of your choice. Whether you're working with Angular, Vue.js, or another frontend technology, a custom client adapter allows you to leverage the power and flexibility of PTSQ within your preferred development environment.
+By creating a custom client adapter, you can seamlessly integrate PTSQ with any front-end framework or library of your choice.
+Whether you're working with [Angular](https://angular.io/), [Vue.js](https://vuejs.org/), or another frontend technology, a custom client adapter allows you to leverage the power and flexibility of PTSQ within your preferred development environment.
 
-Custom client adapters enable you to define how PTSQ interacts with your front-end application, including data fetching, state management, and UI updates. This level of customization ensures that PTSQ seamlessly integrates with your front-end architecture, providing a smooth and efficient developer experience.
+Custom client adapters enable you to define how PTSQ interacts with your front-end application, including data fetching, state management, and UI updates.
+This level of customization ensures that PTSQ seamlessly integrates with your front-end architecture, providing a smooth and efficient developer experience.
 
 Whether you're building a complex web application or a lightweight mobile app, custom client adapters empower you to leverage the full potential of PTSQ while adhering to the specific requirements and conventions of your frontend stack.
 
-<div className="my-2">
-  <Alert title="Caution">
-    This chapter requires very good knowledge of Typescript and good knowledge
-    of the PTSQ as it uses low-level functions.
-  </Alert>
-</div>
-
 ## Defining query and mutation types
 
-```ts copy filename="query.ts"
+```ts copy filename="Client query type"
 export type Query<
   _TDescription extends string | undefined,
   TDefinition extends {
@@ -33,7 +26,7 @@ export type Query<
 };
 ```
 
-```ts copy filename="mutation.ts"
+```ts copy filename="Client mutation type"
 import type { RequestOptions } from './createProxyClient';
 
 export type Mutation<
@@ -53,7 +46,7 @@ export type Mutation<
 
 Imagine we want to show like `infiniteQuery` only if server accepts `cursor` property.
 
-```ts copy filename="query.ts"
+```ts copy filename="Client query type with conditional method"
 export type Query<
   _TDescription extends string | undefined,
   TDefinition extends {
@@ -73,44 +66,40 @@ export type Query<
 
 Client type is for casting the result runtime Proxy-based client to correct types.
 
-```ts copy filename="types.ts"
+```ts copy filename="Client type"
 import type {
-  Route as ClientRoute,
-  Router as ClientRouter,
-} from '@ptsq/client';
-import type {
-  inferClientResolverArgs,
-  inferClientResolverOutput,
+  inferArgs,
+  inferOutput,
+  IntrospectedRoute,
+  IntrospectedRouter,
+  Simplify,
 } from '@ptsq/server';
+import { inferDescription, inferResolverType } from '../../server/dist/types';
+import type { ReactMutation } from './reactMutation';
+import type { ReactQuery } from './reactQuery';
 
-export type Client<TRouter extends ClientRouter> = {
-  [K in keyof TRouter['_def']['routes']]: TRouter['_def']['routes'][K] extends ClientRouter
-    ? Client<TRouter['_def']['routes'][K]>
-    : TRouter['_def']['routes'][K] extends ClientRoute<'query'>
-      ? Query<
-          TRouter['_def']['routes'][K]['_def']['description'],
-          {
-            args: inferClientResolverArgs<
-              TRouter['_def']['routes'][K]['_def']['argsSchema']
-            >;
-            output: inferClientResolverOutput<
-              TRouter['_def']['routes'][K]['_def']['outputSchema']
-            >;
-          }
-        >
-      : TRouter['_def']['routes'][K] extends ClientRoute<'mutation'>
-        ? Mutation<
-            TRouter['_def']['routes'][K]['_def']['description'],
+export type ReactClientRouter<TRouter extends IntrospectedRouter> = {
+  [K in keyof TRouter['routes']]: TRouter['routes'][K] extends IntrospectedRouter
+    ? ReactClientRouter<TRouter['routes'][K]>
+    : TRouter['routes'][K] extends IntrospectedRoute
+      ? inferResolverType<TRouter['routes'][K]> extends 'query'
+        ? ReactQuery<
+            inferDescription<TRouter['routes'][K]>,
             {
-              args: inferClientResolverArgs<
-                TRouter['_def']['routes'][K]['_def']['argsSchema']
-              >;
-              output: inferClientResolverOutput<
-                TRouter['_def']['routes'][K]['_def']['outputSchema']
-              >;
+              args: Simplify<inferArgs<TRouter['routes'][K]>>;
+              output: Simplify<inferOutput<TRouter['routes'][K]>>;
             }
           >
-        : never;
+        : inferResolverType<TRouter['routes'][K]> extends 'mutation'
+          ? ReactMutation<
+              inferDescription<TRouter['routes'][K]>,
+              {
+                args: Simplify<inferArgs<TRouter['routes'][K]>>;
+                output: Simplify<inferOutput<TRouter['routes'][K]>>;
+              }
+            >
+          : never
+      : never;
 };
 ```
 

@@ -1,3 +1,5 @@
+import { Image } from '../../components/Image';
+
 # Resolver
 
 One of the three components of the PTSQ server is the resolver, which is responsible for creating queries and mutations.
@@ -84,6 +86,8 @@ On the frontend, the same validation scheme is used to validate the form.
 If the form is not valid, there is no need to burden the server by sending invalid data.
 Only if the form is valid is the data sent to the server.
 However, the server must also re-validate the data for security reasons.
+
+<Image src="/assets/dual-validation.png" alt="Dual validation" />
 
 ```ts filename="External shared schemas" copy
 import { BookSchema, createBookSchema } from './validations';

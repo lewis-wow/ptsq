@@ -1,3 +1,5 @@
+import { Image } from '../../components/Image';
+
 # PTSQ server
 
 The `ptsq` function creates an instance of the PTSQ server.
@@ -6,6 +8,8 @@ However, it does not create the server components themselves, it creates a build
 PTSQ itself does not offer any option to create an HTTP server.
 Like GraphQL or tRPC, PTSQ uses only a single HTTP endpoint.
 The library provides listeners for HTTP servers created by external modules such as [node:http](https://nodejs.org/api/http.html), [Express](https://expressjs.com/), [Fastify](https://fastify.dev/), or [Koa](https://koajs.com/), for serverless or alternative environments, such as [Bun](https://bun.sh/), [Deno](https://deno.com/), [AWS Lambda](https://aws.amazon.com/lambda/) or [Cloudflare workers](https://workers.cloudflare.com/) and for full-stack frameworks, such as [Next.js](https://nextjs.org/) or [SvelteKit](https://kit.svelte.dev/).
+
+<Image src="/assets/server-hierarchy.png" alt="Server hierarchy" />
 
 ```ts copy filename="Creating a PTSQ server"
 import { ptsq } from '@ptsq/server';

@@ -1,12 +1,19 @@
+import { Image } from '../../components/Image';
 import { Video } from '../../components/Video';
 
 # Router
 
-Routers serve as blueprints for defining the API interface, offering a structured way to organize and manage endpoints. One notable feature of this model is the ability to nest routers within a single `Base` router, providing a hierarchical structure that reflects the logical organization of your API.
+Another component of the PTSQ server instance is the router.
+This is used to create PTSQ endpoint paths and is inspired by a similar interface created by tRPC.
+However, the actual operation of the router is different and PTSQ routers offer introspection support.
+The routers define the API itself and offer a structured way to organize and manage endpoints.
 
-Moreover, routers can be merged seamlessly across files, allowing you to define routers independently and then consolidate them into a unified `Base` router. This modular approach enhances code organization and maintainability, facilitating better scalability and extensibility of your API.
+Nesting allows you to create paths, similar to the REST architecture and its frameworks.
+Nesting routers provide a hierarchical structure that reflects the logical organization of the API.
 
-Exporting the `type` of the `Base` router is recommended as it enables clients, particularly in a monorepo project structure, to specify the server as a `devDependency`. This promotes better dependency management and version control, ensuring consistency and compatibility across different parts of your project.
+<Image src="/assets/router.png" alt="Routers" />
+
+Routers can be nested between files, instances of routers defined in one file can be exported and imported in another file and nested into an overarching router.
 
 ```ts copy filename="Server side"
 import { ptsq } from '@ptsq/server';
@@ -36,6 +43,14 @@ const baseRouter = router({
 
 export type BaseRouter = typeof baseRouter;
 ```
+
+The keys inside the router object describe the path to the endpoint.
+The `createUser` mutation is assigned the path `user.create`.
+When another router is nested, the path can be modified or extended, such as `organization.user.create`.
+The endpoint itself does not affect the path assigned to it in any way.
+It is always the responsibility of one of the routers to create these paths, and it is recommended to create and group routers logically.
+For example, separate routers to manage users, posts, rooms, or other database models.
+Each router that represents a database model should, but need not, contain all CRUD operations for the complete ability to manage that model.
 
 <Video src="/assets/router.mp4" />
 

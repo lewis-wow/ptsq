@@ -1,3 +1,4 @@
+import { Image } from '../../components/Image';
 import { Video } from '../../components/Video';
 
 # Testing
@@ -10,6 +11,11 @@ However, without an HTTP server, there is no request object and therefore no way
 Caller allows you to replace the context with an artificial object that is not created inside the function, but supplied to the test externally.
 This makes it possible to simulate the currently logged in user and other things related to the HTTP request when creating tests.
 Caller thus supports the ability to create tests dependent on different user permissions.
+
+<Image
+  src="/assets/server-side-caller.png"
+  lat="Server side caller - testing"
+/>
 
 The test caller is created using the router's static method `Router.serverSideCaller` and is fully typed.
 This means that it offers input, output, and endpoint data types in the same way as a client-side caller.
