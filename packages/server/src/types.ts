@@ -4,10 +4,14 @@ export type NodeType = 'route' | 'router';
 
 export type MaybePromise<T> = T | Promise<T>;
 
+const ErrorSymbol: unique symbol = Symbol('PTSQ_ERROR_SYMBOL');
+
 /**
  * @internal
  */
-export type ErrorMessage<TMessage extends string> = TMessage & TypeError;
+export type ErrorMessage<TMessage extends string> = TMessage & {
+  __: typeof ErrorSymbol;
+};
 
 /**
  * @internal
@@ -22,7 +26,7 @@ export type ShallowMerge<T extends object, U extends object> = {
  * Simplify the object structure for readability in IDE
  */
 // eslint-disable-next-line @typescript-eslint/ban-types
-export type Simplify<T> = { [K in keyof T]: T[K] } & {};
+export type Simplify<T> = T extends any[] | Date ? T : { [K in keyof T]: T[K] };
 
 export type IntrospectedRoute = {
   nodeType: 'route';

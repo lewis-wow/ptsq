@@ -175,45 +175,37 @@ export class Resolver<
    * The output must be specified before using mutation
    */
   mutation(
-    resolve: ResolveFunction<
+    resolve: TOutputSchema extends TSchema
+      ? ResolveFunction<
+          Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
+          Simplify<inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>>,
+          TContext
+        >
+      : ErrorMessage<`Mutation cannot be used without output schema.`>,
+  ): Mutation<
+    TArgsSchema,
+    NonNullable<TOutputSchema>,
+    TContext,
+    ResolveFunction<
       Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
       Simplify<inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>>,
       TContext
     >,
-  ): TOutputSchema extends TSchema
-    ? Mutation<
-        TArgsSchema,
-        TOutputSchema,
-        TContext,
-        ResolveFunction<
-          Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
-          Simplify<inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>>,
-          TContext
-        >,
-        TDescription
-      >
-    : ErrorMessage<`Mutation cannot be used without output schema.`> {
+    TDescription
+  > {
     return new Mutation({
       argsSchema: this._def.argsSchema,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       outputSchema: this._def.outputSchema!,
-      resolveFunction: resolve,
+      resolveFunction: resolve as ResolveFunction<
+        Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
+        Simplify<inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>>,
+        TContext
+      >,
       middlewares: this._def.middlewares,
       description: this._def.description,
       parser: this._def.parser,
-    }) as TOutputSchema extends TSchema
-      ? Mutation<
-          TArgsSchema,
-          TOutputSchema,
-          TContext,
-          ResolveFunction<
-            Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
-            Simplify<inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>>,
-            TContext
-          >,
-          TDescription
-        >
-      : ErrorMessage<`Mutation cannot be used without output schema.`>;
+    });
   }
 
   /**
@@ -222,53 +214,37 @@ export class Resolver<
    * The output must be specified before using query
    */
   query(
-    resolve: ResolveFunction<
+    resolve: TOutputSchema extends TSchema
+      ? ResolveFunction<
+          Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
+          Simplify<inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>>,
+          TContext
+        >
+      : ErrorMessage<`Query cannot be used without output schema.`>,
+  ): Query<
+    TArgsSchema,
+    NonNullable<TOutputSchema>,
+    TContext,
+    ResolveFunction<
       Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
       Simplify<inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>>,
       TContext
     >,
-  ): TOutputSchema extends TSchema
-    ? Query<
-        TArgsSchema,
-        TOutputSchema,
-        TContext,
-        TOutputSchema extends TSchema
-          ? ResolveFunction<
-              Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
-              Simplify<
-                inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>
-              >,
-              TContext
-            >
-          : never,
-        TDescription
-      >
-    : ErrorMessage<`Query cannot be used without output schema.`> {
+    TDescription
+  > {
     return new Query({
       argsSchema: this._def.argsSchema,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       outputSchema: this._def.outputSchema!,
-      resolveFunction: resolve,
+      resolveFunction: resolve as ResolveFunction<
+        Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
+        Simplify<inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>>,
+        TContext
+      >,
       middlewares: this._def.middlewares,
       description: this._def.description,
       parser: this._def.parser,
-    }) as TOutputSchema extends TSchema
-      ? Query<
-          TArgsSchema,
-          TOutputSchema,
-          TContext,
-          TOutputSchema extends TSchema
-            ? ResolveFunction<
-                Simplify<inferDecodedArgsFromTypeboxArgsSchema<TArgsSchema>>,
-                Simplify<
-                  inferDecodedOutputFromTypeboxOutputSchema<TOutputSchema>
-                >,
-                TContext
-              >
-            : never,
-          TDescription
-        >
-      : ErrorMessage<`Query cannot be used without output schema.`>;
+    });
   }
 
   /**
@@ -283,10 +259,12 @@ export class Resolver<
       string | undefined
     >,
   >(
-    pipedResolver: TContext extends inferResolverRootContextType<TPipedResolver>
+    _pipedResolver: TContext extends inferResolverRootContextType<TPipedResolver>
       ? TPipedResolver
-      : never,
+      : ErrorMessage<`Contexts are incompatible.`>,
   ) {
+    const pipedResolver = _pipedResolver as TPipedResolver;
+
     const nextArgsSchema = this._def.argsSchema;
     this._def.argsSchema === undefined &&
     pipedResolver._def.argsSchema === undefined
