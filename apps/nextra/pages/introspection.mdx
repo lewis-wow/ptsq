@@ -1,30 +1,72 @@
 # Introspection query
 
-The introspected schema is provided in JSON schema format, which offers a structured representation of the API's data model and operations. To streamline integration with TypeScript, the `introspection-cli` tool automates the conversion of this JSON schema into TypeScript interfaces. This ensures that developers can easily incorporate the API schema into their TypeScript projects, leveraging type safety and code completion features.
+Introspection, similar to GraphQL, is used to export the PTSQ API schema.
+This allows you to create an open, strongly typed API and a client that will use the schema knowledge.
+This allows even an external third-party client to query the PTSQ server with both the request argument type, response data type, and endpoint definition.
+Introspection does not need to be set up in any way, it does not provide any sensitive data such as user authorization inside the API, parts of the server code, passwords, tokens or database connections.
 
-For those who prefer more control or have specific requirements, the tool also offers the flexibility to use the raw output of the schema directly. By specifying the lang="raw" option in the CLI, developers can obtain the JSON schema without any additional transformations. Alternatively, developers can choose to fetch the schema themselves and process it according to their needs.
+Introspection is inappropriate when creating a client project that is in the same repository as the PTSQ server.
+In this case, it is better to use the ability to export the root router data type from the server and import it on the client.
+This will create a seamless schema transfer and the client part of the code can immediately react to server changes.
 
-This versatility empowers developers to tailor their integration approach based on their preferences and project requirements, ensuring a seamless and efficient workflow when working with the introspected schema in TypeScript projects.
+Introspection just reflects the structure of the API and uses knowledge of validation JSON schemas.
+Thus, the client knows the structure of the application and the validation schemas used to validate arguments or outputs.
 
-```ts copy
-const ptsqJSONSchema = await fetch('https://example.com/ptsq/introspection');
+Each PTSQ router and endpoint allows schema export.
+During introspection, the schema of each PTSQ component is queried.
+The process starts with the root router deployed on the HTTP server.
+The router traverses all the specified paths, delves into them, and exports their schemas.
+If it encounters another router, the process continues by plunging and repeats by traversing the defined paths of the plunged router.
+If it encounters an endpoint that returns its schema, the process terminates and recursively returns to the root router, which eventually returns the complete schema of the entire API.
+
+Introspection responds to requests with a GET HTTP method and the same HTTP endpoint on which the PTSQ server is deployed.
+The schema is sent as a JSON response to the server, but not a JSON schema.
+The PTSQ schema contains router and endpoint information, and JSON schemas are only used to define validation schemes for PTSQ endpoint arguments and outputs.
+
+The JSON format is suitable for transferring data between client and server, but it does not allow you to define TypeScript types or structures that could be used in the TypeScript programming language.
+Therefore, to work with the retrieved schema, it must be modified and converted to a TypeScript-compatible format.
+
+The modification consists in retyping the JSON object of the schema to `as const`.
+This TypeScript override changes the object's properties at the type level.
+All properties of the object become read-only, and TypeScript gets type information about each property as if it were defined in a constant way.
+That is, strings become literals, arrays become tuples, an object becomes a read-only object, and so on.
+The TypeScript language may in the future support inserting a JSON file as if it were read-only (as const), thus eliminating the whole schema editing step.
+There is a request in the TypeScript public repository for this language feature, which has been open and requested by many developers for some time.
+
+```ts copy filename="schema.generated.ts"
+import type { IntrospectedRouter } from '@ptsq/server';
+
+/* The introspection describes the following API structure
+
+  router({
+    greetings: resolver.output(Type.String()).query(() => {
+      return 'Hello';
+    }),
+  });
+*/
+
+export const BaseRouter = {
+  nodeType: 'router',
+  routes: {
+    greetings: {
+      type: 'query',
+      nodeType: 'route',
+      outputSchema: { type: 'string' },
+    },
+  },
+} as const satisfies IntrospectedRouter;
 ```
+
+The actual derivation of types from the JSON schema is enabled by the json-schema-to-ts library.
+This provides a TypeScript type that allows you to derive the types of JSON schema values.
 
 ## CLI
 
-```bash copy
-instrospection-cli --url="http://localhost:4000/ptsq" --out="schema.generated.ts"
-```
-
-### raw introspection
-
-```bash copy
-instrospection-cli --url="http://localhost:4000/ptsq" --out="schema.generated.ts" --lang="raw"
-```
-
-## In package.json
-
-Example of `package.json` in Next.js application with introspection CLI.
+Modification of the schema can be done either manually or by using the tool `@ptsq/introspection-cli`.
+This script downloads the schema from the specified PTSQ API and automatically retypes it in TypeScript.
+The advantage of this script is the ability to update the types before each build of the application.
+This keeps the generated schema up-to-date and allows you to react to changes.
+In case of frequent changes in the API, it is recommended to create different versions of the API, as described in the section API versioning.
 
 ```json copy filename="package.json"
 {
@@ -43,3 +85,10 @@ Example of `package.json` in Next.js application with introspection CLI.
   ...
 }
 ```
+
+The script allows you to use the `--out` switch to select which output file to save the schema of the external PTSQ API in TypeScript format.
+Using the `--lang` switch, it is possible to select the language in which the resulting schema will be saved, with a choice of `ts` and `raw`.
+The `raw` option saves the schema in JSON format as it comes from the server, i.e. without additional modifications.
+This can be handy when creating some custom web documentation similar to what the Swagger tool provides for the REST API, for example.
+With the `--name` switch, the schema name can be selected.
+If the schema name is not selected the value `BaseRouter` is used.

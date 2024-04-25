@@ -1,28 +1,48 @@
+import { Image } from '../../components/Image';
 import { Video } from '../../components/Video';
 
 # Testing
 
-Creating a server-side caller for your PTSQ application can provide you with a type-safe server client that doesn't perform any HTTP requests. This client allows you to simulate interactions with your backend API programmatically, enabling thorough testing of your application's logic and behavior without the need to set up a separate HTTP server.
+Server testing is one of the most important functions in software and web application development.
+PTSQ allows you to create a test caller and run queries and mutations including routing, middleware and everything else without creating an HTTP server.
+This makes it easy to run tests in a CI or docker container environment.
 
-With this type-safe server client, you can directly invoke your resolver functions and middleware, providing input data and capturing output results for validation. By bypassing the HTTP layer, you can focus exclusively on testing your backend application's functionality in a controlled environment, ensuring that it behaves correctly under various conditions and scenarios.
+However, without an HTTP server, there is no request object and therefore no way to create an application request context.
+Caller allows you to replace the context with an artificial object that is not created inside the function, but supplied to the test externally.
+This makes it possible to simulate the currently logged in user and other things related to the HTTP request when creating tests.
+Caller thus supports the ability to create tests dependent on different user permissions.
 
-This approach offers a convenient and efficient way to validate the behavior of your PTSQ application's backend logic, helping you identify and resolve issues early in the development process while ensuring the overall quality and reliability of your application.
+<Image
+  src="/assets/server-side-caller.png"
+  lat="Server side caller - testing"
+/>
+
+The test caller is created using the router's static method `Router.serverSideCaller` and is fully typed.
+This means that it offers input, output, and endpoint data types in the same way as a client-side caller.
+Thus, PTSQ supports both unit and integration tests on the server side, which can be easily run inside different environments or CIs.
+By making testing simple, the library allows developers to create secure web services.
+
+The caller does not only need to be used to test the application, but can be used to run application queries inside another query.
+However, due to running all the middleware of the called endpoint inside the caller, this is not always suitable in terms of optimization.
 
 <Video src="/assets/server-side-caller.mp4" />
 
-```ts copy filename="server.test.ts"
-const testBaseRouter = Router.serverSideCaller(baseRouter).create({
-  /* ctx */,
-  req: {} as any,
-  res: {} as any,
-  user: new User({ admin: true }) // fake or seeded user for testing
+```ts copy filename="Server testing"
+const baseRouterCallerBuilder = Router.serverSideCaller(baseRouter);
+
+const adminCaller = baseRouterCallerBuilder.create({
+  user: new User({ admin: true }), // mock test user
 });
 
-/**
- * Access queries and mutations as with the client but without any server creation and http calls
- */
-const response /* string */ = await testBaseRouter.greetings.query({
-  /* type-safe as client */
-  name: /* string */ 'John'
+const userCaller = baseRouterCallerBuilder.create({
+  user: new User({ admin: false }), // mock test user
 });
+
+const unauthorizedCaller = baseRouterCallerBuilder.create({
+  user: undefined,
+});
+
+const adminCallerGreetingsResponse = await adminCaller.greetings.query();
+
+// ...
 ```

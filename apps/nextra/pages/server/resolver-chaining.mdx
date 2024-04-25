@@ -1,0 +1,65 @@
+import { Image } from '../../components/Image';
+
+# Resolver chaining
+
+Using resolvers, middleware can be chained inside an application, similar to validation schemes for arguments or outputs.
+This allows you to create complex downstream logic and prepare multiple components in the form of resolvers that can be used in multiple places.
+Chaining middleware comes in handy when dealing with user authorization and permission checking.
+When creating individual resolvers covering different permissions, chaining allows you to build on the already resolved logic of another resolver.
+
+In the code sample, a resolver is created that decides whether a user is logged in.
+This creates a single reusable block or component that can be used in multiple places within the application.
+If the user querying any endpoint created by this resolver is not logged in, the server returns an error response.
+
+```ts copy filename="Logged-in resolver"
+const loggedInResolver = resolver.use(({ ctx, next }) => {
+  if(ctx.user === undefined) throw new PtsqError({ code: 'UNAUTHORIZED' });
+
+  return next({
+    ctx: {
+      user: ctx.user
+    }
+  });
+});
+
+// using a resolver that only allows communication to logged in users
+loggedInResolver.output(...).query(...);
+```
+
+If the endpoint in the application were only allowed to a specific user role, logically the user must be logged in at the same time.
+By using the previous resolver, we create a new one that effectively uses the restrictions defined in the previous resolver and adds another one of its own.
+This way of building on previous already defined components supports a very efficient way of creating authorization.
+Complex methods such as ACL or voter can also be used for the authorization itself.
+
+```ts copy filename="Admin resolver"
+const adminResolver = loggedInResolver.use(({ ctx, next }) => {
+  if(ctx.user.role !== Role.Admin) throw new PtsqError({ code: 'FORBIDDEN' });
+
+  return next({
+    ctx: {
+      user: ctx.user
+    }
+  });
+});
+
+// using a resolver that allows communication only for users with the administrator role
+adminResolver.output(...).query(...);
+```
+
+By leveraging predefined resolvers with middleware, we simply create type-safe and reusable server components that can be used and extended at different points in the application.
+These components carry with them the logic they resolve, thanks to the defined middleware.
+With the ability to define separate middleware and unify resolvers, the functionality can then be attached to any other resolver.
+This means that even a resolver that only allows communication for users with the administrator role can provide logging.
+
+```ts copy filename="Resolver chaining"
+import { adminResolver, envelopedResolver } from './resolvers';
+
+const adminEnvelopedResolver = envelopedResolver.pipe(adminResolver);
+
+adminEnvelopedResolver.output(...).query(...);
+```
+
+<Image
+  src="/assets/middleware-chaining.png"
+  alt="Middleware and resolver chaining"
+/>

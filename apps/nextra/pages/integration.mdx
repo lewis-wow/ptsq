@@ -172,12 +172,13 @@ export const config = {
 export default serve(baseRouter);
 ```
 
-## Sveltekit
+## SvelteKit
 
 ```ts copy
 import { ptsq, Type } from '@ptsq/server';
 
 const { router, resolver, serve } = ptsq({
+  root: '/api',
   ctx: () => ({}),
 }).create();
 

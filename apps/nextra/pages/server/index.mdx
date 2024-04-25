@@ -1,0 +1,92 @@
+import { Image } from '../../components/Image';
+
+# PTSQ server
+
+The `ptsq` function creates an instance of the PTSQ server.
+However, it does not create the server components themselves, it creates a builder that offers the ability to add middleware to the entire server in addition to creating components.
+
+PTSQ itself does not offer any option to create an HTTP server.
+Like GraphQL or tRPC, PTSQ uses only a single HTTP endpoint.
+The library provides listeners for HTTP servers created by external modules such as [node:http](https://nodejs.org/api/http.html), [Express](https://expressjs.com/), [Fastify](https://fastify.dev/), or [Koa](https://koajs.com/), for serverless or alternative environments, such as [Bun](https://bun.sh/), [Deno](https://deno.com/), [AWS Lambda](https://aws.amazon.com/lambda/) or [Cloudflare workers](https://workers.cloudflare.com/) and for full-stack frameworks, such as [Next.js](https://nextjs.org/) or [SvelteKit](https://kit.svelte.dev/).
+
+<Image src="/assets/server-hierarchy.png" alt="Server hierarchy" />
+
+```ts copy filename="Creating a PTSQ server"
+import { ptsq } from '@ptsq/server';
+
+const { resolver, router serve } = ptsq().create();
+```
+
+You can directly export all created components for further use.
+
+```ts copy filename="Creating a PTSQ server"
+import { ptsq } from '@ptsq/server';
+
+export const { resolver, router serve } = ptsq().create();
+```
+
+## Server options
+
+### Context and CORS
+
+Both [context](/server/context) and [CORS](/server/cors) are described in other chapters.
+
+### Root and endpoint
+
+The `root` and `endpoint` server options are crucial for serving the PTSQ application at the correct endpoint within your server infrastructure.
+
+In scenarios such as using Next.js, where the API resides in the `/api` directory within the pages directory, configuring the `root` option becomes essential. By specifying the root path using this option, the server understands where to mount the PTSQ application within the server's routing hierarchy. This ensures that requests directed to the appropriate endpoint, such as `/api`, are properly routed to the PTSQ application for processing.
+
+In summary, leveraging the `root` option is vital for integrating the PTSQ application seamlessly into your server environment, especially when dealing with complex routing configurations or frameworks like Next.js.
+
+```ts copy filename="root setting"
+ptsq({
+  //...,
+  root: '/api',
+});
+```
+
+```ts copy filename="endpoint setting"
+ptsq({
+  //...,
+  endpoint: '/my-ptsq-server',
+});
+```
+
+You can also use the combination of root and endpoint options of course.
+
+```ts copy
+ptsq({
+  //...,
+  root: '/api',
+  endpoint: '/my-ptsq-server',
+});
+```
+
+All trailing slashes are removed, so you don't have to care about them.
+
+```ts copy
+ptsq({
+  //...,
+  root: '/api/',
+  endpoint: '/my-ptsq-server/',
+});
+```
+
+### fetchAPI
+
+The fetchAPI option is for defining which API you will use for the request and response.
+
+```ts copy filename="fetchAPI setting"
+import type { Request, Response } from 'framework';
+
+ptsq({
+  //...,
+  fetchAPI: {
+    Request: Request,
+    Response: Response,
+  },
+});
+```
+
+It's very useful if you are using some integration that has its own request or response object.

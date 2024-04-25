@@ -1,0 +1,25 @@
+# Code importing on client side
+
+The client code requires the data type of the root router that is defined on the server.
+When importing a router to create a client, it is inappropriate to derive the router type with the `typeof` directive on the client side, because the client must import almost all of the server code due to the interdependencies of other routers and endpoints within the root router.
+It is recommended to derive the type in the server part to allow importing the root router type as a development dependency.
+Importing the TypeScript type itself does not affect the size of the client code in the runtime environment.
+
+```ts copy
+// Correct import of the router type defined on the server
+import type { BaseRouter } from './server';
+
+const client = createProxyClient<BaseRouter>({
+  url: 'http://localhost:4000/ptsq',
+});
+
+// Incorrect import of a router defined on the server
+import { baseRouter } from './server';
+
+const client = createProxyClient<typeof baseRouter>({
+  url: 'http://localhost:4000/ptsq',
+});
+```
+
+When inserting a type from introspection, the schema type is derived.
+The schema from introspection affects the client code very minimally, so it is okay to import the schema itself as an object and then derive the type with the `typeof` directive.

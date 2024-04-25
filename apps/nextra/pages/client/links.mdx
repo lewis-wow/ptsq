@@ -1,10 +1,14 @@
 ## Links
 
-Links are something like middleware but on the client side.
+This architecture is strongly inspired by the GraphQL Apollo Link architecture.
+Links are available in all client framework adapters.
+Like middleware, they are run recursively, i.e., a single link can modify both the input of a request and the output.
+The last link is the terminating link, which cannot be modified in the current version of the library and is responsible for terminating communication with the HTTP server.
 
-The last link is the terminating link.
+Links can be used, for example, to add headers to a request such as authenticating a user via a token.
 
-The terminating link is responsible for sending the HTTP request and receiving the server's response.
+It is important to note that a link does not know the type of input or output that will pass through the link, so it is not always safe to manipulate the input or output.
+At the same time, when modifying the output in particular, there may be an inconsistency between the type definition of the endpoint output obtained from the schema and the actual data modified inside the link.
 
 ```ts copy
 import { createProxyClient } from '@ptsq/client';

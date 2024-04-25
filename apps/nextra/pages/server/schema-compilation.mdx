@@ -1,0 +1,63 @@
+# Schema compilation
+
+JSON schemas are compiled by the compiler.
+This converts the schema into a simple JavaScript validation function that validates the data much faster than validating against the schema.
+The compiled schemas are not stored in any way and for each request, the schema must be compiled before the validation process.
+Since the actual step of compiling schemas is quite time consuming, the library supports creating a custom cache for compiled JSON schemas, thus eliminating this drawback.
+The [@ptsq/cached-json-schema-parser](https://www.npmjs.com/package/@ptsq/cached-json-schema-parser) module allows you to create an in-memory cache for compiled validation functions.
+It uses lazy compilation, i.e. the schema is compiled the first time the validation is run over a given JSON schema, after that the compilation is never run again and the stored value of the validation function is used.
+
+The schema validator or parser can be set up when creating a PTSQ instance and can be modified to use libraries other than Typebox to compile JSON schemas, such as the popular AJV compiler.
+Typebox schemas are compatible with any tool supporting the JSON Schema Draft 7 specification.
+
+```ts copy filename="Custom parser with cache using Typebox"
+import { TSchema } from '@ptsq/server';
+import { TypeCheck, TypeCompiler } from '@sinclair/typebox/compiler';
+
+const cache = new Map<TSchema, TypeCheck<TSchema>>();
+
+ptsq({
+  parser: {
+    encode: ({ value, schema }) => {
+      let compiledSchema = cache.get(schema);
+
+      if (!compiledSchema) {
+        compiledSchema = TypeCompiler.Compile(schema);
+        cache.set(schema, compiledSchema);
+      }
+
+      try {
+        return {
+          ok: true,
+          data: compiledSchema.Encode(value),
+        };
+      } catch (error) {
+        return {
+          ok: false,
+          errors: [...compiledSchema.Errors(value)],
+        };
+      }
+    },
+    decode: ({ value, schema }) => {
+      let compiledSchema = cache.get(schema);
+
+      if (!compiledSchema) {
+        compiledSchema = TypeCompiler.Compile(schema);
+        cache.set(schema, compiledSchema);
+      }
+
+      try {
+        return {
+          ok: true,
+          data: compiledSchema.Decode(value),
+        };
+      } catch (error) {
+        return {
+          ok: false,
+          errors: [...compiledSchema.Errors(value)],
+        };
+      }
+    },
+  },
+});
+```

@@ -1,0 +1,18 @@
+# Request abort
+
+The library allows you to abort an already running request using the standard AbortController interface.
+A function call to a query or mutation allows you to attach an AbortSignal interface to the request, which is based on the AbortController.
+
+```ts copy
+const abortController = new AbortController();
+
+const response = await client.user.list.query(..., { signal: abortController.signal });
+
+// Aborts the request
+abortController.abort();
+```
+
+Request interrupts are supported by both the base library client and clients working with frontend frameworks like React and Svelte.
+
+On the server side, an HTTP request can be accessed inside the request context creation.
+The standard request interface provides interrupt information, so the server can also respond to client interrupts, but this is not very common.

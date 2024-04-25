@@ -1,6 +1,6 @@
 # Errors
 
-```ts copy filename="error-in-middleware.ts"
+```ts copy filename="Error in middleware"
 const isAuthedResolver = resolver.use(({ ctx, next }) => {
   if (!ctx.user)
     throw new PtsqError({

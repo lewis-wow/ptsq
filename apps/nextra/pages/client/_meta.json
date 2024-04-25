@@ -1,7 +1,10 @@
 {
-  "proxy-client": "Proxy client",
+  "index": "PTSQ client",
+  "code-importing-on-client-side": "Code importing on client side",
   "query": "Query",
   "mutation": "Mutation",
+  "error-response": "Error response",
+  "request-abort": "Request abort",
   "react-client": "React client",
   "svelte-client": "Svelte client",
   "custom-client": "Custom client"
