@@ -1,0 +1,27 @@
+{
+  "name": "Proxy client",
+  "date": "2024-04-26T21:26:29.471Z",
+  "version": "1.0.0",
+  "results": [
+    {
+      "name": "Create user",
+      "ops": 4115,
+      "margin": 9.28,
+      "percentSlower": 24.68
+    },
+    {
+      "name": "Express",
+      "ops": 5463,
+      "margin": 3.41,
+      "percentSlower": 0
+    }
+  ],
+  "fastest": {
+    "name": "Express",
+    "index": 1
+  },
+  "slowest": {
+    "name": "Create user",
+    "index": 0
+  }
+}

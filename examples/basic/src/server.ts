@@ -1,11 +1,21 @@
-import { createServer } from 'http';
+import { createServer, IncomingMessage } from 'http';
 import { ptsq, Resolver, Router, Type } from '@ptsq/server';
 import { inferResolverContextType } from '../../../packages/server/dist/resolver';
 
 const { resolver, router, serve } = ptsq({
-  ctx: () => ({
-    a: '' as 'a' | 'b',
-  }),
+  ctx: ({ request, req }: { request: Request; req: IncomingMessage }) => {
+    request.signal.addEventListener('abort', () => {
+      console.log('was aborted!!');
+    });
+
+    req.socket.on('close', () => {
+      console.log('was aborted!!');
+    });
+
+    return {
+      request,
+    };
+  },
 }).create();
 
 const resolverA = resolver
@@ -40,8 +50,9 @@ const resolverB = Resolver.createRoot<{ x: 1 }>()
     }),
   );
 
-const pipedResover = resolverA.pipe(resolverB).query(({ ctx }) => {
-  console.log({ ctx });
+const pipedResover = resolverA.pipe(resolverB).query(async ({ ctx }) => {
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  console.log({ ctx }, 'aborted', ctx.request.signal.aborted);
   return {} as any;
 });
 
@@ -50,15 +61,8 @@ const greetingsQuery = resolver
   .query(({ input }) => `Hello, ${''}!`);
 
 const baseRouter = router({
-  greetings: greetingsQuery,
-  a: pipedResover,
+  greetings: pipedResover,
 });
-
-const caller = Router.serverSideCaller(baseRouter).create({ a: 'a' });
-
-(async () => {
-  const response = await caller.a.query({ firstName: '', lastName: '' });
-})();
 
 const server = createServer(serve(baseRouter));
 

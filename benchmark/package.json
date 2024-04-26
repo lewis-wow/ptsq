@@ -1,0 +1,32 @@
+{
+  "name": "@ptsq/benchmark",
+  "version": "0.0.0",
+  "homepage": "https://ptsq.vercel.app/",
+  "author": "lewis-wow",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lewis-wow/ptsq.git",
+    "directory": "benchmark"
+  },
+  "scripts": {
+    "benchmark": "ts-node src/main.ts"
+  },
+  "devDependencies": {
+    "@ptsq/client": "*",
+    "@ptsq/server": "*",
+    "@ptsq/test-utils": "*",
+    "@ptsq/cached-json-schema-parser": "*",
+    "@types/body-parser": "^1.19.5",
+    "@types/express": "^4.17.18",
+    "@types/node": "^20.7.0",
+    "axios": "^1.5.1",
+    "benny": "^3.7.1",
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.2.2",
+    "zod": "^3.22.4"
+  }
+}
