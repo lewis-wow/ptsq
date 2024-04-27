@@ -119,28 +119,9 @@ importers:
         specifier: latest
         version: link:../../packages/server
     devDependencies:
-      '@types/node':
-        specifier: ^20.7.0
-        version: 20.11.16
-      ts-node:
-        specifier: ^10.9.1
-        version: 10.9.2(@types/node@20.11.16)(typescript@5.3.3)
-      typescript:
-        specifier: ^5.2.2
-        version: 5.3.3
-
-  examples/cacheables:
-    dependencies:
-      '@ptsq/client':
-        specifier: '*'
-        version: link:../../packages/client
-      '@ptsq/server':
-        specifier: '*'
-        version: link:../../packages/server
-      cacheables:
-        specifier: ^1.2.2
-        version: 1.2.2
-    devDependencies:
+      '@ptsq/introspection-cli':
+        specifier: latest
+        version: link:../../packages/introspection-cli
       '@types/node':
         specifier: ^20.7.0
         version: 20.11.16
@@ -154,10 +135,10 @@ importers:
   examples/error-formatter:
     dependencies:
       '@ptsq/client':
-        specifier: '*'
+        specifier: latest
         version: link:../../packages/client
       '@ptsq/server':
-        specifier: '*'
+        specifier: latest
         version: link:../../packages/server
     devDependencies:
       '@types/node':
@@ -173,17 +154,17 @@ importers:
   examples/express:
     dependencies:
       '@ptsq/client':
-        specifier: '*'
+        specifier: latest
         version: link:../../packages/client
       '@ptsq/server':
-        specifier: '*'
+        specifier: latest
         version: link:../../packages/server
       express:
         specifier: ^4.18.2
         version: 4.18.2
     devDependencies:
       '@ptsq/introspection-cli':
-        specifier: '*'
+        specifier: latest
         version: link:../../packages/introspection-cli
       '@types/express':
         specifier: ^4.17.18
@@ -247,10 +228,10 @@ importers:
         specifier: 5.9.1
         version: 5.9.1(prisma@5.9.1)
       '@ptsq/react-client':
-        specifier: '*'
+        specifier: latest
         version: link:../../packages/react-client
       '@ptsq/server':
-        specifier: '*'
+        specifier: latest
         version: link:../../packages/server
       '@radix-ui/react-accordion':
         specifier: ^1.1.2
@@ -3877,10 +3858,6 @@ packages:
     resolution: {integrity: sha512-b6Ilus+c3RrdDk+JhLKUAQfzzgLEPy6wcXqS7f/xe1EETvsDP6GORG7SFuOs6cID5YkqchW/LXZbX5bc8j7ZcQ==}
     engines: {node: '>=8'}
     dev: true
-
-  /cacheables@1.2.2:
-    resolution: {integrity: sha512-OFYfH4OaycyIqGEqkOzjiYZOKEiyQqv/+K84u6Wzv8P5rUA3BJm+2s0NExe5G6XY9AMOykEZYg2RqVlv1l27HQ==}
-    dev: false
 
   /call-bind@1.0.6:
     resolution: {integrity: sha512-Mj50FLHtlsoVfRfnHaZvyrooHcrlceNZdL/QBvJJVd9Ta55qCQK0gs4ss2oZDeV9zFCs6ewzYgVE5yfVmfFpVg==}

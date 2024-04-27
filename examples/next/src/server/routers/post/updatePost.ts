@@ -1,8 +1,8 @@
+import { publicResolver } from '@/server/resolvers/publicResolver';
 import { PostSchema, updatePostSchema } from '@/validation';
-import { prisma } from '../prisma';
-import { authedResolver } from '../resolvers/authedResolver';
+import { prisma } from '../../prisma';
 
-export const updatePost = authedResolver
+export const updatePost = publicResolver
   .args(updatePostSchema)
   .output(PostSchema)
   .mutation(({ input }) => {

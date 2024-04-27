@@ -11,15 +11,15 @@
     "introspection-raw": "introspection-cli --url='http://localhost:4000/ptsq' --lang='raw'"
   },
   "devDependencies": {
-    "@ptsq/introspection-cli": "*",
+    "@ptsq/introspection-cli": "latest",
     "@types/express": "^4.17.18",
     "@types/node": "^20.7.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@ptsq/client": "*",
-    "@ptsq/server": "*",
+    "@ptsq/client": "latest",
+    "@ptsq/server": "latest",
     "express": "^4.18.2"
   }
 }

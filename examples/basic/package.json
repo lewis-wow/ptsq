@@ -6,12 +6,14 @@
   "scripts": {
     "build": "tsc --build",
     "start:server": "ts-node src/server.ts",
-    "start:client": "ts-node src/client.ts"
+    "start:client": "ts-node src/client.ts",
+    "generate:schema": "introspection-cli --url='http://localhost:4000/ptsq'"
   },
   "devDependencies": {
     "@types/node": "^20.7.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "@ptsq/introspection-cli": "latest"
   },
   "dependencies": {
     "@ptsq/client": "latest",
