@@ -1,69 +1,65 @@
 import { api } from '@/api';
-import { CreatePost } from '@/components/CreatePost';
-import { DeletePost } from '@/components/DeletePost';
+import { Page } from '@/components/Page';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { UpdatePost } from '@/components/UpdatePost';
+import { Skeleton } from '@/components/ui/skeleton';
+import { GetServerSideProps } from 'next';
+import { getServerSession } from 'next-auth';
+import { signOut } from 'next-auth/react';
+import { authOptions } from './api/auth/[...nextauth]';
+
+export const getServerSideProps = (async ({ req, res }) => {
+  const session = await getServerSession(req, res, authOptions);
+
+  console.log('session', session);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/signin',
+        permanent: false,
+      },
+      props: {},
+    };
+  }
+
+  return {
+    props: {},
+  };
+}) satisfies GetServerSideProps<{}>;
 
 export default function Home() {
-  const listPostsQuery = api.post.list.useQuery();
+  const meQuery = api.me.get.useQuery();
 
   return (
-    <main className="container p-2">
-      <div className="flex gap-x-4">
-        <div className="flex-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>Posts</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {listPostsQuery.data && (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Content</TableHead>
-                      <TableHead>Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {listPostsQuery.data.map((post) => (
-                      <TableRow key={post.id}>
-                        <TableCell>{post.title}</TableCell>
-                        <TableCell>{post.content}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-x-2">
-                            <UpdatePost post={post} />
-
-                            <DeletePost post={post} />
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
+    <Page
+      isLoading={meQuery.isFetching}
+      isError={!!meQuery.error}
+      skeleton={
+        <div className="flex items-center space-x-4">
+          <Skeleton className="h-12 w-12 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[250px]" />
+            <Skeleton className="h-4 w-[200px]" />
+          </div>
         </div>
-        <div className="w-1/3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Create post</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CreatePost />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </main>
+      }
+    >
+      <Card className="mx-auto max-w-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Profile</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>User email: {meQuery.data?.email}</p>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => signOut()}
+          >
+            Sign out
+          </Button>
+        </CardContent>
+      </Card>
+    </Page>
   );
 }

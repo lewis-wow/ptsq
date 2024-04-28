@@ -1,8 +1,8 @@
 import { router } from '../ptsq';
-import { postRouter } from './post';
+import { meRouter } from './me';
 
 export const baseRouter = router({
-  post: postRouter,
+  me: meRouter,
 });
 
 export type BaseRouter = typeof baseRouter;
