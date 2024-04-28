@@ -33,36 +33,22 @@ Both [context](/server/context) and [CORS](/server/cors) are described in other 
 
 ### Endpoint
 
-The ``endpoint` server option ius crucial for serving the PTSQ application at the correct endpoint within your server infrastructure.
+The `endpoint` setting specifies the path on which the PTSQ server will listen for requests.
+The default is `/ptsq`, which means that the server will listen on the HTTP endpoint `/ptsq`, for example `http://localhost:3000/ptsq`.
 
-In scenarios such as using Next.js, where the API resides in the `/api` directory within the pages directory, configuring the `root` option becomes essential. By specifying the root path using this option, the server understands where to mount the PTSQ application within the server's routing hierarchy. This ensures that requests directed to the appropriate endpoint, such as `/api`, are properly routed to the PTSQ application for processing.
+If the PTSQ server is deployed inside a REST API endpoint, for example `/api`, the `endpoint` setting must respect this and so its value must be set to `/api/ptsq`.
+This is especially necessary when using PTSQ with a full-stack framework such as Next.js or SvelteKit, where the application can be deployed in the file-system routers provided by these frameworks.
+With this setting, trailing slashes are automatically removed, so it doesn't matter whether the value is set as `/api/ptsq` or `api/ptsq`.
 
-In summary, leveraging the `root` option is vital for integrating the PTSQ application seamlessly into your server environment, especially when dealing with complex routing configurations or frameworks like Next.js.
-
-```ts copy filename="endpoint setting"
+```ts copy filename="Endpoint setting"
 ptsq({
   //...,
-  endpoint: '/my-ptsq-server',
+  endpoint: 'api/ptsq',
 });
-```
 
-You can also use the combination of root and endpoint options of course.
-
-```ts copy
 ptsq({
   //...,
-  root: '/api',
-  endpoint: '/my-ptsq-server',
-});
-```
-
-All trailing slashes are removed, so you don't have to care about them.
-
-```ts copy
-ptsq({
-  //...,
-  root: '/api/',
-  endpoint: '/my-ptsq-server/',
+  endpoint: '/api/ptsq',
 });
 ```
 
