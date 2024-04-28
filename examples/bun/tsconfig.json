@@ -1,0 +1,10 @@
+{
+  "extends": "../../packages/tsconfig/base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    // "bun-types" is the important part
+    "types": ["bun-types"]
+  },
+  "include": ["./src/**/*"]
+}
