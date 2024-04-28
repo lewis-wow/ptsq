@@ -1,6 +1,6 @@
 {
-  "name": "sveltekit",
-  "version": "0.0.1",
+  "name": "@ptsq/example-sveltekit",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "dev": "vite dev",
@@ -11,8 +11,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@ptsq/server": "*",
-    "@ptsq/svelte-client": "*",
+    "@ptsq/server": "latest",
+    "@ptsq/svelte-client": "latest",
     "@sveltejs/adapter-node": "^5.0.1",
     "@tanstack/svelte-query": "^5.18.0"
   },

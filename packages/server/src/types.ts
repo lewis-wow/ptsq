@@ -1,3 +1,6 @@
+import { TSchema } from '@sinclair/typebox';
+import { JSONSchema } from 'json-schema-to-ts';
+
 export type ResolverType = 'query' | 'mutation';
 
 export type NodeType = 'route' | 'router';
@@ -31,8 +34,8 @@ export type Simplify<T> = T extends any[] | Date ? T : { [K in keyof T]: T[K] };
 export type IntrospectedRoute = {
   nodeType: 'route';
   type: ResolverType;
-  outputSchema: any;
-  argsSchema?: any;
+  outputSchema: TSchema | JSONSchema;
+  argsSchema?: TSchema | JSONSchema;
   description?: string;
 };
 

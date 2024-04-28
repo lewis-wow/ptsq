@@ -1,5 +1,6 @@
 import { Static, StaticDecode, TSchema } from '@sinclair/typebox';
 import type { FromSchema, JSONSchema } from 'json-schema-to-ts';
+import { AnyRoute } from './route';
 import { IntrospectedRoute } from './types';
 
 /**
@@ -8,11 +9,22 @@ import { IntrospectedRoute } from './types';
  * @example
  * ```ts
  * inferOutputFromOutputSchema<TString> = string
- * inferOutputFromOutputSchema<string> = string
  * ```
  */
 export type inferOutputFromTypeboxOutputSchema<TOutputSchema extends TSchema> =
   Static<TOutputSchema>;
+
+/**
+ * infers output from Typebox schema or typescript type
+ *
+ * @example
+ * ```ts
+ * inferOutputFromIntrospectedOutputSchema<{ type: 'string' }> = string
+ * ```
+ */
+export type inferOutputFromIntrospectedOutputSchema<
+  TOutputSchema extends JSONSchema,
+> = FromSchema<TOutputSchema>;
 
 /**
  * infers decoded output as return type for resolve function
@@ -26,14 +38,6 @@ export type inferOutputFromTypeboxOutputSchema<TOutputSchema extends TSchema> =
 export type inferDecodedOutputFromTypeboxOutputSchema<
   TOutputSchema extends TSchema | undefined,
 > = TOutputSchema extends TSchema ? StaticDecode<TOutputSchema> : TOutputSchema;
-
-export type inferOutputFromOutputSchema<
-  TOutputSchema extends TSchema | JSONSchema,
-> = TOutputSchema extends TSchema
-  ? Static<TOutputSchema>
-  : TOutputSchema extends JSONSchema
-    ? FromSchema<TOutputSchema>
-    : never;
 
 /**
  * infers output from SimpleRoute
@@ -50,4 +54,6 @@ export type inferOutputFromOutputSchema<
  * ```
  */
 export type inferOutput<TRoute extends IntrospectedRoute> =
-  inferOutputFromOutputSchema<TRoute['outputSchema']>;
+  TRoute extends AnyRoute
+    ? inferOutputFromTypeboxOutputSchema<TRoute['outputSchema']>
+    : inferOutputFromIntrospectedOutputSchema<TRoute['outputSchema']>;

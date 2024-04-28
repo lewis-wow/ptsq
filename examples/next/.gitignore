@@ -34,3 +34,6 @@ next-env.d.ts
 
 # for example only!
 !.env
+
+# introspected schema
+schema.generated.ts

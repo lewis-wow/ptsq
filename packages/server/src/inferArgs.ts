@@ -1,5 +1,6 @@
 import { Static, StaticDecode, TSchema } from '@sinclair/typebox';
 import type { FromSchema, JSONSchema } from 'json-schema-to-ts';
+import { AnyRoute } from './route';
 import { IntrospectedRoute } from './types';
 
 /**
@@ -8,7 +9,8 @@ import { IntrospectedRoute } from './types';
  * @example
  * ```ts
  * inferArgsFromArgsSchema<TString> = string
- * inferArgsFromArgsSchema<string> = string
+ * inferArgsFromArgsSchema<undefined> = undefined
+ * inferArgsFromArgsSchema<void> = void
  * ```
  */
 export type inferArgsFromTypeboxArgsSchema<
@@ -17,6 +19,24 @@ export type inferArgsFromTypeboxArgsSchema<
   ? undefined | void
   : TArgsSchema extends TSchema
     ? Static<TArgsSchema>
+    : never;
+
+/**
+ * infers args from introspected schema or typescript type
+ *
+ * @example
+ * ```ts
+ * inferArgsFromIntrospectedArgsSchema<{ type: 'string' }> = string
+ * inferArgsFromIntrospectedArgsSchema<undefined> = undefined
+ * inferArgsFromIntrospectedArgsSchema<void> = void
+ * ```
+ */
+export type inferArgsFromIntrospectedArgsSchema<
+  TArgsSchema extends JSONSchema | void | undefined,
+> = TArgsSchema extends undefined | void
+  ? undefined | void
+  : TArgsSchema extends JSONSchema
+    ? FromSchema<TArgsSchema>
     : never;
 
 /**
@@ -31,16 +51,6 @@ export type inferArgsFromTypeboxArgsSchema<
 export type inferDecodedArgsFromTypeboxArgsSchema<
   TArgsSchema extends TSchema | undefined,
 > = TArgsSchema extends TSchema ? StaticDecode<TArgsSchema> : TArgsSchema;
-
-export type inferArgsFromArgsSchema<
-  TArgsSchema extends TSchema | JSONSchema | void | undefined,
-> = TArgsSchema extends undefined | void
-  ? undefined | void
-  : TArgsSchema extends TSchema
-    ? Static<TArgsSchema>
-    : TArgsSchema extends JSONSchema
-      ? FromSchema<TArgsSchema>
-      : never;
 
 /**
  * infers args from SimpleRoute
@@ -58,5 +68,7 @@ export type inferArgsFromArgsSchema<
  */
 export type inferArgs<TRoute extends IntrospectedRoute> =
   'argsSchema' extends keyof TRoute
-    ? inferArgsFromArgsSchema<TRoute['argsSchema']>
+    ? TRoute extends AnyRoute
+      ? inferArgsFromTypeboxArgsSchema<TRoute['argsSchema']>
+      : inferArgsFromIntrospectedArgsSchema<TRoute['argsSchema']>
     : undefined | void;

@@ -31,7 +31,6 @@ export type PtsqServerBuilderOptions<
 > = {
   ctx?: TContextBuilder;
   fetchAPI?: FetchAPI;
-  root: string;
   endpoint: string;
   parser: JsonSchemaParser;
   plugins?: ServerAdapterPlugin<any>[];
@@ -79,10 +78,7 @@ export class PtsqServerBuilder<
   create() {
     const def = { ...this._def };
 
-    const path = `${def.root.replace(/\/$/, '')}/${def.endpoint.replace(
-      /^\/|\/$/g,
-      '',
-    )}`;
+    const ptsqEndpoint = this._def.endpoint.replace(/^\//, '');
 
     const envelopedResponse = new Envelope();
 
@@ -112,8 +108,9 @@ export class PtsqServerBuilder<
         async (request, contextParams) => {
           const url = new URL(request.url);
           const method = request.method;
+          const pathname = url.pathname;
 
-          if (url.pathname !== path)
+          if (pathname !== `/${ptsqEndpoint}`)
             return new Response(undefined, { status: 404 });
 
           if (!['POST', 'GET'].includes(method))
@@ -187,6 +184,7 @@ export class PtsqServerBuilder<
       resolver,
       router,
       serve,
+      ptsqEndpoint,
     };
   }
 }
@@ -204,7 +202,6 @@ export const ptsq = <
 >(options?: {
   ctx?: TContextBuilder;
   fetchAPI?: FetchAPI;
-  root?: string;
   endpoint?: string;
   parser?: JsonSchemaParser;
   plugins?: ServerAdapterPlugin<any>[];
@@ -215,8 +212,7 @@ export const ptsq = <
   >({
     ctx: options?.ctx,
     fetchAPI: options?.fetchAPI,
-    root: options?.root ?? '/',
-    endpoint: options?.endpoint ?? '/ptsq',
+    endpoint: options?.endpoint ?? 'ptsq',
     parser: options?.parser ?? defaultJsonSchemaParser,
     plugins: options?.plugins,
     middlewares: [],
