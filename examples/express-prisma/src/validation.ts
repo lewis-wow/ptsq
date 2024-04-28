@@ -1,12 +1,12 @@
 import { Type } from '@ptsq/server';
-import { Nullable } from './types/nullable';
+import { Nullable } from './typeboxTypes/nullable';
 
 /**
  * User
  */
 
 export const UserSchema = Type.Object({
-  id: Type.Integer(),
+  id: Type.String(),
   email: Type.String(),
   name: Nullable(
     Type.String({
@@ -27,7 +27,7 @@ export const createUserSchema = Type.Object({
 });
 
 export const deleteUserSchema = Type.Object({
-  id: Type.Integer(),
+  id: Type.String(),
 });
 
 /**
@@ -35,20 +35,20 @@ export const deleteUserSchema = Type.Object({
  */
 
 export const PostSchema = Type.Object({
-  id: Type.Integer(),
+  id: Type.String(),
   title: Type.String(),
   content: Nullable(Type.String()),
   published: Type.Boolean(),
-  authorId: Type.Integer(),
+  authorId: Type.String(),
 });
 
 export const createPostSchema = Type.Object({
   title: Type.String(),
   content: Type.Optional(Type.String()),
   published: Type.Optional(Type.Boolean()),
-  authorId: Type.Integer(),
+  authorId: Type.String(),
 });
 
 export const deletePostSchema = Type.Object({
-  id: Type.Integer(),
+  id: Type.String(),
 });

@@ -1,6 +1,6 @@
-import { prisma } from '../prisma';
-import { publicResolver } from '../resolvers/publicResolver';
-import { deleteUserSchema, UserSchema } from '../validation';
+import { prisma } from '../../prisma';
+import { publicResolver } from '../../resolvers/publicResolver';
+import { deleteUserSchema, UserSchema } from '../../validation';
 
 export const deleteUser = publicResolver
   .args(deleteUserSchema)

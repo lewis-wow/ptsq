@@ -1,14 +1,13 @@
 {
   "name": "@ptsq/example-express",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "private": true,
   "main": "src/server.ts",
   "scripts": {
     "build": "tsc --build",
-    "server": "ts-node --esm src/server.ts",
-    "client": "ts-node --esm src/client.ts",
-    "introspection": "introspection-cli --url='http://localhost:4000/ptsq'",
-    "introspection-raw": "introspection-cli --url='http://localhost:4000/ptsq' --lang='raw'"
+    "start:server": "ts-node src/server.ts",
+    "start:client": "ts-node src/client.ts",
+    "generate:schema": "introspection-cli --url='http://localhost:4000/ptsq'"
   },
   "devDependencies": {
     "@ptsq/introspection-cli": "latest",

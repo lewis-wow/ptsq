@@ -5,10 +5,11 @@ const client = createProxyClient<BaseRouter>({
   url: 'http://localhost:4000/ptsq',
 });
 
-client.greetings
+client.greetings.get
   .query({
-    name: 'John',
+    firstName: 'John',
+    lastName: 'Doe',
   })
   .then((response) => {
-    console.log('Greetings response: ', response);
+    console.log('Response: ', response);
   });

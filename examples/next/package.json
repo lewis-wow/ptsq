@@ -1,6 +1,6 @@
 {
-  "name": "example-next",
-  "version": "0.1.0",
+  "name": "@ptsq/example-next",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "prebuild": "pnpm prisma:generate && pnpm prisma:migrate",

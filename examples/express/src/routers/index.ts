@@ -1,8 +1,6 @@
 import { router } from '../ptsq';
-import { test } from '../routes/test';
+import { greetingsRouter } from './greetings';
 
 export const baseRouter = router({
-  test: router({
-    test: test,
-  }),
+  greetings: greetingsRouter,
 });

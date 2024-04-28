@@ -1,6 +1,6 @@
-import { prisma } from '../prisma';
-import { publicResolver } from '../resolvers/publicResolver';
-import { createUserSchema, UserSchema } from '../validation';
+import { prisma } from '../../prisma';
+import { publicResolver } from '../../resolvers/publicResolver';
+import { createUserSchema, UserSchema } from '../../validation';
 
 export const createUser = publicResolver
   .args(createUserSchema)
