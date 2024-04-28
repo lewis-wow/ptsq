@@ -675,9 +675,6 @@ importers:
       '@ptsq/client':
         specifier: '*'
         version: link:../client
-      '@tanstack/svelte-query':
-        specifier: ^5.18.0
-        version: 5.18.1(svelte@4.2.10)
     devDependencies:
       '@ptsq/server':
         specifier: '*'
@@ -688,6 +685,9 @@ importers:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.0.2
         version: 3.0.2(svelte@4.2.10)(vite@5.1.0)
+      '@tanstack/svelte-query':
+        specifier: ^5.18.0
+        version: 5.18.1(svelte@4.2.10)
       '@testing-library/svelte':
         specifier: ^4.1.0
         version: 4.1.0(svelte@4.2.10)
@@ -2597,7 +2597,6 @@ packages:
 
   /@tanstack/query-core@5.18.1:
     resolution: {integrity: sha512-fYhrG7bHgSNbnkIJF2R4VUXb4lF7EBiQjKkDc5wOlB7usdQOIN4LxxHpDxyE3qjqIst1WBGvDtL48T0sHJGKCw==}
-    dev: false
 
   /@tanstack/react-query@5.18.1(react@18.2.0):
     resolution: {integrity: sha512-PdI07BbsahZ+04PxSuDQsQvBWe008eWFk/YYWzt8fvzt2sALUM0TpAJa/DFpqa7+SSo7j1EQR6Jx6znXNHyaXw==}
@@ -2626,7 +2625,6 @@ packages:
     dependencies:
       '@tanstack/query-core': 5.18.1
       svelte: 4.2.10
-    dev: false
 
   /@tanstack/virtual-core@3.0.0:
     resolution: {integrity: sha512-SYXOBTjJb05rXa2vl55TTwO40A6wKu0R5i1qQwhJYNDIqaIGF7D0HsLw+pJAyi2OvntlEIVusx3xtbbgSUi6zg==}
