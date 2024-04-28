@@ -1,4 +1,4 @@
-# Koa PTSQ example
+# Fastify PTSQ example
 
 Start the server:
 
