@@ -592,9 +592,6 @@ importers:
       '@ptsq/client':
         specifier: '*'
         version: link:../client
-      '@tanstack/react-query':
-        specifier: ^5.18.0
-        version: 5.18.1(react@18.2.0)
     devDependencies:
       '@ptsq/server':
         specifier: '*'
@@ -605,6 +602,9 @@ importers:
       '@sinclair/typebox':
         specifier: ^0.31.28
         version: 0.31.28
+      '@tanstack/react-query':
+        specifier: ^5.18.0
+        version: 5.18.1(react@18.2.0)
       '@testing-library/react':
         specifier: ^14.2.0
         version: 14.2.1(react-dom@18.2.0)(react@18.2.0)
@@ -2605,7 +2605,6 @@ packages:
     dependencies:
       '@tanstack/query-core': 5.18.1
       react: 18.2.0
-    dev: false
 
   /@tanstack/react-virtual@3.0.4(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-tiqKW/e2MJVCr7/pRUXulpkyxllaOclkHNfhKTo4pmHjJIqnhMfwIjc1Q1R0Un3PI3kQywywu/791c8z9u0qeA==}
