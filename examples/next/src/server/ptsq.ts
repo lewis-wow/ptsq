@@ -4,7 +4,7 @@ import { createContext } from './context';
 
 export const { resolver, router, serve } = ptsq({
   ctx: createContext,
-  root: '/api',
+  endpoint: '/api/ptsq',
 })
   .use(async ({ next }) => {
     const response = await next();

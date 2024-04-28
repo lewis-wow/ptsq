@@ -128,7 +128,7 @@ export class Router<
       routes: {
         ...routerA.routes,
         ...(routerB as TRouterB).routes,
-      } as ShallowMerge<TRouterA['routes'], TRouterB['routes']>,
+      } as Simplify<ShallowMerge<TRouterA['routes'], TRouterB['routes']>>,
     });
   }
 }

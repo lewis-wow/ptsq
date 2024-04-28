@@ -36,13 +36,15 @@ export type {
 
 export type {
   inferArgs,
-  inferArgsFromArgsSchema,
+  inferArgsFromIntrospectedArgsSchema,
+  inferArgsFromTypeboxArgsSchema,
   inferDecodedArgsFromTypeboxArgsSchema,
 } from './inferArgs';
 
 export type {
   inferOutput,
-  inferOutputFromOutputSchema,
+  inferOutputFromIntrospectedOutputSchema,
+  inferOutputFromTypeboxOutputSchema,
   inferDecodedOutputFromTypeboxOutputSchema,
 } from './inferOutput';
 
