@@ -298,6 +298,9 @@ importers:
       '@t3-oss/env-nextjs':
         specifier: ^0.8.0
         version: 0.8.0(typescript@5.3.3)(zod@3.22.4)
+      '@tanstack/react-query':
+        specifier: ^5.18.0
+        version: 5.18.1(react@18.2.0)
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -590,7 +593,7 @@ importers:
         specifier: '*'
         version: link:../client
       '@tanstack/react-query':
-        specifier: ^5.14.2
+        specifier: ^5.18.0
         version: 5.18.1(react@18.2.0)
     devDependencies:
       '@ptsq/server':

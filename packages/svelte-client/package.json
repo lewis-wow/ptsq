@@ -49,7 +49,9 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@ptsq/client": "*",
+    "@ptsq/client": "*"
+  },
+  "peerDependencies": {
     "@tanstack/svelte-query": "^5.18.0"
   }
 }

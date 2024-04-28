@@ -1,9 +1,9 @@
 import { api } from '@/api';
-import { createPostSchema, updatePostSchema } from '@/validation';
+import { updatePostSchema } from '@/validation';
 import { typeboxResolver } from '@hookform/resolvers/typebox';
 import { Post } from '@prisma/client';
-import { useQueryClient } from '@ptsq/react-client';
 import { Static } from '@ptsq/server';
+import { useQueryClient } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { Button } from './ui/button';
 import {

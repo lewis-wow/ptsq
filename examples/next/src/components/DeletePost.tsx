@@ -1,6 +1,6 @@
 import { api } from '@/api';
 import { Post } from '@prisma/client';
-import { useQueryClient } from '@ptsq/react-client';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from './ui/button';
 import {
   Dialog,

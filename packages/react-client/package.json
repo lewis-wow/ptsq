@@ -54,7 +54,9 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@ptsq/client": "*",
-    "@tanstack/react-query": "^5.14.2"
+    "@ptsq/client": "*"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.18.0"
   }
 }
