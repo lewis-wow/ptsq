@@ -2,7 +2,6 @@ import { api } from '@/api';
 import { Page } from '@/components/Page';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { GetServerSideProps } from 'next';
 import { signOut } from 'next-auth/react';
 import { getServerSideSession } from './api/auth/[...nextauth]';
@@ -29,20 +28,8 @@ export default function Home() {
   const meQuery = api.me.get.useQuery();
 
   return (
-    <Page
-      isLoading={meQuery.isFetching}
-      isError={!!meQuery.error}
-      skeleton={
-        <div className="flex items-center space-x-4">
-          <Skeleton className="h-12 w-12 rounded-full" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[250px]" />
-            <Skeleton className="h-4 w-[200px]" />
-          </div>
-        </div>
-      }
-    >
-      <Card className="mx-auto max-w-sm">
+    <Page isLoading={meQuery.isFetching} isError={!!meQuery.error}>
+      <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Profile</CardTitle>
         </CardHeader>
