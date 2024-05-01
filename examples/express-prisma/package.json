@@ -4,9 +4,8 @@
   "private": true,
   "main": "src/server.ts",
   "scripts": {
-    "prebuild": "pnpm prisma:generate",
     "postinstall": "prisma generate",
-    "build": "tsc --build",
+    "build": "pnpm prisma:generate && tsc --build",
     "start:server": "dotenv -e .env -- ts-node src/server.ts",
     "start:client": "ts-node src/client.ts",
     "generate:schema": "introspection-cli --url='http://localhost:4000/ptsq'",

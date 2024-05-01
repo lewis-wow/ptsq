@@ -3,9 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "prebuild": "pnpm prisma:generate",
     "dev": "next dev",
-    "build": "next build",
+    "build": "pnpm prisma:generate && next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
