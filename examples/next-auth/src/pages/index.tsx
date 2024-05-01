@@ -4,14 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { GetServerSideProps } from 'next';
-import { getServerSession } from 'next-auth';
 import { signOut } from 'next-auth/react';
-import { authOptions } from './api/auth/[...nextauth]';
+import { getServerSideSession } from './api/auth/[...nextauth]';
 
 export const getServerSideProps = (async ({ req, res }) => {
-  const session = await getServerSession(req, res, authOptions);
-
-  console.log('session', session);
+  const session = await getServerSideSession({ req, res });
 
   if (!session) {
     return {

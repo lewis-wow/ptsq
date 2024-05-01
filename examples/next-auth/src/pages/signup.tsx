@@ -1,7 +1,27 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GetServerSideProps } from 'next';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
+import { getServerSideSession } from './api/auth/[...nextauth]';
+
+export const getServerSideProps = (async ({ req, res }) => {
+  const session = await getServerSideSession({ req, res });
+
+  if (session) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+      props: {},
+    };
+  }
+
+  return {
+    props: {},
+  };
+}) satisfies GetServerSideProps<{}>;
 
 export default function SignUp() {
   return (
