@@ -1,5 +1,5 @@
 {
-  "name": "@ptsq/example-react",
+  "name": "@ptsq/example-react-express",
   "private": true,
   "version": "0.0.0",
   "scripts": {
