@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "prebuild": "pnpm prisma:generate && pnpm prisma:migrate",
+    "prebuild": "pnpm prisma:generate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
