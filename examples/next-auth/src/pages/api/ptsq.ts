@@ -1,4 +1,4 @@
-import { serve } from '@/server/ptsq';
-import { baseRouter } from '@/server/routers';
+import { serve } from '@/ptsq';
+import { baseRouter } from '@/ptsq/routers';
 
 export default serve(baseRouter);

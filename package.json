@@ -35,7 +35,8 @@
     "overrides": {
       "@ptsq/example-next>@prisma/client": "https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-next",
       "@ptsq/example-express-prisma>@prisma/client": "https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-express-prisma",
-      "@ptsq/example-next-auth>@prisma/client": "https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-next-auth"
+      "@ptsq/example-next-auth>@prisma/client": "https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-next-auth",
+      "@ptsq/example-next-complex-example>@prisma/client": "https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-next-complex-example"
     }
   }
 }

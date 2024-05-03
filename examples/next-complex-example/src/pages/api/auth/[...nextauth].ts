@@ -1,5 +1,5 @@
 import { env } from '@/env';
-import { prisma } from '@/ptsq/prisma';
+import { prisma } from '@/server/prisma';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import {
   GetServerSidePropsContext,
