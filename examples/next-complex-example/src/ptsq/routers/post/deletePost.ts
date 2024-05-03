@@ -1,14 +1,17 @@
-import { publicResolver } from '@/ptsq/resolvers/publicResolver';
+import { loggedInResolver } from '@/ptsq/resolvers/loggedInResolver';
 import { deletePostSchema, PostSchema } from '@/validation';
 import { prisma } from '../../prisma';
 
-export const deletePost = publicResolver
+export const deletePost = loggedInResolver
   .args(deletePostSchema)
   .output(PostSchema)
-  .mutation(({ input }) => {
-    return prisma.post.delete({
+  .mutation(({ input, ctx }) => {
+    const deletedPost = prisma.post.delete({
       where: {
         id: input.id,
+        authorId: ctx.session.user.id,
       },
     });
+
+    return deletedPost;
   });

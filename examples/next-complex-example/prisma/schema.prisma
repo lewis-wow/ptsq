@@ -18,6 +18,7 @@ model User {
   // Optional for WebAuthn support
   Authenticator Authenticator[]
 
+  posts     Post[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -74,4 +75,13 @@ model Authenticator {
   transports           String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Post {
+  id        String  @id @default(cuid())
+  title     String
+  content   String?
+  author    User    @relation(fields: [authorId], references: [id])
+  authorId  String
+  published Boolean @default(false)
 }

@@ -2,9 +2,12 @@ import { loggedInResolver } from '@/ptsq/resolvers/loggedInResolver';
 import { UserSchema } from '@/validation';
 
 export const meQuery = loggedInResolver.output(UserSchema).query(({ ctx }) => {
+  const user = ctx.session.user;
+
   return {
-    name: ctx.session.user?.name ?? undefined,
-    email: ctx.session.user?.email ?? undefined,
-    image: ctx.session.user?.image ?? undefined,
+    id: user.id,
+    name: user.name ?? undefined,
+    email: user?.email ?? undefined,
+    image: user?.image ?? undefined,
   };
 });
