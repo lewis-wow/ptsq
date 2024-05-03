@@ -1,11 +1,11 @@
 import { api } from '@/api';
-import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@radix-ui/react-dropdown-menu';
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { ReactNode } from 'react';
@@ -17,18 +17,16 @@ export type PageProps = {
   isError?: boolean;
   isLoading?: boolean;
   children?: ReactNode;
+  header?: ReactNode;
 };
 
-export const Page = ({ isError, isLoading, children }: PageProps) => {
+export const Page = ({ isError, isLoading, children, header }: PageProps) => {
   const meQuery = api.me.get.useQuery();
 
   return (
     <section className="w-full">
       <header className="w-full flex justify-end h-16 p-2 gap-x-2">
-        <Button asChild>
-          <Link href="/create">Create post</Link>
-        </Button>
-
+        {header}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button

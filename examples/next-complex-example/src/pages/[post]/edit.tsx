@@ -2,6 +2,7 @@ import { api } from '@/api';
 import { Page } from '@/components/Page';
 import { Button } from '@/components/ui/button';
 import {
+  Form,
   FormControl,
   FormDescription,
   FormField,
@@ -15,8 +16,10 @@ import { typeboxResolver } from '@hookform/resolvers/typebox';
 import { Static } from '@ptsq/server';
 import { useQueryClient } from '@tanstack/react-query';
 import { GetServerSideProps } from 'next';
+import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
-import { Form, useForm } from 'react-hook-form';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { getServerSideSession } from '../api/auth/[...nextauth]';
 
 export const getServerSideProps = (async ({ req, res }) => {
@@ -37,7 +40,7 @@ export const getServerSideProps = (async ({ req, res }) => {
   };
 }) satisfies GetServerSideProps<{}>;
 
-const UpdatePost = () => {
+const EditPost = () => {
   const router: NextRouter & { query: { post?: string } } = useRouter();
   const queryClient = useQueryClient();
 
@@ -55,10 +58,31 @@ const UpdatePost = () => {
 
   const form = useForm<Static<typeof updatePostSchema>>({
     resolver: typeboxResolver(updatePostSchema),
+    defaultValues: {
+      id: postQuery.data?.id,
+      title: postQuery.data?.title,
+      published: false,
+    },
   });
 
+  useEffect(() => {
+    form.reset({
+      id: postQuery.data?.id,
+      title: postQuery.data?.title,
+      published: false,
+    });
+  }, [form, postQuery.data]);
+
   return (
-    <Page isLoading={postQuery.isFetching} isError={!!postQuery.error}>
+    <Page
+      isLoading={postQuery.isLoading}
+      isError={!!postQuery.error}
+      header={
+        <Button asChild>
+          <Link href="/create">Posts</Link>
+        </Button>
+      }
+    >
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit((values) => {
@@ -69,6 +93,7 @@ const UpdatePost = () => {
           <FormField
             control={form.control}
             name="title"
+            defaultValue={postQuery.data?.title}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Title</FormLabel>
@@ -87,4 +112,4 @@ const UpdatePost = () => {
   );
 };
 
-export default UpdatePost;
+export default EditPost;
