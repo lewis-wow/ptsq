@@ -23,7 +23,7 @@ export const getServerSideProps = (async ({ req, res }) => {
   };
 }) satisfies GetServerSideProps<{}>;
 
-export default function SignIn() {
+const SignIn = () => {
   return (
     <Page>
       <Card>
@@ -42,4 +42,6 @@ export default function SignIn() {
       </Card>
     </Page>
   );
-}
+};
+
+export default SignIn;

@@ -1,7 +1,8 @@
 import { api } from '@/api';
 import { Page } from '@/components/Page';
 import { GetServerSideProps } from 'next';
-import { getServerSideSession } from './api/auth/[...nextauth]';
+import { NextRouter, useRouter } from 'next/router';
+import { getServerSideSession } from '../api/auth/[...nextauth]';
 
 export const getServerSideProps = (async ({ req, res }) => {
   const session = await getServerSideSession({ req, res });
@@ -21,13 +22,21 @@ export const getServerSideProps = (async ({ req, res }) => {
   };
 }) satisfies GetServerSideProps<{}>;
 
-export default function Home() {
-  const postListQuery = api.post.list.useQuery();
+const Post = () => {
+  const router: NextRouter & { query: { post?: string } } = useRouter();
+
+  const postQuery = api.post.get.useQuery(
+    {
+      id: router.query.post!,
+    },
+    {
+      enabled: !!router.query.post,
+    },
+  );
 
   return (
-    <Page
-      isLoading={postListQuery.isFetching}
-      isError={!!postListQuery.error}
-    ></Page>
+    <Page isLoading={postQuery.isFetching} isError={!!postQuery.error}></Page>
   );
-}
+};
+
+export default Post;
