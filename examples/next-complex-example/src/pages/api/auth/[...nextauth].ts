@@ -28,6 +28,14 @@ declare module 'next-auth' {
       id: string;
     };
   }
+
+  interface User {
+    id: string;
+    name: string | null;
+    email: string | null;
+    image: string | null;
+    password: string | null;
+  }
 }
 
 export const authOptions: NextAuthOptions = {
@@ -39,12 +47,12 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    session: ({ session, token }) => {
+    session: ({ session, user }) => {
       return {
         ...session,
         user: {
           ...session.user,
-          id: token.id,
+          id: user.id,
         },
       };
     },
