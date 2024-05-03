@@ -247,3 +247,91 @@ test('Should pipe resolvers but only second has output', async () => {
     data: testOutput,
   });
 });
+
+test('Should pipe resolvers with middlewares', async () => {
+  const resolverA = Resolver.createRoot<{ user?: 'a' | 'b' | 'c' }>().use(
+    ({ next }) => {
+      return next({
+        ctx: {
+          user: 'a',
+        },
+      });
+    },
+  );
+
+  const resolverB = Resolver.createRoot<{ user?: 'a' | 'b' | 'c' }>().use(
+    ({ next }) => {
+      return next({
+        ctx: {
+          user: 'b',
+        },
+      });
+    },
+  );
+
+  const query_A_then_B = resolverA
+    .pipe(resolverB)
+    .output(Type.Any())
+    .query(({ ctx }) => ctx.user);
+
+  const query_B_then_A = resolverB
+    .pipe(resolverA)
+    .output(Type.Any())
+    .query(({ ctx }) => ctx.user);
+
+  expect(await query_A_then_B.call({ ctx: {}, meta: {} as any })).toStrictEqual(
+    {
+      ok: true,
+      data: 'b',
+    },
+  );
+
+  expect(await query_B_then_A.call({ ctx: {}, meta: {} as any })).toStrictEqual(
+    {
+      ok: true,
+      data: 'a',
+    },
+  );
+});
+
+test('Should pipe resolvers with middlewares 2', async () => {
+  const resolverA = Resolver.createRoot<{ user?: 'a' | 'b' | 'c' }>().use(
+    ({ next }) => {
+      return next();
+    },
+  );
+
+  const resolverB = Resolver.createRoot<{ user?: 'a' | 'b' | 'c' }>().use(
+    ({ next }) => {
+      return next({
+        ctx: {
+          user: 'b',
+        },
+      });
+    },
+  );
+
+  const query_A_then_B = resolverA
+    .pipe(resolverB)
+    .output(Type.Any())
+    .query(({ ctx }) => ctx.user);
+
+  const query_B_then_A = resolverB
+    .pipe(resolverA)
+    .output(Type.Any())
+    .query(({ ctx }) => ctx.user);
+
+  expect(await query_A_then_B.call({ ctx: {}, meta: {} as any })).toStrictEqual(
+    {
+      ok: true,
+      data: 'b',
+    },
+  );
+
+  expect(await query_B_then_A.call({ ctx: {}, meta: {} as any })).toStrictEqual(
+    {
+      ok: true,
+      data: 'b',
+    },
+  );
+});

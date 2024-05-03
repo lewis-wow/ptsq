@@ -1,7 +1,7 @@
 import { api } from '@/api';
 import { DeletePostDialogPortal } from '@/components/DeletePostDialogPortal';
 import { Page } from '@/components/Page';
-import { PostTable } from '@/components/PostTable';
+import { Table } from '@/components/Table';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -40,7 +40,13 @@ export const getServerSideProps = (async ({ req, res }) => {
 }) satisfies GetServerSideProps<{}>;
 
 const Index = () => {
-  const postListQuery = api.post.list.useQuery();
+  const postListQuery = api.post.list.useInfiniteQuery(
+    {},
+    {
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, pages) => lastPage.nextPage,
+    },
+  );
 
   const columns: ColumnDef<Static<typeof PostSchema>>[] = useMemo(
     () => [
@@ -95,7 +101,7 @@ const Index = () => {
         </Button>
       }
     >
-      <PostTable columns={columns} data={postListQuery.data!} />
+      <Table columns={columns} data={postListQuery.data!} pageSize={2} />
     </Page>
   );
 };
