@@ -41,7 +41,7 @@ export const createSvelteClient = <TRouter extends IntrospectedRouter>({
     switch (action) {
       case 'createQuery':
         return createQuery({
-          queryKey: [...route, ...(args[1]?.additionalQueryKey ?? [])],
+          queryKey: [...route, args[0], ...(args[1]?.additionalQueryKey ?? [])],
           queryFn: (context) =>
             httpFetch({
               url,
@@ -64,7 +64,7 @@ export const createSvelteClient = <TRouter extends IntrospectedRouter>({
         });
       case 'createInfiniteQuery':
         return createInfiniteQuery({
-          queryKey: [...route, ...(args[1]?.additionalQueryKey ?? [])],
+          queryKey: [...route, args[0], ...(args[1]?.additionalQueryKey ?? [])],
           queryFn: (context) =>
             httpFetch({
               url,
