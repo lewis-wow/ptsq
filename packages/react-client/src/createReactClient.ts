@@ -44,7 +44,11 @@ export const createReactClient = <TRouter extends IntrospectedRouter>({
     switch (action) {
       case 'useQuery':
         return useQuery({
-          queryKey: [...route, ...(args?.[1]?.additionalQueryKey ?? [])],
+          queryKey: [
+            ...route,
+            args[0],
+            ...(args?.[1]?.additionalQueryKey ?? []),
+          ],
           queryFn: (context) =>
             httpFetch({
               url,
@@ -65,7 +69,11 @@ export const createReactClient = <TRouter extends IntrospectedRouter>({
         });
       case 'useSuspenseQuery':
         return useSuspenseQuery({
-          queryKey: [...route, ...(args?.[1]?.additionalQueryKey ?? [])],
+          queryKey: [
+            ...route,
+            args[0],
+            ...(args?.[1]?.additionalQueryKey ?? []),
+          ],
           queryFn: (context) =>
             httpFetch({
               url,
@@ -86,7 +94,7 @@ export const createReactClient = <TRouter extends IntrospectedRouter>({
         });
       case 'useInfiniteQuery':
         return useInfiniteQuery({
-          queryKey: [...route, ...(args[1].additionalQueryKey ?? [])],
+          queryKey: [...route, args[0], ...(args[1].additionalQueryKey ?? [])],
           queryFn: (context) =>
             httpFetch({
               url,
