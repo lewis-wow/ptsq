@@ -40,13 +40,7 @@ export const getServerSideProps = (async ({ req, res }) => {
 }) satisfies GetServerSideProps<{}>;
 
 const Index = () => {
-  const postListQuery = api.post.list.useInfiniteQuery(
-    {},
-    {
-      initialPageParam: 0,
-      getNextPageParam: (lastPage, pages) => lastPage.nextPage,
-    },
-  );
+  const postListQuery = api.post.list.useQuery();
 
   const columns: ColumnDef<Static<typeof PostSchema>>[] = useMemo(
     () => [
