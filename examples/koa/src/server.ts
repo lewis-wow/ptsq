@@ -7,7 +7,10 @@ import { baseRouter } from './routers';
 const app = new Koa();
 
 app.use(async (ctx) => {
-  const response = await serve(baseRouter).handleNodeRequest(ctx.req);
+  const response = await serve(baseRouter).handleNodeRequestAndResponse(
+    ctx.req,
+    ctx.res,
+  );
 
   // Set status code
   ctx.status = response.status;
