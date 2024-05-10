@@ -6,8 +6,8 @@ export const meQuery = loggedInResolver.output(UserSchema).query(({ ctx }) => {
 
   return {
     id: user.id,
-    name: user.name ?? undefined,
-    email: user?.email ?? undefined,
-    image: user?.image ?? undefined,
+    name: user.name ?? null,
+    email: user?.email ?? null,
+    image: user?.image ?? null,
   };
 });

@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import { Loader2 } from 'lucide-react';
-import Link from 'next/link';
+import { signOut } from 'next-auth/react';
 import { ReactNode } from 'react';
 import { match } from 'ts-pattern';
 import { AlertDescription } from './ui/alert';
@@ -35,13 +35,15 @@ export const Page = ({ isError, isLoading, children, header }: PageProps) => {
               className="overflow-hidden rounded-full"
             >
               <Avatar>
-                <AvatarImage src={meQuery.data?.image} />
+                <AvatarImage src={meQuery.data?.image ?? undefined} />
                 <AvatarFallback>{meQuery.data?.name?.at(0)}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => signOut()}>
+              Logout
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
