@@ -1,11 +1,12 @@
-import type { TSchema } from '@sinclair/typebox';
+import { Type, type TSchema } from '@sinclair/typebox';
+import { JSONSchema } from 'json-schema-to-ts';
 import type { Context } from './context';
+import { Endpoint } from './endpoint';
 import { inferArgsFromTypeboxArgsSchema } from './inferArgs';
 import { inferOutputFromTypeboxOutputSchema } from './inferOutput';
 import { JsonSchemaParser } from './jsonSchemaParser';
 import type { AnyMiddleware } from './middleware';
 import type { AnyResolveFunction } from './resolver';
-import { Route } from './route';
 
 /**
  * Mutation class container
@@ -16,8 +17,7 @@ export class Mutation<
   TContext extends Context,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
-> extends Route<
-  'mutation',
+> extends Endpoint<
   TArgsSchema,
   TOutputSchema,
   TContext,
@@ -32,10 +32,7 @@ export class Mutation<
     description: TDescription;
     parser: JsonSchemaParser;
   }) {
-    super({
-      type: 'mutation',
-      ...options,
-    });
+    super(options);
   }
 
   /**
@@ -62,7 +59,33 @@ export class Mutation<
       },
     };
   }
+
+  /**
+   * @internal
+   *
+   * Returns the schema of the route for the introspection query
+   */
+  getSchema() {
+    return {
+      type: 'mutation',
+      nodeType: 'endpoint',
+      argsSchema:
+        this.argsSchema === undefined
+          ? undefined
+          : Type.Strict(this.argsSchema),
+      outputSchema: Type.Strict(this.outputSchema),
+      description: this.description,
+    } satisfies MutationIntrospectionSchema;
+  }
 }
+
+export type MutationIntrospectionSchema = {
+  type: 'mutation';
+  nodeType: 'endpoint';
+  argsSchema?: JSONSchema;
+  outputSchema: JSONSchema;
+  description?: string;
+};
 
 export type AnyMutation = Mutation<
   any,

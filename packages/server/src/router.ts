@@ -1,17 +1,13 @@
 import type { Context } from './context';
+import { EndpointIntrospectionSchema, EndpointType } from './endpoint';
 import { type AnyMiddlewareResponse, type MiddlewareMeta } from './middleware';
-import type { Mutation } from './mutation';
+import { Mutation } from './mutation';
+import { Node } from './node';
 import { PtsqError } from './ptsqError';
-import type { Query } from './query';
+import { Query } from './query';
 import { AnyResolveFunction } from './resolver';
-import { RouteSchema } from './route';
 import { ServerSideCallerBuilder } from './serverSideCallerBuilder';
-import type {
-  ErrorMessage,
-  ResolverType,
-  ShallowMerge,
-  Simplify,
-} from './types';
+import type { ErrorMessage, ShallowMerge, Simplify } from './types';
 
 export type RouterRoutes<TContext extends Context> = {
   [Key: string]:
@@ -28,11 +24,12 @@ export type RouterRoutes<TContext extends Context> = {
 export class Router<
   TContext extends Context,
   TRoutes extends RouterRoutes<TContext>,
-> {
-  nodeType: 'router' = 'router';
+> extends Node {
   routes: TRoutes;
 
   constructor({ routes }: { routes: TRoutes }) {
+    super();
+
     this.routes = routes;
   }
 
@@ -43,14 +40,14 @@ export class Router<
    */
   getSchema() {
     return {
-      nodeType: this.nodeType,
+      nodeType: 'router',
       routes: Object.entries(this.routes).reduce<
-        Record<string, RouteSchema | RouterSchema>
+        Record<string, EndpointIntrospectionSchema | RouterIntrospectionSchema>
       >((acc, [key, node]) => {
         acc[key] = node.getSchema();
         return acc;
       }, {}),
-    } satisfies RouterSchema;
+    } satisfies RouterIntrospectionSchema;
   }
 
   /**
@@ -62,7 +59,7 @@ export class Router<
     route: string[];
     index: number;
     ctx: Context;
-    type: ResolverType;
+    type: EndpointType;
     meta: MiddlewareMeta;
   }): Promise<AnyMiddlewareResponse> {
     const currentRoute = options.route[options.index];
@@ -82,7 +79,7 @@ export class Router<
 
     const nextNode = this.routes[currentRoute];
 
-    if (nextNode.nodeType === 'router')
+    if (nextNode instanceof Router)
       return nextNode.call({ ...options, index: options.index + 1 });
 
     if (options.index !== options.route.length - 1)
@@ -92,11 +89,15 @@ export class Router<
           'The route continues, but should be terminated by query or mutate.',
       });
 
-    if (nextNode.type !== options.type)
+    if (
+      (options.type === 'query' && nextNode instanceof Mutation) ||
+      (options.type === 'mutation' && nextNode instanceof Query)
+    ) {
       throw new PtsqError({
         code: 'PTSQ_BAD_ROUTE_TYPE',
-        message: `The route type is invalid, it should be ${nextNode.type} and it is ${options.type}.`,
+        message: `The endpointy type is invalid (${options.type}).`,
       });
+    }
 
     return nextNode.call(options);
   }
@@ -133,9 +134,12 @@ export class Router<
   }
 }
 
-export type RouterSchema = {
+export type RouterIntrospectionSchema = {
   nodeType: 'router';
-  routes: Record<string, RouterSchema | RouteSchema>;
+  routes: Record<
+    string,
+    RouterIntrospectionSchema | EndpointIntrospectionSchema
+  >;
 };
 
 export type AnyRouter = Router<Context, RouterRoutes<Context>>;

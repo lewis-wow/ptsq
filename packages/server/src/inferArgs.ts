@@ -1,6 +1,6 @@
 import { Static, StaticDecode, TSchema } from '@sinclair/typebox';
 import type { FromSchema, JSONSchema } from 'json-schema-to-ts';
-import { AnyRoute } from './route';
+import { AnyEndpoint } from './endpoint';
 import { IntrospectedRoute } from './types';
 
 /**
@@ -68,7 +68,7 @@ export type inferDecodedArgsFromTypeboxArgsSchema<
  */
 export type inferArgs<TRoute extends IntrospectedRoute> =
   'argsSchema' extends keyof TRoute
-    ? TRoute extends AnyRoute
+    ? TRoute extends AnyEndpoint
       ? inferArgsFromTypeboxArgsSchema<TRoute['argsSchema']>
       : inferArgsFromIntrospectedArgsSchema<TRoute['argsSchema']>
     : undefined | void;

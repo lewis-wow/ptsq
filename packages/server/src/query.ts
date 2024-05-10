@@ -1,11 +1,12 @@
-import type { TSchema } from '@sinclair/typebox';
+import { Type, type TSchema } from '@sinclair/typebox';
+import { JSONSchema } from 'json-schema-to-ts';
 import type { Context } from './context';
+import { Endpoint } from './endpoint';
 import { inferArgsFromTypeboxArgsSchema } from './inferArgs';
 import { inferOutputFromTypeboxOutputSchema } from './inferOutput';
 import { JsonSchemaParser } from './jsonSchemaParser';
 import type { AnyMiddleware } from './middleware';
 import type { AnyResolveFunction } from './resolver';
-import { Route } from './route';
 
 /**
  * Query class container
@@ -16,8 +17,7 @@ export class Query<
   TContext extends Context,
   TResolveFunction extends AnyResolveFunction,
   TDescription extends string | undefined,
-> extends Route<
-  'query',
+> extends Endpoint<
   TArgsSchema,
   TOutputSchema,
   TContext,
@@ -32,10 +32,7 @@ export class Query<
     description: TDescription;
     parser: JsonSchemaParser;
   }) {
-    super({
-      type: 'query',
-      ...options,
-    });
+    super(options);
   }
 
   /**
@@ -62,7 +59,33 @@ export class Query<
       },
     };
   }
+
+  /**
+   * @internal
+   *
+   * Returns the schema of the route for the introspection query
+   */
+  getSchema() {
+    return {
+      type: 'query',
+      nodeType: 'endpoint',
+      argsSchema:
+        this.argsSchema === undefined
+          ? undefined
+          : Type.Strict(this.argsSchema),
+      outputSchema: Type.Strict(this.outputSchema),
+      description: this.description,
+    } satisfies QueryIntrospectionSchema;
+  }
 }
+
+export type QueryIntrospectionSchema = {
+  type: 'query';
+  nodeType: 'endpoint';
+  argsSchema?: JSONSchema;
+  outputSchema: JSONSchema;
+  description?: string;
+};
 
 export type AnyQuery = Query<
   any,

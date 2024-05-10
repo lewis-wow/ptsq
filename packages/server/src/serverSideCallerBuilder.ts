@@ -1,6 +1,6 @@
 import { AnyMutation } from './mutation';
-import { AnyQuery } from './query';
-import { AnyRouter, inferContextFromRouter } from './router';
+import { AnyQuery, Query } from './query';
+import { AnyRouter, inferContextFromRouter, Router } from './router';
 
 /**
  * @internal
@@ -39,20 +39,20 @@ const createServerSideCaller = <TRouter extends AnyRouter>(options: {
     get: (target, prop: string) => {
       const node = target[prop];
 
-      if (node.nodeType === 'router')
+      if (node instanceof Router)
         return createServerSideCaller({
           router: node as AnyRouter,
           ctx: options.ctx,
           route: [...options.route, prop],
         });
 
-      if (node.type === 'query')
-        return (node as AnyQuery).createServerSideQuery({
+      if (node instanceof Query)
+        return node.createServerSideQuery({
           ctx: options.ctx,
           route: [...options.route, prop].join('.'),
         });
 
-      return (node as AnyMutation).createServerSideMutation({
+      return node.createServerSideMutation({
         ctx: options.ctx,
         route: [...options.route, prop].join('.'),
       });
