@@ -1,6 +1,12 @@
 import { Page } from '@/components/Page';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -15,6 +21,7 @@ import { typeboxResolver } from '@hookform/resolvers/typebox';
 import { Static } from '@sinclair/typebox';
 import { GetServerSideProps } from 'next';
 import { signIn } from 'next-auth/react';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { getServerSideSession } from './api/auth/[...nextauth]';
 
@@ -47,9 +54,12 @@ const SignUp = () => {
 
   return (
     <Page>
-      <Card>
+      <Card className="mx-auto max-w-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Sign up</CardTitle>
+          <CardDescription>
+            Enter your email below to register new account
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-y-4">
@@ -105,6 +115,13 @@ const SignUp = () => {
             >
               Sign up by GitHub
             </Button>
+          </div>
+
+          <div className="mt-4 text-center text-sm">
+            Already have an account?{' '}
+            <Link href="/signin" className="underline">
+              Sign in
+            </Link>
           </div>
         </CardContent>
       </Card>
