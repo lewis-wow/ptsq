@@ -1,8 +1,6 @@
 import { api } from '@/api';
 import { Page } from '@/components/Page';
-import { Button } from '@/components/ui/button';
 import { GetServerSideProps } from 'next';
-import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
 import { getServerSideSession } from '../api/auth/[...nextauth]';
 
@@ -38,13 +36,15 @@ const Post = () => {
 
   return (
     <Page
-      isLoading={postQuery.isLoading}
-      isError={!!postQuery.error}
-      header={
-        <Button asChild>
-          <Link href={`/${router.query.post}/edit`}>Edit post</Link>
-        </Button>
-      }
+      pageLinks={[
+        { title: 'Posts', href: '/', active: false },
+        { title: 'Create post', href: '/create', active: false },
+        {
+          title: 'Update post',
+          href: `/${router.query.post}/edit`,
+          active: false,
+        },
+      ]}
     >
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
         {postQuery.data?.title}

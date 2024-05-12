@@ -1,6 +1,8 @@
 import { api } from '@/api';
+import { DataLoader } from '@/components/DataLoader';
 import { Page } from '@/components/Page';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Form,
   FormControl,
@@ -11,12 +13,20 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { updatePostSchema } from '@/validation';
 import { typeboxResolver } from '@hookform/resolvers/typebox';
+import { PostStatus } from '@prisma/client';
 import { Static } from '@ptsq/server';
 import { useQueryClient } from '@tanstack/react-query';
 import { GetServerSideProps } from 'next';
-import Link from 'next/link';
 import { NextRouter, useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -61,7 +71,8 @@ const EditPost = () => {
     defaultValues: {
       id: postQuery.data?.id,
       title: postQuery.data?.title,
-      published: false,
+      content: postQuery.data?.content ?? undefined,
+      status: postQuery.data?.status,
     },
   });
 
@@ -69,45 +80,125 @@ const EditPost = () => {
     form.reset({
       id: postQuery.data?.id,
       title: postQuery.data?.title,
-      published: false,
+      content: postQuery.data?.content ?? undefined,
+      status: postQuery.data?.status,
     });
   }, [form, postQuery.data]);
 
   return (
     <Page
-      isLoading={postQuery.isLoading}
-      isError={!!postQuery.error}
-      header={
-        <Button asChild>
-          <Link href="/create">Posts</Link>
-        </Button>
-      }
+      pageLinks={[
+        { title: 'Posts', href: '/', active: false },
+        { title: 'Create post', href: '/create', active: false },
+        {
+          title: 'Edit post',
+          href: `/${router.query.post}/edit`,
+          active: true,
+        },
+      ]}
     >
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit((values) => {
-            updatePostMutation.mutate(values);
-          })}
-          className="space-y-8"
-        >
-          <FormField
-            control={form.control}
-            name="title"
-            defaultValue={postQuery.data?.title}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Title</FormLabel>
-                <FormControl>
-                  <Input placeholder="Title" {...field} />
-                </FormControl>
-                <FormDescription>This is the post title.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit">Submit</Button>
-        </form>
-      </Form>
+      <DataLoader isLoading={postQuery.isLoading} isError={!!postQuery.error}>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit((values) => {
+              updatePostMutation.mutate(values);
+            })}
+            className="space-y-8"
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle>Post Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6">
+                  <div className="grid gap-3">
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Title</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Title" {...field} />
+                          </FormControl>
+                          <FormDescription>
+                            This is the post title.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid gap-3">
+                    <FormField
+                      control={form.control}
+                      name="content"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Content</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              className="min-h-32"
+                              placeholder="Content..."
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            This is the post content.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Post Status</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-6">
+                  <div className="grid gap-3">
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem defaultValue={PostStatus.DRAFT}>
+                          <FormLabel>Status</FormLabel>
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select status" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value={PostStatus.DRAFT}>
+                                  Draft
+                                </SelectItem>
+                                <SelectItem value={PostStatus.PUBLISHED}>
+                                  Published
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Button type="submit">Update post</Button>
+          </form>
+        </Form>
+      </DataLoader>
     </Page>
   );
 };

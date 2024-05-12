@@ -5,28 +5,46 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
-import { Loader2 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
+import Link from 'next/link';
 import { ReactNode } from 'react';
-import { match } from 'ts-pattern';
-import { AlertDescription } from './ui/alert';
 import { Button } from './ui/button';
 
-export type PageProps = {
-  isError?: boolean;
-  isLoading?: boolean;
-  children?: ReactNode;
-  header?: ReactNode;
+export type PageLink = {
+  href: string;
+  title: string;
+  active: boolean;
 };
 
-export const Page = ({ isError, isLoading, children, header }: PageProps) => {
+export type PageProps = {
+  children?: ReactNode;
+  pageLinks?: PageLink[];
+};
+
+export const Page = ({ children, pageLinks }: PageProps) => {
   const meQuery = api.me.get.useQuery();
 
   return (
     <section className="w-full">
-      <header className="w-full flex justify-end h-16 p-2 gap-x-2">
-        {header}
+      <header className="w-full flex justify-between h-16 p-2 gap-x-2">
+        <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
+          {pageLinks?.map((pageLink) => (
+            <Link
+              key={pageLink.href}
+              href={pageLink.href}
+              className={cn(
+                'text-muted-foreground transition-colors hover:text-foreground',
+                {
+                  'text-foreground': pageLink.active,
+                },
+              )}
+            >
+              {pageLink.title}
+            </Link>
+          ))}
+        </nav>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -47,12 +65,7 @@ export const Page = ({ isError, isLoading, children, header }: PageProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </header>
-      <main className="p-2">
-        {match({ isError, isLoading })
-          .with({ isLoading: true }, () => <Loader2 />)
-          .with({ isError: true }, () => <AlertDescription />)
-          .otherwise(() => children)}
-      </main>
+      <main className="p-2">{children}</main>
     </section>
   );
 };

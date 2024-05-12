@@ -1,3 +1,4 @@
+import { PostStatus } from '@prisma/client';
 import { FormatRegistry, Type } from '@ptsq/server';
 import { Nullable } from './typeboxTypes/nullable';
 
@@ -26,7 +27,7 @@ export const PostSchema = Type.Object({
   id: Type.String(),
   title: Type.String(),
   content: Nullable(Type.String()),
-  published: Type.Boolean(),
+  status: Type.Enum(PostStatus),
 });
 
 export const createPostSchema = Type.Object({
@@ -34,7 +35,7 @@ export const createPostSchema = Type.Object({
     minLength: 4,
   }),
   content: Type.Optional(Type.String()),
-  published: Type.Boolean(),
+  status: Type.Enum(PostStatus),
 });
 
 export const updatePostSchema = Type.Object({
@@ -43,7 +44,7 @@ export const updatePostSchema = Type.Object({
     minLength: 4,
   }),
   content: Type.Optional(Type.String()),
-  published: Type.Boolean(),
+  status: Type.Enum(PostStatus),
 });
 
 export const deletePostSchema = Type.Object({
@@ -52,6 +53,15 @@ export const deletePostSchema = Type.Object({
 
 export const getPostSchema = Type.Object({
   id: Type.String(),
+});
+
+export const listPostsSchema = Type.Object({
+  filter: Type.Optional(
+    Type.Object({
+      search: Type.Optional(Type.String()),
+      status: Type.Optional(Type.Enum(PostStatus)),
+    }),
+  ),
 });
 
 export const credentialsSignUpSchema = Type.Object({

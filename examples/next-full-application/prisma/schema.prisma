@@ -4,7 +4,8 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
 }
 
 model User {
@@ -79,10 +80,15 @@ model Authenticator {
 }
 
 model Post {
-  id        String  @id @default(cuid())
-  title     String
-  content   String?
-  author    User    @relation(fields: [authorId], references: [id])
-  authorId  String
-  published Boolean @default(false)
+  id       String     @id @default(cuid())
+  title    String
+  content  String?
+  author   User       @relation(fields: [authorId], references: [id])
+  authorId String
+  status   PostStatus @default(DRAFT)
+}
+
+enum PostStatus {
+  PUBLISHED
+  DRAFT
 }
