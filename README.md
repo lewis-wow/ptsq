@@ -19,7 +19,8 @@ npm i -D @ptsq/introspection-cli
 ```
 
 ```ts title="server.ts"
-import { ptsq, Type } from '@ptsq/server';
+import { ptsq } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
 import express, { Request, Response } from 'express';
 
 const app = express();
