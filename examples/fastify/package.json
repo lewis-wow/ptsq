@@ -18,6 +18,7 @@
   "dependencies": {
     "@ptsq/client": "latest",
     "@ptsq/server": "latest",
-    "fastify": "^4.26.2"
+    "fastify": "^4.26.2",
+    "@sinclair/typebox": "0.31.28"
   }
 }

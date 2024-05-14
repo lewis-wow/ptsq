@@ -19,6 +19,7 @@
   "dependencies": {
     "@ptsq/client": "latest",
     "@ptsq/server": "latest",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "@sinclair/typebox": "0.31.28"
   }
 }

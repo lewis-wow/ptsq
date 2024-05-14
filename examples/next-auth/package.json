@@ -37,7 +37,8 @@
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "ts-pattern": "^5.1.1",
-    "zod": "^3.22.4"
+    "zod": "^3.22.4",
+    "@sinclair/typebox": "0.31.28"
   },
   "devDependencies": {
     "@ptsq/introspection-cli": "latest",

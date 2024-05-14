@@ -1,7 +1,7 @@
 import { api } from '@/api';
 import { createPostSchema } from '@/validation';
 import { typeboxResolver } from '@hookform/resolvers/typebox';
-import { Static } from '@ptsq/server';
+import { Static } from '@sinclair/typebox';
 import { useQueryClient } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 import { Button } from './ui/button';

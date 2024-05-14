@@ -19,6 +19,7 @@
   "dependencies": {
     "@ptsq/client": "latest",
     "@ptsq/server": "latest",
-    "koa": "^2.15.3"
+    "koa": "^2.15.3",
+    "@sinclair/typebox": "0.31.28"
   }
 }

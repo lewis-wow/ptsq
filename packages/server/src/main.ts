@@ -56,4 +56,4 @@ export {
   type JsonSchemaParserSuccess,
 } from './jsonSchemaParser';
 
-export { useCORS } from '@whatwg-node/server';
+export * from '@whatwg-node/server';

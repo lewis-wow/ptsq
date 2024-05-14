@@ -1,4 +1,4 @@
-import { Type } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
 
 export const UserSchema = Type.Object({
   name: Type.Optional(Type.String()),

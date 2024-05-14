@@ -120,6 +120,9 @@ importers:
       '@ptsq/server':
         specifier: latest
         version: link:../../packages/server
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
     devDependencies:
       '@ptsq/introspection-cli':
         specifier: latest
@@ -142,6 +145,9 @@ importers:
       '@ptsq/server':
         specifier: latest
         version: link:../../packages/server
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
     devDependencies:
       '@ptsq/introspection-cli':
         specifier: latest
@@ -161,6 +167,9 @@ importers:
       '@ptsq/server':
         specifier: latest
         version: link:../../packages/server
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
       express:
         specifier: ^4.18.2
         version: 4.18.2
@@ -192,6 +201,9 @@ importers:
       '@ptsq/server':
         specifier: latest
         version: link:../../packages/server
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
       express:
         specifier: ^4.18.2
         version: 4.18.2
@@ -226,6 +238,9 @@ importers:
       '@ptsq/server':
         specifier: latest
         version: link:../../packages/server
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
       fastify:
         specifier: ^4.26.2
         version: 4.26.2
@@ -251,6 +266,9 @@ importers:
       '@ptsq/server':
         specifier: latest
         version: link:../../packages/server
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
       koa:
         specifier: ^2.15.3
         version: 2.15.3
@@ -297,6 +315,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.0.2
         version: 1.0.2(@types/react@18.2.55)(react@18.2.0)
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
       '@t3-oss/env-nextjs':
         specifier: ^0.8.0
         version: 0.8.0(typescript@5.3.3)(zod@3.22.4)
@@ -406,6 +427,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.0.2
         version: 1.0.2(@types/react@18.2.55)(react@18.2.0)
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
       '@t3-oss/env-nextjs':
         specifier: ^0.8.0
         version: 0.8.0(typescript@5.3.3)(zod@3.22.4)
@@ -700,6 +724,9 @@ importers:
       '@ptsq/server':
         specifier: latest
         version: link:../../packages/server
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
     devDependencies:
       '@ptsq/introspection-cli':
         specifier: latest
@@ -874,7 +901,7 @@ importers:
   packages/server:
     dependencies:
       '@sinclair/typebox':
-        specifier: ^0.31.28
+        specifier: 0.31.28
         version: 0.31.28
       '@whatwg-node/server':
         specifier: ^0.9.34

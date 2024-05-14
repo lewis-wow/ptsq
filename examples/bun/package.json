@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@ptsq/client": "latest",
-    "@ptsq/server": "latest"
+    "@ptsq/server": "latest",
+    "@sinclair/typebox": "0.31.28"
   }
 }

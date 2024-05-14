@@ -1,6 +1,6 @@
 import { loggedInResolver } from '@/ptsq/resolvers/loggedInResolver';
 import { listPostsSchema, PostSchema } from '@/validation';
-import { Type } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
 import { prisma } from '../../prisma';
 
 export const listPosts = loggedInResolver

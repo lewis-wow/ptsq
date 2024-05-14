@@ -25,7 +25,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { createPostSchema } from '@/validation';
 import { typeboxResolver } from '@hookform/resolvers/typebox';
 import { PostStatus } from '@prisma/client';
-import { Static } from '@ptsq/server';
+import { Static } from '@sinclair/typebox';
 import { useQueryClient } from '@tanstack/react-query';
 import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
