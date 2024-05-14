@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { writeFile } from 'fs/promises';
-import { resolve } from 'path';
+import { mkdir, writeFile } from 'fs/promises';
+import { dirname, resolve } from 'path';
 import axios from 'axios';
 import yargs from 'yargs';
 import { createTypescriptSchema } from './createTypescriptSchema';
@@ -74,6 +74,7 @@ axios
 
     if (!outFile) throw new Error('Out file is not defined.');
 
+    await mkdir(dirname(outFile), { recursive: true });
     await writeFile(outFile, schema!, 'utf8');
 
     console.log(`Schema generated into ${resolve(outFile)}`);

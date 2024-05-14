@@ -10,7 +10,7 @@
     "postinstall": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
-    "generate:schema": "introspection-cli --url='http://localhost:3000/api/ptsq'"
+    "generate:schema": "introspection-cli --url='http://localhost:3000/api/ptsq' --out='src/generated/schema.generated.ts'"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

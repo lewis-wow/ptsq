@@ -48,8 +48,12 @@ export type {
   inferDecodedOutputFromTypeboxOutputSchema,
 } from './inferOutput';
 
-export * from './jsonSchemaParser';
+export {
+  defaultJsonSchemaParser,
+  type JsonSchemaParser,
+  type JsonSchemaParserError,
+  type JsonSchemaParserPayload,
+  type JsonSchemaParserSuccess,
+} from './jsonSchemaParser';
 
 export { useCORS } from '@whatwg-node/server';
-export * from '@sinclair/typebox';
-export * from '@whatwg-node/server';

@@ -43,5 +43,8 @@
   "dependencies": {
     "@sinclair/typebox": "^0.31.28",
     "@whatwg-node/server": "^0.9.34"
+  },
+  "peerDependencies": {
+    "@sinclair/typebox": "^0.31.28"
   }
 }
