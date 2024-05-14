@@ -1,4 +1,5 @@
 import { api } from '@/api';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
+import { PersonIcon } from '@radix-ui/react-icons';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { ReactNode } from 'react';
@@ -55,7 +56,9 @@ export const Page = ({ children, pageLinks }: PageProps) => {
               >
                 <Avatar>
                   <AvatarImage src={meQuery.data?.image ?? undefined} />
-                  <AvatarFallback>{meQuery.data?.name?.at(0)}</AvatarFallback>
+                  <AvatarFallback>
+                    <PersonIcon />
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
