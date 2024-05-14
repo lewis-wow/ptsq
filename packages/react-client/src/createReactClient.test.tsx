@@ -1,6 +1,7 @@
 import { PtsqClientError, UndefinedAction } from '@ptsq/client';
-import { ptsq, Type } from '@ptsq/server';
+import { ptsq } from '@ptsq/server';
 import { createHttpTestServer } from '@ptsq/test-utils';
+import { Type } from '@sinclair/typebox';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';

@@ -1,5 +1,6 @@
-import { ptsq, Type, useCORS } from '@ptsq/server';
+import { ptsq, useCORS } from '@ptsq/server';
 import { createHttpTestServer } from '@ptsq/test-utils';
+import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 
 test('Should instropectate simple http server', async () => {

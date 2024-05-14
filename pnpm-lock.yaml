@@ -944,6 +944,9 @@ importers:
       '@ptsq/test-utils':
         specifier: '*'
         version: link:../test-utils
+      '@sinclair/typebox':
+        specifier: ^0.31.28
+        version: 0.31.28
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.0.2
         version: 3.0.2(svelte@4.2.10)(vite@5.1.0)
