@@ -40,11 +40,13 @@ export const createPostSchema = Type.Object({
 
 export const updatePostSchema = Type.Object({
   id: Type.String(),
-  title: Type.String({
-    minLength: 4,
-  }),
+  title: Type.Optional(
+    Type.String({
+      minLength: 4,
+    }),
+  ),
   content: Type.Optional(Type.String()),
-  status: Type.Enum(PostStatus),
+  status: Type.Optional(Type.Enum(PostStatus)),
 });
 
 export const deletePostSchema = Type.Object({

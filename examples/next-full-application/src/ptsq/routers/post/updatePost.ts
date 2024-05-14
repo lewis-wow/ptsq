@@ -14,6 +14,7 @@ export const updatePost = loggedInResolver
       data: {
         title: input.title,
         content: input.content,
+        status: input.status,
       },
     });
 
