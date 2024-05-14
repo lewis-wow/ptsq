@@ -6,7 +6,6 @@ settings:
 
 overrides:
   '@ptsq/example-next>@prisma/client': https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-next
-  '@ptsq/example-express-prisma>@prisma/client': https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-express-prisma
   '@ptsq/example-next-auth>@prisma/client': https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-next-auth
   '@ptsq/example-next-complex-example>@prisma/client': https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-next-complex-example
 
@@ -183,46 +182,6 @@ importers:
       '@types/node':
         specifier: ^20.7.0
         version: 20.11.16
-      ts-node:
-        specifier: ^10.9.1
-        version: 10.9.2(@types/node@20.11.16)(typescript@5.3.3)
-      typescript:
-        specifier: ^5.2.2
-        version: 5.3.3
-
-  examples/express-prisma:
-    dependencies:
-      '@prisma/client':
-        specifier: https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-express-prisma
-        version: '@registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-express-prisma(prisma@5.9.1)'
-      '@ptsq/client':
-        specifier: latest
-        version: link:../../packages/client
-      '@ptsq/server':
-        specifier: latest
-        version: link:../../packages/server
-      '@sinclair/typebox':
-        specifier: 0.31.28
-        version: 0.31.28
-      express:
-        specifier: ^4.18.2
-        version: 4.18.2
-    devDependencies:
-      '@ptsq/introspection-cli':
-        specifier: '*'
-        version: link:../../packages/introspection-cli
-      '@types/express':
-        specifier: ^4.17.18
-        version: 4.17.21
-      '@types/node':
-        specifier: ^20.7.0
-        version: 20.11.16
-      dotenv-cli:
-        specifier: ^7.3.0
-        version: 7.3.0
-      prisma:
-        specifier: 5.9.1
-        version: 5.9.1
       ts-node:
         specifier: ^10.9.1
         version: 10.9.2(@types/node@20.11.16)(typescript@5.3.3)
@@ -5668,28 +5627,8 @@ packages:
     resolution: {integrity: sha512-b7uwreMYL2eZhrSCRC4ahLTeZcPZxSmYfmcQGXGkXiZSNW1X85v+SDM5KsWcpivIiUBH47Ji7NtyUdpLeF5JZQ==}
     dev: false
 
-  /dotenv-cli@7.3.0:
-    resolution: {integrity: sha512-314CA4TyK34YEJ6ntBf80eUY+t1XaFLyem1k9P0sX1gn30qThZ5qZr/ZwE318gEnzyYP9yj9HJk6SqwE0upkfw==}
-    hasBin: true
-    dependencies:
-      cross-spawn: 7.0.3
-      dotenv: 16.4.1
-      dotenv-expand: 10.0.0
-      minimist: 1.2.8
-    dev: true
-
-  /dotenv-expand@10.0.0:
-    resolution: {integrity: sha512-GopVGCpVS1UKH75VKHGuQFqS1Gusej0z4FyQkPdwjil2gNIv+LNsqBlboOzpJFZKVT95GkCyWJbBSdFEFUWI2A==}
-    engines: {node: '>=12'}
-    dev: true
-
   /dotenv@16.0.3:
     resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
-    engines: {node: '>=12'}
-    dev: true
-
-  /dotenv@16.4.1:
-    resolution: {integrity: sha512-CjA3y+Dr3FyFDOAMnxZEGtnW9KBR2M0JvvUtXNW+dYJL5ROWxP9DUHCwgFqpMk0OXCc0ljhaNTr2w/kutYIcHQ==}
     engines: {node: '>=12'}
     dev: true
 
@@ -12305,22 +12244,6 @@ packages:
 
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
-    dev: false
-
-  '@registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-express-prisma(prisma@5.9.1)':
-    resolution: {tarball: https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-express-prisma}
-    id: '@registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-express-prisma'
-    name: '@prisma/client'
-    version: 5.9.1
-    engines: {node: '>=16.13'}
-    requiresBuild: true
-    peerDependencies:
-      prisma: '*'
-    peerDependenciesMeta:
-      prisma:
-        optional: true
-    dependencies:
-      prisma: 5.9.1
     dev: false
 
   '@registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-next(prisma@5.9.1)':
