@@ -74,16 +74,13 @@ const EditPost = () => {
       content: postQuery.data?.content ?? undefined,
       status: postQuery.data?.status,
     },
-  });
-
-  useEffect(() => {
-    form.reset({
-      id: postQuery.data?.id,
+    values: {
+      id: postQuery.data?.id ?? '',
       title: postQuery.data?.title,
       content: postQuery.data?.content ?? undefined,
       status: postQuery.data?.status,
-    });
-  }, [form, postQuery.data]);
+    },
+  });
 
   return (
     <Page
@@ -166,26 +163,26 @@ const EditPost = () => {
                       control={form.control}
                       name="status"
                       render={({ field }) => (
-                        <FormItem defaultValue={PostStatus.DRAFT}>
+                        <FormItem>
                           <FormLabel>Status</FormLabel>
-                          <FormControl>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select status" />
                               </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value={PostStatus.DRAFT}>
-                                  Draft
-                                </SelectItem>
-                                <SelectItem value={PostStatus.PUBLISHED}>
-                                  Published
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value={PostStatus.DRAFT}>
+                                Draft
+                              </SelectItem>
+                              <SelectItem value={PostStatus.PUBLISHED}>
+                                Published
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
