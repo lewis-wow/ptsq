@@ -1,5 +1,5 @@
 import { PostStatus } from '@prisma/client';
-import { FormatRegistry, Type } from '@ptsq/server';
+import { FormatRegistry, Type } from '@sinclair/typebox';
 import { Nullable } from './typeboxTypes/nullable';
 
 /**

@@ -1,6 +1,6 @@
 {
   "name": "@ptsq/server",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "homepage": "https://ptsq.vercel.app/",
   "author": "lewis-wow",
   "license": "MIT",
@@ -41,7 +41,10 @@
     "vitest": "^0.34.6"
   },
   "dependencies": {
-    "@sinclair/typebox": "^0.31.28",
+    "@sinclair/typebox": "0.31.28",
     "@whatwg-node/server": "^0.9.34"
+  },
+  "peerDependencies": {
+    "@sinclair/typebox": "0.31.28"
   }
 }

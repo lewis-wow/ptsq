@@ -1,5 +1,6 @@
-import { ptsq, Type } from '@ptsq/server';
+import { ptsq } from '@ptsq/server';
 import { callback, createHttpTestServer } from '@ptsq/test-utils';
+import { Type } from '@sinclair/typebox';
 
 const { resolver, router, serve } = ptsq({
   ctx: () => ({}),

@@ -22,6 +22,7 @@ import { Static } from '@sinclair/typebox';
 import { GetServerSideProps } from 'next';
 import { signIn } from 'next-auth/react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { getServerSideSession } from './api/auth/[...nextauth]';
 
@@ -44,6 +45,8 @@ export const getServerSideProps = (async ({ req, res }) => {
 }) satisfies GetServerSideProps<{}>;
 
 const SignUp = () => {
+  const router = useRouter();
+
   const form = useForm<Static<typeof credentialsSignUpSchema>>({
     resolver: typeboxResolver(credentialsSignUpSchema),
     defaultValues: {
@@ -65,8 +68,22 @@ const SignUp = () => {
           <div className="flex flex-col gap-y-4">
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit((values) => {
-                  signIn('credentials-signup', values);
+                onSubmit={form.handleSubmit(async (values) => {
+                  const response = await signIn('credentials-signup', {
+                    ...values,
+                    redirect: false,
+                  });
+
+                  if (!response?.ok) {
+                    form.setError('email', { message: 'Invalid credentials' });
+                    form.setError('password', {
+                      message: 'Invalid credentials',
+                    });
+
+                    return;
+                  }
+
+                  router.push('/');
                 })}
                 className="space-y-8"
               >

@@ -6,7 +6,8 @@ You can integrate PTSQ with multiple backend REST API frameworks such as Express
 
 ```ts
 import { createServer, IncommingMessage, ServerResponse } from 'http';
-import { ptsq, Type } from '@ptsq/server';
+import { ptsq } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
 
 const { router, resolver, serve } = ptsq({
   ctx: ({ req, res }: { req: IncommingMessage; res: ServerResponse }) => ({
@@ -34,7 +35,8 @@ export type BaseRouter = typeof baseRouter;
 ## Express
 
 ```ts copy
-import { ptsq, Type } from '@ptsq/server';
+import { ptsq } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
 import express, { Request, Response } from 'express';
 
 const app = express();
@@ -65,7 +67,8 @@ export type BaseRouter = typeof baseRouter;
 ## Koa
 
 ```ts copy
-import { ptsq, Type } from '@ptsq/server';
+import { ptsq } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
 import Koa, { Context } from 'koa';
 
 const app = new Koa();
@@ -107,7 +110,8 @@ export type BaseRouter = typeof baseRouter;
 ## Fastify
 
 ```ts copy
-import { ptsq, Type } from '@ptsq/server';
+import { ptsq } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
 import fastify, { FastifyReply, FastifyRequest } from 'fastify';
 
 const app = fastify();
@@ -175,7 +179,8 @@ export default serve(baseRouter);
 ## SvelteKit
 
 ```ts copy
-import { ptsq, Type } from '@ptsq/server';
+import { ptsq } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
 
 const { router, resolver, serve } = ptsq({
   root: '/api',
@@ -199,7 +204,8 @@ export { server as POST, server as GET };
 ## Bun
 
 ```ts copy
-import { ptsq, Type } from '@ptsq/server';
+import { ptsq } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
 
 const { router, resolver, serve } = ptsq({
   ctx: () => ({}),

@@ -1,4 +1,5 @@
-import { JsonSchemaParser, TSchema } from '@ptsq/server';
+import { JsonSchemaParser } from '@ptsq/server';
+import { TSchema } from '@sinclair/typebox';
 import { TypeCheck, TypeCompiler } from '@sinclair/typebox/compiler';
 
 export type CreateCachedJsonSchemaParserPayload = {

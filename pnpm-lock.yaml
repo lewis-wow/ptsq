@@ -6,7 +6,6 @@ settings:
 
 overrides:
   '@ptsq/example-next>@prisma/client': https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-next
-  '@ptsq/example-express-prisma>@prisma/client': https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-express-prisma
   '@ptsq/example-next-auth>@prisma/client': https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-next-auth
   '@ptsq/example-next-complex-example>@prisma/client': https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-next-complex-example
 
@@ -120,6 +119,9 @@ importers:
       '@ptsq/server':
         specifier: latest
         version: link:../../packages/server
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
     devDependencies:
       '@ptsq/introspection-cli':
         specifier: latest
@@ -142,6 +144,9 @@ importers:
       '@ptsq/server':
         specifier: latest
         version: link:../../packages/server
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
     devDependencies:
       '@ptsq/introspection-cli':
         specifier: latest
@@ -161,6 +166,9 @@ importers:
       '@ptsq/server':
         specifier: latest
         version: link:../../packages/server
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
       express:
         specifier: ^4.18.2
         version: 4.18.2
@@ -174,43 +182,6 @@ importers:
       '@types/node':
         specifier: ^20.7.0
         version: 20.11.16
-      ts-node:
-        specifier: ^10.9.1
-        version: 10.9.2(@types/node@20.11.16)(typescript@5.3.3)
-      typescript:
-        specifier: ^5.2.2
-        version: 5.3.3
-
-  examples/express-prisma:
-    dependencies:
-      '@prisma/client':
-        specifier: https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-express-prisma
-        version: '@registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-express-prisma(prisma@5.9.1)'
-      '@ptsq/client':
-        specifier: latest
-        version: link:../../packages/client
-      '@ptsq/server':
-        specifier: latest
-        version: link:../../packages/server
-      express:
-        specifier: ^4.18.2
-        version: 4.18.2
-    devDependencies:
-      '@ptsq/introspection-cli':
-        specifier: '*'
-        version: link:../../packages/introspection-cli
-      '@types/express':
-        specifier: ^4.17.18
-        version: 4.17.21
-      '@types/node':
-        specifier: ^20.7.0
-        version: 20.11.16
-      dotenv-cli:
-        specifier: ^7.3.0
-        version: 7.3.0
-      prisma:
-        specifier: 5.9.1
-        version: 5.9.1
       ts-node:
         specifier: ^10.9.1
         version: 10.9.2(@types/node@20.11.16)(typescript@5.3.3)
@@ -226,6 +197,9 @@ importers:
       '@ptsq/server':
         specifier: latest
         version: link:../../packages/server
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
       fastify:
         specifier: ^4.26.2
         version: 4.26.2
@@ -251,6 +225,9 @@ importers:
       '@ptsq/server':
         specifier: latest
         version: link:../../packages/server
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
       koa:
         specifier: ^2.15.3
         version: 2.15.3
@@ -297,6 +274,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.0.2
         version: 1.0.2(@types/react@18.2.55)(react@18.2.0)
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
       '@t3-oss/env-nextjs':
         specifier: ^0.8.0
         version: 0.8.0(typescript@5.3.3)(zod@3.22.4)
@@ -340,6 +320,9 @@ importers:
         specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
+      '@ptsq/introspection-cli':
+        specifier: latest
+        version: link:../../packages/introspection-cli
       '@types/node':
         specifier: ^20
         version: 20.11.16
@@ -403,6 +386,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.0.2
         version: 1.0.2(@types/react@18.2.55)(react@18.2.0)
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
       '@t3-oss/env-nextjs':
         specifier: ^0.8.0
         version: 0.8.0(typescript@5.3.3)(zod@3.22.4)
@@ -449,6 +435,9 @@ importers:
         specifier: ^3.22.4
         version: 3.22.4
     devDependencies:
+      '@ptsq/introspection-cli':
+        specifier: latest
+        version: link:../../packages/introspection-cli
       '@types/node':
         specifier: ^20
         version: 20.11.16
@@ -625,64 +614,6 @@ importers:
         specifier: ^5
         version: 5.3.3
 
-  examples/react-express:
-    dependencies:
-      '@ptsq/react-client':
-        specifier: latest
-        version: link:../../packages/react-client
-      '@ptsq/server':
-        specifier: latest
-        version: link:../../packages/server
-      '@tanstack/react-query':
-        specifier: ^5.14.2
-        version: 5.18.1(react@18.2.0)
-      express:
-        specifier: ^4.18.2
-        version: 4.18.2
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
-    devDependencies:
-      '@types/express':
-        specifier: ^4.17.18
-        version: 4.17.21
-      '@types/react':
-        specifier: ^18.2.43
-        version: 18.2.55
-      '@types/react-dom':
-        specifier: ^18.2.17
-        version: 18.2.19
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^6.14.0
-        version: 6.21.0(@typescript-eslint/parser@6.21.0)(eslint@8.56.0)(typescript@5.3.3)
-      '@typescript-eslint/parser':
-        specifier: ^6.14.0
-        version: 6.21.0(eslint@8.56.0)(typescript@5.3.3)
-      '@vitejs/plugin-react':
-        specifier: ^4.2.1
-        version: 4.2.1(vite@5.1.0)
-      eslint:
-        specifier: ^8.55.0
-        version: 8.56.0
-      eslint-plugin-react-hooks:
-        specifier: ^4.6.0
-        version: 4.6.0(eslint@8.56.0)
-      eslint-plugin-react-refresh:
-        specifier: ^0.4.5
-        version: 0.4.5(eslint@8.56.0)
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@types/node@20.11.16)(typescript@5.3.3)
-      typescript:
-        specifier: ^5.2.2
-        version: 5.3.3
-      vite:
-        specifier: ^5.0.8
-        version: 5.1.0(@types/node@20.11.16)
-
   examples/sveltekit:
     dependencies:
       '@ptsq/server':
@@ -691,6 +622,9 @@ importers:
       '@ptsq/svelte-client':
         specifier: latest
         version: link:../../packages/svelte-client
+      '@sinclair/typebox':
+        specifier: ^0.31.28
+        version: 0.31.28
       '@sveltejs/adapter-node':
         specifier: ^5.0.1
         version: 5.0.1(@sveltejs/kit@2.5.6)
@@ -698,6 +632,9 @@ importers:
         specifier: ^5.18.0
         version: 5.18.1(svelte@4.2.10)
     devDependencies:
+      '@ptsq/introspection-cli':
+        specifier: latest
+        version: link:../../packages/introspection-cli
       '@sveltejs/adapter-auto':
         specifier: ^3.0.0
         version: 3.2.0(@sveltejs/kit@2.5.6)
@@ -746,6 +683,9 @@ importers:
       '@ptsq/server':
         specifier: latest
         version: link:../../packages/server
+      '@sinclair/typebox':
+        specifier: 0.31.28
+        version: 0.31.28
     devDependencies:
       '@ptsq/introspection-cli':
         specifier: latest
@@ -920,7 +860,7 @@ importers:
   packages/server:
     dependencies:
       '@sinclair/typebox':
-        specifier: ^0.31.28
+        specifier: 0.31.28
         version: 0.31.28
       '@whatwg-node/server':
         specifier: ^0.9.34
@@ -963,6 +903,9 @@ importers:
       '@ptsq/test-utils':
         specifier: '*'
         version: link:../test-utils
+      '@sinclair/typebox':
+        specifier: ^0.31.28
+        version: 0.31.28
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.0.2
         version: 3.0.2(svelte@4.2.10)(vite@5.1.0)
@@ -1159,11 +1102,6 @@ packages:
       '@babel/helper-split-export-declaration': 7.22.6
       '@babel/helper-validator-identifier': 7.22.20
 
-  /@babel/helper-plugin-utils@7.22.5:
-    resolution: {integrity: sha512-uLls06UVKgFG9QD4OeFYLEGteMIAa5kpTPcFL28yuCIIzsf6ZyKZMllKVOCZFhiZ5ptnwX4mtKdWCBE/uT4amg==}
-    engines: {node: '>=6.9.0'}
-    dev: true
-
   /@babel/helper-simple-access@7.22.5:
     resolution: {integrity: sha512-n0H99E/K+Bika3++WNL17POvo4rKWZ7lZEp1Q+fStVbUi8nxPQEBOlTmCOxW/0JsS56SKKQ+ojAe2pHKJHN35w==}
     engines: {node: '>=6.9.0'}
@@ -1212,26 +1150,6 @@ packages:
     hasBin: true
     dependencies:
       '@babel/types': 7.23.9
-
-  /@babel/plugin-transform-react-jsx-self@7.23.3(@babel/core@7.23.9):
-    resolution: {integrity: sha512-qXRvbeKDSfwnlJnanVRp0SfuWE5DQhwQr5xtLBzp56Wabyo+4CMosF6Kfp+eOD/4FYpql64XVJ2W0pVLlJZxOQ==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.23.9
-      '@babel/helper-plugin-utils': 7.22.5
-    dev: true
-
-  /@babel/plugin-transform-react-jsx-source@7.23.3(@babel/core@7.23.9):
-    resolution: {integrity: sha512-91RS0MDnAWDNvGC6Wio5XYkyWI39FMFO+JK9+4AlgaTH+yWwVTsw7/sn6LK0lH7c5F+TFkpv/3LfCJ1Ydwof/g==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.23.9
-      '@babel/helper-plugin-utils': 7.22.5
-    dev: true
 
   /@babel/runtime@7.23.9:
     resolution: {integrity: sha512-0CX6F+BI2s9dkUqr08KFrAIZgNFj75rdBU/DjCyYLIaV/quFjkk6T+EJ2LkZHyZTbEV4L5p97mNkUsHl2wLFAw==}
@@ -3481,35 +3399,6 @@ packages:
     resolution: {integrity: sha512-rfT93uj5s0PRL7EzccGMs3brplhcrghnDoV26NqKhCAS1hVo+WdNsPvE/yb6ilfr5hi2MEk6d5EWJTKdxg8jVw==}
     dev: true
 
-  /@types/babel__core@7.20.5:
-    resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
-    dependencies:
-      '@babel/parser': 7.23.9
-      '@babel/types': 7.23.9
-      '@types/babel__generator': 7.6.8
-      '@types/babel__template': 7.4.4
-      '@types/babel__traverse': 7.20.5
-    dev: true
-
-  /@types/babel__generator@7.6.8:
-    resolution: {integrity: sha512-ASsj+tpEDsEiFr1arWrlN6V3mdfjRMZt6LtK/Vp/kreFLnr5QH5+DhvD5nINYZXzwJvXeGq+05iUXcAzVrqWtw==}
-    dependencies:
-      '@babel/types': 7.23.9
-    dev: true
-
-  /@types/babel__template@7.4.4:
-    resolution: {integrity: sha512-h/NUaSyG5EyxBIp8YRxo4RMe2/qQgvyowRwVMzhYhBCONbW8PUsg4lkFMrhgZhUe5z3L3MiLDuvyJ/CaPa2A8A==}
-    dependencies:
-      '@babel/parser': 7.23.9
-      '@babel/types': 7.23.9
-    dev: true
-
-  /@types/babel__traverse@7.20.5:
-    resolution: {integrity: sha512-WXCyOcRtH37HAUkpXhUduaxdm82b4GSlyTqajXviN4EfiuPgNYR109xMCKvpl6zPIpua0DGlMEDCq+g8EdoheQ==}
-    dependencies:
-      '@babel/types': 7.23.9
-    dev: true
-
   /@types/bcrypt@5.0.2:
     resolution: {integrity: sha512-6atioO8Y75fNcbmj0G7UjI9lXN2pQ/IGJ2FWT4a/btd0Lk9lQalHLKhkgKVZ3r+spnmWUKfbMi1GEe9wyHQfNQ==}
     dependencies:
@@ -4187,22 +4076,6 @@ packages:
       - eslint-import-resolver-node
       - eslint-import-resolver-webpack
       - jest
-      - supports-color
-    dev: true
-
-  /@vitejs/plugin-react@4.2.1(vite@5.1.0):
-    resolution: {integrity: sha512-oojO9IDc4nCUUi8qIR11KoQm0XFFLIwsRBwHRR4d/88IWghn1y6ckz/bJ8GHDCsYEJee8mDzqtJxh15/cisJNQ==}
-    engines: {node: ^14.18.0 || >=16.0.0}
-    peerDependencies:
-      vite: ^4.2.0 || ^5.0.0
-    dependencies:
-      '@babel/core': 7.23.9
-      '@babel/plugin-transform-react-jsx-self': 7.23.3(@babel/core@7.23.9)
-      '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.23.9)
-      '@types/babel__core': 7.20.5
-      react-refresh: 0.14.0
-      vite: 5.1.0(@types/node@20.11.16)
-    transitivePeerDependencies:
       - supports-color
     dev: true
 
@@ -5754,28 +5627,8 @@ packages:
     resolution: {integrity: sha512-b7uwreMYL2eZhrSCRC4ahLTeZcPZxSmYfmcQGXGkXiZSNW1X85v+SDM5KsWcpivIiUBH47Ji7NtyUdpLeF5JZQ==}
     dev: false
 
-  /dotenv-cli@7.3.0:
-    resolution: {integrity: sha512-314CA4TyK34YEJ6ntBf80eUY+t1XaFLyem1k9P0sX1gn30qThZ5qZr/ZwE318gEnzyYP9yj9HJk6SqwE0upkfw==}
-    hasBin: true
-    dependencies:
-      cross-spawn: 7.0.3
-      dotenv: 16.4.1
-      dotenv-expand: 10.0.0
-      minimist: 1.2.8
-    dev: true
-
-  /dotenv-expand@10.0.0:
-    resolution: {integrity: sha512-GopVGCpVS1UKH75VKHGuQFqS1Gusej0z4FyQkPdwjil2gNIv+LNsqBlboOzpJFZKVT95GkCyWJbBSdFEFUWI2A==}
-    engines: {node: '>=12'}
-    dev: true
-
   /dotenv@16.0.3:
     resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
-    engines: {node: '>=12'}
-    dev: true
-
-  /dotenv@16.4.1:
-    resolution: {integrity: sha512-CjA3y+Dr3FyFDOAMnxZEGtnW9KBR2M0JvvUtXNW+dYJL5ROWxP9DUHCwgFqpMk0OXCc0ljhaNTr2w/kutYIcHQ==}
     engines: {node: '>=12'}
     dev: true
 
@@ -6231,14 +6084,6 @@ packages:
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
-    dependencies:
-      eslint: 8.56.0
-    dev: true
-
-  /eslint-plugin-react-refresh@0.4.5(eslint@8.56.0):
-    resolution: {integrity: sha512-D53FYKJa+fDmZMtriODxvhwrO+IOqrxoEo21gMA0sjHdU6dPVH4OhyFip9ypl8HOF5RV5KdTo+rBQLvnY2cO8w==}
-    peerDependencies:
-      eslint: '>=7'
     dependencies:
       eslint: 8.56.0
     dev: true
@@ -10044,11 +9889,6 @@ packages:
       react-fast-compare: 3.2.2
     dev: false
 
-  /react-refresh@0.14.0:
-    resolution: {integrity: sha512-wViHqhAd8OHeLS/IRMJjTSDHF3U9eWi62F/MledQGPdJGDhodXJ9PBLNGr6WWL7qlH12Mt3TyTpbS+hGXMjCzQ==}
-    engines: {node: '>=0.10.0'}
-    dev: true
-
   /react-remove-scroll-bar@2.3.4(@types/react@18.2.55)(react@18.2.0):
     resolution: {integrity: sha512-63C4YQBUt0m6ALadE9XV56hV8BgJWDmmTPY758iIJjfQKt2nYwoUrPk0LXRXcB/yIj82T1/Ixfdpdk68LwIB0A==}
     engines: {node: '>=10'}
@@ -12404,22 +12244,6 @@ packages:
 
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
-    dev: false
-
-  '@registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-express-prisma(prisma@5.9.1)':
-    resolution: {tarball: https://registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-express-prisma}
-    id: '@registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-express-prisma'
-    name: '@prisma/client'
-    version: 5.9.1
-    engines: {node: '>=16.13'}
-    requiresBuild: true
-    peerDependencies:
-      prisma: '*'
-    peerDependenciesMeta:
-      prisma:
-        optional: true
-    dependencies:
-      prisma: 5.9.1
     dev: false
 
   '@registry.npmjs.com/@prisma/client/-/client-5.9.1.tgz?id=example-next(prisma@5.9.1)':

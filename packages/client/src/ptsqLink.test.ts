@@ -1,5 +1,6 @@
-import { ptsq, Type } from '@ptsq/server';
+import { ptsq } from '@ptsq/server';
 import { createHttpTestServer } from '@ptsq/test-utils';
+import { Type } from '@sinclair/typebox';
 import { expect, test } from 'vitest';
 import { createProxyClient } from './createProxyClient';
 import { PtsqClientError } from './ptsqClientError';

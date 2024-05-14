@@ -8,13 +8,15 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "generate:schema": "introspection-cli --url='http://localhost:5173/api/ptsq' --out='src/generated/schema.generated.ts'"
   },
   "dependencies": {
     "@ptsq/server": "latest",
     "@ptsq/svelte-client": "latest",
     "@sveltejs/adapter-node": "^5.0.1",
-    "@tanstack/svelte-query": "^5.18.0"
+    "@tanstack/svelte-query": "^5.18.0",
+    "@sinclair/typebox": "^0.31.28"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^3.0.0",
@@ -29,7 +31,8 @@
     "svelte-check": "^3.6.0",
     "tslib": "^2.4.1",
     "typescript": "^5.0.0",
-    "vite": "^5.0.3"
+    "vite": "^5.0.3",
+    "@ptsq/introspection-cli": "latest"
   },
   "type": "module"
 }

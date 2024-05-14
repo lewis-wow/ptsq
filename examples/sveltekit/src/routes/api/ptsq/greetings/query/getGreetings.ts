@@ -1,4 +1,4 @@
-import { Type } from '@ptsq/server';
+import { Type } from '@sinclair/typebox';
 import { publicResolver } from '../../resolvers/publicResolver';
 
 export const getGreetings = publicResolver

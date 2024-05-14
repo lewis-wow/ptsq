@@ -2,7 +2,9 @@ import { createProxyClient } from '@ptsq/client';
 import { createReactClient } from '@ptsq/react-client';
 import fetchPonyfill from 'fetch-ponyfill';
 import { env } from './env';
-import { BaseRouter } from './ptsq/routers';
+import type { BaseRouter } from './ptsq/routers';
+
+// import { BaseRouter } from './generated/schema.generated';
 
 const { fetch } = fetchPonyfill();
 

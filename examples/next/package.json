@@ -9,7 +9,8 @@
     "lint": "next lint",
     "postinstall": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "generate:schema": "introspection-cli --url='http://localhost:3000/api/ptsq' --out='src/generated/schema.generated.ts'"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^1.3.3",
@@ -33,9 +34,11 @@
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.22.4",
-    "@tanstack/react-query": "^5.18.0"
+    "@tanstack/react-query": "^5.18.0",
+    "@sinclair/typebox": "0.31.28"
   },
   "devDependencies": {
+    "@ptsq/introspection-cli": "latest",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
