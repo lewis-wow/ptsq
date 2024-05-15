@@ -21,6 +21,7 @@ import {
 import { parseRequest } from './parseRequest';
 import { Resolver } from './resolver';
 import { Router, type AnyRouter, type RouterRoutes } from './router';
+import { trimLeadingAndTrailingSlashes } from './trimLeadingAndTrailingSlashes';
 import { ResolverType } from './types';
 
 /**
@@ -78,7 +79,7 @@ export class PtsqServerBuilder<
   create() {
     const def = { ...this._def };
 
-    const ptsqEndpoint = this._def.endpoint.replace(/^\//, '');
+    const ptsqEndpoint = trimLeadingAndTrailingSlashes(this._def.endpoint);
 
     const envelopedResponse = new Envelope();
 
