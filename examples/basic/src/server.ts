@@ -2,7 +2,9 @@ import { createServer } from 'http';
 import { ptsq } from '@ptsq/server';
 import { Type } from '@sinclair/typebox';
 
-const { resolver, router, serve } = ptsq().create();
+const { resolver, router, serve, ptsqEndpoint } = ptsq({
+  endpoint: '/ptsq',
+}).create();
 
 const greetingsQuery = resolver
   .args(
@@ -25,7 +27,7 @@ const baseRouter = router({
 const server = createServer(serve(baseRouter));
 
 server.listen(4000, () => {
-  console.log(`PTSQ server running on http://localhost:4000/ptsq`);
+  console.log(`PTSQ server running on http://localhost:4000/${ptsqEndpoint}`);
 });
 
 export type BaseRouter = typeof baseRouter;
