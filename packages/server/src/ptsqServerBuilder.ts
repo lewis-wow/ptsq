@@ -109,9 +109,9 @@ export class PtsqServerBuilder<
         async (request, contextParams) => {
           const url = new URL(request.url);
           const method = request.method;
-          const pathname = url.pathname;
+          const pathname = trimLeadingAndTrailingSlashes(url.pathname);
 
-          if (pathname !== `/${ptsqEndpoint}`)
+          if (pathname !== ptsqEndpoint)
             return new Response(undefined, { status: 404 });
 
           if (!['POST', 'GET'].includes(method))
