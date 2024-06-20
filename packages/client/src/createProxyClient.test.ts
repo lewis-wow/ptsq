@@ -15,7 +15,7 @@ test('Should create simple http server with proxy client', async () => {
   const { resolver, router, serve } = ptsq({
     ctx: () => ({}),
   }).create();
-
+  
   const baseRouter = router({
     test: resolver
       .args(
@@ -23,8 +23,17 @@ test('Should create simple http server with proxy client', async () => {
           name: Type.String(),
         }),
       )
-      .output(Type.String())
-      .query(({ input }) => input.name),
+      .output(
+        Type.Object({
+          name: Type.String(),
+          age: Type.Number(),
+          address: Type.Object({
+            street: Type.String(),
+            number: Type.Number(),
+          }),
+        }),
+      )
+      .query(({ input }) => ({ ...input, age: 17 }) as any),
   });
 
   const { url, $disconnect } = await createHttpTestServer(serve(baseRouter));
@@ -34,7 +43,14 @@ test('Should create simple http server with proxy client', async () => {
   });
 
   const response = await client.test.query({
-    name: 'John',
+    __args: {
+      name: 'John',
+    },
+    name: true,
+    address: {
+      street: true,
+    },
+    }
   });
 
   expect(response).toBe('John');
